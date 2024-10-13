@@ -1,0 +1,11 @@
+const express = require('express');
+const adOnController = require('../components/adOnController');
+
+const router = express.Router()
+
+router.post('/add-adOn',adOnController.addAdOn);
+router.get('/',adOnController.showAdOns);
+router.put('/update-adOn',adOnController.editAdOn);
+router.delete('/delete-adOn',adOnController.deleteAdOn);
+
+module.exports = router;
