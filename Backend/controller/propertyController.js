@@ -93,3 +93,8 @@ const propertyController = {
 };
 
 module.exports = propertyController;
+
+
+
+
+

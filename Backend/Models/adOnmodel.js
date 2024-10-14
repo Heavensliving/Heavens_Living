@@ -6,7 +6,12 @@ const Schema = new mongoose.Schema({
   Quantity:{type:Number,required:true},
   propertyid:{type:String,required:true},
   propertyname:{type:String,required:true},
-  image:{type:String,required:true}
+  image:{type:String,required:true},
+  status: {
+    type: String,
+    enum: ['available', 'unavailable'], 
+    default: 'unavailable', 
+  },
 })
 
 const adOnSchema = mongoose.model('adOnSchema',Schema);
