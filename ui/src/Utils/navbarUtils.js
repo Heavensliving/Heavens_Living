@@ -19,6 +19,10 @@ const pageConfig = {
     '/property': {
       title: 'Property Management',
     },
+    '/property/:propertyId': {
+      title: 'Propety Details',
+
+    },
     '/mess': {
       title: 'Mess Management',
     },

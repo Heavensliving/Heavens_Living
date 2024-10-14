@@ -18,6 +18,7 @@ import AddPeople from '../pages/messManagement/AddPeople.jsx'
 import ManagePeople from '../pages/messManagement/ManagePeople.jsx'
 import Signup from '../pages/auth/Signup.jsx'
 import Login from '../pages/auth/Login.jsx'
+import PropertyDetails from '../pages/property/PropertyDetails.jsx'
 
 const AdminRoute = () => {
     return (
@@ -36,6 +37,7 @@ const AdminRoute = () => {
                     <Route path="/staffs" element={<StaffManagement />} />
                     <Route path="/staff-details" element={<StaffDetails />} />
                     <Route path="/property" element={<PropertyManagement />} />
+                    <Route path="/property/:propertyId" element={<PropertyDetails />} />
                     <Route path="/mess" element={<MessManagement />} />
                     <Route path="/manage-people" element={<ManagePeople />} />
                     <Route path="/add-food" element={<AddFood />} />

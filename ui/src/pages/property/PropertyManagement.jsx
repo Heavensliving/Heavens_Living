@@ -76,7 +76,9 @@ function PropertyManagement() {
         {filteredProperties.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {filteredProperties.map(property => (
-              <div key={property._id} className="bg-white p-4 rounded-lg border border-gray-300 cursor-pointer transform transition-transform duration-300 hover:scale-105 hover:shadow-lg">
+              <div key={property._id}
+              onClick={()=>navigate(`/property/${property._id}`)}
+               className="bg-white p-4 rounded-lg border border-gray-300 cursor-pointer transform transition-transform duration-300 hover:scale-105 hover:shadow-lg">
                 {/* Row 1: Name and Location */}
                 <div className="flex justify-between mb-2">
                   <div>
