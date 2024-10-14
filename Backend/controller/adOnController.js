@@ -41,6 +41,28 @@ const editAdOn = async (req, res) => {
   }
 };
 
+const updateAdOnStatus = async (req, res) => {
+  try {
+    const { id } = req.params; // Get the id from params
+    const { status } = req.body; // Get the status from the request body
+
+    // Validate the status
+    if (!['available', 'unavailable'].includes(status)) {
+      return res.status(400).send({ message: 'Invalid status value' });
+    }
+
+    const updatedAdOn = await adOnSchema.findByIdAndUpdate(id, { status }, { new: true });
+
+    if (!updatedAdOn) {
+      return res.status(404).send({ message: 'Add-on not found' });
+    }
+
+    res.status(200).send({ message: 'Add-on status updated successfully', updatedAdOn });
+  } catch (error) {
+    res.status(500).send({ message: 'Error updating add-on status', error });
+  }
+};
+
 // Delete an add-on
 const deleteAdOn = async (req, res) => {
   try {
@@ -73,4 +95,5 @@ module.exports = {
   editAdOn,
   deleteAdOn,
   showAdOns,
+  updateAdOnStatus,
 };
