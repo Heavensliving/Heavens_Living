@@ -5,14 +5,22 @@ import { useLocation } from 'react-router-dom';
 
 const Navbar = () => {
     const location = useLocation();
-    const currentPage = pageConfig[location.pathname];
+    const getPageTitle = (path) => {
+        const matchedPath = Object.keys(pageConfig).find((key) => {
+            // Replace any dynamic segments like :studentId with a wildcard pattern to check matches
+            const regex = new RegExp(`^${key.replace(/:\w+/g, '\\w+')}$`);
+            return regex.test(path);
+        });
+        return matchedPath ? pageConfig[matchedPath].title : 'Page Not Found';
+    };
+    const currentPage = getPageTitle(location.pathname);
     const isHomePage = location.pathname === '/';
 
     return (
         <nav className="bg-gray-100 p-4">
             <div className="container px-4 py-3 flex justify-between items-center">
                 {/* Left Heading */}
-                <h1 className="text-3xl font-semibold text-gray-700">{currentPage.title}</h1>
+                <h1 className="text-3xl font-semibold text-gray-700">{currentPage}</h1>
 
                 {/* Right Icons and Profile Section */}
                 <div className="flex items-center space-x-2">

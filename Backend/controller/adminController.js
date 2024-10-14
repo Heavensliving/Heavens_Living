@@ -66,7 +66,8 @@ exports.login = async (req, res) => {
         }
 
         const token = jwt.sign({ adminId: admin._id }, JWT_SECRET);
-        res.status(200).json({ token });
+        const adminName = admin.name
+        res.status(200).json({ token , adminName});
     } catch (error) {
         console.error(error);
         res

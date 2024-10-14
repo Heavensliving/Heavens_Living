@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import app from '../../firebase';
 import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
@@ -6,6 +6,7 @@ import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "firebase/
 const storage = getStorage();
 
 function AddStudent() {
+  const navigate = useEffect()
   const initialData = {
     name: '',
     address: '',
@@ -166,6 +167,7 @@ function AddStudent() {
     } catch (error) {
       console.error('Error:', error);
     }
+    navigate('/students')
   };
 
 

@@ -1,8 +1,11 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useDispatch } from "react-redux";
 import axios from 'axios'
+import { setAdmin } from '../../store/AuthSlice';
 
 const Login = () => {
+    const dispatch = useDispatch()
     const navigate = useNavigate();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -10,29 +13,37 @@ const Login = () => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-
+    
         setErrorMsg('');
         if (!email || !password) {
             setErrorMsg('Email and password are required.');
             return;
         }
-        axios.post(`http://localhost:3000/api/admin/login`, {
-            email, password
-          })
+    
+        axios.post(`http://localhost:3000/api/admin/login`, { email, password })
             .then((res) => {
-              setErrorMsg('')
-              navigate('/')
+                setErrorMsg('');
+                const admin = {
+                    adminName: res.data.adminName,
+                    token: res.data.token
+                };
+                dispatch(setAdmin(admin));
+                navigate('/');
             })
             .catch(error => {
-              if (error.response && error.response.data && error.response.data.errors) {
-                setErrorMsg(error.response.data.errors.map((err, index) => <div key={index} className="error-message">{err}</div>))
-              } else if (error.response && error.response.data && error.response.data.msg) {
-                setErrorMsg([<div key="backendError" className="error-message">{error.response.data.msg}</div>])
-              } else {
-                setErrorMsg([<div key="connectionError" className="error-message">Failed to connect to API</div>])
-              }
-            })
+                console.log(error); // Log the full error object
+                if (error.response && error.response.data && error.response.data.errors) {
+                    setErrorMsg(error.response.data.errors.map((err, index) => (
+                        <div key={index} className="error-message">{err}</div>
+                    )));
+                } else if (error.response && error.response.data && error.response.data.msg) {
+                    setErrorMsg([<div key="backendError" className="error-message">{error.response.data.msg}</div>]);
+                } else {
+                    setErrorMsg([<div key="connectionError" className="error-message">Failed to connect to API</div>]);
+                }
+            });
     };
+    
 
     return (
         <div className="flex items-center justify-center min-h-screen bg-gray-100 p-4">

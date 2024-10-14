@@ -1,5 +1,6 @@
 const Student = require('../Models/Add_student');
 const crypto = require('crypto');
+const jwt = require('jsonwebtoken');
 
 // Function to generate a unique student ID
 const generateStudentId = () => {
@@ -44,11 +45,26 @@ const getAllStudents = async (req, res) => {
 
 // Function to get a students
  const getStudentById = async (req, res, next) => {
+
+  // const extractedToken = req.headers.authorization ? req.headers.authorization.split(' ')[1] : null;
+  // if (!extractedToken || extractedToken.trim() === "") {
+  //     return res.status(401).json({ message: "You are not logged in!" });
+  // }
+
+  // //verify token
+  // jwt.verify(extractedToken, process.env.SECRET_KEY, (err, decrypted) => {
+  //     if (err) {
+  //         return res.status(400).json({ message: `${err.message}` })
+  //     } else {
+  //         const adminId = decrypted.id
+  //         return;
+  //     }
+  // })
+
   const studentId = req.params.id;
   let result;
   try {
       result = await Student.findById(studentId);
-
       if (!result)
           return res.status(404).json({ message: 'Student with the given ID does not exist.' });
 

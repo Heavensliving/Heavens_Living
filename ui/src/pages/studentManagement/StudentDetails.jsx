@@ -4,9 +4,14 @@ import DetailCard from './DetailCard'; // Import the DetailCard component
 import TransactionDetails from './TransactionDetails';
 import ConfirmationModal from '../../components/reUsableComponet/ConfirmationModal';
 import { useParams } from 'react-router-dom';
+import API_BASE_URL from '../../config';
+import { useSelector } from 'react-redux';
+import axios from 'axios';
 
 const StudentDetails = () => {
   const { studentId } = useParams()
+  const admin = useSelector(store => store.auth.admin)
+  const [student, setStudent] = useState([])
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedImage, setSelectedImage] = useState('');
   const [warnings, setWarnings] = useState(0);
@@ -16,60 +21,33 @@ const StudentDetails = () => {
   const [slideIn, setSlideIn] = useState(false); // State for sliding effect
   const [isWarningModalOpen, setIsWarningModalOpen] = useState(false);
   const dropdownRef = useRef(null);
-  // const student = {
-  //   name: 'John Doe',
-  //   id: 'HVNS22001',
-  //   profileImage: 'https://img.freepik.com/free-vector/back-school-sketch-college-student-holding-bag-isolated-white-background_460848-14630.jpg?ga=GA1.1.1459516267.1711715282&semt=ais_hybrid',
-  //   location: 'New York, USA',
-  //   address: '1234 Elm Street, Apt 567',
-  //   phone: '+1 9876543210',
-  //   email: 'john.doe@example.com',
-  //   course: 'Computer Science',
-  //   gender: 'Male',
-  //   bloodGroup: 'O+',
-  //   dob: '16/08/2002',
-  //   college: 'XYZ University',
-  //   yearOfStudy: '1st year',
-  //   idProofs: [
-  //     { type: 'Passport', image: 'https://img.freepik.com/free-vector/driver-license-illustration_1284-5032.jpg?ga=GA1.1.1459516267.1711715282&semt=ais_hybrid' },
-  //     { type: 'Driver’s License', image: 'https://img.freepik.com/free-vector/abstract-id-cards-template-with-photo_23-2148671196.jpg?ga=GA1.1.1459516267.1711715282&semt=ais_hybrid' }
-  //   ]
-  // };
-
   // Array of detail items
   const details = [
     { label: 'Address', icon: FaMapMarkerAlt, detail: student.address },
     { label: 'Email', icon: FaEnvelope, detail: student.email },
-    { label: 'Phone', icon: FaPhone, detail: student.phone },
-    { label: 'DOB', icon: FaCalendarAlt, detail: student.dob },
-    { label: 'College', icon: FaBook, detail: student.college },
+    { label: 'Phone', icon: FaPhone, detail: student.contactNo },
+    { label: 'DOB', icon: FaCalendarAlt, detail:new Date(student.dateOfBirth).toLocaleDateString() },
+    { label: 'College', icon: FaBook, detail: student.collegeName },
     { label: 'Course', icon: FaBook, detail: student.course },
-    { label: 'Year of Study', icon: FaBook, detail: student.yearOfStudy },
+    { label: 'Year of Study', icon: FaBook, detail: student.year },
     { label: 'Blood Group', icon: FaHeartbeat, detail: student.bloodGroup },
   ];
 
-  const parent = {
-    name: 'Jane Doe',
-    phone: '+1 1234567890',
-    occupation: 'Engineer',
-  };
+  const idProofs = [
+    { type: 'Adhar', image: student.adharFrontImage },
+    { type: 'Adhar', image: student.adharBackImage },
+  ]
 
   const parentDetails = [
-    { label: 'Parent Name', icon: FaUser, detail: parent.name },
-    { label: 'Parent Phone', icon: FaPhone, detail: parent.phone },
-    { label: 'Parent Occupation', icon: FaBook, detail: parent.occupation },
+    { label: 'Parent Name', icon: FaUser, detail: student.parentName },
+    { label: 'Parent Phone', icon: FaPhone, detail: student.parentNumber },
+    { label: 'Parent Occupation', icon: FaBook, detail: student.parentOccupation },
   ];
 
-  const stayDetails = {
-    stayType: 'Hostel',
-    roomType: 'Four Sharing',
-    joinDate: '12/08/2023',
-  };
-
   const stayDetailItems = [
-    { label: 'Stay Type', icon: FaBed, detail: stayDetails.stayType },
-    { label: 'Room Type', icon: FaDoorOpen, detail: stayDetails.roomType },
-    { label: 'Join Date', icon: FaCalendarAlt, detail: stayDetails.joinDate },
+    { label: 'Stay Type', icon: FaBed, detail: student.typeOfStay },
+    { label: 'Room Type', icon: FaDoorOpen, detail: student.roomType },
+    { label: 'Join Date', icon: FaCalendarAlt, detail: new Date(student.joinDate).toLocaleDateString() },
   ];
 
   // Example transactions
@@ -82,14 +60,20 @@ const StudentDetails = () => {
     { id: 'TXN006', date: '02/10/2024', amount: 200, status: 'Failed', details: 'Payment for tuition fee' }
   ];
 
-   useEffect(() => {
-        if (user?.token) {
-            axios.get(`${API_BASE_URL}/movie/` + movieId, {
-                headers: { 'Authorization': `Bearer ${user.token}` }
-            }).then(res => { setMovie(res.data) })
-                .catch(err => console.log(err));
-        }
-    }, [user?.token, movieId]);
+  useEffect(() => {
+    if (admin?.token) {
+        axios.get(`${API_BASE_URL}/students/${studentId}`, {
+            headers: {
+                Authorization: `Bearer ${admin.token}` // Assuming you need to pass the token in the header
+            }
+        })
+        .then(res => {
+            setStudent(res.data.result);
+        })
+        .catch(err => console.log(err));
+    }
+}, [admin?.token, studentId]);
+
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -174,17 +158,17 @@ const StudentDetails = () => {
           <div className="flex justify-between items-center relative z-10 p-6">
             <div className="flex-shrink-0">
               <img
-                src={student.profileImage}
+                src={student.photo}
                 alt={student.name}
                 className="w-32 h-32 rounded-full border-4 border-white cursor-pointer"
-                onClick={() => handleImageClick(student.profileImage)}
+                onClick={() => handleImageClick(student.photo)}
               />
               <div className="mt-4 text-start">
                 <h2 className="text-xl font-bold text-gray-800">{student.name}</h2>
                 {warnings === 1 && <span className="text-red-500 text-sm">1 Warning</span>}
                 {warnings === 2 && <span className="text-yellow-500 text-sm">2 Warnings</span>}
                 {warnings === 3 && <span className="text-black text-sm">Blacklisted</span>}
-                <p className="text-gray-500">{student.id}</p>
+                <p className="text-gray-500">{student.studentId}</p>
               </div>
             </div>
 
@@ -224,7 +208,7 @@ const StudentDetails = () => {
         {/* ID Proof Section */}
         <h2 className="text-lg font-bold text-gray-800 p-5">ID Proofs</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 p-5">
-          {student.idProofs.map((idProof, index) => (
+          {idProofs.map((idProof, index) => (
             <div
               key={index}
               className="p-5 bg-white rounded-lg cursor-pointer flex flex-col items-center justify-center"
@@ -234,7 +218,7 @@ const StudentDetails = () => {
               <img
                 src={idProof.image}
                 alt={idProof.type}
-                className="w-24 h-24 rounded-lg" // Adjust size as needed
+                className="w-28 h-28 rounded-lg" // Adjust size as needed
               />
             </div>
           ))}
@@ -276,7 +260,7 @@ const StudentDetails = () => {
             >
               &times;
             </button>
-            <img src={selectedImage} alt="Selected" className="max-w-full max-h-full" />
+            <img src={selectedImage} alt="Selected" className="w-64 h-64" />
           </div>
         </div>
       )}

@@ -39,7 +39,7 @@ const StudentManagement = () => {
   // Handle row click action (e.g., navigate to student details)
   const handleRowClick = (studentId) => {
     // Replace this with your desired action, such as navigating to a student details page
-    navigate(`/students-details/${studentId}`)
+    navigate(`/students/${studentId}`)
   };
 
   const handleDelete = (studentID) => {
@@ -73,7 +73,7 @@ const StudentManagement = () => {
 
       // Close modal
       setIsModalOpen(false);
-      navigate('/allMovies'); // Adjust navigation as needed
+      navigate('/students'); // Adjust navigation as needed
 
     } catch (error) {
       console.error("Error during deletion:", error);
@@ -213,7 +213,7 @@ const StudentManagement = () => {
                 <tr
                   key={student.id || index}
                   className="border-b border-gray-300 cursor-pointer hover:bg-gray-100"
-                  onClick={() => handleRowClick(student.id)} // Make row clickable
+                  onClick={() => handleRowClick(student._id)} // Make row clickable
                 >
                   <td className="py-4 px-4 text-center text-gray-700 font-medium text-xs md:text-sm">{index + 1}</td>
                   <td className="py-4 px-4 text-center text-gray-700 font-medium text-xs md:text-sm">{student.name}</td>
