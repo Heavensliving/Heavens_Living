@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const cors = require('cors');
 const fileUpload = require('express-fileupload') 
+const adminRoutes = require('./routes/admin')
 const studentRoutes = require('./routes/student');
 const propertyRoutes = require('./routes/property');
 const staffRoutes = require('./routes/staff');
@@ -30,6 +31,7 @@ mongoose.connect(process.env.MONGO_URI)
   .catch((err) => console.error('MongoDB connection error:', err));
 
 // Routes
+app.use('/api/admin', adminRoutes);  
 app.use('/api/students', studentRoutes);  
 app.use('/api/property', propertyRoutes); 
 app.use('/api/staff', staffRoutes);

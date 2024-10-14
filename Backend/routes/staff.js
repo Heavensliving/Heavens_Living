@@ -1,6 +1,6 @@
 // routes/staff.js
 const express = require('express');
-const staffController = require('../components/staffController');
+const staffController = require('../controller/staffController');
 
 const router = express.Router();
 

@@ -16,20 +16,16 @@
 
 
 const express = require('express');
-const upload = require('../Config/multer'); // Ensure the correct path to your Multer config
-const { addStudent, getAllStudents, editStudent, deleteStudent } = require('../components/studentController');
+const { addStudent, getAllStudents, editStudent, deleteStudent, vacateStudent, getStudentById } = require('../controller/studentController');
 
 const router = express.Router();
 
 // Define routes
-router.post('/add', upload.fields([
-  { name: 'adharFrontImage', maxCount: 1 },
-  { name: 'adharBackImage', maxCount: 1 },
-  { name: 'photo', maxCount: 1 }
-]), addStudent); // Use Multer to handle file uploads when adding a student
-
+router.post('/add',addStudent);
 router.get('/', getAllStudents);
+router.get('/:id', getStudentById);
 router.put('/edit/:id', editStudent); // Edit student route
+router.delete('/vacate/:id', vacateStudent); // Delete student route
 router.delete('/delete/:id', deleteStudent); // Delete student route
 
 module.exports = router;

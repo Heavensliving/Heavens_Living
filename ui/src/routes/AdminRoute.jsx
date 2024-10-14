@@ -16,6 +16,8 @@ import AddStaff from '../pages/staff/AddStaff'
 import StaffDetails from '../pages/staff/StaffDetails'
 import AddPeople from '../pages/messManagement/AddPeople.jsx'
 import ManagePeople from '../pages/messManagement/ManagePeople.jsx'
+import Signup from '../pages/auth/Signup.jsx'
+import Login from '../pages/auth/Login.jsx'
 
 const AdminRoute = () => {
     return (
@@ -25,7 +27,8 @@ const AdminRoute = () => {
                 {/* <Route path="/" element={<Navigate to="/signin" />} />
                 <Route path="/signin" element={<UserSignInPage />} />
                 <Route path="/signup" element={<UserSignUpPage />} /> */}
-
+                <Route path="/signup" element={<Signup />} />
+                <Route path="/login" element={<Login />} />
                 <Route element={<AdminLayout />}>
                     <Route path="/" element={<Dashboard />} />
                     <Route path="/students" element={<StudentManagement />} />

@@ -1,5 +1,5 @@
 const express = require('express');
-const adOnController = require('../components/adOnController');
+const adOnController = require('../controller/adOnController');
 
 const router = express.Router()
 

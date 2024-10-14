@@ -1,0 +1,76 @@
+const Admin = require('../Models/Admin');;
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+
+const passwordValidation = new RegExp(
+    /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?!.*\s)(?=.*[\x00-\x7F])[\w\W]{8,18}$/
+);
+
+const JWT_SECRET = process.env.JWT_SECRET || "heavensliving";
+
+exports.signup = async (req, res) => {
+    const { name, email, password } = req.body;
+
+    // Validate the password before any other operation
+    if (!passwordValidation.test(password)) {
+        return res.status(400).json({
+            message:
+                "Password must be 8-18 characters long, contain at least one uppercase letter, one lowercase letter, one number, and must not contain spaces or Unicode characters.",
+        });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    try {
+        const existingUser = await Admin.findOne({ email });
+    
+        if (existingUser) {
+            return res.status(400).json({
+                message: "Email is already registered.",
+            });
+        }
+    
+        const admin = new Admin({
+            name,
+            email,
+            password: hashedPassword,
+        });
+    
+        await admin.save(); // Ensure to wait for the save operation
+    
+        res.status(201).json({
+            message: "Admin signed up successfully!",
+        });
+    } catch (error) {
+        console.error("Error saving admin:", error); // Log more specific error info
+        res.status(500).json({ message: "Error creating Admin. Please try again later." });
+    }
+    
+};
+
+// login
+exports.login = async (req, res) => {
+    const { email, password } = req.body;
+
+    try {
+        const admin = await Admin.findOne({ email })
+        if (!admin) {
+            return res
+                .status(404)
+                .json({ message: "You are not registered in the system." });
+        }
+
+        const isPasswordValid = await bcrypt.compare(password, admin.password);
+        if (!isPasswordValid) {
+            return res.status(401).json({ message: "Invalid credentials." });
+        }
+
+        const token = jwt.sign({ adminId: admin._id }, JWT_SECRET);
+        res.status(200).json({ token });
+    } catch (error) {
+        console.error(error);
+        res
+            .status(500)
+            .json({ message: "An error occurred. Please try again later." });
+    }
+};

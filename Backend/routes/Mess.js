@@ -7,7 +7,7 @@ const {
   getMealPlan,
   updateFood,
   deleteMealPlan,
-} = require('../components/MessManagementController');
+} = require('../controller/MessManagementController');
 
 // Add food item to a meal
 router.post('/addFood', addFood);

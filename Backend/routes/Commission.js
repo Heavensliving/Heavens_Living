@@ -5,7 +5,7 @@ const {
   updateCommission, 
   deleteCommission, 
   getCommissionById 
-} = require('../components/commissionController'); // Adjust the path accordingly
+} = require('../controller/commissionController'); // Adjust the path accordingly
 
 const router = express.Router();
 

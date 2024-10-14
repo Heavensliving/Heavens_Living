@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const propertyController = require('../components/propertyController');
+const propertyController = require('../controller/propertyController');
 
 router.post('/add', propertyController.createProperty);
 router.get('/', propertyController.getProperties);

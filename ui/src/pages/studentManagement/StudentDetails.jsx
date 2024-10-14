@@ -3,8 +3,10 @@ import { FaPhone, FaEnvelope, FaMapMarkerAlt, FaBook, FaHeartbeat, FaCalendarAlt
 import DetailCard from './DetailCard'; // Import the DetailCard component
 import TransactionDetails from './TransactionDetails';
 import ConfirmationModal from '../../components/reUsableComponet/ConfirmationModal';
+import { useParams } from 'react-router-dom';
 
 const StudentDetails = () => {
+  const { studentId } = useParams()
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedImage, setSelectedImage] = useState('');
   const [warnings, setWarnings] = useState(0);
@@ -14,25 +16,25 @@ const StudentDetails = () => {
   const [slideIn, setSlideIn] = useState(false); // State for sliding effect
   const [isWarningModalOpen, setIsWarningModalOpen] = useState(false);
   const dropdownRef = useRef(null);
-  const student = {
-    name: 'John Doe',
-    id: 'HVNS22001',
-    profileImage: 'https://img.freepik.com/free-vector/back-school-sketch-college-student-holding-bag-isolated-white-background_460848-14630.jpg?ga=GA1.1.1459516267.1711715282&semt=ais_hybrid',
-    location: 'New York, USA',
-    address: '1234 Elm Street, Apt 567',
-    phone: '+1 9876543210',
-    email: 'john.doe@example.com',
-    course: 'Computer Science',
-    gender: 'Male',
-    bloodGroup: 'O+',
-    dob: '16/08/2002',
-    college: 'XYZ University',
-    yearOfStudy: '1st year',
-    idProofs: [
-      { type: 'Passport', image: 'https://img.freepik.com/free-vector/driver-license-illustration_1284-5032.jpg?ga=GA1.1.1459516267.1711715282&semt=ais_hybrid' },
-      { type: 'Driver’s License', image: 'https://img.freepik.com/free-vector/abstract-id-cards-template-with-photo_23-2148671196.jpg?ga=GA1.1.1459516267.1711715282&semt=ais_hybrid' }
-    ]
-  };
+  // const student = {
+  //   name: 'John Doe',
+  //   id: 'HVNS22001',
+  //   profileImage: 'https://img.freepik.com/free-vector/back-school-sketch-college-student-holding-bag-isolated-white-background_460848-14630.jpg?ga=GA1.1.1459516267.1711715282&semt=ais_hybrid',
+  //   location: 'New York, USA',
+  //   address: '1234 Elm Street, Apt 567',
+  //   phone: '+1 9876543210',
+  //   email: 'john.doe@example.com',
+  //   course: 'Computer Science',
+  //   gender: 'Male',
+  //   bloodGroup: 'O+',
+  //   dob: '16/08/2002',
+  //   college: 'XYZ University',
+  //   yearOfStudy: '1st year',
+  //   idProofs: [
+  //     { type: 'Passport', image: 'https://img.freepik.com/free-vector/driver-license-illustration_1284-5032.jpg?ga=GA1.1.1459516267.1711715282&semt=ais_hybrid' },
+  //     { type: 'Driver’s License', image: 'https://img.freepik.com/free-vector/abstract-id-cards-template-with-photo_23-2148671196.jpg?ga=GA1.1.1459516267.1711715282&semt=ais_hybrid' }
+  //   ]
+  // };
 
   // Array of detail items
   const details = [
@@ -79,6 +81,15 @@ const StudentDetails = () => {
     { id: 'TXN005', date: '01/10/2024', amount: 150, status: 'Pending', details: 'Payment for course materials' },
     { id: 'TXN006', date: '02/10/2024', amount: 200, status: 'Failed', details: 'Payment for tuition fee' }
   ];
+
+   useEffect(() => {
+        if (user?.token) {
+            axios.get(`${API_BASE_URL}/movie/` + movieId, {
+                headers: { 'Authorization': `Bearer ${user.token}` }
+            }).then(res => { setMovie(res.data) })
+                .catch(err => console.log(err));
+        }
+    }, [user?.token, movieId]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
