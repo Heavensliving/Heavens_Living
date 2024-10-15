@@ -1,20 +1,20 @@
 // controllers/propertyController.js
 const Property = require('../Models/Add_property');
-const Counter = require('../Models/counter.model'); // Import the Counter model
+const crypto = require('crypto');
+
+
+
+const generatePropertyId = () => {
+    const randomNumber = crypto.randomInt(1000, 100000); // Generate a random number between 1000 and 9999
+    return `HVNS${randomNumber}`;
+  };
+
 
 // Create a new property
 const createProperty = async (req, res) => {
     try {
-        // Get the next property ID
-        const counter = await Counter.findOneAndUpdate(
-            { model: 'Property' },
-            { $inc: { seq: 1 } },
-            { new: true, upsert: true }
-        );
 
-        // Generate propertyId in the format "HVNSP###"
-        const propertyId = `HVNSP${String(counter.seq + 1).padStart(4, '0')}`;
-
+         const propertyId =generatePropertyId();
         // Create a new property with the generated propertyId
         const property = new Property({ ...req.body, propertyId });
         await property.save();
