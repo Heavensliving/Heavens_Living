@@ -35,7 +35,7 @@ const AdminRoute = () => {
                     <Route path="/students" element={<StudentManagement />} />
                     <Route path="/students/:studentId" element={<StudentDetails />} />
                     <Route path="/staffs" element={<StaffManagement />} />
-                    <Route path="/staff-details" element={<StaffDetails />} />
+                    <Route path="/staffs/:staffId" element={<StaffDetails />} />
                     <Route path="/property" element={<PropertyManagement />} />
                     <Route path="/property/:propertyId" element={<PropertyDetails />} />
                     <Route path="/mess" element={<MessManagement />} />

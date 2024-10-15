@@ -2,11 +2,12 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import app from '../../firebase';
 import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
+import { useNavigate } from 'react-router-dom';
 
 const storage = getStorage();
 
 function AddStudent() {
-  const navigate = useEffect()
+  const navigate = useNavigate()
   const initialData = {
     name: '',
     address: '',
@@ -40,7 +41,25 @@ function AddStudent() {
     workingPlace: '',
   };
 
-  const [studentData, setStudentData] = useState(initialData);
+
+ const [studentData, setStudentData] = useState(initialData);
+ const [properties, setProperties] = useState([]);
+ const [uploadProgress, setUploadProgress] = useState({});
+
+  useEffect(() => {
+    // Fetch property names from the backend
+    const fetchProperties = async () => {
+      try {
+        const response = await axios.get('http://localhost:3000/api/property');  // Update with actual API endpoint
+        setProperties(response.data);  // Assuming the API returns an array of properties
+      } catch (error) {
+        console.error('Error fetching properties:', error);
+      }
+    };
+
+    fetchProperties();
+  }, []);
+
 
   const fields = [
     { name: 'name', type: 'text', placeholder: 'Name', required: true, label: 'Name' },
@@ -58,7 +77,14 @@ function AddStudent() {
     { name: 'photo', type: 'file', accept: 'image/*', required: false, label: 'Profile Image' },
     { name: 'adharFrontImage', type: 'file', accept: 'image/*', required: false, label: 'Adhar-Front Image' },
     { name: 'adharBackImage', type: 'file', accept: 'image/*', required: false, label: 'Adhar-back Image' },
-    { name: 'pgName', type: 'text', placeholder: 'PG Name', label: 'PG' },
+    {
+           name: 'pgName',
+           type: 'select',
+           options: properties.map((property) => property.propertyName),  // Use the fetched property names here
+           placeholder: 'PG Name',
+           label: 'PG Name',
+           required: true,
+    },
     { name: 'roomType', type: 'select', options: ['Single', 'Shared', 'Deluxe'], placeholder: 'Room Type', required: true, label: 'Room' },
     { name: 'roomNo', type: 'text', placeholder: 'Room Number', label: 'Room Number' },
     { name: 'referredBy', type: 'text', placeholder: 'Referred By', required: true, label: 'Referred By' },
@@ -92,7 +118,7 @@ function AddStudent() {
 
   const uploadFile = (file) => {
     return new Promise((resolve, reject) => {
-      const storageRef = ref(storage, 'images/' + file.name);
+      const storageRef = ref(storage, 'students/' + file.name);
       const uploadTask = uploadBytesResumable(storageRef, file);
 
       uploadTask.on('state_changed',
@@ -232,3 +258,6 @@ function AddStudent() {
 }
 
 export default AddStudent;
+
+
+

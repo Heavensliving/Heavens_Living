@@ -1,26 +1,26 @@
 // controllers/staffController.js
 const Staff = require('../Models/Add_staff');
-const Counter = require('../Models/counter.model'); // Import the Counter model
+const crypto = require('crypto');
+
+// Function to generate a unique student ID
+const generateStaffId = () => {
+    const randomNumber = crypto.randomInt(1000, 100000); // Generate a random number between 1000 and 9999
+    return `HVNS${randomNumber}`;
+  };
 
 // Create a new staff member
 const createStaff = async (req, res) => {
     try {
-        // Get the next employee ID
-        const counter = await Counter.findOneAndUpdate(
-            { model: 'Staff' },
-            { $inc: { seq: 1 } },
-            { new: true, upsert: true }
-        );
 
-        // Generate EmployeeId in the format "HVNSE####"
-        const employeeId = `HVNSE${String(counter.seq + 1).padStart(4, '0')}`;
-
+         // Generate a unique staff ID
+    const StaffId = generateStaffId();
         // Create a new staff member with the generated EmployeeId
-        const staff = new Staff({ ...req.body, EmployeeId: employeeId });
+        const staff = new Staff({ ...req.body, StaffId });
         await staff.save();
         res.status(201).json({ message: 'Staff member created successfully', staff });
     } catch (error) {
-        res.status(400).json({ error: error.message });
+        console.error('Error adding staff:', error);
+        res.status(500).json({ error: error.message });
     }
 };
 

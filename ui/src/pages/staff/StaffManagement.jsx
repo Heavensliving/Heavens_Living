@@ -1,16 +1,30 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FaEllipsisH, FaTrash, FaUsers, FaCaretDown, FaEdit } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios'; // Ensure axios is imported
+import ConfirmationModal from '../../components/reUsableComponet/ConfirmationModal';
+import { ref, deleteObject, getStorage } from 'firebase/storage';
+import app from '../../firebase';
+
+const storage = getStorage();
+
 
 const StaffManagement = () => {
   const navigate = useNavigate();
+  const [staffs, setStaffs] = useState([]);
+  const [deleteStaffId, setDeleteStaffId] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeMenu, setActiveMenu] = useState(null); // State to control which dropdown is active
   const [searchTerm, setSearchTerm] = useState(''); // State for search input
 
-  const staffData = [
-    { name: 'John Doe', id: '#123456', type: 'Full-Time', contact: '+1 234 567 890', status: 'Active', statusColor: 'text-green-500' },
-    { name: 'Jane Smith', id: '#654321', type: 'Part-Time', contact: '+1 987 654 321', status: 'Inactive', statusColor: 'text-red-500' }
-  ];
+  const staffData = staffs.map((staff) => ({
+    name: staff.Name || 'N/A', // Ensure properties are defined or use fallback values
+    id: staff.StaffId || 'N/A',
+    type: staff.Type || 'N/A',
+    contact: staff.Contactnumber || 'N/A',
+    status: staff.Status || 'N/A',
+    StaffId: staff._id
+  }));
 
   // Function to toggle dropdown visibility
   const toggleMenu = (index) => {
@@ -23,13 +37,61 @@ const StaffManagement = () => {
   };
 
   // Filtered staff data based on the search term
-  const filteredData = staffData.filter(staff =>
+  const filteredData = staffData.filter((staff) =>
     staff.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   // Function to navigate to the staff details page
   const handleRowClick = (id) => {
-    navigate(`/staff-details`); // Navigate to staff details page with the staff ID
+    navigate(`/staffs/${id}`); // Navigate to staff details page with the staff ID
+  };
+
+  // Fetch staff data from API on component mount
+  useEffect(() => {
+    axios
+      .get('http://localhost:3000/api/staff')
+      .then((res) => {
+        setStaffs(res.data);
+      })
+      .catch((error) => console.error('Error fetching staff:', error));
+  }, []);
+
+  const handleDelete = (staffID) => {
+    setDeleteStaffId(staffID);
+    setIsModalOpen(true)
+  }
+
+  const ConfirmDelete = async () => {
+    try {
+
+      const staffToDelete = staffs.find(staff => staff._id === deleteStaffId);
+
+      // Access the paths of the images you want to delete
+      const filePaths = [
+        staffToDelete?.Adharfrontside,
+        staffToDelete?.Adharbackside,
+        staffToDelete?.Photo
+      ].filter(Boolean); // Filter out any undefined paths
+
+      // Delete each file from Firebase Storage
+      for (const filePath of filePaths) {
+        const imageRef = ref(storage, filePath); // Create a reference to the file
+        await deleteObject(imageRef); // Delete the file
+        console.log(`Successfully deleted: ${filePath}`);
+      }
+
+      // After deleting files, delete the student record from the database
+      await axios.delete(`http://localhost:3000/api/staff/delete/${deleteStaffId}`);
+      setStaffs((prevStaffs) => prevStaffs.filter((staff) => staff._id !== deleteStaffId));
+      console.log("Student deleted successfully from database!");
+
+      // Close modal
+      setIsModalOpen(false);
+      navigate('/staffs'); // Adjust navigation as needed
+
+    } catch (error) {
+      console.error("Error during deletion:", error);
+    }
   };
 
   return (
@@ -95,7 +157,7 @@ const StaffManagement = () => {
                 <tr
                   key={index}
                   className="border-b cursor-pointer hover:bg-gray-100"
-                  onClick={() => handleRowClick(item.id)} // Navigate to details page on row click
+                  onClick={() => handleRowClick(item.StaffId)} // Navigate to details page on row click
                 >
                   <td className="py-4">{index + 1}</td>
                   <td className="py-4">{item.name}</td>
@@ -117,7 +179,7 @@ const StaffManagement = () => {
                       className="text-red-500 cursor-pointer hover:text-red-700"
                       onClick={(e) => {
                         e.stopPropagation(); // Prevent row click from triggering
-                        console.log(`Deleting ${item.name}`);
+                        handleDelete(item.StaffId)
                       }}
                     />
                   </td>
@@ -131,6 +193,15 @@ const StaffManagement = () => {
           </tbody>
         </table>
       </div>
+       {/* Delete Modal */}
+       <ConfirmationModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onConfirm={ConfirmDelete}
+        title="Confirm Detele"
+        message={`Are you sure you want to delete ?`}
+        confirmLabel="Delete"
+      />
     </div>
   );
 };

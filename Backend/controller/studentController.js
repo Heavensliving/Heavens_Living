@@ -1,10 +1,9 @@
 const Student = require('../Models/Add_student');
 const crypto = require('crypto');
-const jwt = require('jsonwebtoken');
 
 // Function to generate a unique student ID
 const generateStudentId = () => {
-  const randomNumber = crypto.randomInt(1000, 10000); // Generate a random number between 1000 and 9999
+  const randomNumber = crypto.randomInt(1000, 100000); // Generate a random number between 1000 and 9999
   return `HVNS${randomNumber}`;
 };
 

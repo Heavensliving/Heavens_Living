@@ -12,7 +12,7 @@ const pageConfig = {
     '/staffs': {
       title: 'Staffs Management',
     },
-    '/staff-details': {
+    '/staffs/:staffId': {
       title: 'Staff Details',
 
     },

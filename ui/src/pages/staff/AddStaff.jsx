@@ -1,53 +1,104 @@
-// Staff form
+import React, { useState } from 'react';
+import axios from 'axios';
+import app from '../../firebase';
+import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
+import { useNavigate } from 'react-router-dom';
 
-import { useState } from 'react';
+const storage = getStorage();
 
 function AddStaff() {
+  const navigate = useNavigate();
   const [staffData, setStaffData] = useState({
     Name: '',
-    EmployeeId: '',
+    StaffId: '',
     DOB: '',
+    Address: '',
     Contactnumber: '',
     Email: '',
     Photo: null,
     Adharfrontside: null,
     Adharbackside: null,
+    Type: '',
+    Salary: '',
+    PaymentDate: '',
+    PaySchedule: '',
+    Status: 'Active'
   });
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-
-    if (name === 'Photo' || name === 'Adharfrontside' || name === 'Adharbackside') {
+    const { name, value, type, files } = e.target;
+    if (type === 'file') {
       setStaffData({
         ...staffData,
-        [name]: e.target.files[0], // Store the uploaded file
+        [name]: files[0], // Handle file input
       });
     } else {
       setStaffData({
         ...staffData,
-        [name]: value,
+        [name]: value, // Handle text input
       });
     }
+  };
+
+  const uploadFile = (file) => {
+    return new Promise((resolve, reject) => {
+      const storageRef = ref(storage, 'staff/' + file.name); // Different folder for staff
+      const uploadTask = uploadBytesResumable(storageRef, file);
+
+      uploadTask.on('state_changed',
+        (snapshot) => {
+          const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+          console.log('Upload is ' + progress + '% done');
+        },
+        (error) => reject(error),
+        () => {
+          getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+            resolve(downloadURL);
+          });
+        }
+      );
+    });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // File fields to be uploaded
+    const filesToUpload = ['Photo', 'Adharfrontside', 'Adharbackside'];
+    const uploadPromises = filesToUpload.map(async (fileField) => {
+      if (staffData[fileField]) {
+        const downloadURL = await uploadFile(staffData[fileField]);
+        return { [fileField]: downloadURL };
+      }
+      return null;
+    });
+
+    const uploadedFiles = await Promise.all(uploadPromises);
+
+    // Merge uploaded file URLs with the staff data
+    uploadedFiles.forEach((result) => {
+      if (result) {
+        const key = Object.keys(result)[0];
+        staffData[key] = result[key];
+      }
+    });
+
+    // Prepare form data
     const formData = new FormData();
     for (const key in staffData) {
-      formData.append(key, staffData[key]); // Append form data
+      formData.append(key, staffData[key]);
     }
 
-    // Here you can handle the API call to submit the form data
     try {
-      const response = await fetch('YOUR_API_ENDPOINT_HERE', {
-        method: 'POST',
-        body: formData,
+      const response = await axios.post('http://localhost:3000/api/staff/add', staffData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
       });
 
-      if (response.ok) {
-        const data = await response.json();
-        console.log('Success:', data);
+      if (response.status === 201) {
+        console.log('Success:', response.data);
+        navigate('/staffs');
       } else {
         console.error('Error:', response.statusText);
       }
@@ -56,79 +107,45 @@ function AddStaff() {
     }
   };
 
+  const formFields = [
+    { name: 'Name', type: 'text', placeholder: 'Staff Name', required: true },
+    { name: 'Address', type: 'text', placeholder: 'Address', required: true },
+    { name: 'DOB', type: 'date', placeholder: 'Date of Birth', required: true },
+    { name: 'Contactnumber', type: 'number', placeholder: 'Contact Number', required: true },
+    { name: 'Email', type: 'email', placeholder: 'Email (optional)', required: false },
+    { name: 'Photo', type: 'file', placeholder: 'Upload Photo', accept: 'image/*' },
+    { name: 'Adharfrontside', type: 'file', placeholder: 'Upload Aadhar Front', accept: 'image/*' },
+    { name: 'Adharbackside', type: 'file', placeholder: 'Upload Aadhar Back', accept: 'image/*' },
+    { name: 'Type', type: 'text', placeholder: 'Type', required: true },
+    { name: 'Salary', type: 'text', placeholder: 'Salary', required: true },
+    { name: 'PaymentDate', type: 'date', placeholder: 'Payment Date', required: true },
+    { name: 'PaySchedule', type: 'text', placeholder: 'Pay Schedule', required: true }
+  ];
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
       <div className="bg-white shadow-lg rounded-lg p-8 max-w-4xl w-full">
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <input
-              type="text"
-              name="Name"
-              placeholder="Staff Name"
-              className="p-3 border border-gray-300 rounded-lg w-full"
-              value={staffData.Name}
-              onChange={handleChange}
-              required
-            />
-            <input
-              type="text"
-              name="EmployeeId"
-              placeholder="Employee ID"
-              className="p-3 border border-gray-300 rounded-lg w-full"
-              value={staffData.EmployeeId}
-              onChange={handleChange}
-              required
-            />
-            <input
-              type="date"
-              name="DOB"
-              placeholder="Date of Birth"
-              className="p-3 border border-gray-300 rounded-lg w-full"
-              value={staffData.DOB}
-              onChange={handleChange}
-              required
-            />
-            <input
-              type="number"
-              name="Contactnumber"
-              placeholder="Contact Number"
-              className="p-3 border border-gray-300 rounded-lg w-full"
-              value={staffData.Contactnumber}
-              onChange={handleChange}
-              required
-            />
-            <input
-              type="email"
-              name="Email"
-              placeholder="Email (optional)"
-              className="p-3 border border-gray-300 rounded-lg w-full"
-              value={staffData.Email}
-              onChange={handleChange}
-            />
-            <input
-              type="file"
-              name="Photo"
-              className="p-3 border border-gray-300 rounded-lg w-full"
-              accept="image/*"
-              onChange={handleChange}
-            />
-            <input
-              type="file"
-              name="Adharfrontside"
-              className="p-3 border border-gray-300 rounded-lg w-full"
-              accept="image/*"
-              onChange={handleChange}
-            />
-            <input
-              type="file"
-              name="Adharbackside"
-              className="p-3 border border-gray-300 rounded-lg w-full"
-              accept="image/*"
-              onChange={handleChange}
-            />
+            {formFields.map((field) => (
+              <input
+                key={field.name}
+                type={field.type}
+                name={field.name}
+                placeholder={field.placeholder}
+                className="p-3 border border-gray-300 rounded-lg w-full"
+                value={field.type !== 'file' ? staffData[field.name] : undefined}
+                onChange={handleChange}
+                required={field.required}
+                accept={field.accept || undefined}
+              />
+            ))}
           </div>
-          <button type="submit" className="w-full bg-blue-500 text-white py-3 rounded-lg">
-            Add Staff
+          <button
+            type="submit"
+            className="w-full bg-blue-600 text-white font-bold py-3 rounded-lg hover:bg-blue-700 transition duration-300"
+          >
+            Register Staff
           </button>
         </form>
       </div>
@@ -137,4 +154,3 @@ function AddStaff() {
 }
 
 export default AddStaff;
-
