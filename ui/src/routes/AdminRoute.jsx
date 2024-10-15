@@ -19,6 +19,7 @@ import ManagePeople from '../pages/messManagement/ManagePeople.jsx'
 import Signup from '../pages/auth/Signup.jsx'
 import Login from '../pages/auth/Login.jsx'
 import PropertyDetails from '../pages/property/PropertyDetails.jsx'
+import EditProperty from '../pages/property/EditProperty.jsx'
 
 const AdminRoute = () => {
     return (
@@ -47,6 +48,7 @@ const AdminRoute = () => {
                     <Route path="/add-property" element={<AddProperty />} />
                     <Route path="/add-staff" element={<AddStaff />} />
                     <Route path="/add-people" element={<AddPeople />} />
+                    <Route path='/editproperty/:propertyId' element={<EditProperty/>} />
                 </Route>
 
             </Routes>

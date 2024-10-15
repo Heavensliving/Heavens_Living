@@ -1,12 +1,18 @@
+
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faEdit, faTrash } from '@fortawesome/free-solid-svg-icons';
+import ConfirmationModal from '../../components/reUsableComponet/ConfirmationModal';
 
 const PropertyDetails = () => {
-  const { propertyId } = useParams(); 
+  const { propertyId } = useParams();
   const [property, setProperty] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [isModalOpen, setIsModalOpen] = useState(false); 
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchPropertyDetails = async () => {
@@ -23,6 +29,21 @@ const PropertyDetails = () => {
     fetchPropertyDetails();
   }, [propertyId]);
 
+  const handleDelete = async () => {
+    try {
+      await axios.delete(`http://localhost:3000/api/property/delete/${propertyId}`);
+      navigate('/property'); 
+    } catch (error) {
+      console.error('Error deleting property:', error);
+      alert('Failed to delete the property');
+    }
+  };
+
+  const ConfirmDelete = () => {
+    handleDelete();
+    setIsModalOpen(false); 
+  };
+
   if (loading) {
     return <div>Loading...</div>;
   }
@@ -34,7 +55,22 @@ const PropertyDetails = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 p-4">
       <div className="bg-white shadow-lg rounded-lg p-8 max-w-4xl w-full">
-        <h1 className="text-2xl font-bold mb-4">{property.propertyName}</h1>
+        <div className="flex justify-between items-center">
+          <h1 className="text-2xl font-bold mb-4">{property.propertyName}</h1>
+
+          {/* Edit and Delete Icons */}
+          <div>
+            <Link to={`/editproperty/${propertyId}`}>
+              <button className="text-blue-600 hover:text-blue-800 mr-4">
+                <FontAwesomeIcon icon={faEdit} size="lg" />
+              </button>
+            </Link>
+            <button onClick={() => setIsModalOpen(true)} className="text-red-600 hover:text-red-800">
+              <FontAwesomeIcon icon={faTrash} size="lg" />
+            </button>
+          </div>
+        </div>
+
         <div className="mb-4">
           <strong>Property ID:</strong> {property.propertyId}
         </div>
@@ -78,8 +114,19 @@ const PropertyDetails = () => {
           <strong>Property Owner's Name:</strong> {property.propertyOwnerName}
         </div>
       </div>
+
+      {/* Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onConfirm={ConfirmDelete}
+        title="Confirm Delete"
+        message={`Are you sure you want to delete this property?`}
+        confirmLabel="Delete"
+      />
     </div>
   );
 };
 
 export default PropertyDetails;
+
