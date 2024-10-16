@@ -5,8 +5,9 @@ const router = express.Router()
 
 router.post('/add-adOn',adOnController.addAdOn);
 router.get('/',adOnController.showAdOns);
-router.put('/update-adOn',adOnController.editAdOn);
-router.delete('/delete-adOn',adOnController.deleteAdOn);
+router.get('/getAddOn/:id',adOnController.getAdOnById);
+router.put('/update-addOn/:id',adOnController.editAdOn);
+router.delete('/:id',adOnController.deleteAdOn);
 router.put('/:id/status',adOnController.updateAdOnStatus);
 
 module.exports = router;

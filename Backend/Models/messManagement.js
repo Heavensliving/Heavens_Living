@@ -6,18 +6,6 @@ const messManagementSchema = new mongoose.Schema({
     required: true,
     enum: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
   },
-  propertyId: {
-    type: String,
-    required: true,
-  },
-  propertyName: {
-    type: String,
-    required: true,
-  },
-  studentName: {
-    type: String,
-    required: true,
-  },
   breakfast: {
     type: [String],
     required: true,  // Make it required to ensure no empty meal plans

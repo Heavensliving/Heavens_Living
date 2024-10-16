@@ -1,12 +1,13 @@
-import React, { useState } from 'react';
-import { FaArrowLeft } from 'react-icons/fa';
+import React, { useState, useEffect } from 'react';
+import { FaArrowLeft, FaTrash } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
+import API_BASE_URL from '../../config';
+import axios from 'axios';
 
 function AddFood() {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
-  // Colors for each day
   const dayColors = {
     Sunday: 'bg-red-200',
     Monday: 'bg-blue-200',
@@ -17,73 +18,181 @@ function AddFood() {
     Saturday: 'bg-orange-200',
   };
 
-  // Initial menu state
-  const initialMenu = {
-    breakfast: [],
-    lunch: [],
-    dinner: [],
-  };
-
   const [selectedDay, setSelectedDay] = useState(null);
   const [menus, setMenus] = useState({});
-  const [breakfastInput, setBreakfastInput] = useState('');
-  const [lunchInput, setLunchInput] = useState('');
-  const [dinnerInput, setDinnerInput] = useState('');
+  const [inputs, setInputs] = useState({
+    breakfast: '',
+    lunch: '',
+    dinner: ''
+  });
   const [confirmDelete, setConfirmDelete] = useState({ show: false, mealType: '', index: null });
+  const [confirmClearAll, setConfirmClearAll] = useState(false); // New state for clear all confirmation
+  const [notification, setNotification] = useState('');
+
+  // Fetch data from API when component mounts
+  useEffect(() => {
+    const fetchMenuData = async () => {
+      try {
+        const response = await axios.get(`${API_BASE_URL}/mess/getAllMeals`);
+        const menuData = response.data.reduce((acc, menuItem) => {
+          acc[menuItem.dayOfWeek] = menuItem;
+          return acc;
+        }, {});
+        setMenus(menuData); // Convert the array to an object keyed by dayOfWeek
+      } catch (error) {
+        console.error('Error fetching food items:', error);
+      }
+    };
+
+    fetchMenuData();
+  }, []);
 
   const handleDaySelect = (day) => {
     setSelectedDay(day);
-    setBreakfastInput('');
-    setLunchInput('');
-    setDinnerInput('');
+    setInputs({ breakfast: '', lunch: '', dinner: '' });
+    setNotification('');
   };
 
-  const handleMenuAdd = () => {
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setInputs((prevInputs) => ({
+      ...prevInputs,
+      [name]: value
+    }));
+  };
+
+  const handleMenuAdd = async () => {
     if (selectedDay) {
       const updatedMenu = {
         ...menus,
         [selectedDay]: {
-          breakfast: [...(menus[selectedDay]?.breakfast || []), breakfastInput].filter(item => item),
-          lunch: [...(menus[selectedDay]?.lunch || []), lunchInput].filter(item => item),
-          dinner: [...(menus[selectedDay]?.dinner || []), dinnerInput].filter(item => item),
+          ...menus[selectedDay],
+          breakfast: [...(menus[selectedDay]?.breakfast || []), inputs.breakfast].filter(item => item),
+          lunch: [...(menus[selectedDay]?.lunch || []), inputs.lunch].filter(item => item),
+          dinner: [...(menus[selectedDay]?.dinner || []), inputs.dinner].filter(item => item),
         },
       };
+
       setMenus(updatedMenu);
-      setBreakfastInput('');
-      setLunchInput('');
-      setDinnerInput('');
+      setInputs({ breakfast: '', lunch: '', dinner: '' });
+
+      const hasBreakfast = inputs.breakfast || (menus[selectedDay]?.breakfast?.length > 0);
+      const hasLunch = inputs.lunch || (menus[selectedDay]?.lunch?.length > 0);
+      const hasDinner = inputs.dinner || (menus[selectedDay]?.dinner?.length > 0);
+
+      const addedMeals = [];
+      const missingMeals = [];
+
+      if (hasBreakfast) addedMeals.push('Breakfast');
+      else missingMeals.push('Breakfast');
+
+      if (hasLunch) addedMeals.push('Lunch');
+      else missingMeals.push('Lunch');
+
+      if (hasDinner) addedMeals.push('Dinner');
+      else missingMeals.push('Dinner');
+
+      if (addedMeals.length > 0 && missingMeals.length > 0) {
+        setNotification(`${addedMeals.join(' and ')} added. Please add ${missingMeals.join(' and ')}.`);
+      } else if (addedMeals.length > 0 && missingMeals.length === 0) {
+        setNotification(`All meals added: ${addedMeals.join(', ')}!`);
+      } else {
+        setNotification('Please add at least one meal.');
+      }
+
+      try {
+        const requestBody = {
+          dayOfWeek: selectedDay,
+          meals: {
+            breakfast: updatedMenu[selectedDay].breakfast,
+            lunch: updatedMenu[selectedDay].lunch,
+            dinner: updatedMenu[selectedDay].dinner,
+          },
+        };
+
+        const response = await axios.post(`${API_BASE_URL}/mess/addFood`, requestBody);
+        console.log('Food items added:', response.data);
+      } catch (error) {
+        console.error('Error adding food items:', error);
+      }
     }
   };
 
-  const handleDeleteItem = (mealType, index) => {
-    const updatedMenu = {
-      ...menus,
-      [selectedDay]: {
-        ...menus[selectedDay],
-        [mealType]: menus[selectedDay][mealType].filter((_, i) => i !== index),
-      },
-    };
-    setMenus(updatedMenu);
-    setConfirmDelete({ show: false, mealType: '', index: null });
+  const handleDeleteItem = async (mealType, index) => {
+    if (selectedDay) {
+      const mealToDelete = menus[selectedDay][mealType][index];
+
+      try {
+        // Call the API to delete the food item
+        const requestBody = {
+          dayOfWeek: selectedDay,
+          mealType: mealType,
+          itemToDelete: mealToDelete, // Ensure this matches with backend
+        };
+
+        const response = await axios.put(`${API_BASE_URL}/mess/deleteFoodItem`, requestBody); // Remove 'data' key
+        console.log('Food item deleted:', response.data);
+
+        // Update the local state to remove the item
+        const updatedMenu = {
+          ...menus,
+          [selectedDay]: {
+            ...menus[selectedDay],
+            [mealType]: menus[selectedDay][mealType].filter((_, i) => i !== index),
+          },
+        };
+
+        setMenus(updatedMenu);
+        setConfirmDelete({ show: false, mealType: '', index: null });
+        setNotification(`Deleted ${mealToDelete} from ${mealType} successfully.`);
+      } catch (error) {
+        console.error('Error deleting food item:', error);
+        setNotification('Error deleting food item. Please try again.');
+      }
+    }
   };
 
-  const handleBack = () => {
-    setSelectedDay(null);
-    setMenus({});
+  const handleClearAll = async () => {
+    if (selectedDay) {
+      try {
+        const requestBody = {
+          dayOfWeek: selectedDay,
+        };
+
+        // Call the API to delete all food items for the selected day
+        const response = await axios.delete(`${API_BASE_URL}/mess/deleteMealPlan/${selectedDay}`, { data: requestBody });
+        console.log('All meals deleted:', response.data);
+
+        // Clear the menu for the selected day in local state
+        setMenus((prevMenus) => ({
+          ...prevMenus,
+          [selectedDay]: {
+            breakfast: [],
+            lunch: [],
+            dinner: [],
+          },
+        }));
+
+        setNotification(`All meals cleared for ${selectedDay}.`);
+        setConfirmClearAll(false); // Close the confirmation modal
+      } catch (error) {
+        console.error('Error deleting all meals:', error);
+        setNotification('Nothing to clear');
+      }
+    }
   };
 
   return (
     <div className="flex flex-col md:flex-row">
-      {/* Left Side - Days of the Week */}
       <div className="w-full md:w-1/4 p-4">
-       {/* Back Button */}
-       <button 
-      onClick={()=>navigate('/mess')}
-      className="bg-gray-500 hover:bg-gray-600 text-white p-2 rounded-full w-32 flex items-center justify-center space-x-2">
-        <FaArrowLeft size={16} /> {/* Back icon */}
-        <span>Back</span>
-      </button>
-        <h2 className="text-lg font-semibold">Select Day</h2>
+        <div className="flex items-center mb-4">
+          <button
+            onClick={() => navigate('/mess')}
+            className="text-gray-500 hover:text-gray-600 rounded-full">
+            <FaArrowLeft size={16} />
+          </button>
+          <h2 className="text-lg font-semibold ml-4">Select Day</h2>
+        </div>
         <div className="flex flex-col space-y-2 mt-4">
           {days.map((day) => (
             <div
@@ -97,149 +206,183 @@ function AddFood() {
         </div>
       </div>
 
-      {/* Right Side - Selected Day Menu */}
       <div className="w-full md:w-3/4 p-4">
         {selectedDay ? (
           <>
-            <h2 className="text-lg font-semibold mb-4">Menu for {selectedDay}</h2>
+            <h2 className="text-lg font-semibold mb-4">
+              Menu for {selectedDay}
+              <span
+                onClick={() => setConfirmClearAll(true)} // Show clear all confirmation modal
+                className="ml-4 text-red-600 cursor-pointer hover:underline"
+              >
+                Clear All
+              </span>
+            </h2>
             <div className="space-y-6">
-              {/* Breakfast Section */}
+              {notification && (
+                <div className="mt-4">
+                  {notification.split('.').map((part, index) => {
+                    if (index === 0) {
+                      return (
+                        <span key={index} className="text-green-600 font-semibold">
+                          {part.trim()}.
+                        </span>
+                      );
+                    } else if (part.trim()) {
+                      return (
+                        <span key={index} className="text-red-600 font-semibold">
+                          {part.trim()}.
+                        </span>
+                      );
+                    }
+                    return null;
+                  })}
+                </div>
+              )}
+
               <div className="bg-blue-50 p-4 rounded-lg shadow-md">
                 <h3 className="font-semibold text-blue-600">Breakfast</h3>
                 <input
                   type="text"
-                  className="border border-blue-300 rounded p-2 flex-grow focus:outline-none focus:ring-2 focus:ring-blue-500 mb-4"
-                  value={breakfastInput}
-                  onChange={(e) => setBreakfastInput(e.target.value)}
-                  placeholder="Enter breakfast item"
+                  className="border border-blue-300 rounded-lg p-2 flex-grow mt-2"
+                  name="breakfast"
+                  value={inputs.breakfast}
+                  onChange={handleInputChange}
                 />
                 <button
-                  onClick={() => {
-                    if (breakfastInput) {
-                      handleMenuAdd();
-                    }
-                  }}
-                  className="bg-blue-600 text-white p-2 rounded-lg shadow hover:bg-blue-500 transition duration-300 ml-2"
+                  onClick={handleMenuAdd}
+                  className="bg-blue-500 hover:bg-blue-600 text-white p-2 rounded ml-2"
                 >
-                  Add Breakfast
+                  Add
                 </button>
-                {/* Display Added Breakfast Items */}
-                <ul className="mt-2 list-disc list-inside">
+                <ul className="mt-2">
                   {menus[selectedDay]?.breakfast?.map((item, index) => (
-                    <li key={index} className="text-blue-800 flex justify-between items-center">
+                    <li key={index} className="flex justify-between items-center text-blue-500 p-1">
                       {item}
                       <button
                         onClick={() => setConfirmDelete({ show: true, mealType: 'breakfast', index })}
-                        className="text-red-600 hover:text-red-800 ml-2"
+                        className="text-red-600 hover:underline"
                       >
-                        🗑️
+                        <FaTrash />
                       </button>
                     </li>
                   ))}
                 </ul>
               </div>
 
-              {/* Lunch Section */}
               <div className="bg-green-50 p-4 rounded-lg shadow-md">
                 <h3 className="font-semibold text-green-600">Lunch</h3>
                 <input
                   type="text"
-                  className="border border-green-300 rounded p-2 flex-grow focus:outline-none focus:ring-2 focus:ring-green-500 mb-4"
-                  value={lunchInput}
-                  onChange={(e) => setLunchInput(e.target.value)}
-                  placeholder="Enter lunch item"
+                  className="border border-green-300 rounded-lg p-2 flex-grow mt-2"
+                  name="lunch"
+                  value={inputs.lunch}
+                  onChange={handleInputChange}
                 />
                 <button
-                  onClick={() => {
-                    if (lunchInput) {
-                      handleMenuAdd();
-                    }
-                  }}
-                  className="bg-green-600 text-white p-2 rounded-lg shadow hover:bg-green-500 transition duration-300 ml-2"
+                  onClick={handleMenuAdd}
+                  className="bg-green-500 hover:bg-green-600 text-white p-2 rounded ml-2"
                 >
-                  Add Lunch
+                  Add
                 </button>
-                {/* Display Added Lunch Items */}
-                <ul className="mt-2 list-disc list-inside">
+                <ul className="mt-2">
                   {menus[selectedDay]?.lunch?.map((item, index) => (
-                    <li key={index} className="text-green-800 flex justify-between items-center">
+                    <li key={index} className="flex justify-between items-center text-green-500 p-1">
                       {item}
                       <button
                         onClick={() => setConfirmDelete({ show: true, mealType: 'lunch', index })}
-                        className="text-red-600 hover:text-red-800 ml-2"
+                        className="text-red-600 hover:underline"
                       >
-                        🗑️
+                        <FaTrash />
                       </button>
                     </li>
                   ))}
                 </ul>
               </div>
 
-              {/* Dinner Section */}
               <div className="bg-yellow-50 p-4 rounded-lg shadow-md">
                 <h3 className="font-semibold text-yellow-600">Dinner</h3>
                 <input
                   type="text"
-                  className="border border-yellow-300 rounded p-2 flex-grow focus:outline-none focus:ring-2 focus:ring-yellow-500 mb-4"
-                  value={dinnerInput}
-                  onChange={(e) => setDinnerInput(e.target.value)}
-                  placeholder="Enter dinner item"
+                  className="border border-yellow-300 rounded-lg p-2 flex-grow mt-2"
+                  name="dinner"
+                  value={inputs.dinner}
+                  onChange={handleInputChange}
                 />
                 <button
-                  onClick={() => {
-                    if (dinnerInput) {
-                      handleMenuAdd();
-                    }
-                  }}
-                  className="bg-yellow-600 text-white p-2 rounded-lg shadow hover:bg-yellow-500 transition duration-300 ml-2"
+                  onClick={handleMenuAdd}
+                  className="bg-yellow-500 hover:bg-yellow-600 text-white p-2 rounded ml-2"
                 >
-                  Add Dinner
+                  Add
                 </button>
-                {/* Display Added Dinner Items */}
-                <ul className="mt-2 list-disc list-inside">
+                <ul className="mt-2">
                   {menus[selectedDay]?.dinner?.map((item, index) => (
-                    <li key={index} className="text-yellow-800 flex justify-between items-center">
+                    <li key={index} className="flex justify-between items-center text-yellow-500 p-1">
                       {item}
                       <button
                         onClick={() => setConfirmDelete({ show: true, mealType: 'dinner', index })}
-                        className="text-red-600 hover:text-red-800 ml-2"
+                        className="text-red-600 hover:underline"
                       >
-                        🗑️
+                        <FaTrash />
                       </button>
                     </li>
                   ))}
                 </ul>
               </div>
             </div>
+
+            {/* Confirmation Modal for Deleting All Meals */}
+            {confirmClearAll && (
+              <div className="fixed inset-0 bg-black bg-opacity-30 flex justify-center items-center">
+                <div className="bg-white p-6 rounded shadow-md">
+                  <h3 className="text-lg font-semibold">Confirm Clear All Meals</h3>
+                  <p>Are you sure you want to clear all meals for {selectedDay}?</p>
+                  <div className="flex justify-end mt-4">
+                    <button
+                      onClick={() => setConfirmClearAll(false)}
+                      className="bg-gray-300 hover:bg-gray-400 p-2 rounded mr-2"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={handleClearAll}
+                      className="bg-red-500 hover:bg-red-600 text-white p-2 rounded"
+                    >
+                      Clear All
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Confirmation Modal for Deleting a Meal Item */}
+            {confirmDelete.show && (
+              <div className="fixed inset-0 bg-black bg-opacity-30 flex justify-center items-center">
+                <div className="bg-white p-6 rounded shadow-md">
+                  <h3 className="text-lg font-semibold">Confirm Delete</h3>
+                  <p>Are you sure you want to delete this {confirmDelete.mealType}?</p>
+                  <div className="flex justify-end mt-4">
+                    <button
+                      onClick={() => setConfirmDelete({ show: false, mealType: '', index: null })}
+                      className="bg-gray-300 hover:bg-gray-400 p-2 rounded mr-2"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={() => handleDeleteItem(confirmDelete.mealType, confirmDelete.index)}
+                      className="bg-red-500 hover:bg-red-600 text-white p-2 rounded"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
           </>
         ) : (
-          <p className="text-gray-500">Please select a day to see the menu.</p>
+          <div>Select a day to manage meals.</div>
         )}
       </div>
-
-      {/* Confirmation Modal */}
-      {confirmDelete.show && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white p-6 rounded-lg shadow-md">
-            <h3 className="text-lg font-semibold mb-4">Confirm Deletion</h3>
-            <p>Are you sure you want to delete this item?</p>
-            <div className="mt-4 flex justify-end">
-              <button 
-                onClick={() => handleDeleteItem(confirmDelete.mealType, confirmDelete.index)} 
-                className="bg-red-600 text-white p-2 rounded-lg hover:bg-red-500 transition duration-300 mr-2"
-              >
-                Yes, Delete
-              </button>
-              <button 
-                onClick={() => setConfirmDelete({ show: false, mealType: '', index: null })} 
-                className="bg-gray-300 text-gray-700 p-2 rounded-lg hover:bg-gray-400 transition duration-300"
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

@@ -5,14 +5,12 @@ const adOnSchema = require('../Models/adOnmodel'); // Ensure the correct path to
 // Add a new add-on
 const addAdOn = async (req, res) => {
   try {
-    const { Itemname, prize, Quantity, propertyid, propertyname, image } = req.body;
+    const { Itemname, prize, Description, image } = req.body;
 
     const newAdOn = new adOnSchema({
       Itemname,
       prize,
-      Quantity,
-      propertyid,
-      propertyname,
+      Description,
       image,
     });
 
@@ -79,6 +77,23 @@ const deleteAdOn = async (req, res) => {
   }
 };
 
+// Get an add-on by ID
+const getAdOnById = async (req, res) => {
+  try {
+    const { id } = req.params; // Get the id from params
+
+    const adOn = await adOnSchema.findById(id); // Fetch the add-on by ID
+
+    if (!adOn) {
+      return res.status(404).send({ message: 'Add-on not found' });
+    }
+
+    res.status(200).send(adOn); // Return the add-on
+  } catch (error) {
+    res.status(500).send({ message: 'Error retrieving add-on', error });
+  }
+};
+
 // Show all add-ons
 const showAdOns = async (req, res) => {
   try {
@@ -94,6 +109,7 @@ module.exports = {
   addAdOn,
   editAdOn,
   deleteAdOn,
+  getAdOnById,
   showAdOns,
   updateAdOnStatus,
 };

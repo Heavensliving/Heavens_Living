@@ -40,8 +40,14 @@ const pageConfig = {
     '/add-food': {
       title: 'Add Food',
     },
+    '/addOns-item': {
+      title: 'Add-Items',
+    },
     '/add-ons': {
       title: 'Add-ons',
+    },
+    '/update-addOn/:id': {
+      title: 'Edit AddOn',
     },
     '/add-people': {
       title: 'Add People',

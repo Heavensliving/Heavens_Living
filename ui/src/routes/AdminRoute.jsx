@@ -20,8 +20,8 @@ import Signup from '../pages/auth/Signup.jsx'
 import Login from '../pages/auth/Login.jsx'
 import PropertyDetails from '../pages/property/PropertyDetails.jsx'
 import EditProperty from '../pages/property/EditProperty.jsx'
-import EditPeople from '../pages/messManagement/editPeople.jsx'
-
+import AddAddOnsItem from '../pages/messManagement/AddAddOnsItem.jsx'
+import EditAddOns from '../pages/messManagement/EditAddOns.jsx'
 const AdminRoute = () => {
     return (
         <div>
@@ -43,7 +43,9 @@ const AdminRoute = () => {
                     <Route path="/mess" element={<MessManagement />} />
                     <Route path="/manage-people" element={<ManagePeople />} />
                     <Route path="/add-food" element={<AddFood />} />
+                    <Route path="/addOns-item" element={<AddAddOnsItem />} />
                     <Route path="/add-ons" element={<AddOns />} />
+                    <Route path="/update-addOn/:id" element={<EditAddOns />} />
                     <Route path="/maintanance" element={<Maintanence />} />
                     <Route path="/add-student" element={<AddStudent />} />
                     <Route path="/add-property" element={<AddProperty />} />
