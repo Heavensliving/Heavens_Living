@@ -20,6 +20,7 @@ import Signup from '../pages/auth/Signup.jsx'
 import Login from '../pages/auth/Login.jsx'
 import PropertyDetails from '../pages/property/PropertyDetails.jsx'
 import EditProperty from '../pages/property/EditProperty.jsx'
+import EditPeople from '../pages/messManagement/editPeople.jsx'
 
 const AdminRoute = () => {
     return (
@@ -49,6 +50,8 @@ const AdminRoute = () => {
                     <Route path="/add-staff" element={<AddStaff />} />
                     <Route path="/add-people" element={<AddPeople />} />
                     <Route path='/editproperty/:propertyId' element={<EditProperty/>} />
+                    <Route path='/editPeople/:id' element={<EditPeople/>}/>
+
                 </Route>
 
             </Routes>

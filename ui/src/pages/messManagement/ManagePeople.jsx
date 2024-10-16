@@ -1,71 +1,57 @@
-import { useState } from 'react';
-import { FaEdit, FaTrash } from 'react-icons/fa';
+import { useState, useEffect } from 'react';
+import axios from 'axios';
+import { FaEdit, FaTrashAlt } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
+
 
 function ManagePeople() {
-  const [people, setPeople] = useState([
-    {
-      id: 1,
-      name: 'John Doe',
-      contactNumber: '1234567890',
-      email: 'john@example.com',
-      mealType: ['Breakfast', 'Lunch'],
-      months: 1,
-      days: 15,
-      joinDate: '22/09/2023',
-      daysLeft: '21 days remaining'
-    },
-    {
-      id: 2,
-      name: 'Jane Smith',
-      contactNumber: '9876543210',
-      email: 'jane@example.com',
-      mealType: ['Lunch', 'Dinner'],
-      months: 2,
-      days: 0,
-      joinDate: '22/09/2023',
-      daysLeft: '21 days remaining'
-    },
-    {
-      id: 3,
-      name: 'Robert Brown',
-      contactNumber: '5555555555',
-      email: 'robert@example.com',
-      mealType: ['Whole Meal'],
-      months: 3,
-      days: 5,
-      joinDate: '22/09/2023',
-      daysLeft: '21 days remaining'
-    },
-  ]);
+  const navigate =useNavigate()
+  const [people, setPeople] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [error, setError] = useState(null);
+  const [deleteModal, setDeleteModal] = useState(false); // To control delete modal visibility
+  const [personToDelete, setPersonToDelete] = useState(null); // To track the person being deleted
+  const [isDeleting, setIsDeleting] = useState(false); // To show a loader during deletion
 
-  const [editingPerson, setEditingPerson] = useState(null); // State to store the person being edited
-  const [formData, setFormData] = useState({}); // State to store the form data
-  const [searchTerm, setSearchTerm] = useState(''); // State for search term
+  useEffect(() => {
+    const fetchPeople = async () => {
+      try {
+        const response = await axios.get('http://localhost:3000/api/people/get-people');
+        console.log('Fetched data:', response.data);
+        setPeople(response.data.data || []);
+      } catch (error) {
+        console.error('Error fetching people:', error);
+        setError('Failed to fetch people.');
+      }
+    };
 
-  // Handle Delete
-  const handleDelete = (id) => {
-    setPeople(people.filter((person) => person.id !== id));
+    fetchPeople();
+  }, []);
+
+  const handleDelete = async () => {
+    if (!personToDelete) return;
+
+    setIsDeleting(true);
+    try {
+      await axios.delete(`http://localhost:3000/api/people/delete-person/${personToDelete._id}`);
+      setPeople(people.filter((person) => person._id !== personToDelete._id));
+      setDeleteModal(false); // Close modal after successful deletion
+    } catch (error) {
+      console.error('Error deleting person:', error);
+      setError('Failed to delete person.');
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
-  // Handle Edit button click
-  const handleEdit = (person) => {
-    setEditingPerson(person); // Set the person to be edited
-    setFormData(person); // Load current person data into form
+  const openDeleteModal = (person) => {
+    setPersonToDelete(person);
+    setDeleteModal(true);
   };
 
-  // Handle form input change
-  const handleInputChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
-  };
-
-  // Handle form submit for editing
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    setPeople(people.map((p) => (p.id === formData.id ? formData : p))); // Update the person data
-    setEditingPerson(null); // Close the edit form
+  const closeDeleteModal = () => {
+    setPersonToDelete(null);
+    setDeleteModal(false);
   };
 
   // Filter people based on search term
@@ -75,6 +61,8 @@ function ManagePeople() {
 
   return (
     <div className="min-h-screen bg-gray-100 p-6">
+      {error && <div className="mb-4 text-red-600">{error}</div>}
+
       {/* Search input */}
       <div className="flex justify-center mb-4">
         <input
@@ -86,7 +74,6 @@ function ManagePeople() {
         />
       </div>
 
-      {/* Add a wrapper with max-height to make the table scrollable */}
       <div className="overflow-x-auto max-h-96">
         <table className="min-w-full bg-white border">
           <thead>
@@ -104,37 +91,31 @@ function ManagePeople() {
           <tbody className="text-gray-600 text-sm">
             {filteredPeople.length === 0 ? (
               <tr>
-                <td colSpan="6" className="text-center py-4">
+                <td colSpan="8" className="text-center py-4">
                   No people found
                 </td>
               </tr>
             ) : (
               filteredPeople.map((person) => (
-                <tr key={person.id} className="border-b border-gray-200 hover:bg-gray-100">
+                <tr key={person._id} className="border-b border-gray-200 hover:bg-gray-100">
                   <td className="py-3 px-6 text-left whitespace-nowrap">{person.name}</td>
                   <td className="py-3 px-6 text-left">{person.contactNumber}</td>
                   <td className="py-3 px-6 text-left">{person.email || 'N/A'}</td>
-                  <td className="py-3 px-6 text-left">{person.mealType.join(', ')}</td>
+                  <td className="py-3 px-6 text-left">{person.mealType}</td>
                   <td className="py-3 px-6 text-left">
-                    {person.months} Months / {person.days} Days
+                    {person.timePeriod.months} Months / {person.timePeriod.days} Days
                   </td>
-                  <td className="py-3 px-6 text-left">{person.joinDate}</td>
+                  <td className="py-3 px-6 text-left">{new Date(person.joinDate).toLocaleDateString()}</td>
                   <td className="py-3 px-6 text-left text-yellow-500">{person.daysLeft}</td>
                   <td className="py-3 px-6 flex justify-center items-center space-x-4">
-                    {/* Edit Icon */}
                     <FaEdit
                       className="text-blue-500 cursor-pointer hover:text-blue-700"
-                      onClick={(e) => {
-                        console.log(`Editing ${item.name}`);
-                      }}
+                      onClick={() => navigate(`/editPeople/${person._id}`)} 
                     />
-                    {/* Delete Icon */}
-                    <FaTrash
+                    <FaTrashAlt
                       className="text-red-500 cursor-pointer hover:text-red-700"
-                      onClick={(e) => {
-                        console.log(`Deleting ${item.name}`);
-                      }}
-                      />
+                      onClick={() => openDeleteModal(person)} // Open delete confirmation modal
+                    />
                   </td>
                 </tr>
               ))
@@ -143,98 +124,30 @@ function ManagePeople() {
         </table>
       </div>
 
-      {/* Edit Form Modal */}
-      {editingPerson && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-          <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
-            <h2 className="text-2xl font-bold mb-4">Edit Person</h2>
-            <form onSubmit={handleSubmit}>
-              <div className="mb-4">
-                <label className="block text-gray-700 mb-2">Name</label>
-                <input
-                  type="text"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleInputChange}
-                  className="w-full p-2 border border-gray-300 rounded"
-                />
-              </div>
-              <div className="mb-4">
-                <label className="block text-gray-700 mb-2">Contact Number</label>
-                <input
-                  type="text"
-                  name="contactNumber"
-                  value={formData.contactNumber}
-                  onChange={handleInputChange}
-                  className="w-full p-2 border border-gray-300 rounded"
-                />
-              </div>
-              <div className="mb-4">
-                <label className="block text-gray-700 mb-2">Email</label>
-                <input
-                  type="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleInputChange}
-                  className="w-full p-2 border border-gray-300 rounded"
-                />
-              </div>
-              <div className="mb-4">
-                <label className="block text-gray-700 mb-2">Meal Type</label>
-                <select
-                  name="mealType"
-                  value={formData.mealType}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      mealType: Array.from(e.target.selectedOptions, (option) => option.value),
-                    })
-                  }
-                  className="w-full p-2 border border-gray-300 rounded"
-                  multiple
-                >
-                  <option value="Breakfast">Breakfast</option>
-                  <option value="Lunch">Lunch</option>
-                  <option value="Dinner">Dinner</option>
-                  <option value="Whole Meal">Whole Meal</option>
-                </select>
-              </div>
-              <div className="mb-4">
-                <label className="block text-gray-700 mb-2">Time Period (Months/Days)</label>
-                <div className="flex space-x-2">
-                  <input
-                    type="number"
-                    name="months"
-                    value={formData.months}
-                    onChange={handleInputChange}
-                    className="w-1/2 p-2 border border-gray-300 rounded"
-                    min="0"
-                    placeholder="Months"
-                  />
-                  <input
-                    type="number"
-                    name="days"
-                    value={formData.days}
-                    onChange={handleInputChange}
-                    className="w-1/2 p-2 border border-gray-300 rounded"
-                    min="15"
-                    placeholder="Days"
-                  />
-                </div>
-              </div>
-              <div className="flex justify-end space-x-2">
-                <button
-                  type="button"
-                  onClick={() => setEditingPerson(null)}
-                  className="bg-gray-500 text-white px-3 py-1 rounded-lg"
-                >
-                  Cancel
-                </button>
-                <button type="submit" className="bg-green-500 text-white px-3 py-1 rounded-lg">
-                  Save
-                </button>
-              </div>
-            </form>
+      {/* Delete Confirmation Modal */}
+      {deleteModal && (
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center">
+          <div className="bg-white p-8 rounded-lg shadow-lg max-w-sm w-full">
+            <h2 className="text-xl font-semibold mb-4">Confirm Delete</h2>
+            <p className="mb-4">
+              Are you sure you want to delete{' '}
+              <span className="font-bold">{personToDelete?.name}</span>?
+            </p>
+            <div className="flex justify-end space-x-4">
+              <button
+                className="px-4 py-2 bg-gray-500 text-white rounded-lg"
+                onClick={closeDeleteModal}
+              >
+                Cancel
+              </button>
+              <button
+                className="px-4 py-2 bg-red-500 text-white rounded-lg"
+                onClick={handleDelete}
+                disabled={isDeleting}
+              >
+                {isDeleting ? 'Deleting...' : 'Delete'}
+              </button>
+            </div>
           </div>
         </div>
       )}

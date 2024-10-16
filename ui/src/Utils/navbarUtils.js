@@ -33,6 +33,10 @@ const pageConfig = {
     '/manage-people': {
       title: 'Manage People',
     },
+     '/editPeople/:id':{
+      title:'Edit People'
+     },
+
     '/add-food': {
       title: 'Add Food',
     },
