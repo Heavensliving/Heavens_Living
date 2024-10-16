@@ -22,6 +22,8 @@ import PropertyDetails from '../pages/property/PropertyDetails.jsx'
 import EditProperty from '../pages/property/EditProperty.jsx'
 import AddAddOnsItem from '../pages/messManagement/AddAddOnsItem.jsx'
 import EditAddOns from '../pages/messManagement/EditAddOns.jsx'
+import EditPeople from '../pages/messManagement/EditPeople.jsx'
+
 const AdminRoute = () => {
     return (
         <div>
