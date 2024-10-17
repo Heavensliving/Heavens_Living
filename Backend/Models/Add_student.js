@@ -21,6 +21,7 @@ const studentSchema = new mongoose.Schema({
   referredBy: { type: String, required: true },
   typeOfStay: { type: String },
   paymentStatus: { type: String },
+  pgName: { type:String },
   studentId: { type: String, unique: true, required: true },
   joinDate: { type: Date },
   currentStatus: { type: String },

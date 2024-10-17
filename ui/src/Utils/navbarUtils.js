@@ -7,7 +7,9 @@ const pageConfig = {
     },
     '/students/:studentId': {
       title: 'Student Details',
-
+    },
+    '/students/edit/:studentId': {
+      title: 'Edit Student',
     },
     '/staffs': {
       title: 'Staffs Management',

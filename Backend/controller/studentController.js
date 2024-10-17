@@ -20,8 +20,6 @@ const addStudent = async (req, res) => {
       ...req.body,
       studentId
     });
-
-    console.log("Db data", student); // Log student data for debugging
     await student.save(); // Save the student to the database
     res.status(201).json({ message: 'Student added successfully', student });
     // });

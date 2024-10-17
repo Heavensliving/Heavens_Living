@@ -63,42 +63,42 @@ function AddStudent() {
 
   const fields = [
     { name: 'name', type: 'text', placeholder: 'Name', required: true, label: 'Name' },
+    { name: 'gender', type: 'text', placeholder: 'Gender', required: true, label: 'Gender' },
     { name: 'email', type: 'email', placeholder: 'Email', required: true, label: 'Email' },
     { name: 'password', type: 'password', placeholder: 'Password', required: true, label: 'Password' },
     { name: 'address', type: 'text', placeholder: 'Address', required: true, label: 'Address' },
     { name: 'contactNo', type: 'text', placeholder: 'Contact Number', required: true, label: 'Contact Number' },
+    { name: 'dateOfBirth', type: 'date', required: true, label: 'DOB' },
     { name: 'bloodGroup', type: 'text', placeholder: 'Blood Group', required: true, label: 'Blood Group' },
     { name: 'parentName', type: 'text', placeholder: "Parent's Name", required: true, label: 'Parent Name' },
     { name: 'parentNumber', type: 'text', placeholder: "Parent's Contact Number", required: true, label: 'Parent Contact' },
-    { name: 'course', type: 'text', placeholder: 'Course', label: 'Course' },
+    { name: 'parentOccupation', type: 'text', placeholder: "Parent's Occupation", label: `Parent's Occupation` },
+    { name: 'workingPlace', type: 'text', placeholder: 'Working Place', label: 'Working Place' },
+    { name: 'collegeName', type: 'text', placeholder: 'College Name', required: true, label: 'College Name' },
+    { name: 'course', type: 'text', placeholder: 'Course', label: 'Course of study' },
+    { name: 'year', type: 'text', placeholder: 'Year', required: true, label: 'Year of study' },
+    {
+      name: 'pgName',
+      type: 'select',
+      options: properties.map((property) => property.propertyName),  // Use the fetched property names here
+      placeholder: 'Property Name',
+      label: 'Property Name',
+      required: true,
+    },
     { name: 'advanceFee', type: 'number', placeholder: 'Advance Fee', label: 'Advance Fee' },
     { name: 'nonRefundableDeposit', type: 'number', placeholder: 'Non-Refundable Deposit', label: 'Deposit' },
     { name: 'monthlyRent', type: 'number', placeholder: 'Monthly Rent', label: 'Rent' },
-    { name: 'photo', type: 'file', accept: 'image/*', required: false, label: 'Profile Image' },
-    { name: 'adharFrontImage', type: 'file', accept: 'image/*', required: false, label: 'Adhar-Front Image' },
-    { name: 'adharBackImage', type: 'file', accept: 'image/*', required: false, label: 'Adhar-back Image' },
-    {
-           name: 'pgName',
-           type: 'select',
-           options: properties.map((property) => property.propertyName),  // Use the fetched property names here
-           placeholder: 'PG Name',
-           label: 'PG Name',
-           required: true,
-    },
     { name: 'roomType', type: 'select', options: ['Single', 'Shared', 'Deluxe'], placeholder: 'Room Type', required: true, label: 'Room' },
     { name: 'roomNo', type: 'text', placeholder: 'Room Number', label: 'Room Number' },
     { name: 'referredBy', type: 'text', placeholder: 'Referred By', required: true, label: 'Referred By' },
     { name: 'typeOfStay', type: 'text', placeholder: 'Type of Stay', label: 'Type of Stay' },
-    { name: 'paymentStatus', type: 'text', placeholder: 'Payment Status', label: 'Payment Status' },
+    { name: 'paymentStatus',  type: 'select', options: ['Paid', 'Pending'], placeholder: 'Payment Status', label: 'Payment Status' },
     { name: 'joinDate', type: 'date', label: 'Join Date' },
-    { name: 'dateOfBirth', type: 'date', required: true, label: 'DOB' },
-    { name: 'gender', type: 'text', placeholder: 'Gender', required: true, label: 'Gender' },
-    { name: 'year', type: 'text', placeholder: 'Year', required: true, label: 'Year' },
-    { name: 'collegeName', type: 'text', placeholder: 'College Name', required: true, label: 'College Name' },
-    { name: 'parentOccupation', type: 'text', placeholder: "Parent's Occupation", label: `Parent's Occupation` },
-    { name: 'workingPlace', type: 'text', placeholder: 'Working Place', label: 'Working Place' },
     { name: 'phase', type: 'text', placeholder: 'phase', label: 'Phase' },
     { name: 'branch', type: 'text', placeholder: 'branch', label: 'Branch' },
+    { name: 'photo', type: 'file', accept: 'image/*', required: false, label: 'Profile Image' },
+    { name: 'adharFrontImage', type: 'file', accept: 'image/*', required: false, label: 'Adhar-Front Image' },
+    { name: 'adharBackImage', type: 'file', accept: 'image/*', required: false, label: 'Adhar-back Image' },
   ];
 
   const handleChange = (e) => {
@@ -239,6 +239,7 @@ function AddStudent() {
                     accept={field.accept || undefined}
                     onChange={handleChange}
                     required={field.required}
+                    min='0'
                   />
                 )}
               </div>

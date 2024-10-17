@@ -3,12 +3,13 @@ import { FaPhone, FaEnvelope, FaMapMarkerAlt, FaBook, FaHeartbeat, FaCalendarAlt
 import DetailCard from './DetailCard'; // Import the DetailCard component
 import TransactionDetails from './TransactionDetails';
 import ConfirmationModal from '../../components/reUsableComponet/ConfirmationModal';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import API_BASE_URL from '../../config';
 import { useSelector } from 'react-redux';
 import axios from 'axios';
 
 const StudentDetails = () => {
+  const navigate = useNavigate()
   const { studentId } = useParams()
   const admin = useSelector(store => store.auth.admin)
   const [student, setStudent] = useState([])
@@ -45,6 +46,7 @@ const StudentDetails = () => {
   ];
 
   const stayDetailItems = [
+    { label: 'Pg/Hostel Name', icon: FaBed, detail: student.pgName },
     { label: 'Stay Type', icon: FaBed, detail: student.typeOfStay },
     { label: 'Room Type', icon: FaDoorOpen, detail: student.roomType },
     { label: 'Join Date', icon: FaCalendarAlt, detail: new Date(student.joinDate).toLocaleDateString() },
@@ -186,7 +188,7 @@ const StudentDetails = () => {
                   ref={dropdownRef} // Attach the ref to the dropdown
                   className="absolute top-5 right-0 mt-2 bg-white shadow-lg rounded-md z-20"
                 >
-                  <button onClick={() => console.log('Edit Student Details')} className="block px-4 py-2 text-gray-800 hover:bg-gray-200">
+                  <button onClick={() => navigate(`/students/edit/${studentId}`)} className="block px-4 py-2 text-gray-800 hover:bg-gray-200">
                     Edit
                   </button>
                   <button onClick={handleOpenWarning} className="block px-4 py-2 text-gray-800 hover:bg-gray-200">
