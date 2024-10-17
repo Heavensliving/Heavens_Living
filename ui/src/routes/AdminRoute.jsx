@@ -26,6 +26,7 @@ import EditPeople from '../pages/messManagement/EditPeople.jsx'
 import EditStudent from '../pages/studentManagement/EditSudent.jsx'
 import EditStaff from '../pages/staff/EditStaff.jsx'
 import AddMaintanence from '../pages/Maintenance/AddMaintanence.jsx'
+import MealHistory from '../pages/messManagement/MealHistory.jsx'
 
 const AdminRoute = () => {
     return (
@@ -61,6 +62,7 @@ const AdminRoute = () => {
                     <Route path='/editproperty/:propertyId' element={<EditProperty/>} />
                     <Route path='/editPeople/:id' element={<EditPeople/>}/>
                     <Route path='/add-maintanence' element={<AddMaintanence/>}/>
+                    <Route path='/meal-history' element={<MealHistory/>}/>
 
                    
 

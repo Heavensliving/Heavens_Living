@@ -34,6 +34,9 @@ const pageConfig = {
     '/mess': {
       title: 'Mess Management',
     },
+    '/meal-history':{
+      title:'Meal History'
+    },
     '/manage-people': {
       title: 'Manage People',
     },

@@ -66,7 +66,7 @@ function MessManagement() {
       <div className="flex justify-between flex-wrap mb-4">
         {/* Left Side: View History and Manage People Buttons */}
         <div className="flex space-x-4">
-          <button className="text-black font-semibold hover:underline">
+          <button onClick={() => navigate('/meal-history')} className="text-black font-semibold hover:underline">
             View History
           </button>
           <button
