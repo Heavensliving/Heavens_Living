@@ -15,16 +15,17 @@ const adOnRoute = require('./routes/adOn');
 const commissionRoutes = require('./routes/Commission')
 const peopleRoutes = require('./routes/people');
 const maintenaceRoutes = require('./routes/Maintanence');
+const messOrderRoutes = require('./routes/MessOrder')
 
 dotenv.config();
 
 const app = express();
 
 // Middleware
-app.use(cors()); // Enable CORS
+app.use(cors()); 
 app.use(express.json());
 app.use(fileUpload({
-  createParentPath: true // Automatically create the parent directory if it doesn't exist
+  createParentPath: true 
 }));
 
 // MongoDB Connection
@@ -44,6 +45,7 @@ app.use('/api/adOn',adOnRoute);
 app.use('/api/commission',commissionRoutes)
 app.use('/api/people',peopleRoutes)
 app.use('/api/maintenance',maintenaceRoutes)
+app.use('/api/messOrder',messOrderRoutes)
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
