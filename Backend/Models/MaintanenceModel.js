@@ -6,7 +6,7 @@ const MaintananceSchema = new mongoose.Schema({
   issue:{ type:String, required:true},
   AssignedTo:{type:String,required:true},
   Timeneeded:{type:String,required:true},
-  Status:{ type:String,required:true},
+  Status:{ type:String,required:true,default:"Pending"},
   propertyId:{type:String,required:true}
 });
 

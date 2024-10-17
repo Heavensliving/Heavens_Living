@@ -9,7 +9,7 @@ import StudentDetails from '../pages/studentManagement/StudentDetails'
 import MessManagement from '../pages/messManagement/MessManagement'
 import AddFood from '../pages/messManagement/AddFood'
 import AddOns from '../pages/messManagement/AddOns'
-import Maintanence from '../pages/Maintanence'
+import Maintanence from '../pages/Maintenance/Maintanence.jsx'
 import AddProperty from '../pages/property/AddProperty'
 import AddStudent from '../pages/studentManagement/AddStudent'
 import AddStaff from '../pages/staff/AddStaff'
@@ -55,6 +55,7 @@ const AdminRoute = () => {
                     <Route path="/add-people" element={<AddPeople />} />
                     <Route path='/editproperty/:propertyId' element={<EditProperty/>} />
                     <Route path='/editPeople/:id' element={<EditPeople/>}/>
+                   
 
                 </Route>
 
