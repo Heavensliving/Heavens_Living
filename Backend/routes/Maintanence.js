@@ -14,7 +14,12 @@ router.delete("/delete/:id",MaintanaceController.deleteMaintenanceById );
 
 router.get("/get/:id",MaintanaceController.getMaintenanceById);
 
-router.put('/update/:id',MaintanaceController.updateMaintenanceStatus);
+router.get('/maintenance/status', MaintanaceController.getMaintenanceByStatus);
+
+router.put('/assign/:id',MaintanaceController.assignStaffToMaintenance);
+
+router.put('/update-assigned-to/:id', MaintanaceController.updateAssignedTo);
+
 
 
 module.exports =router;
