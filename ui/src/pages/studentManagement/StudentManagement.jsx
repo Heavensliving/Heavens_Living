@@ -29,8 +29,8 @@ const StudentManagement = () => {
 
   // Calculate metrics
   const totalStudents = students.length;
-  const paymentPending = students.filter(student => student.paymentStatus === 'unpaid').length;
-  const paymentCompleted = students.filter(student => student.paymentStatus === 'paid').length;
+  const paymentPending = students.filter(student => student.paymentStatus === 'Pending').length;
+  const paymentCompleted = students.filter(student => student.paymentStatus === 'Paid').length;
   const totalCheckedIn = students.filter(student => student.currentStatus === 'checkedIn').length;
   const totalCheckedOut = students.filter(student => student.currentStatus === 'vacated').length;
   const checkedIn = totalCheckedIn;
@@ -181,7 +181,7 @@ const StudentManagement = () => {
           <button
             onClick={() => navigate('/add-student')}
             className="bg-blue-800 text-white rounded-full py-2 px-6 hover:bg-blue-900">
-            Add Student
+            Add New Entry
           </button>
         </div>
       </div>
@@ -222,13 +222,13 @@ const StudentManagement = () => {
                   <td className="py-4 px-4 text-center text-gray-700 font-medium text-xs md:text-sm">{student.contactNo}</td>
                   <td className="py-4 px-4 text-center text-gray-700 font-medium text-xs md:text-sm">{student.roomNo}</td>
                   <td className="py-4 px-4 text-center text-xs md:text-sm">
-                    <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${student.paymentStatus === 'paid' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                    <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${student.paymentStatus ===  'Paid' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
                       }`}>
                       {student.paymentStatus}
                     </span>
                   </td>
                   <td className="py-2 px-2 text-center text-xs md:text-sm">
-                    <button className="text-red-800 hover:underline" onClick={(e) => {
+                    <button className="text-red-600 hover:underline" onClick={(e) => {
                       handleDelete(student._id)
                       e.stopPropagation(); // Prevent row click
                     }}>

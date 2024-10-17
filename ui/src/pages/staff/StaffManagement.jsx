@@ -164,11 +164,11 @@ const StaffManagement = () => {
                   <td className="py-4">{item.id}</td>
                   <td className="py-4">{item.type}</td>
                   <td className="py-4">{item.contact}</td>
-                  <td className={`py-4 ${item.statusColor}`}>{item.status}</td>
+                  <td className={`py-4 text-green-500`}>{item.status}</td>
                   <td className="py-4 flex justify-center items-center space-x-4">
                     {/* Edit Icon */}
                     <FaEdit
-                      className="text-blue-500 cursor-pointer hover:text-blue-700"
+                      className="text-blue-600 cursor-pointer hover:text-blue-700"
                       onClick={(e) => {
                         e.stopPropagation(); // Prevent row click from triggering
                         console.log(`Editing ${item.name}`);
@@ -176,7 +176,7 @@ const StaffManagement = () => {
                     />
                     {/* Delete Icon */}
                     <FaTrash
-                      className="text-red-500 cursor-pointer hover:text-red-700"
+                      className="text-red-600 cursor-pointer hover:text-red-700"
                       onClick={(e) => {
                         e.stopPropagation(); // Prevent row click from triggering
                         handleDelete(item.StaffId)
