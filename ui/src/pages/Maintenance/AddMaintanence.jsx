@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
-const MaintenanceForm = () => {
+const AddMaintanence = () => {
   const navigate = useNavigate();
 
   const handleClick = () => {
@@ -111,4 +111,4 @@ const MaintenanceForm = () => {
   );
 };
 
-export default MaintenanceForm;
+export default AddMaintanence;

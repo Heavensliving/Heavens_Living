@@ -25,6 +25,7 @@ import EditAddOns from '../pages/messManagement/EditAddOns.jsx'
 import EditPeople from '../pages/messManagement/EditPeople.jsx'
 import EditStudent from '../pages/studentManagement/EditSudent.jsx'
 import EditStaff from '../pages/staff/EditStaff.jsx'
+import AddMaintanence from '../pages/Maintenance/AddMaintanence.jsx'
 
 const AdminRoute = () => {
     return (
