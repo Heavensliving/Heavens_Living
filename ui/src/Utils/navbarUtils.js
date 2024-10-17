@@ -16,7 +16,9 @@ const pageConfig = {
     },
     '/staffs/:staffId': {
       title: 'Staff Details',
-
+    },
+    '/staffs/edit/:staffId': {
+      title: 'Edit Staff',
     },
     '/property': {
       title: 'Property Management',

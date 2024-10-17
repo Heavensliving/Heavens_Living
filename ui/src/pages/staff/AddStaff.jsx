@@ -3,6 +3,7 @@ import axios from 'axios';
 import app from '../../firebase';
 import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { useNavigate } from 'react-router-dom';
+import API_BASE_URL from '../../config';
 
 const storage = getStorage();
 
@@ -90,7 +91,7 @@ function AddStaff() {
     }
 
     try {
-      const response = await axios.post('http://localhost:3000/api/staff/add', staffData, {
+      const response = await axios.post(`${API_BASE_URL}/staff/add`, staffData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -108,18 +109,18 @@ function AddStaff() {
   };
 
   const formFields = [
-    { name: 'Name', type: 'text', placeholder: 'Staff Name', required: true },
-    { name: 'Address', type: 'text', placeholder: 'Address', required: true },
-    { name: 'DOB', type: 'date', placeholder: 'Date of Birth', required: true },
-    { name: 'Contactnumber', type: 'number', placeholder: 'Contact Number', required: true },
-    { name: 'Email', type: 'email', placeholder: 'Email (optional)', required: false },
-    { name: 'Photo', type: 'file', placeholder: 'Upload Photo', accept: 'image/*' },
-    { name: 'Adharfrontside', type: 'file', placeholder: 'Upload Aadhar Front', accept: 'image/*' },
-    { name: 'Adharbackside', type: 'file', placeholder: 'Upload Aadhar Back', accept: 'image/*' },
-    { name: 'Type', type: 'text', placeholder: 'Type', required: true },
-    { name: 'Salary', type: 'text', placeholder: 'Salary', required: true },
-    { name: 'PaymentDate', type: 'date', placeholder: 'Payment Date', required: true },
-    { name: 'PaySchedule', type: 'text', placeholder: 'Pay Schedule', required: true }
+    { name: 'Name', label: 'Name', type: 'text', placeholder: 'Staff Name', required: true },
+    { name: 'Address', label: 'Address', type: 'text', placeholder: 'Address', required: true },
+    { name: 'DOB', label: 'Date of Birth', type: 'date', placeholder: 'Date of Birth', required: true },
+    { name: 'Contactnumber', label: 'Contact Number', type: 'number', placeholder: 'Contact Number', required: true },
+    { name: 'Email', label: 'Email', type: 'email', placeholder: 'Email (optional)', required: false },
+    { name: 'Photo', label: 'Photo', type: 'file', placeholder: 'Upload Photo', accept: 'image/*' },
+    { name: 'Adharfrontside', label: 'Aadhar Front', type: 'file', placeholder: 'Upload Aadhar Front', accept: 'image/*' },
+    { name: 'Adharbackside', label: 'Aadhar Back', type: 'file', placeholder: 'Upload Aadhar Back', accept: 'image/*' },
+    { name: 'Type', label: 'Type', type: 'text', placeholder: 'Type', required: true },
+    { name: 'Salary', label: 'Salary', type: 'text', placeholder: 'Salary', required: true },
+    { name: 'PaymentDate', label: 'Payment Date', type: 'date', placeholder: 'Payment Date', required: true },
+    { name: 'PaySchedule', label: 'Pay Schedule', type: 'text', placeholder: 'Pay Schedule', required: true }
   ];
 
   return (
@@ -128,17 +129,20 @@ function AddStaff() {
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {formFields.map((field) => (
-              <input
-                key={field.name}
-                type={field.type}
-                name={field.name}
-                placeholder={field.placeholder}
-                className="p-3 border border-gray-300 rounded-lg w-full"
-                value={field.type !== 'file' ? staffData[field.name] : undefined}
-                onChange={handleChange}
-                required={field.required}
-                accept={field.accept || undefined}
-              />
+              <div key={field.name} className="flex flex-col">
+                <label htmlFor={field.name} className="mb-2 text-sm font-medium text-gray-700">{field.label}</label>
+                <input
+                  id={field.name}
+                  type={field.type}
+                  name={field.name}
+                  placeholder={field.placeholder}
+                  className="p-3 border border-gray-300 rounded-lg w-full"
+                  value={field.type !== 'file' ? staffData[field.name] : undefined}
+                  onChange={handleChange}
+                  required={field.required}
+                  accept={field.accept || undefined}
+                />
+              </div>
             ))}
           </div>
           <button
