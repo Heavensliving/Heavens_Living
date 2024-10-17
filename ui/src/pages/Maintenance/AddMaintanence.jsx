@@ -13,8 +13,7 @@ const MaintenanceForm = () => {
     Name: '',
     issue: '',
     description: '',
-    AssignedTo: '',
-    Timeneeded: '',
+   
   });
 
   const [successMessage, setSuccessMessage] = useState('');
@@ -36,8 +35,7 @@ const MaintenanceForm = () => {
         Name: '',
         issue: '',
         description: '',
-        AssignedTo: '',
-        Timeneeded: '',
+      
       });
 
       // Navigate to maintenance page after successful submission
@@ -101,28 +99,7 @@ const MaintenanceForm = () => {
             rows="3"
           />
         </div>
-        <div className="mb-4">
-          <label className="block text-sm font-bold mb-2" htmlFor="AssignedTo">Assigned To:</label>
-          <input
-            type="text"
-            name="AssignedTo"
-            value={formData.AssignedTo}
-            onChange={handleChange}
-            required
-            className="border rounded w-full py-2 px-3"
-          />
-        </div>
-        <div className="mb-4">
-          <label className="block text-sm font-bold mb-2" htmlFor="Timeneeded">Time Needed:</label>
-          <input
-            type="text"
-            name="Timeneeded"
-            value={formData.Timeneeded}
-            onChange={handleChange}
-            required
-            className="border rounded w-full py-2 px-3"
-          />
-        </div>
+       
         <button
           type="submit"
           className="w-full bg-green-500 text-white font-bold py-2 rounded hover:bg-green-600"

@@ -3,10 +3,10 @@ const Maintanance = require('../Models/MaintanenceModel'); // Adjust the path as
 // Add maintenance record
 const addMaintenance = async (req, res) => {
   try {
-    const { Name, issue, description, AssignedTo, Timeneeded } = req.body;
+    const { Name, issue, description } = req.body;
 
     // Validate the received data if needed
-    if (!Name || !issue || !description || !AssignedTo || !Timeneeded) {
+    if (!Name || !issue || !description) {
       return res.status(400).json({ message: 'All fields are required.' });
     }
 
@@ -14,8 +14,7 @@ const addMaintenance = async (req, res) => {
       Name,
       issue,
       description,
-      AssignedTo,
-      Timeneeded,
+      Status: 'pending', // Default status to 'pending'
     });
 
     await newMaintenance.save();
@@ -25,6 +24,38 @@ const addMaintenance = async (req, res) => {
     res.status(500).json({ message: 'Internal Server Error' });
   }
 };
+
+// Assign staff to a maintenance record by ID
+const assignStaffToMaintenance = async (req, res) => {
+  try {
+    const { id } = req.params; // Maintenance record ID
+    const { staffId } = req.body; // The staff ID passed in the request body
+    console.log(id)
+
+    // Validate the received data
+    if (!staffId) {
+      return res.status(400).json({ message: 'Staff ID is required.' });
+    }
+
+    // Find the maintenance record by ID and update the AssignedTo field
+    const updatedMaintenance = await Maintanance.findByIdAndUpdate(
+      id, // Return the updated document
+    );
+    // Check if the maintenance record exists
+    if (!updatedMaintenance) {
+      return res.status(404).json({ message: 'Maintenance record not found' });
+    }
+
+    res.status(200).json({
+      message: 'Staff assigned successfully!',
+      updatedMaintenance,
+    });
+  } catch (error) {
+    console.error('Error assigning staff:', error); // Log the error for debugging
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
+};
+
 
 // Get total maintenance records
 const getTotalMaintenance = async (req, res) => {
@@ -78,41 +109,63 @@ const deleteMaintenanceById = async (req, res) => {
   }
 };
 
-const updateMaintenanceStatus = async (req, res) => {
+// Get maintenance records by status
+const getMaintenanceByStatus = async (req, res) => {
   try {
-    const { id } = req.params;
-    const { Status } = req.body; // Expecting { Status: "resolved" } or { Status: "pending" }
-    
-    // Validate status
-    if (Status !== 'resolved' && Status !== 'pending') {
-      return res.status(400).json({ message: 'Status must be either "resolved" or "pending"' });
+    const { status } = req.query; // Expecting status as a query parameter
+
+    // Validate the status
+    if (status !== 'pending' && status !== 'resolved' && status !== 'assigned') {
+      return res.status(400).json({ message: 'Status must be "pending", "assigned", or "resolved"' });
     }
 
-    const updatedRecord = await Maintanance.findByIdAndUpdate(
+    const maintenanceRecords = await Maintanance.find({ Status: status });
+
+    res.status(200).json(maintenanceRecords);
+  } catch (error) {
+    res.status(500).json({ message: 'Error retrieving maintenance records', error: error.message });
+  }
+};
+const updateAssignedTo = async (req, res) => {
+  try {
+    const { id } = req.params; // Maintenance record ID
+    const { AssignedTo } = req.body; // The new value for AssignedTo
+    console.log({id});
+
+    // Validate the received data
+    if (!AssignedTo) {
+      return res.status(400).json({ message: 'AssignedTo is required.' });
+    }
+
+    // Find the maintenance record by ID and update the AssignedTo field
+    const updatedMaintenance = await Maintanance.findByIdAndUpdate(
       id,
-      { Status },
-      { new: true, runValidators: true } // Return the updated document
+      { AssignedTo }, // Update AssignedTo with the provided value
+      { new: true } // Return the updated document
     );
 
-    if (!updatedRecord) {
+    // Check if the maintenance record exists
+    if (!updatedMaintenance) {
       return res.status(404).json({ message: 'Maintenance record not found' });
     }
 
-    res.status(200).json({ message: 'Maintenance status updated successfully', updatedRecord });
+    res.status(200).json({
+      message: 'AssignedTo updated successfully!',
+      updatedMaintenance,
+    });
   } catch (error) {
-    res.status(500).json({ message: 'Error updating maintenance status', error: error.message });
+    console.error('Error updating AssignedTo:', error); // Log the error for debugging
+    res.status(500).json({ message: 'Internal Server Error' });
   }
 };
 
-
 module.exports = {
   addMaintenance,
+  assignStaffToMaintenance, // Export the new function
   getTotalMaintenance,
   getMaintenanceById,
   deleteMaintenanceById,
-  updateMaintenanceStatus,
-  getAllMaintenance
+  getAllMaintenance,
+  getMaintenanceByStatus,
+  updateAssignedTo,
 };
-
-
-
