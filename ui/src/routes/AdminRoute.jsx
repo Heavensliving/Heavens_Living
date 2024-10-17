@@ -24,6 +24,7 @@ import AddAddOnsItem from '../pages/messManagement/AddAddOnsItem.jsx'
 import EditAddOns from '../pages/messManagement/EditAddOns.jsx'
 import EditPeople from '../pages/messManagement/EditPeople.jsx'
 import EditStudent from '../pages/studentManagement/EditSudent.jsx'
+import AddMaintanence from '../pages/Maintenance/AddMaintanence.jsx'
 
 const AdminRoute = () => {
     return (
@@ -57,6 +58,8 @@ const AdminRoute = () => {
                     <Route path="/add-people" element={<AddPeople />} />
                     <Route path='/editproperty/:propertyId' element={<EditProperty/>} />
                     <Route path='/editPeople/:id' element={<EditPeople/>}/>
+                    <Route path='/add-maintanence' element={<AddMaintanence/>}/>
+
                    
 
                 </Route>

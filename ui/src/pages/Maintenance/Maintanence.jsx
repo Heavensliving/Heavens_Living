@@ -1,14 +1,21 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
 
 
 function Maintanenace() {
+
+  const navigate = useNavigate();
+
+  const handleAddMaintanenceClick = () => {
+    navigate('/add-maintanence');
+  }
   return (
     <div className="relative h-screen">
       {/* Existing Section */}
       <div className="mt-4 p-4 h-full flex flex-col">
         {/* Add Maintenance Button */}
-        <button className="absolute top-4 right-4 flex items-center bg-green-500 text-white px-4 py-2 rounded-full shadow hover:bg-green-600">
+        <button onClick={handleAddMaintanenceClick} className="absolute top-4 right-4 flex items-center bg-green-500 text-white px-4 py-2 rounded-full shadow hover:bg-green-600">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             className="h-5 w-5 mr-1"
