@@ -3,7 +3,6 @@ import { FiCheckCircle, FiClock, FiXCircle } from 'react-icons/fi'; // Import ic
 
 const TransactionDetails = ({ onClose, transaction, slideIn }) => {
     useEffect(() => {
-        console.log(transaction); // This will log the transaction array
     }, [transaction]);
 
     const getStatusIcon = (status) => {

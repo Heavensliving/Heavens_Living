@@ -88,9 +88,9 @@ const StaffManagement = () => {
 
   // Sorting options for the dropdown
   const sortingOptions = [
+    { value: 'All', label: 'All' },
     { value: 'Active', label: 'Active' },
     { value: 'Inactive', label: 'Inactive' },
-    { value: 'All', label: 'All' }
   ];
 
   // Handle search term change
@@ -122,7 +122,7 @@ const StaffManagement = () => {
             <FaUsers className="text-blue-600 text-2xl mr-2" />
             <div>
               <h2 className="text-lg font-semibold">Total Staffs</h2>
-              <p className="text-xl font-bold">{staffs.length}</p>
+              <p className="text-xl font-bold">{originalStaffs.length}</p>
             </div>
           </div>
         </div>
