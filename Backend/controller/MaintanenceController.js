@@ -129,18 +129,17 @@ const getMaintenanceByStatus = async (req, res) => {
 const updateAssignedTo = async (req, res) => {
   try {
     const { id } = req.params; // Maintenance record ID
-    const { AssignedTo } = req.body; // The new value for AssignedTo
-    console.log({id});
+    const { AssignedTo } = req.body; // AssignedTo object containing staffId and staffName
 
     // Validate the received data
-    if (!AssignedTo) {
-      return res.status(400).json({ message: 'AssignedTo is required.' });
+    if (!AssignedTo || !AssignedTo.staffId || !AssignedTo.staffName) {
+      return res.status(400).json({ message: 'StaffId and StaffName are required.' });
     }
 
     // Find the maintenance record by ID and update the AssignedTo field
-    const updatedMaintenance = await Maintanance.findByIdAndUpdate(
+    const updatedMaintenance = await Maintenance.findByIdAndUpdate(
       id,
-      { AssignedTo }, // Update AssignedTo with the provided value
+      { AssignedTo }, // Update with the provided staffId and staffName
       { new: true } // Return the updated document
     );
 
@@ -154,7 +153,7 @@ const updateAssignedTo = async (req, res) => {
       updatedMaintenance,
     });
   } catch (error) {
-    console.error('Error updating AssignedTo:', error); // Log the error for debugging
+    console.error('Error updating AssignedTo:', error);
     res.status(500).json({ message: 'Internal Server Error' });
   }
 };
