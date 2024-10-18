@@ -14,7 +14,9 @@ const PendingIssues = () => {
     const fetchMaintenanceRecords = async () => {
       try {
         const response = await axios.get('http://localhost:3000/api/maintenance/get');
-        setRecords(response.data);
+        // Filter for records without AssignedTo
+        const unassignedRecords = response.data.filter(record => !record.AssignedTo);
+        setRecords(unassignedRecords);
       } catch (err) {
         setError('Error fetching maintenance records');
       } finally {
@@ -80,7 +82,7 @@ const PendingIssues = () => {
           <tbody>
             {records.map((record, index) => (
               <tr key={record._id} className="hover:bg-gray-100">
-                <td className="p-2">{index + 1}</td>
+                <td className="p-2 ">{index + 1}</td>
                 <td className="p-2">{record.Name}</td>
                 <td className="p-2">{record.issue}</td>
                 <td className="p-2">

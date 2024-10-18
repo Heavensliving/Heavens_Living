@@ -8,106 +8,83 @@ import {
   FaAppleAlt,
   FaPlusCircle,
   FaUserPlus,
-  FaCheckCircle, 
-} from 'react-icons/fa'; 
+  FaCheckCircle,
+} from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios'; // Import axios
+import axios from 'axios';
 
 function MessManagement() {
   const navigate = useNavigate();
-  const [foodItems, setFoodItems] = useState({}); // State to hold added food items for each week
-  const [newFoodItem, setNewFoodItem] = useState(''); // State for new food item input
-  const [expandedOrder, setExpandedOrder] = useState(null); // State for expanded order
-  const [expandedAddon, setExpandedAddon] = useState(null); // State for expanded add-on
-  const [collectedOrders, setCollectedOrders] = useState([]); 
+  const [foodItems, setFoodItems] = useState({});
+  const [newFoodItem, setNewFoodItem] = useState('');
+  const [expandedOrder, setExpandedOrder] = useState(null);
+  const [expandedAddon, setExpandedAddon] = useState(null);
+  const [collectedOrders, setCollectedOrders] = useState([]);
 
   useEffect(() => {
-    // Fetch collected orders from the backend
     const fetchCollectedOrders = async () => {
       try {
-        const response = await axios.get('http://localhost:3000/api/messOrder/'); 
+        const response = await axios.get('http://localhost:3000/api/messOrder/');
         setCollectedOrders(response.data);
       } catch (error) {
         console.error('Error fetching orders:', error);
       }
     };
 
-    fetchCollectedOrders(); // Call the fetch function
-  }, []); 
-
-  const addOnOrders = [
-    { id: 'A001', name: 'Extra Salad', orderId: 'A001', roomNo: '101', contactNumber: '123-456-7890', qty: 2 },
-    { id: 'A002', name: 'Soda', orderId: 'A002', roomNo: '102', contactNumber: '234-567-8901', qty: 3 },
-  ];
+    fetchCollectedOrders();
+  }, []);
 
   const toggleExpandOrder = (orderId) => {
-    setExpandedOrder(expandedOrder === orderId ? null : orderId); // Toggle expanded order
+    setExpandedOrder(expandedOrder === orderId ? null : orderId);
   };
-
   const toggleExpandAddon = (addonId) => {
-    setExpandedAddon(expandedAddon === addonId ? null : addonId); // Toggle expanded add-on
+    setExpandedAddon(expandedAddon === addonId ? null : addonId);
   };
 
   const handleMarkAsDelivered = (orderId) => {
-    // Implement your logic for marking the order as delivered
     console.log(`Order ${orderId} marked as delivered!`);
   };
 
-  // Calculate metrics
   const totalOrders = collectedOrders.length;
-  const totalAddons = addOnOrders.length;
+  const totalAddons = collectedOrders.reduce((acc, order) => acc + order.adOns.length, 0);
   const breakfastCount = collectedOrders.filter(order => order.mealType === 'Breakfast').length;
   const lunchCount = collectedOrders.filter(order => order.mealType === 'Lunch').length;
   const dinnerCount = collectedOrders.filter(order => order.mealType === 'Dinner').length;
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-100 p-6">
-      {/* Button Section with Left and Right Buttons */}
+      {/* Button Section */}
       <div className="flex justify-between flex-wrap mb-4">
-        {/* Left Side: View History and Manage People Buttons */}
         <div className="flex space-x-4">
           <button onClick={() => navigate('/meal-history')} className="text-black font-semibold hover:underline">
             View History
           </button>
-          <button
-            onClick={() => navigate('/manage-people')}
-            className="text-black font-semibold hover:underline">
+          <button onClick={() => navigate('/manage-people')} className="text-black font-semibold hover:underline">
             Manage People
           </button>
         </div>
 
-        {/* Right Side: Add People, Add Food, Add Add-ons */}
         <div className="flex space-x-4 mt-2 md:mt-0">
-          {/* Add People Button */}
-          <button
-            onClick={() => navigate('/add-people')}
-            className="bg-purple-500 hover:bg-purple-600 text-white p-2 rounded-full flex items-center justify-center space-x-2 w-40">
+          <button onClick={() => navigate('/add-people')} className="bg-purple-500 hover:bg-purple-600 text-white p-2 rounded-full flex items-center justify-center space-x-2 w-40">
             <FaUserPlus size={16} />
             <span className="text-sm font-semibold">Add People</span>
           </button>
 
-          {/* Add Food Button with white background */}
-          <button
-            onClick={() => navigate('/add-food')}
-            className="bg-white border-2 border-blue-500 text-blue-500 p-2 rounded-full flex items-center justify-center space-x-2 hover:bg-blue-50 w-40"
-          >
+          <button onClick={() => navigate('/add-food')} className="bg-white border-2 border-blue-500 text-blue-500 p-2 rounded-full flex items-center justify-center space-x-2 hover:bg-blue-50 w-40">
             <FaAppleAlt size={16} />
             <span className="text-sm font-semibold">Add Food</span>
           </button>
 
-          {/* Add Add-ons Button with colored background */}
-          <button
-            onClick={() => navigate('/add-ons')}
-            className="bg-green-500 hover:bg-green-600 text-white p-2 rounded-full flex items-center justify-center space-x-2 w-40">
+          <button onClick={() => navigate('/add-ons')} className="bg-green-500 hover:bg-green-600 text-white p-2 rounded-full flex items-center justify-center space-x-2 w-40">
             <FaPlusCircle size={16} />
             <span className="text-sm font-semibold">Add Add-ons</span>
           </button>
         </div>
       </div>
 
-      {/* Responsive Cards for Total Orders, Add-ons, Breakfast, Lunch, and Dinner */}
+      {/* Metrics Section */}
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 mb-6">
-        {/* Total Orders Received */}
+        {/* Total Orders */}
         <div className="bg-white p-3 rounded-lg shadow flex items-center space-x-4">
           <div className="bg-blue-500 p-2 rounded-full text-white">
             <FaUtensils size={20} />
@@ -118,7 +95,7 @@ function MessManagement() {
           </div>
         </div>
 
-        {/* Total Add-ons Received */}
+        {/* Total Add-ons */}
         <div className="bg-white p-3 rounded-lg shadow flex items-center space-x-4">
           <div className="bg-green-500 p-2 rounded-full text-white">
             <FaConciergeBell size={20} />
@@ -129,7 +106,7 @@ function MessManagement() {
           </div>
         </div>
 
-        {/* Breakfast */}
+        {/* Meal Counts */}
         <div className="bg-white p-3 rounded-lg shadow flex items-center space-x-4">
           <div className="bg-yellow-500 p-2 rounded-full text-white">
             <FaCoffee size={20} />
@@ -140,7 +117,6 @@ function MessManagement() {
           </div>
         </div>
 
-        {/* Lunch */}
         <div className="bg-white p-3 rounded-lg shadow flex items-center space-x-4">
           <div className="bg-red-500 p-2 rounded-full text-white">
             <FaHamburger size={20} />
@@ -151,7 +127,6 @@ function MessManagement() {
           </div>
         </div>
 
-        {/* Dinner */}
         <div className="bg-white p-3 rounded-lg shadow flex items-center space-x-4">
           <div className="bg-purple-500 p-2 rounded-full text-white">
             <FaPizzaSlice size={20} />
@@ -163,74 +138,142 @@ function MessManagement() {
         </div>
       </div>
 
-      {/* New Section for Received Orders and Add-on Orders */}
+      {/* Orders Section */}
       <div className="mt-6 flex-1 flex flex-col">
         <h2 className="text-lg font-semibold text-gray-800 mb-2">Order Details</h2>
         
-        {/* Flex container for side-by-side layout */}
         <div className="flex flex-1 space-x-4">
           {/* Received Orders Column */}
           <div className="flex-1 bg-white p-4 rounded-lg shadow flex flex-col">
-            <h3 className="text-gray-600 text-md">Received Orders</h3>
-            <ul className="list-disc ml-5 mt-2 flex-1 overflow-y-auto" style={{ maxHeight: '300px' }}>
-              {collectedOrders.length === 0 ? ( // Check if there are no received orders
-                <li className="text-gray-500 text-center p-3">No received orders.</li>
-              ) : (
-                collectedOrders.map(order => (
-                  <li 
-                    key={order.orderId} 
-                    className="bg-yellow-100 p-3 rounded-lg mb-2 cursor-pointer hover:bg-yellow-200" // Light yellow color
-                    onClick={() => toggleExpandOrder(order.orderId)}
-                  >
-                    <div className="flex justify-between">
-                      <span className="font-semibold">{order.mealType}</span>
-                      <button onClick={() => handleMarkAsDelivered(order.orderId)} className="text-green-500">
-                        <FaCheckCircle />
-                      </button>
-                    </div>
-                    {expandedOrder === order.orderId && (
-                      <div className="mt-2">
-                        <p>Name: {order.name}</p>
-                        <p>Order Id: {order.orderId}</p>
-                        <p>Room No: {order.roomNo}</p>
-                        <p>Contact No: {order.contact}</p>
-                        
-                      </div>
-                    )}
-                  </li>
-                ))
-              )}
-            </ul>
-          </div>
+  <h3 className="text-gray-600 text-md">Received Orders</h3>
+
+  {/* Breakfast Orders */}
+  <div className="mt-4">
+    <h4 className="font-semibold text-lg">Breakfast Orders</h4>
+    <ul className="list-disc ml-5 mt-2 flex-1" style={{ maxHeight: '150px', overflowY: 'auto' }}>
+      {collectedOrders.filter(order => order.mealType === 'Breakfast').length === 0 ? (
+        <li className="text-gray-500 text-center p-3">No breakfast orders.</li>
+      ) : (
+        collectedOrders.filter(order => order.mealType === 'Breakfast').map(order => (
+          <li 
+            key={order.orderId} 
+            className="bg-yellow-100 p-3 rounded-lg mb-2 cursor-pointer hover:bg-yellow-200"
+            onClick={() => toggleExpandOrder(order.orderId)}
+          >
+            <div className="flex justify-between">
+              <span className="font-semibold">{order.name}</span>
+              <button onClick={() => handleMarkAsDelivered(order.orderId)} className="text-green-500">
+                <FaCheckCircle />
+              </button>
+            </div>
+            {expandedOrder === order.orderId && (
+              <div className="mt-2">
+                <p>Order Id: {order.orderId}</p>
+                <p>Room No: {order.roomNo}</p>
+                <p>Contact No: {order.contact}</p>
+              </div>
+            )}
+          </li>
+        ))
+      )}
+    </ul>
+  </div>
+
+  {/* Lunch Orders */}
+  <div className="mt-4">
+    <h4 className="font-semibold text-lg">Lunch Orders</h4>
+    <ul className="list-disc ml-5 mt-2 flex-1" style={{ maxHeight: '150px', overflowY: 'auto' }}>
+      {collectedOrders.filter(order => order.mealType === 'Lunch').length === 0 ? (
+        <li className="text-gray-500 text-center p-3">No lunch orders.</li>
+      ) : (
+        collectedOrders.filter(order => order.mealType === 'Lunch').map(order => (
+          <li 
+            key={order.orderId} 
+            className="bg-yellow-100 p-3 rounded-lg mb-2 cursor-pointer hover:bg-yellow-200"
+            onClick={() => toggleExpandOrder(order.orderId)}
+          >
+            <div className="flex justify-between">
+              <span className="font-semibold">{order.name}</span>
+              <button onClick={() => handleMarkAsDelivered(order.orderId)} className="text-green-500">
+                <FaCheckCircle />
+              </button>
+            </div>
+            {expandedOrder === order.orderId && (
+              <div className="mt-2">
+                <p>Order Id: {order.orderId}</p>
+                <p>Room No: {order.roomNo}</p>
+                <p>Contact No: {order.contact}</p>
+              </div>
+            )}
+          </li>
+        ))
+      )}
+    </ul>
+  </div>
+
+  {/* Dinner Orders */}
+  <div className="mt-4">
+    <h4 className="font-semibold text-lg">Dinner Orders</h4>
+    <ul className="list-disc ml-5 mt-2 flex-1" style={{ maxHeight: '150px', overflowY: 'auto' }}>
+      {collectedOrders.filter(order => order.mealType === 'Dinner').length === 0 ? (
+        <li className="text-gray-500 text-center p-3">No dinner orders.</li>
+      ) : (
+        collectedOrders.filter(order => order.mealType === 'Dinner').map(order => (
+          <li 
+            key={order.orderId} 
+            className="bg-yellow-100 p-3 rounded-lg mb-2 cursor-pointer hover:bg-yellow-200"
+            onClick={() => toggleExpandOrder(order.orderId)}
+          >
+            <div className="flex justify-between">
+              <span className="font-semibold">{order.name}</span>
+              <button onClick={() => handleMarkAsDelivered(order.orderId)} className="text-green-500">
+                <FaCheckCircle />
+              </button>
+            </div>
+            {expandedOrder === order.orderId && (
+              <div className="mt-2">
+                <p>Order Id: {order.orderId}</p>
+                <p>Room No: {order.roomNo}</p>
+                <p>Contact No: {order.contact}</p>
+              </div>
+            )}
+          </li>
+        ))
+      )}
+    </ul>
+  </div>
+</div>
 
           {/* Add-on Orders Column */}
           <div className="flex-1 bg-white p-4 rounded-lg shadow flex flex-col">
             <h3 className="text-gray-600 text-md">Add-on Orders</h3>
-            <ul className="list-disc ml-5 mt-2 flex-1 overflow-y-auto" style={{ maxHeight: '300px' }}>
-              {addOnOrders.length === 0 ? ( // Check if there are no add-on orders
+            <ul className="list-disc ml-5 mt-2 flex-1" style={{ maxHeight: '300px' }}>
+              {totalAddons === 0 ? (
                 <li className="text-gray-500 text-center p-3">No add-on orders.</li>
               ) : (
-                addOnOrders.map(addon => (
-                  <li 
-                    key={addon.id} 
-                    className="bg-green-100 p-3 rounded-lg mb-2 cursor-pointer hover:bg-green-200" // Light green color
-                    onClick={() => toggleExpandAddon(addon.id)}
-                  >
-                    <div className="flex justify-between">
-                      <span className="font-semibold">{addon.name}</span>
-                      <button onClick={() => handleMarkAsDelivered(addon.orderId)} className="text-blue-500">
-                        <FaCheckCircle />
-                      </button>
-                    </div>
-                    {expandedAddon === addon.id && (
-                      <div className="mt-2">
-                        <p>Order ID: {addon.orderId}</p>
-                        <p>Room No: {addon.roomNo}</p>
-                        <p>Quantity: {addon.qty}</p>
+                collectedOrders.flatMap(order => 
+                  order.adOns.map((addon, index) => (
+                    <li 
+                      key={`${order.orderId}-${index}`} 
+                      className="bg-green-100 p-3 rounded-lg mb-2 cursor-pointer hover:bg-green-200"
+                      onClick={() => toggleExpandAddon(`${order.orderId}-${index}`)} // Using a combination of orderId and index for unique key
+                    >
+                      <div className="flex justify-between">
+                        <span className="font-semibold">{addon}</span>
+                        <button onClick={() => handleMarkAsDelivered(order.orderId)} className="text-blue-500">
+                          <FaCheckCircle />
+                        </button>
                       </div>
-                    )}
-                  </li>
-                ))
+                      {expandedAddon === `${order.orderId}-${index}` && ( // Match with combined key
+                        <div className="mt-2">
+                          <p>Order ID: {order.orderId}</p>
+                          <p>Room No: {order.roomNo}</p>
+                          <p>Quantity: {order.qty || 1}</p>
+                        </div>
+                      )}
+                    </li>
+                  ))
+                )
               )}
             </ul>
           </div>
@@ -241,5 +284,4 @@ function MessManagement() {
 }
 
 export default MessManagement;
-
 
