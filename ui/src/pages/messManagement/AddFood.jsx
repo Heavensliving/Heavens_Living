@@ -111,7 +111,7 @@ function AddFood() {
         };
 
         const response = await axios.post(`${API_BASE_URL}/mess/addFood`, requestBody);
-        console.log('Food items added:', response.data);
+       
       } catch (error) {
         console.error('Error adding food items:', error);
       }
@@ -131,7 +131,7 @@ function AddFood() {
         };
 
         const response = await axios.put(`${API_BASE_URL}/mess/deleteFoodItem`, requestBody); // Remove 'data' key
-        console.log('Food item deleted:', response.data);
+       
 
         // Update the local state to remove the item
         const updatedMenu = {
@@ -158,11 +158,8 @@ function AddFood() {
         const requestBody = {
           dayOfWeek: selectedDay,
         };
-
         // Call the API to delete all food items for the selected day
-        const response = await axios.delete(`${API_BASE_URL}/mess/deleteMealPlan/${selectedDay}`, { data: requestBody });
-        console.log('All meals deleted:', response.data);
-
+        const response = await axios.delete(`${API_BASE_URL}/mess/deleteMealPlan/${selectedDay}`, { data: requestBody })
         // Clear the menu for the selected day in local state
         setMenus((prevMenus) => ({
           ...prevMenus,

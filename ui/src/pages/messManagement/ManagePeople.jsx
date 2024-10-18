@@ -17,7 +17,7 @@ function ManagePeople() {
     const fetchPeople = async () => {
       try {
         const response = await axios.get('http://localhost:3000/api/people/get-people');
-        console.log('Fetched data:', response.data);
+        
         setPeople(response.data.data || []);
       } catch (error) {
         console.error('Error fetching people:', error);
@@ -106,7 +106,7 @@ function ManagePeople() {
                     {person.timePeriod.months} Months / {person.timePeriod.days} Days
                   </td>
                   <td className="py-3 px-6 text-left">{new Date(person.joinDate).toLocaleDateString()}</td>
-                  <td className="py-3 px-6 text-left text-yellow-500">{person.daysLeft}</td>
+                  <td className="py-3 px-6 text-left text-yellow-500">{person.daysLeft} </td>
                   <td className="py-3 px-6 flex justify-center items-center space-x-4">
                     <FaEdit
                       className="text-blue-500 cursor-pointer hover:text-blue-700"

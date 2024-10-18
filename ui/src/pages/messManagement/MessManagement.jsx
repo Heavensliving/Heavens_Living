@@ -42,7 +42,7 @@ function MessManagement() {
   };
 
   const handleMarkAsDelivered = (orderId) => {
-    console.log(`Order ${orderId} marked as delivered!`);
+   
   };
 
   const totalOrders = collectedOrders.length;

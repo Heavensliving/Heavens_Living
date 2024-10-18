@@ -5,7 +5,6 @@ const AssignStaffModal = ({ isOpen, onClose, onAssign, staffMembers }) => {
   const [selectedStaff, setSelectedStaff] = useState('');
 
   const handleSubmit = (e) => {
-    console.log(onAssign)
     e.preventDefault();
     if (selectedStaff) {
       onAssign(selectedStaff); 

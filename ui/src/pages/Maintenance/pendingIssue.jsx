@@ -50,7 +50,6 @@ const PendingIssues = () => {
     }
   
     const staffName = selectedStaffMember.Name;
-    console.log(selectedRecord._id)
 
     try {
       await axios.put(`http://localhost:3000/api/maintenance/assign/${selectedRecord._id}`, {

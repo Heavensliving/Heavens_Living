@@ -73,7 +73,7 @@ function EditPeople() {
       const response = await axios.get(`http://localhost:3000/api/people/get-people/${id}`);
       const personData = response.data.data; // Access the nested data object
 
-      console.log('Fetched personData:', personData); // Verify personData
+      
 
       if (personData) {
         const updatedFormData = {
@@ -89,7 +89,7 @@ function EditPeople() {
           joinDate: personData.joinDate // Save joinDate to the form data
         };
 
-        console.log('Updated form data before setting:', updatedFormData); // Log before setting
+        
 
         setFormData(updatedFormData); // Set the form data
       }
@@ -118,8 +118,6 @@ function EditPeople() {
         joinDate: formData.joinDate // Include joinDate in the request payload
       });
 
-      console.log('Success:', response.data);
-      // Reset form after successful submission
       setFormData({
         name: '',
         contactNumber: '',
