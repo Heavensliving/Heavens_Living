@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { FaBell, FaCog, FaSearch } from 'react-icons/fa';
 import pageConfig from '../../../Utils/NavbarUtils';
 import { useLocation } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 
 const Navbar = () => {
     const location = useLocation();
+    const admin = useSelector(store => store.auth.admin)
     const getPageTitle = (path) => {
         const matchedPath = Object.keys(pageConfig).find((key) => {
             // Replace any dynamic segments like :studentId with a wildcard pattern to check matches
@@ -48,7 +50,7 @@ const Navbar = () => {
 
                     <div className="flex items-end">
                         <div className="flex flex-col items-end ml-2 hidden lg:flex"> {/* Hidden on small screens */}
-                            <span className="text-gray-700">John Doe</span>
+                            <span className="text-gray-700">{admin.adminName}</span>
                             <span className="text-gray-500 text-sm">Admin</span>
                         </div>
                         <div className="ml-2 h-10 w-10 rounded-full overflow-hidden">

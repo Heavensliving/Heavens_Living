@@ -29,17 +29,17 @@ const addMaintenance = async (req, res) => {
 const assignStaffToMaintenance = async (req, res) => {
   try {
     const { id } = req.params; // Maintenance record ID
-    const { staffId } = req.body; // The staff ID passed in the request body
-    console.log(id)
+    const { staffName } = req.body; // The staff ID passed in the request body
 
     // Validate the received data
-    if (!staffId) {
+    if (!id) {
       return res.status(400).json({ message: 'Staff ID is required.' });
     }
 
     // Find the maintenance record by ID and update the AssignedTo field
     const updatedMaintenance = await Maintanance.findByIdAndUpdate(
-      id, // Return the updated document
+      id,
+      {AssignedTo:staffName}, // Return the updated document
     );
     // Check if the maintenance record exists
     if (!updatedMaintenance) {

@@ -29,7 +29,7 @@ const SearchAndSort = ({
             onChange={(e) => onSortChange(e.target.value)}
             className="border rounded-full py-2 pl-4 pr-8 focus:outline-none focus:ring-2 focus:ring-blue-500 w-32 appearance-none"
           >
-            <option value="">Sort by...</option>
+            <option value="" disabled>Filter by...</option>
             {sortingOptions.map((option) => (
               <option key={option.value} value={option.value}>
                 {option.label}

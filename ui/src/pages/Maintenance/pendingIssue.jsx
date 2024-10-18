@@ -41,22 +41,19 @@ const PendingIssues = () => {
   };
 
   const handleAssignStaff = async (staffId) => {
-    const selectedStaffMember = staffMembers.find(staff => staff.StaffId === staffId);
+    const selectedStaffMember = staffMembers.find(staff => staff._id === staffId);
     if (!selectedStaffMember) {
       console.error('Staff member not found');
       return;
     }
   
     const staffName = selectedStaffMember.Name;
-  
+    console.log(selectedRecord._id)
+
     try {
       await axios.put(`http://localhost:3000/api/maintenance/assign/${selectedRecord._id}`, {
-        AssignedTo: {
-          staffId,
           staffName,
-        }
       });
-      alert('Staff assigned successfully!');
       setIsModalOpen(false); // Close the modal after assigning staff
     } catch (err) {
       console.error('Error assigning staff', err);

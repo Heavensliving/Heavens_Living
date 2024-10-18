@@ -5,6 +5,7 @@ const AssignStaffModal = ({ isOpen, onClose, onAssign, staffMembers }) => {
   const [selectedStaff, setSelectedStaff] = useState('');
 
   const handleSubmit = (e) => {
+    console.log(onAssign)
     e.preventDefault();
     if (selectedStaff) {
       onAssign(selectedStaff); 
@@ -53,20 +54,6 @@ const AssignStaffModal = ({ isOpen, onClose, onAssign, staffMembers }) => {
       </div>
     </div>
   );
-};
-
-// PropTypes for type-checking
-AssignStaffModal.propTypes = {
-  isOpen: PropTypes.bool.isRequired,
-  onClose: PropTypes.func.isRequired,
-  onAssign: PropTypes.func.isRequired,
-  staffMembers: PropTypes.arrayOf(
-    PropTypes.shape({
-      _id: PropTypes.string.isRequired,
-      StaffId: PropTypes.string.isRequired,
-      staffName: PropTypes.string.isRequired,
-    })
-  ).isRequired,
 };
 
 export default AssignStaffModal;

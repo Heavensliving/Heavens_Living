@@ -14,6 +14,7 @@ const storage = getStorage();
 // Custom hook for fetching staff data
 const useStaffData = () => {
   const [staffs, setStaffs] = useState([]);
+  const [originalStaffs, setOriginalStaffs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -22,6 +23,7 @@ const useStaffData = () => {
       try {
         const res = await axios.get(`${API_BASE_URL}/staff`);
         setStaffs(res.data);
+        setOriginalStaffs(res.data);
       } catch (error) {
         console.error('Error fetching staff:', error);
         setError(error);
@@ -33,12 +35,12 @@ const useStaffData = () => {
     fetchData();
   }, []);
 
-  return { staffs, loading, error };
+  return { staffs, setStaffs, originalStaffs, loading, error };
 };
 
 const StaffManagement = () => {
   const navigate = useNavigate();
-  const { staffs, loading, error } = useStaffData();
+  const { staffs, setStaffs, originalStaffs, loading, error } = useStaffData(); // Access original data
   const [deleteStaffId, setDeleteStaffId] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
@@ -86,9 +88,9 @@ const StaffManagement = () => {
 
   // Sorting options for the dropdown
   const sortingOptions = [
-    { value: 'name', label: 'Name' },
-    { value: 'status', label: 'Status' },
-    { value: 'employee type', label: 'Type' },
+    { value: 'Active', label: 'Active' },
+    { value: 'Inactive', label: 'Inactive' },
+    { value: 'All', label: 'All' }
   ];
 
   // Handle search term change
@@ -98,8 +100,14 @@ const StaffManagement = () => {
 
   // Handle sort change
   const onSortChange = (sortValue) => {
-    // Implement sorting logic here
-    // For example, sort the staffs array based on the selected sortValue
+    if (sortValue === 'All') {
+      // Restore the full list when 'All' is selected
+      setStaffs(originalStaffs);
+    } else {
+      // Filter based on status
+      const filteredStaffs = originalStaffs.filter(staff => staff.Status === sortValue);
+      setStaffs(filteredStaffs);
+    }
   };
 
   if (loading) return <div>Loading...</div>;

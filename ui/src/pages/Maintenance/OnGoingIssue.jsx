@@ -11,7 +11,6 @@ const OngoingIssues = () => {
       try {
         const response = await axios.get('http://localhost:3000/api/maintenance/get'); // Adjust the endpoint as necessary
         setRecords(response.data);
-        console.log(response.data);
       } catch (err) {
         setError('Error fetching maintenance records');
       } finally {
