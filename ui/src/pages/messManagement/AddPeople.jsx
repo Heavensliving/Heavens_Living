@@ -82,7 +82,6 @@ function AddPeople() {
         },
       });
 
-      console.log('Success:', response.data);
       // Reset form after successful submission
       setFormData({
         name: '',

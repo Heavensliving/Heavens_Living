@@ -28,7 +28,6 @@ const AddMaintanence = () => {
     e.preventDefault(); // Prevent default form submission behavior
     try {
       const response = await axios.post('http://localhost:3000/api/maintenance/add', formData);
-      console.log(formData);
       setSuccessMessage('Maintenance issue added successfully!');
       setErrorMessage('');
       setFormData({

@@ -1,5 +1,5 @@
 import React from 'react'
-import Dashboard from '../pages/Dashboard'
+import Dashboard from '../pages/Dashboard/Dashboard.jsx'
 import AdminLayout from '../Layouts/AdminLayout'
 import StudentManagement from '../pages/studentManagement/StudentManagement'
 import { Route, Routes } from 'react-router-dom'

@@ -32,12 +32,12 @@ function AddProperty() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log(propertyData);
+  
   
     try {
       const response = await axios.post('http://localhost:3000/api/property/add', propertyData);
       if (response.status === 201) {
-        console.log('Success:', response.data);
+       
         navigate('/property');
       }
     } catch (error) {

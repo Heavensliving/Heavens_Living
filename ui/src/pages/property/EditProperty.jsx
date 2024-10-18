@@ -54,7 +54,6 @@ function EditProperty() {
     try {
       const response = await axios.put(`http://localhost:3000/api/property/edit/${propertyId}`, propertyData);
       if (response.status === 200) {
-        console.log('Success:', response.data);
         navigate('/property'); 
       }
     } catch (error) {

@@ -73,7 +73,7 @@ const StaffManagement = () => {
 
       // Delete staff record from the database
       await axios.delete(`${API_BASE_URL}/staff/delete/${deleteStaffId}`);
-      console.log("Staff deleted successfully from the database!");
+      
 
       // Update local state
       setStaffs(prevStaffs => prevStaffs.filter(staff => staff._id !== deleteStaffId));

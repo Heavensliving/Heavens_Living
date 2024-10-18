@@ -9,8 +9,9 @@ const OngoingIssues = () => {
   useEffect(() => {
     const fetchMaintenanceRecords = async () => {
       try {
-        const response = await axios.get('http://localhost:3000/api/maintenance/get'); // Adjust the endpoint as necessary
-        setRecords(response.data);
+        const response = await axios.get('http://localhost:3000/api/maintenance/get');
+        const resolvedRecords = response.data.filter(record => record.Status === 'pending');
+        setRecords(resolvedRecords);
       } catch (err) {
         setError('Error fetching maintenance records');
       } finally {
@@ -20,7 +21,6 @@ const OngoingIssues = () => {
 
     fetchMaintenanceRecords();
   }, []);
-
   if (loading) return <p>Loading...</p>;
   if (error) return <p>{error}</p>;
 
