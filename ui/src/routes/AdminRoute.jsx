@@ -27,6 +27,13 @@ import EditStudent from '../pages/studentManagement/EditSudent.jsx'
 import EditStaff from '../pages/staff/EditStaff.jsx'
 import AddMaintanence from '../pages/Maintenance/AddMaintanence.jsx'
 import MealHistory from '../pages/messManagement/MealHistory.jsx'
+import BranchManagement from '../pages/property/BranchManagement.jsx'
+import AddBranch from '../pages/property/AddBranch.jsx'
+import EditBranch from '../pages/property/EditBranch.jsx'
+import PhaseManagement from '../pages/property/PhaseManagement.jsx'
+import EditPhase from '../pages/property/EditPhase.jsx'
+import AddPhase from '../pages/property/AddPhase.jsx'
+
 
 const AdminRoute = () => {
     return (
@@ -63,8 +70,13 @@ const AdminRoute = () => {
                     <Route path='/editPeople/:id' element={<EditPeople/>}/>
                     <Route path='/add-maintanence' element={<AddMaintanence/>}/>
                     <Route path='/meal-history' element={<MealHistory/>}/>
+                    <Route path='/branch-management' element={<BranchManagement/>}/>
+                    <Route path='/add-branch' element={<AddBranch/>}/>
+                    <Route path='/update/:id' element={<EditBranch/>}/>
+                    <Route path='/phase-management' element={<PhaseManagement/>}/>
+                    <Route path='/add-phase' element={<AddPhase/>}/>
+                    <Route path='/updatePhase/:id' element={<EditPhase/>}/>
 
-                   
 
                 </Route>
 

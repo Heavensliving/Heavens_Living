@@ -71,6 +71,9 @@ const pageConfig = {
     '/add-staff': {
       title: 'Add Staff',
     },
+    '/update/:id': {
+      title: 'Update Branch',
+    },
   };
   
   export default pageConfig;

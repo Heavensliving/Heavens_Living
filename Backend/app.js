@@ -15,7 +15,9 @@ const adOnRoute = require('./routes/adOn');
 const commissionRoutes = require('./routes/Commission')
 const peopleRoutes = require('./routes/people');
 const maintenaceRoutes = require('./routes/Maintanence');
-const messOrderRoutes = require('./routes/MessOrder')
+const messOrderRoutes = require('./routes/MessOrder');
+const branchRoutes = require('./routes/Branch');
+const phaseRoutes = require('./routes/Phase')
 
 dotenv.config();
 
@@ -42,10 +44,13 @@ app.use('/api/fee', feeRoutes);
 app.use('/api/expense',expenseRoute);
 app.use('/api/mess',messRoute);
 app.use('/api/adOn',adOnRoute);
-app.use('/api/commission',commissionRoutes)
-app.use('/api/people',peopleRoutes)
-app.use('/api/maintenance',maintenaceRoutes)
-app.use('/api/messOrder',messOrderRoutes)
+app.use('/api/commission',commissionRoutes);
+app.use('/api/people',peopleRoutes);
+app.use('/api/maintenance',maintenaceRoutes);
+app.use('/api/messOrder',messOrderRoutes);
+app.use('/api/branch',branchRoutes);
+app.use('/api/phase',phaseRoutes);
+
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
