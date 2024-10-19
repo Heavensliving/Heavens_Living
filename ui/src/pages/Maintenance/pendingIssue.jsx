@@ -66,7 +66,7 @@ const PendingIssues = () => {
   if (error) return <div>{error}</div>;
 
   return (
-    <div className="bg-white shadow-md rounded-lg p-4 w-1/3 flex flex-col">
+    <div className="bg-white shadow-md rounded-lg p-4 w-1/2 flex flex-col">
       <h2 className="text-lg font-bold text-gray-800 mb-2">Pending Issues</h2>
       <div className="flex-grow max-h-40">
         <table className="min-w-full text-left">

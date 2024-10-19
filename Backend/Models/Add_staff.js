@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 
 const staffSchema = new mongoose.Schema({
   Name: { type: String, required: true },
-  StaffId: { type: String, required: true },
+  StaffId: { type: String, required: true, unique: true, },
   DOB: { type: Date, required: true },
   Contactnumber: { type: String, required: true },
   Address: {type: String, required: true},
@@ -15,7 +15,12 @@ const staffSchema = new mongoose.Schema({
   Salary: {type: String, required: true},
   PaymentDate: {type: Date, required: true},
   PaySchedule: {type: String, required: true},
-  Status: {type: String, required: true}
+  Status: {type: String, required: true},
+  propertyName: {type: String, required: true},
+  property: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Property'
+}
 });
 
 const Staff = mongoose.model("Staff", staffSchema);

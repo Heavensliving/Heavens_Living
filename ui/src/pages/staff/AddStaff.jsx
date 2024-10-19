@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import app from '../../firebase';
 import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
@@ -23,20 +23,56 @@ function AddStaff() {
     Salary: '',
     PaymentDate: '',
     PaySchedule: '',
+    propertyName: '',
     Status: 'Active'
   });
+  const [properties, setProperties] = useState([]);
+
+  useEffect(() => {
+    // Fetch property names from the backend
+    const fetchProperties = async () => {
+      try {
+        const response = await axios.get(`${API_BASE_URL}/property`);
+        setProperties(response.data);
+      } catch (error) {
+        console.error('Error fetching properties:', error);
+      }
+    };
+    fetchProperties();
+  }, []);
+
+  const propertyNames = properties.map((property) => ({
+    id: property._id,
+    name: property.propertyName
+  }))
 
   const handleChange = (e) => {
     const { name, value, type, files } = e.target;
+
     if (type === 'file') {
       setStaffData({
         ...staffData,
-        [name]: files[0], // Handle file input
+        [name]: files[0],
       });
+    } else if (name === 'propertyName') {
+      // Debug: Log the selected value to see if it's correct
+      console.log("Selected property Name:", value);
+
+      // Find the selected property using the correct key
+      const selectedProperty = properties.find(property => property.propertyName === value);
+
+      // Debug: Log the selected property to verify its structure
+      console.log("Selected Property:", selectedProperty);
+
+      setStaffData((prevData) => ({
+        ...prevData,
+        propertyName: value, // Store the name
+        property: selectedProperty ? selectedProperty._id : '', // Store the ID
+      }));
     } else {
       setStaffData({
         ...staffData,
-        [name]: value, // Handle text input
+        [name]: value || '',
       });
     }
   };
@@ -91,6 +127,7 @@ function AddStaff() {
     }
 
     try {
+      console.log(staffData)
       const response = await axios.post(`${API_BASE_URL}/staff/add`, staffData, {
         headers: {
           'Content-Type': 'multipart/form-data',
@@ -111,17 +148,33 @@ function AddStaff() {
   const formFields = [
     { name: 'Name', label: 'Name', type: 'text', placeholder: 'Staff Name', required: true },
     { name: 'Address', label: 'Address', type: 'text', placeholder: 'Address', required: true },
-    { name: 'DOB', label: 'Date of Birth', type: 'date', placeholder: 'Date of Birth', required: true },
     { name: 'Contactnumber', label: 'Contact Number', type: 'number', placeholder: 'Contact Number', required: true },
     { name: 'Email', label: 'Email', type: 'email', placeholder: 'Email (optional)', required: false },
+    { name: 'DOB', label: 'Date of Birth', type: 'date', placeholder: 'Date of Birth', required: true },
+    { name: 'Type', label: 'Type of Job', type: 'text', placeholder: 'Type', required: true },
+    { name: 'Salary', label: 'Salary', type: 'text', placeholder: 'Salary', required: true },
+    {
+      name: 'PaySchedule',
+      label: 'Pay Schedule',
+      type: 'select',
+      options: ['Daily Pay', 'Weekly', 'Bi-weekly', 'Semi-monthly', 'Monthly'],
+      placeholder: 'Schedule',
+      required: true
+    },
+    {
+      name: 'propertyName',
+      type: 'select',
+      options: propertyNames,
+      placeholder: 'Property Name',
+      label: 'Property Name',
+      required: true,
+    },
+    { name: 'PaymentDate', label: 'Payment Date', type: 'date', placeholder: 'Payment Date', required: true },
     { name: 'Photo', label: 'Photo', type: 'file', placeholder: 'Upload Photo', accept: 'image/*' },
     { name: 'Adharfrontside', label: 'Aadhar Front', type: 'file', placeholder: 'Upload Aadhar Front', accept: 'image/*' },
     { name: 'Adharbackside', label: 'Aadhar Back', type: 'file', placeholder: 'Upload Aadhar Back', accept: 'image/*' },
-    { name: 'Type', label: 'Type', type: 'text', placeholder: 'Type', required: true },
-    { name: 'Salary', label: 'Salary', type: 'text', placeholder: 'Salary', required: true },
-    { name: 'PaymentDate', label: 'Payment Date', type: 'date', placeholder: 'Payment Date', required: true },
-    { name: 'PaySchedule', label: 'Pay Schedule', type: 'text', placeholder: 'Pay Schedule', required: true }
   ];
+
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
@@ -131,17 +184,35 @@ function AddStaff() {
             {formFields.map((field) => (
               <div key={field.name} className="flex flex-col">
                 <label htmlFor={field.name} className="mb-2 text-sm font-medium text-gray-700">{field.label}</label>
-                <input
-                  id={field.name}
-                  type={field.type}
-                  name={field.name}
-                  placeholder={field.placeholder}
-                  className="p-3 border border-gray-300 rounded-lg w-full"
-                  value={field.type !== 'file' ? staffData[field.name] : undefined}
-                  onChange={handleChange}
-                  required={field.required}
-                  accept={field.accept || undefined}
-                />
+                {field.type === 'select' ? (
+                  <select
+                    id={field.name}
+                    name={field.name}
+                    className="p-3 border border-gray-300 rounded-lg w-full"
+                    value={staffData[field.name]}
+                    onChange={handleChange}
+                    required={field.required}
+                  >
+                    <option value="" >{field.placeholder}</option>
+                    {field.options.map((option, index) => (
+                      <option key={index} value={typeof option === 'string' ? option : option.name}>
+                        {typeof option === 'string' ? option : option.name}
+                      </option>
+                    ))}
+                  </select>
+                ) : (
+                  <input
+                    id={field.name}
+                    type={field.type}
+                    name={field.name}
+                    placeholder={field.placeholder}
+                    className="p-3 border border-gray-300 rounded-lg w-full"
+                    value={field.type !== 'file' ? staffData[field.name] : undefined}
+                    onChange={handleChange}
+                    required={field.required}
+                    accept={field.accept || undefined}
+                  />
+                )}
               </div>
             ))}
           </div>
@@ -152,6 +223,7 @@ function AddStaff() {
             Register Staff
           </button>
         </form>
+
       </div>
     </div>
   );

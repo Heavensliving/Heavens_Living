@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { FaPhone, FaEnvelope, FaMapMarkerAlt, FaBriefcase, FaUserCheck, FaMoneyBill, FaCalendarAlt, FaClock, FaTimes } from 'react-icons/fa';
+import { FaPhone, FaEnvelope, FaMapMarkerAlt, FaBriefcase, FaUserCheck, FaMoneyBill, FaCalendarAlt, FaClock } from 'react-icons/fa';
 import { useSelector } from 'react-redux';
 import axios from 'axios';
 import API_BASE_URL from '../../config';
@@ -56,6 +56,7 @@ const StaffDetails = () => {
 
   const staffData = {
     name: staff.Name,
+    property: staff.propertyName,
     id: staff.StaffId,
     contact: staff.Contactnumber,
     email: staff.Email,
@@ -81,8 +82,8 @@ const StaffDetails = () => {
       <div className="bg-white rounded-xl mb-6 w-full max-w-screen-xl">
         <div className="relative">
           <div className="absolute inset-x-0 top-0 h-24 bg-side-bar rounded-t-lg" />
-          <div className="relative z-10 p-6 flex flex-col items-center md:flex-row">
-            <div className="flex-shrink-0">
+          <div className="relative z-10 pr-6 pl-6 pt-6 flex flex-col items-center md:flex-row">
+            <div className="flex-shrink-0 ml-6">
               <ProfileCircle
                 imageSrc={staffData.profileImage}
                 altText={staffData.name}
@@ -90,12 +91,13 @@ const StaffDetails = () => {
               />
               <div className="mt-4 text-center md:text-left">
                 <h2 className="text-2xl font-bold text-gray-900">{staffData.name}</h2>
+                <p className="text-side-bar text-sm">This staff member is assigned to {staffData.property}</p>
                 <p className="text-gray-500">{staffData.id}</p>
               </div>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pr-6 pl-6">
             {/* Left Column - Personal Information */}
             <div className="bg-white p-6 rounded-lg shadow-md">
               <h3 className="text-lg font-semibold mb-4 text-gray-700">Personal Information</h3>

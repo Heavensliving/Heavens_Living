@@ -6,11 +6,16 @@ import StudentTable from './StudentTable';
 import SearchAndSort from '../../components/reUsableComponet/SearchAndSort';
 import { FaUser, FaDollarSign, FaCheckCircle, FaSignInAlt, FaSignOutAlt } from 'react-icons/fa';
 import axios from 'axios';
+import app from '../../firebase';
+import { ref, deleteObject, getStorage } from 'firebase/storage';
 import API_BASE_URL from '../../config';
+
+const storage = getStorage();
 
 const StudentManagement = () => {
   const navigate = useNavigate();
   const [students, setStudents] = useState([]);
+  const [property, setProperty] = useState([]);
   const [deleteStudentId, setDeleteStudentId] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -48,6 +53,7 @@ const StudentManagement = () => {
   const confirmDelete = async () => {
     try {
       const studentToDelete = students.find(student => student._id === deleteStudentId);
+      const propertyId = studentToDelete.property
       const filePaths = [studentToDelete?.adharFrontImage, studentToDelete?.adharBackImage, studentToDelete?.photo].filter(Boolean);
 
       // Delete images from Firebase Storage
@@ -57,7 +63,9 @@ const StudentManagement = () => {
       }));
 
       // Delete student record from the database
-      await axios.delete(`${API_BASE_URL}/students/delete/${deleteStudentId}`);
+      await axios.delete(`${API_BASE_URL}/students/delete/${deleteStudentId}`, {
+        params: { propertyId } // Pass propertyId as query parameter
+      });
       setStudents((prevStudents) => prevStudents.filter((student) => student._id !== deleteStudentId));
 
       // Close modal

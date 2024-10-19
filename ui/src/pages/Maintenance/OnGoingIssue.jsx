@@ -10,7 +10,7 @@ const OngoingIssues = () => {
     const fetchMaintenanceRecords = async () => {
       try {
         const response = await axios.get('http://localhost:3000/api/maintenance/get');
-        const resolvedRecords = response.data.filter(record => record.Status === 'pending');
+        const resolvedRecords = response.data.filter(record => record.Status === 'pending' && record.AssignedTo);
         setRecords(resolvedRecords);
       } catch (err) {
         setError('Error fetching maintenance records');
@@ -25,9 +25,9 @@ const OngoingIssues = () => {
   if (error) return <p>{error}</p>;
 
   return (
-    <div className="bg-white shadow-md rounded-lg p-4 w-1/3 flex flex-col">
+    <div className="bg-white shadow-md rounded-lg p-4 w-1/2 flex flex-col">
       <h2 className="text-lg font-bold text-gray-800 mb-2">Ongoing Issues</h2>
-      <div className="flex-grow max-h-40">
+      <div className="flex-grow ">
         <table className="min-w-full text-left">
           <thead>
             <tr>

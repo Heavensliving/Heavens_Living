@@ -34,6 +34,11 @@ const studentSchema = new mongoose.Schema({
   workingPlace: { type: String },
   branch: { type: String, required: true },
   phase: { type: String, required: true },
+  maintenance: [{type: mongoose.Schema.Types.ObjectId, ref: 'Maintanance'}],
+  property: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Property'
+}
 }, { timestamps: true });
 
 const Student = mongoose.model('Student', studentSchema);

@@ -20,9 +20,9 @@ function AddStudent() {
     advanceFee: '',
     nonRefundableDeposit: '',
     monthlyRent: '',
-    adharFrontImage: null,
-    adharBackImage: null,
-    photo: null,
+    adharFrontImage: '',
+    adharBackImage: '',
+    photo: '',
     pgName: '',
     roomType: '',
     roomNo: '',
@@ -42,9 +42,9 @@ function AddStudent() {
   };
 
 
- const [studentData, setStudentData] = useState(initialData);
- const [properties, setProperties] = useState([]);
- const [uploadProgress, setUploadProgress] = useState({});
+  const [studentData, setStudentData] = useState(initialData);
+  const [properties, setProperties] = useState([]);
+  const [uploadProgress, setUploadProgress] = useState({});
 
   useEffect(() => {
     // Fetch property names from the backend
@@ -80,7 +80,10 @@ function AddStudent() {
     {
       name: 'pgName',
       type: 'select',
-      options: properties.map((property) => property.propertyName),  // Use the fetched property names here
+      options: properties.map((property) => ({
+        id: property.id,
+        name: property.propertyName
+      })),
       placeholder: 'Property Name',
       label: 'Property Name',
       required: true,
@@ -92,7 +95,7 @@ function AddStudent() {
     { name: 'roomNo', type: 'text', placeholder: 'Room Number', label: 'Room Number' },
     { name: 'referredBy', type: 'text', placeholder: 'Referred By', required: true, label: 'Referred By' },
     { name: 'typeOfStay', type: 'text', placeholder: 'Type of Stay', label: 'Type of Stay' },
-    { name: 'paymentStatus',  type: 'select', options: ['Paid', 'Pending'], placeholder: 'Payment Status', label: 'Payment Status' },
+    { name: 'paymentStatus', type: 'select', options: ['Paid', 'Pending'], placeholder: 'Payment Status', label: 'Payment Status' },
     { name: 'joinDate', type: 'date', label: 'Join Date' },
     { name: 'phase', type: 'text', placeholder: 'phase', label: 'Phase' },
     { name: 'branch', type: 'text', placeholder: 'branch', label: 'Branch' },
@@ -103,15 +106,31 @@ function AddStudent() {
 
   const handleChange = (e) => {
     const { name, value, type, files } = e.target;
+
     if (type === 'file') {
       setStudentData({
         ...studentData,
         [name]: files[0],
       });
+    } else if (name === 'pgName') {
+      // Debug: Log the selected value to see if it's correct
+      console.log("Selected PG Name:", value);
+
+      // Find the selected property using the correct key
+      const selectedProperty = properties.find(property => property.propertyName === value);
+
+      // Debug: Log the selected property to verify its structure
+      console.log("Selected Property:", selectedProperty);
+
+      setStudentData((prevData) => ({
+        ...prevData,
+        pgName: value, // Store the name
+        property: selectedProperty ? selectedProperty._id : '', // Store the ID
+      }));
     } else {
       setStudentData({
         ...studentData,
-        [name]: value,
+        [name]: value || '',
       });
     }
   };
@@ -203,44 +222,30 @@ function AddStudent() {
       <div className="bg-white shadow-lg rounded-lg p-8 max-w-4xl w-full">
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-
-            {fields.map((field) => (
-              <div key={field.name} className="flex flex-col">
-                {/* Label for each field */}
+            {fields.map((field, index) => (
+              <div key={index} className="flex flex-col">
                 <label htmlFor={field.name} className="font-medium text-gray-700 mb-2">
                   {field.label}
                 </label>
-
-                {/* Input or select field */}
                 {field.type === 'select' ? (
-                  <select
-                    id={field.name}
-                    name={field.name}
-                    className="p-3 border border-gray-300 rounded-lg w-full"
-                    value={studentData[field.name]}
-                    onChange={handleChange}
-                    required={field.required}
-                  >
-                    <option value="">{field.placeholder}</option>
-                    {field.options.map((option) => (
-                      <option key={option} value={option}>
-                        {option}
+                  <select className="p-3 border border-gray-300 rounded-lg w-full" name={field.name} value={studentData[field.name]} onChange={handleChange} required={field.required}>
+                    <option value='' disabled>{field.placeholder}</option>
+                    {field.options.map((option, index) => (
+                      <option key={index} value={typeof option === 'object' ? option.name : option}>
+                        {typeof option === 'object' ? option.name : option}
                       </option>
                     ))}
                   </select>
                 ) : (
                   <input
-                    id={field.name}
-                    type={field.type}
-                    name={field.name}
-                    placeholder={field.placeholder}
-                    className="p-3 border border-gray-300 rounded-lg w-full"
-                    value={field.type === 'file' ? undefined : studentData[field.name]}
-                    accept={field.accept || undefined}
-                    onChange={handleChange}
-                    required={field.required}
-                    min='0'
-                  />
+                  type={field.type}
+                  name={field.name}
+                  placeholder={field.placeholder}
+                  onChange={handleChange}
+                  accept={field.accept}
+                  className="p-3 border border-gray-300 rounded-lg w-full"
+                />
+                
                 )}
               </div>
             ))}

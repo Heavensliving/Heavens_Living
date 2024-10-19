@@ -1,3 +1,5 @@
+const { default: mongoose } = require('mongoose');
+const Property = require('../Models/Add_property');
 const Student = require('../Models/Add_student');
 const crypto = require('crypto');
 
@@ -10,6 +12,7 @@ const generateStudentId = () => {
 
 // Add student function
 const addStudent = async (req, res) => {
+  const propertyId = req.body.property
   try {
 
     // Generate a unique student ID
@@ -18,9 +21,11 @@ const addStudent = async (req, res) => {
     // Create a new student document
     const student = new Student({
       ...req.body,
-      studentId
+      studentId,
+      property: propertyId
     });
     await student.save(); // Save the student to the database
+    await Property.findByIdAndUpdate(propertyId, { $push: { occupanets: student._id } });
     res.status(201).json({ message: 'Student added successfully', student });
     // });
   } catch (error) {
@@ -94,14 +99,29 @@ const editStudent = async (req, res) => {
 const deleteStudent = async (req, res) => {
   try {
     const { id } = req.params; // Get student ID from the request parameters
+    const propertyId = req.query.propertyId; // Get propertyId as a string from query params
+
+    if (!mongoose.Types.ObjectId.isValid(propertyId)) {
+      return res.status(400).json({ message: 'Invalid property ID' });
+    }
 
     const student = await Student.findByIdAndDelete(id); // Delete the student
 
     if (!student) {
       return res.status(404).json({ message: 'Student not found' });
     }
+    // Find the property and update it by removing the student's ID from the array
+    const property = await Property.findByIdAndUpdate(
+      propertyId,
+      { $pull: { occupanets: id } }, // Remove the student ID from the students array
+      { new: true } // Return the updated document
+    );
 
-    res.status(200).json({ message: 'Student deleted successfully' });
+    if (!property) {
+      return res.status(404).json({ message: 'Property not found' });
+    }
+
+    res.status(200).json({ message: 'Student deleted successfully and removed from property' });
   } catch (error) {
     console.error('Error deleting student:', error); // Log the error
     res.status(500).json({ message: 'Error deleting student', error });

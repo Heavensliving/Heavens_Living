@@ -59,6 +59,7 @@ const StaffManagement = () => {
 
     try {
       const staffToDelete = staffs.find(staff => staff._id === deleteStaffId);
+      const propertyId = staffToDelete.property
       const filePaths = [
         staffToDelete?.Adharfrontside,
         staffToDelete?.Adharbackside,
@@ -72,7 +73,9 @@ const StaffManagement = () => {
       }
 
       // Delete staff record from the database
-      await axios.delete(`${API_BASE_URL}/staff/delete/${deleteStaffId}`);
+      await axios.delete(`${API_BASE_URL}/staff/delete/${deleteStaffId}`, {
+        params: { propertyId } // Pass propertyId as query parameter
+      });
       
 
       // Update local state

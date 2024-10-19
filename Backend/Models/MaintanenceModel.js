@@ -8,7 +8,11 @@ const MaintananceSchema = new mongoose.Schema({
   AssignedTo:{type:String,required:false},
   Timeneeded:{type:String,required:false},
   Status:{ type:String,required:false,default:"Pending"},
-  propertyId:{type:String,required:false}
+  propertyId:{type:String,required:false},
+  student: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Student'
+}
 });
 
 const Maintanance = mongoose.model("Maintanance",MaintananceSchema );
