@@ -67,7 +67,9 @@ function AddStaff() {
       setStaffData((prevData) => ({
         ...prevData,
         propertyName: value, // Store the name
-        property: selectedProperty ? selectedProperty._id : '', // Store the ID
+        property: selectedProperty ? selectedProperty._id : '', 
+        branch: selectedProperty ? selectedProperty.branch : '', 
+        phase: selectedProperty ? selectedProperty.phase : '',
       }));
     } else {
       setStaffData({

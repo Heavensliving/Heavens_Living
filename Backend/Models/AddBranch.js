@@ -14,8 +14,8 @@ const BranchSchema = new mongoose.Schema({
     type:String,
     required:true,
     unique: true
-
-  }
+  },
+  phase: [{type: mongoose.Schema.Types.ObjectId, ref: 'Phase'}],
 })
   
 

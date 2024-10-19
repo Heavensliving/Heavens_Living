@@ -3,6 +3,7 @@ import axios from 'axios';
 import app from '../../firebase';
 import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { useNavigate } from 'react-router-dom';
+import API_BASE_URL from '../../config';
 
 const storage = getStorage();
 
@@ -50,7 +51,7 @@ function AddStudent() {
     // Fetch property names from the backend
     const fetchProperties = async () => {
       try {
-        const response = await axios.get('http://localhost:3000/api/property');  // Update with actual API endpoint
+        const response = await axios.get(`${API_BASE_URL}/property`);  // Update with actual API endpoint
         setProperties(response.data);  // Assuming the API returns an array of properties
       } catch (error) {
         console.error('Error fetching properties:', error);
@@ -97,8 +98,6 @@ function AddStudent() {
     { name: 'typeOfStay', type: 'text', placeholder: 'Type of Stay', label: 'Type of Stay' },
     { name: 'paymentStatus', type: 'select', options: ['Paid', 'Pending'], placeholder: 'Payment Status', label: 'Payment Status' },
     { name: 'joinDate', type: 'date', label: 'Join Date' },
-    { name: 'phase', type: 'text', placeholder: 'phase', label: 'Phase' },
-    { name: 'branch', type: 'text', placeholder: 'branch', label: 'Branch' },
     { name: 'photo', type: 'file', accept: 'image/*', required: false, label: 'Profile Image' },
     { name: 'adharFrontImage', type: 'file', accept: 'image/*', required: false, label: 'Adhar-Front Image' },
     { name: 'adharBackImage', type: 'file', accept: 'image/*', required: false, label: 'Adhar-back Image' },
@@ -125,7 +124,9 @@ function AddStudent() {
       setStudentData((prevData) => ({
         ...prevData,
         pgName: value, // Store the name
-        property: selectedProperty ? selectedProperty._id : '', // Store the ID
+        property: selectedProperty ? selectedProperty._id : '',
+        branch: selectedProperty ? selectedProperty.branch : '',
+        phase: selectedProperty ? selectedProperty.phase : '',
       }));
     } else {
       setStudentData({
@@ -198,7 +199,7 @@ function AddStudent() {
     console.log("studentData", studentData)
 
     try {
-      const response = await axios.post('http://localhost:3000/api/students/add', studentData, {
+      const response = await axios.post(`${API_BASE_URL}/students/add`, studentData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },

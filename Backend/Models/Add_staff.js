@@ -16,6 +16,8 @@ const staffSchema = new mongoose.Schema({
   PaymentDate: {type: Date, required: true},
   PaySchedule: {type: String, required: true},
   Status: {type: String, required: true},
+  branch: {type: String, required: true},
+  phase: {type: String, required: true},
   propertyName: {type: String, required: true},
   property: {
     type: mongoose.Schema.Types.ObjectId,

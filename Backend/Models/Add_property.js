@@ -17,11 +17,15 @@ const PropertySchema = new mongoose.Schema({
   branch: { type: String, required: true },
   phase: { type: String, required: true },
   propertyOwnerName: { type: String, required: true },
+  phases: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Phase'
+  },
   occupanets: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Student' }],
-  staffs: [{type: mongoose.Schema.Types.ObjectId, ref: 'Staff'}],
-  maintenance: [{type: mongoose.Schema.Types.ObjectId, ref: 'Maintanance'}],
-  mess: [{type: mongoose.Schema.Types.ObjectId, ref: 'MessManagement'}],
-  messOrders: [{type: mongoose.Schema.Types.ObjectId, ref: 'MessOrder'}],
+  staffs: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Staff' }],
+  maintenance: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Maintanance' }],
+  mess: [{ type: mongoose.Schema.Types.ObjectId, ref: 'MessManagement' }],
+  messOrders: [{ type: mongoose.Schema.Types.ObjectId, ref: 'MessOrder' }],
 
 }, { timestamps: true });
 
