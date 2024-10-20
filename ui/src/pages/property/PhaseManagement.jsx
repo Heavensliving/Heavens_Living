@@ -3,6 +3,7 @@ import axios from 'axios';
 import { FaBuilding, FaFilter, FaPlus, FaTrashAlt, FaEdit } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import ConfirmationModal from '../../components/reUsableComponet/ConfirmationModal';
+import API_BASE_URL from '../../config';
 
 function PhaseManagement() {
   const [phases, setPhases] = useState([]);
@@ -12,14 +13,15 @@ function PhaseManagement() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [phaseToDelete, setPhaseToDelete] = useState(null); // To store the phase ID to delete
   const navigate = useNavigate();
-
+  
+ 
   useEffect(() => {
     fetchPhases();
   }, []);
 
   const fetchPhases = async () => {
     try {
-      const response = await axios.get('http://localhost:3000/api/phase');
+      const response = await axios.get(`${API_BASE_URL}/phase`);
       console.log('Phase data:', response.data); // Check the data here
       setPhases(response.data);
       setLoading(false);
@@ -46,7 +48,7 @@ function PhaseManagement() {
   const confirmDelete = async () => {
     if (phaseToDelete) {
       try {
-        await axios.delete(`http://localhost:3000/api/phase/delete/${phaseToDelete}`);
+        await axios.delete(`${API_BASE_URL}/phase/delete/${phaseToDelete}`);
         fetchPhases(); // Refresh the phase list after deletion
         setIsModalOpen(false); // Close the modal
       } catch (error) {

@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate, useParams } from 'react-router-dom';
+import API_BASE_URL from '../../config';
+
 
 function EditBranch() {
   const navigate = useNavigate();
@@ -14,7 +16,7 @@ function EditBranch() {
     // Fetch the existing branch data
     const fetchBranchData = async () => {
       try {
-        const response = await axios.get(`http://localhost:3000/api/branch/${id}`);
+        const response = await axios.get(`${API_BASE_URL}/branch/${id}`);
         setBranchData(response.data);
       } catch (error) {
         console.error('Error fetching branch data:', error);
@@ -36,7 +38,7 @@ function EditBranch() {
     e.preventDefault();
 
     try {
-      const response = await axios.put(`http://localhost:3000/api/branch/update/${id}`, branchData);
+      const response = await axios.put(`${API_BASE_URL}/branch/update/${id}`, branchData);
       if (response.status === 200) {
         navigate('/branch-management'); // Redirect to the branch management page after updating
       }

@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios'
+import API_BASE_URL from '../../config';
+
+
 
 const Signup = () => {
     const navigate = useNavigate();
@@ -47,7 +50,7 @@ const Signup = () => {
             return
         }
 
-        axios.post(`http://localhost:3000/api/admin/signup`, { name, email, password })
+        axios.post(`${API_BASE_URL}/admin/signup`, { name, email, password })
     .then((res) => {
         setErrors('');  // Clear errors if successful
         navigate('/login');

@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import API_BASE_URL from '../../config';
+
 
 const OngoingIssues = () => {
   const [records, setRecords] = useState([]);
@@ -9,7 +11,7 @@ const OngoingIssues = () => {
   useEffect(() => {
     const fetchMaintenanceRecords = async () => {
       try {
-        const response = await axios.get('http://localhost:3000/api/maintenance/get');
+        const response = await axios.get(`${API_BASE_URL}/maintenance/get`);
         const resolvedRecords = response.data.filter(record => record.Status === 'pending' && record.AssignedTo);
         setRecords(resolvedRecords);
       } catch (err) {

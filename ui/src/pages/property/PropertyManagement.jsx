@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { FaHome, FaFilter, FaPlus, FaUsers, FaCheck, FaRegCircle } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
+import API_BASE_URL from '../../config';
 
 function PropertyManagement() {
   const [properties, setProperties] = useState([]);
@@ -10,6 +11,7 @@ function PropertyManagement() {
   const [errorMessage, setErrorMessage] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const navigate = useNavigate();
+  
 
   useEffect(() => {
     fetchProperties();
@@ -17,7 +19,7 @@ function PropertyManagement() {
 
   const fetchProperties = async () => {
     try {
-      const response = await axios.get('http://localhost:3000/api/property');
+      const response = await axios.get(`${API_BASE_URL}/property`);
       setProperties(response.data);
       setLoading(false);
     } catch (error) {

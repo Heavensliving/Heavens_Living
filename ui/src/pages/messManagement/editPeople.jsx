@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios'; 
 import { useParams, useNavigate } from 'react-router-dom';
+import API_BASE_URL from '../../config';
 
 function EditPeople() {
   const { id } = useParams(); // Get the ID from the URL
@@ -70,7 +71,7 @@ function EditPeople() {
 
   const fetchPersonData = async () => {
     try {
-      const response = await axios.get(`http://localhost:3000/api/people/get-people/${id}`);
+      const response = await axios.get(`${API_BASE_URL}/people/get-people/${id}`);
       const personData = response.data.data; // Access the nested data object
 
       
@@ -108,7 +109,7 @@ function EditPeople() {
 
     // API Call for submission using Axios
     try {
-      const response = await axios.put(`http://localhost:3000/api/people/edit-person/${id}`, {
+      const response = await axios.put(`${API_BASE_URL}/people/edit-person/${id}`, {
         ...formData,
         mealType: formData.mealType.join(', '), // Convert array to string if needed
         timePeriod: {

@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import AssignStaffModal from './AssignStaffModal'; 
+import API_BASE_URL from '../../config';
+
 
 const PendingIssues = () => {
   const [records, setRecords] = useState([]);
@@ -13,7 +15,7 @@ const PendingIssues = () => {
   useEffect(() => {
     const fetchMaintenanceRecords = async () => {
       try {
-        const response = await axios.get('http://localhost:3000/api/maintenance/get');
+        const response = await axios.get(`${API_BASE_URL}/maintenance/get`);
         // Filter for records without AssignedTo
         const unassignedRecords = response.data.filter(record => !record.AssignedTo);
         setRecords(unassignedRecords);
@@ -26,7 +28,7 @@ const PendingIssues = () => {
 
     const fetchStaffMembers = async () => {
       try {
-        const response = await axios.get('http://localhost:3000/api/staff');
+        const response = await axios.get(`${API_BASE_URL}/staff`);
         setStaffMembers(response.data);
       } catch (err) {
         console.error('Error fetching staff members', err);
@@ -52,7 +54,7 @@ const PendingIssues = () => {
     const staffName = selectedStaffMember.Name;
 
     try {
-      await axios.put(`http://localhost:3000/api/maintenance/assign/${selectedRecord._id}`, {
+      await axios.put(`${API_BASE_URL}/maintenance/assign/${selectedRecord._id}`, {
           staffName,
       });
       setIsModalOpen(false); // Close the modal after assigning staff

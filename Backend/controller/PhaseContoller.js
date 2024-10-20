@@ -2,27 +2,26 @@ const Phase = require('../Models/AddPhase');
 const crypto = require('crypto');
 
 
-const generatePhaseId = () => {
-  const randomDigits = crypto.randomInt(10000, 99999).toString();
-  return `HVNSPH${randomDigits}`;
-};
-
-// Add new Phase
 const addPhase = async (req, res) => {
+  const { Name, Location } = req.body;
+
   try {
-    const { Name, Location } = req.body;
+    
+    const randomNumber = crypto.randomInt(10000, 99999); 
+    const PhaseId = `HVNSPH${randomNumber}`;
+
     const newPhase = new Phase({
       Name,
       Location,
-      PhaseId: generatePhaseId(), // Generate PhaseId
+      PhaseId,
     });
+
     await newPhase.save();
-    res.status(201).json(newPhase);
+    res.status(201).json({ message: 'Branch created successfully', Phase: newPhase });
   } catch (error) {
-    res.status(500).json({ message: 'Error adding phase', error });
+    res.status(500).json({ message: 'Error adding branch', error });
   }
 };
-
 // Get all Phases
 const getAllPhases = async (req, res) => {
   try {

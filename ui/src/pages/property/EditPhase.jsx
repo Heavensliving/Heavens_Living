@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate, useParams } from 'react-router-dom';
+import API_BASE_URL from '../../config';
+
 
 function EditPhase() {
   const navigate = useNavigate();
@@ -15,7 +17,7 @@ function EditPhase() {
     // Fetch the existing phase data
     const fetchPhaseData = async () => {
       try {
-        const response = await axios.get(`http://localhost:3000/api/phase/${id}`);
+        const response = await axios.get(`${API_BASE_URL}/phase/${id}`);
         setPhaseData(response.data);
       } catch (error) {
         console.error('Error fetching phase data:', error);
@@ -37,7 +39,7 @@ function EditPhase() {
     e.preventDefault();
 
     try {
-      const response = await axios.put(`http://localhost:3000/api/phase/update/${id}`, phaseData);
+      const response = await axios.put(`${API_BASE_URL}/phase/update/${id}`, phaseData);
       if (response.status === 200) {
         navigate('/phase-management'); // Redirect to the phase management page after updating
       }
