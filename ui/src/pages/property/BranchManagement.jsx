@@ -3,6 +3,8 @@ import axios from 'axios';
 import { FaBuilding, FaFilter, FaPlus, FaTrashAlt, FaEdit } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import ConfirmationModal from '../../components/reUsableComponet/ConfirmationModal';
+import API_BASE_URL from '../../config';
+
 
 
 function BranchManagement() {
@@ -49,7 +51,7 @@ function BranchManagement() {
   const ConfirmDelete = async () => {
     if (branchToDelete) {
       try {
-        await axios.delete(`http://localhost:3000/api/branch/delete/${branchToDelete}`);
+        await axios.delete(`${API_BASE_URL}/branch/delete/${branchToDelete}`);
         fetchBranches(); // Refresh the branch list after deletion
         setIsModalOpen(false); // Close the modal
       } catch (error) {

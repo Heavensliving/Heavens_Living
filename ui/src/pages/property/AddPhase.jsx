@@ -14,7 +14,7 @@ function AddPhase() {
     e.preventDefault();
     try {
       // Send POST request to backend API
-      const response = await axios.post('http://localhost:3000/api/phase/add', {
+      const response = await axios.post(`${API_BASE_URL}/phase/add`, {
         Name: name,
         Location: location,
         Branch: id

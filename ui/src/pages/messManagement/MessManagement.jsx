@@ -12,6 +12,7 @@ import {
 } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import API_BASE_URL from '../../config';
 
 function MessManagement() {
   const navigate = useNavigate();
@@ -24,7 +25,7 @@ function MessManagement() {
   useEffect(() => {
     const fetchCollectedOrders = async () => {
       try {
-        const response = await axios.get('http://localhost:3000/api/messOrder/');
+        const response = await axios.get(`${API_BASE_URL}/messOrder/`);
         setCollectedOrders(response.data);
       } catch (error) {
         console.error('Error fetching orders:', error);

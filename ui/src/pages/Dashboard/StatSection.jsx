@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { FaBuilding, FaUserGraduate, FaUserTie } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
+import API_BASE_URL from '../../config';
 
 const StatsSection = () => {
   const [totalStudents, setTotalStudents] = useState();
@@ -11,7 +12,7 @@ const StatsSection = () => {
   useEffect(() => {
     const fetchTotalStudents = async () => {
       try {
-        const response = await axios.get('http://localhost:3000/api/students'); 
+        const response = await axios.get(`${API_BASE_URL}/students`); 
         setTotalStudents(response.data.length); 
       } catch (error) {
         console.error('Error fetching total students:', error);
@@ -24,7 +25,7 @@ const StatsSection = () => {
   useEffect(() => {
     const fetchTotalStaffs = async () => {
       try {
-        const response = await axios.get('http://localhost:3000/api/staff'); 
+        const response = await axios.get(`${API_BASE_URL}/staff`); 
         setTotalStaffs(response.data.length); 
       } catch (error) {
         console.error('Error fetching total students:', error);
@@ -37,7 +38,7 @@ const StatsSection = () => {
   useEffect(() => {
     const fetchTotalProperties = async () => {
       try {
-        const response = await axios.get('http://localhost:3000/api/property'); 
+        const response = await axios.get(`${API_BASE_URL}/property`); 
         setTotalProperties(response.data.length); 
       } catch (error) {
         console.error('Error fetching total students:', error);

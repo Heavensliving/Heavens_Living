@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { FaEdit, FaTrashAlt } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
+import API_BASE_URL from '../../config';
 
 
 function ManagePeople() {
@@ -16,7 +17,7 @@ function ManagePeople() {
   useEffect(() => {
     const fetchPeople = async () => {
       try {
-        const response = await axios.get('http://localhost:3000/api/people/get-people');
+        const response = await axios.get(`${API_BASE_URL}/people/get-people`);
         
         setPeople(response.data.data || []);
       } catch (error) {
@@ -33,7 +34,7 @@ function ManagePeople() {
 
     setIsDeleting(true);
     try {
-      await axios.delete(`http://localhost:3000/api/people/delete-person/${personToDelete._id}`);
+      await axios.delete(`${API_BASE_URL}/people/delete-person/${personToDelete._id}`);
       setPeople(people.filter((person) => person._id !== personToDelete._id));
       setDeleteModal(false); // Close modal after successful deletion
     } catch (error) {

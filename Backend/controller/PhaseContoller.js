@@ -23,6 +23,7 @@ const addPhase = async (req, res) => {
       BranchName: branch.Name,
       Branch:branchId,
     });
+
     await newPhase.save();
     await Branch.findByIdAndUpdate(branchId, { $push: { Phases: newPhase._id } });
     res.status(201).json({ message: 'Phase created successfully', Phase: newPhase });
@@ -30,7 +31,6 @@ const addPhase = async (req, res) => {
     res.status(500).json({ message: 'Error adding branch', error });
   }
 };
-
 // Get all Phases
 const getAllPhases = async (req, res) => {
   try {

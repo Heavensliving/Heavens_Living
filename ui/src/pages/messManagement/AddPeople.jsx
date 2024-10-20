@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import axios from 'axios'; 
 import { useNavigate } from 'react-router-dom';
+import API_BASE_URL from '../../config';
+
 
 function AddPeople() {
   const navigate = useNavigate();
@@ -73,7 +75,7 @@ function AddPeople() {
 
     // API Call for submission using Axios
     try {
-      const response = await axios.post('http://localhost:3000/api/people/add', {
+      const response = await axios.post(`${API_BASE_URL}/people/add`, {
         ...formData,
         mealType: formData.mealType.join(', '), // Convert array to string if needed
         timePeriod: {

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import API_BASE_URL from '../../config';
 
 const MessOrderHistory = () => {
   const [orders, setOrders] = useState([]);
@@ -9,7 +10,7 @@ const MessOrderHistory = () => {
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        const response = await axios.get('http://localhost:3000/api/messOrder/');
+        const response = await axios.get(`${API_BASE_URL}/messOrder/`);
         setOrders(response.data);
       } catch (err) {
         setError('Error fetching orders');

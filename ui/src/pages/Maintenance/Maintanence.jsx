@@ -6,6 +6,8 @@ import OngoingIssues from './OnGoingIssue';
 import ResolvedIssues from './ResolvedIssue';
 import { FaCheckCircle, FaPauseCircle, FaTools } from 'react-icons/fa';
 import { MdAssignment } from 'react-icons/md';
+import API_BASE_URL from '../../config';
+
 
 const MaintenanceComponent = () => {
   const [stats, setStats] = useState({ inProcess: 0, completed: 0, onHold: 0, total: 0 });
@@ -20,7 +22,7 @@ const MaintenanceComponent = () => {
   useEffect(() => {
     const fetchMaintenanceComponent = async () => {
       try {
-        const response = await axios.get('http://localhost:3000/api/maintenance/get');
+        const response = await axios.get(`${API_BASE_URL}/maintenance/get`);
         const records = response.data;
 
         // Filter records based on status

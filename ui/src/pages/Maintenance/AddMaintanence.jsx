@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import API_BASE_URL from '../../config';
 
 const AddMaintanence = () => {
   const navigate = useNavigate();
@@ -27,7 +28,7 @@ const AddMaintanence = () => {
   const handleSubmit = async (e) => {
     e.preventDefault(); // Prevent default form submission behavior
     try {
-      const response = await axios.post('http://localhost:3000/api/maintenance/add', formData);
+      const response = await axios.post(`${API_BASE_URL}/maintenance/add`, formData);
       setSuccessMessage('Maintenance issue added successfully!');
       setErrorMessage('');
       setFormData({

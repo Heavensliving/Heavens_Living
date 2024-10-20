@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate, useParams } from 'react-router-dom';
+import API_BASE_URL from '../../config';
+
 
 function EditProperty() {
   const { propertyId } = useParams(); // Get propertyId from URL
@@ -29,7 +31,7 @@ function EditProperty() {
   useEffect(() => {
     const fetchPropertyDetails = async () => {
       try {
-        const response = await axios.get(`http://localhost:3000/api/property/${propertyId}`);
+        const response = await axios.get(`${API_BASE_URL}/property/${propertyId}`);
         setPropertyData(response.data);
       } catch (error) {
         setError('Failed to load property details');
@@ -52,7 +54,7 @@ function EditProperty() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.put(`http://localhost:3000/api/property/edit/${propertyId}`, propertyData);
+      const response = await axios.put(`${API_BASE_URL}/property/edit/${propertyId}`, propertyData);
       if (response.status === 200) {
         navigate('/property'); 
       }
