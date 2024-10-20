@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { FaBuilding, FaFilter, FaPlus, FaTrashAlt, FaEdit } from 'react-icons/fa';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import ConfirmationModal from '../../components/reUsableComponet/ConfirmationModal';
 
 function PhaseManagement() {
-  const [phases, setPhases] = useState([]);
+  const { id } = useParams();
+  const [phases, setPhases] = useState([]); 
+  const [branchId, setBranchId] = useState('');
   const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
@@ -19,9 +21,11 @@ function PhaseManagement() {
 
   const fetchPhases = async () => {
     try {
-      const response = await axios.get('http://localhost:3000/api/phase');
-      console.log('Phase data:', response.data); // Check the data here
-      setPhases(response.data);
+      const response = await axios.get(`http://localhost:3000/api/phase/phases/${id}`);
+      setBranchId(response.data._id)
+      // Extract the phases array from the response data
+      setPhases(response.data.Phases || []); // Ensure that the phases is always an array
+      
       setLoading(false);
     } catch (error) {
       console.error('Error fetching phases:', error); // Log any error
@@ -46,7 +50,9 @@ function PhaseManagement() {
   const confirmDelete = async () => {
     if (phaseToDelete) {
       try {
-        await axios.delete(`http://localhost:3000/api/phase/delete/${phaseToDelete}`);
+        await axios.delete(`http://localhost:3000/api/phase/delete/${phaseToDelete}`,{
+          params: { branchId }
+        });
         fetchPhases(); // Refresh the phase list after deletion
         setIsModalOpen(false); // Close the modal
       } catch (error) {
@@ -89,7 +95,7 @@ function PhaseManagement() {
 
           {/* Add Phase Button */}
           <button
-            onClick={() => navigate('/add-phase')}
+            onClick={() => navigate(`/add-phase/${id}`)}
             className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             <FaPlus className="mr-2" />
@@ -104,7 +110,7 @@ function PhaseManagement() {
           {filteredPhases.map(phase => (
             <div key={phase._id} className="bg-white p-4 rounded-lg border border-gray-300 cursor-pointer transform transition-transform duration-300 hover:scale-105 hover:shadow-lg">
               <div className="flex justify-between mb-2">
-                <div onClick={() => navigate(`/property`)} className="flex-grow">
+                <div onClick={() => navigate(`/properties/${phase._id}`)} className="flex-grow">
                   <h3 className="text-lg font-semibold">{phase.Name}</h3>
                   <p className="text-gray-600">{phase.PhaseId}</p>
                   <p className="text-gray-600">{phase.Location}</p>

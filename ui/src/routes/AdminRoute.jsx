@@ -33,6 +33,8 @@ import EditBranch from '../pages/property/EditBranch.jsx'
 import PhaseManagement from '../pages/property/PhaseManagement.jsx'
 import EditPhase from '../pages/property/EditPhase.jsx'
 import AddPhase from '../pages/property/AddPhase.jsx'
+import Property from '../pages/property/Property.jsx'
+import AddPropertyToPhase from '../pages/property/AddPropertyToPhase.jsx'
 
 
 const AdminRoute = () => {
@@ -73,9 +75,11 @@ const AdminRoute = () => {
                     <Route path='/branch-management' element={<BranchManagement/>}/>
                     <Route path='/add-branch' element={<AddBranch/>}/>
                     <Route path='/update/:id' element={<EditBranch/>}/>
-                    <Route path='/phase-management' element={<PhaseManagement/>}/>
-                    <Route path='/add-phase' element={<AddPhase/>}/>
+                    <Route path='/phase-management/:id' element={<PhaseManagement/>}/>
+                    <Route path='/add-phase/:id' element={<AddPhase/>}/>
                     <Route path='/updatePhase/:id' element={<EditPhase/>}/>
+                    <Route path='/properties/:id' element={<Property/>}/>
+                    <Route path='/add-property/:id' element={<AddPropertyToPhase/>}/>
 
 
                 </Route>

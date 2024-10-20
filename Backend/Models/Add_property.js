@@ -14,18 +14,18 @@ const PropertySchema = new mongoose.Schema({
   twoSharing: { type: Number },
   fourSharing: { type: Number },
   propertyType: { type: String, required: true },
-  branch: { type: String, required: true },
-  phase: { type: String, required: true },
+  branchName: { type: String, required: true },
+  phaseName: { type: String, required: true },
   propertyOwnerName: { type: String, required: true },
-  phases: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Phase'
-  },
   occupanets: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Student' }],
   staffs: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Staff' }],
   maintenance: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Maintanance' }],
   mess: [{ type: mongoose.Schema.Types.ObjectId, ref: 'MessManagement' }],
   messOrders: [{ type: mongoose.Schema.Types.ObjectId, ref: 'MessOrder' }],
+  phase: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Phase'
+  },
 
 }, { timestamps: true });
 

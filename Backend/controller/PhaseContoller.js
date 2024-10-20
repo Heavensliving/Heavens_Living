@@ -1,25 +1,33 @@
+const Branch = require('../Models/AddBranch');
 const Phase = require('../Models/AddPhase'); 
 const crypto = require('crypto');
 
-
-const generatePhaseId = () => {
-  const randomDigits = crypto.randomInt(10000, 99999).toString();
-  return `HVNSPH${randomDigits}`;
-};
-
-// Add new Phase
 const addPhase = async (req, res) => {
+  const { Name, Location, Branch: branchId } = req.body;
+
   try {
-    const { Name, Location } = req.body;
+    
+    const randomNumber = crypto.randomInt(10000, 99999); 
+    const PhaseId = `HVNSPH${randomNumber}`;
+
+    // Fetch the branch by branchId to get the branch name
+    const branch = await Branch.findById(branchId);
+    if (!branch) {
+      return res.status(404).json({ message: 'Branch not found' });
+    }
+
     const newPhase = new Phase({
       Name,
       Location,
-      PhaseId: generatePhaseId(), // Generate PhaseId
+      PhaseId,
+      BranchName: branch.Name,
+      Branch:branchId,
     });
     await newPhase.save();
-    res.status(201).json(newPhase);
+    await Branch.findByIdAndUpdate(branchId, { $push: { Phases: newPhase._id } });
+    res.status(201).json({ message: 'Phase created successfully', Phase: newPhase });
   } catch (error) {
-    res.status(500).json({ message: 'Error adding phase', error });
+    res.status(500).json({ message: 'Error adding branch', error });
   }
 };
 
@@ -69,13 +77,36 @@ const updatePhase = async (req, res) => {
 // Delete Phase
 const deletePhase = async (req, res) => {
   try {
+    const branchId = req.query.branchId;
     const phase = await Phase.findByIdAndDelete(req.params.id);
     if (!phase) {
       return res.status(404).json({ message: 'Phase not found' });
     }
-    res.status(200).json({ message: 'Phase deleted successfully' });
+     // Find the branch and update it by removing the phase ID from the array
+     const branch = await Branch.findByIdAndUpdate(
+      branchId,
+      { $pull: { Phases: phase._id } }, 
+      { new: true } // Return the updated document
+    );
+
+    if (!branch) {
+      return res.status(404).json({ message: 'branch not found' });
+    }
+
+    res.status(200).json({ message: 'phase deleted successfully and removed from branch' });
   } catch (error) {
     res.status(500).json({ message: 'Error deleting phase', error });
+  }
+};
+
+// phases for a specific branch
+const getPhasesForBranch = async (req, res) => {
+  const branchId = req.params.id;
+  try {
+    const branch = await Branch.findById(branchId).populate('Phases'); // Assuming `phases` is a reference
+    res.json(branch);
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching phases' });
   }
 };
 
@@ -85,4 +116,5 @@ module.exports = {
   getPhaseById,
   updatePhase,
   deletePhase,
+  getPhasesForBranch
 };

@@ -13,13 +13,17 @@ const PhaseSchema = new mongoose.Schema({
   PhaseId: {
     type: String,
     required: true,
-    unique: true
+    unique: true,
   },
-  branch: {
+  BranchName: {
+    type: String,
+    required: true,
+  },
+  Branch: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Branch'
   },
-  properties: [{type: mongoose.Schema.Types.ObjectId, ref: 'Property'}],
+  Properties: [{type: mongoose.Schema.Types.ObjectId, ref: 'Property'}],
 })
 
 

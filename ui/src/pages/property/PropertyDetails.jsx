@@ -105,10 +105,10 @@ const PropertyDetails = () => {
           <strong>Property Type:</strong> {property.propertyType}
         </div>
         <div className="mb-4">
-          <strong>Branch:</strong> {property.branch}
+          <strong>Branch:</strong> {property.branchName}
         </div>
         <div className="mb-4">
-          <strong>Phase:</strong> {property.phase}
+          <strong>Phase:</strong> {property.phaseName}
         </div>
         <div className="mb-4">
           <strong>Property Owner's Name:</strong> {property.propertyOwnerName}

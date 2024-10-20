@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 
 function AddPhase() {
+  const { id } = useParams();
   const [name, setName] = useState('');
   const [location, setLocation] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
@@ -11,19 +12,19 @@ function AddPhase() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     try {
       // Send POST request to backend API
       const response = await axios.post('http://localhost:3000/api/phase/add', {
         Name: name,
         Location: location,
+        Branch: id
       });
       if (response.status === 201) {
         // On success, show a success message and reset the form
         setSuccessMessage('Phase added successfully!');
         setName('');
         setLocation('');
-        navigate('/phase-management'); // Redirect to phase management page
+        navigate(`/phase-management/${id}`); // Redirect to phase management page
       }
     } catch (error) {
       // Show error message if something goes wrong

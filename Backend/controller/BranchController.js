@@ -17,7 +17,7 @@ const addBranch = async (req, res) => {
     });
 
     await newBranch.save();
-    res.status(201).json({ message: 'Branch created successfully', branch: newBranch });
+    res.status(201).json({ message: 'Branch created successfully', newBranch });
   } catch (error) {
     res.status(500).json({ message: 'Error adding branch', error });
   }
@@ -91,10 +91,11 @@ const getBranchById = async (req, res) => {
 };
 
 
+
 module.exports = {
   addBranch,
   updateBranch,
   deleteBranch,
   getAllBranches,
-  getBranchById
+  getBranchById,
 };

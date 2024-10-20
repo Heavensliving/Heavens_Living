@@ -21,7 +21,6 @@ function BranchManagement() {
   const fetchBranches = async () => {
     try {
       const response = await axios.get('http://localhost:3000/api/branch');
-      console.log('Branch data:', response.data); // Log the response
       setBranches(response.data);
       setLoading(false);
     } catch (error) {
@@ -33,6 +32,10 @@ function BranchManagement() {
   const filteredBranches = branches.filter(branch =>
     branch?.Name?.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  const phasePageRender = (id) =>{
+    navigate(`/phase-management/${id}`);
+  }
 
   const handleUpdate = (id) => {
     navigate(`/update/${id}`);
@@ -105,7 +108,7 @@ function BranchManagement() {
             <div key={branch._id}
               className="bg-white p-4 rounded-lg border border-gray-300 cursor-pointer transform transition-transform duration-300 hover:scale-105 hover:shadow-lg">
               <div className="flex justify-between mb-2">
-                <div onClick={() => navigate(`/phase-management`)} className="flex-grow">
+                <div onClick={() => phasePageRender(branch._id)} className="flex-grow">
                   <h3 className="text-lg font-semibold">{branch.Name}</h3>
                   <p className="text-gray-600">{branch.BranchId}</p>
                   <p className="text-gray-600">{branch.Location}</p>
