@@ -56,7 +56,7 @@ function AddPropertyToPhase() {
         e.preventDefault();
 
         try {
-            const response = await axios.post('http://localhost:3000/api/property/add', propertyData);
+            const response = await axios.post(`${API_BASE_URL}/property/add`, propertyData);
             if (response.status === 201) {
                 navigate(`/properties/${id}`);
             }

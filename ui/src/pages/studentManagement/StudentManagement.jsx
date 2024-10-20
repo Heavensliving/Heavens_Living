@@ -15,7 +15,6 @@ const storage = getStorage();
 const StudentManagement = () => {
   const navigate = useNavigate();
   const [students, setStudents] = useState([]);
-  const [property, setProperty] = useState([]);
   const [deleteStudentId, setDeleteStudentId] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');

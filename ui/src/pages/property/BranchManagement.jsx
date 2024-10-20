@@ -22,7 +22,7 @@ function BranchManagement() {
 
   const fetchBranches = async () => {
     try {
-      const response = await axios.get('http://localhost:3000/api/branch');
+      const response = await axios.get(`${API_BASE_URL}/branch`);
       setBranches(response.data);
       setLoading(false);
     } catch (error) {

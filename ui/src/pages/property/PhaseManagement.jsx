@@ -23,7 +23,7 @@ function PhaseManagement() {
 
   const fetchPhases = async () => {
     try {
-      const response = await axios.get(`http://localhost:3000/api/phase/phases/${id}`);
+      const response = await axios.get(`${API_BASE_URL}/phase/phases/${id}`);
       setBranchId(response.data._id)
       // Extract the phases array from the response data
       setPhases(response.data.Phases || []); // Ensure that the phases is always an array
@@ -52,7 +52,7 @@ function PhaseManagement() {
   const confirmDelete = async () => {
     if (phaseToDelete) {
       try {
-        await axios.delete(`http://localhost:3000/api/phase/delete/${phaseToDelete}`,{
+        await axios.delete(`${API_BASE_URL}/phase/delete/${phaseToDelete}`,{
           params: { branchId }
         });
         fetchPhases(); // Refresh the phase list after deletion
