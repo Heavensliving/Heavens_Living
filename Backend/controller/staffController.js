@@ -12,10 +12,16 @@ const generateStaffId = () => {
 
 // Create a new staff member
 const createStaff = async (req, res) => {
+    const propertyId = req.body.property
     try {
     const StaffId = generateStaffId();
-    const propertyId = req.body.property
-        const staff = new Staff({ ...req.body, StaffId, property: propertyId });
+    const property = await Property.findById(propertyId);
+    const phaseName = property.phaseName;
+    const branchName = property.branchName;
+    if (!property) {
+      return res.status(404).json({ message: 'property not found' });
+    }
+        const staff = new Staff({ ...req.body, StaffId, property: propertyId,  phase:phaseName, branch: branchName });
         await staff.save();
         await Property.findByIdAndUpdate(propertyId, { $push: { staffs: staff._id } });
         res.status(201).json({ message: 'Staff member created successfully', staff });

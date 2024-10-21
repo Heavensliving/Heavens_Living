@@ -239,6 +239,7 @@ function AddStudent() {
                   </select>
                 ) : (
                   <input
+                  required
                   type={field.type}
                   name={field.name}
                   placeholder={field.placeholder}

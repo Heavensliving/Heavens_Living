@@ -164,9 +164,9 @@ const StudentDetails = () => {
                 {/* Left Side: Name and Warnings */}
                 <div className="text-center md:text-left">
                   <h2 className="text-2xl font-bold text-gray-900">{studentData.name}</h2>
-                  {warnings === 1 && <span className="text-red-500 text-sm">1 Warning</span>}
-                  {warnings === 2 && <span className="text-yellow-500 text-sm">2 Warnings</span>}
-                  {warnings === 3 && <span className="text-black text-sm">Blacklisted</span>}
+                  {warnings === 1 &&  <span className="text-orange-400 text-sm">{studentData.name} is on their first warning</span>}
+                  {warnings === 2 && <span className="text-orange-600 text-sm">{studentData.name} has received a second warning</span>}
+                  {warnings === 3 && <span className="text-red-700 text-sm">{studentData.name} has been blacklisted due to multiple warnings</span>}
                   <p className="text-gray-500">{studentData.studentId}</p>
                 </div>
 

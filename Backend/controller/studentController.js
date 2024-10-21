@@ -17,11 +17,20 @@ const addStudent = async (req, res) => {
 
     // Generate a unique student ID
     const studentId = generateStudentId();
+    
+    const property = await Property.findById(propertyId);
+    const phaseName = property.phaseName;
+    const branchName = property.branchName;
+    if (!property) {
+      return res.status(404).json({ message: 'property not found' });
+    }
 
     // Create a new student document
     const student = new Student({
       ...req.body,
       studentId,
+      phase: phaseName,
+      branch: branchName,
       property: propertyId
     });
     await student.save(); // Save the student to the database

@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react';
 import axios from 'axios';
 import { useNavigate, useParams } from 'react-router-dom';
+import API_BASE_URL from '../../config';
 
 // Reusable Input Component
 const InputField = ({ label, name, type = 'text', value, handleChange, required = false }) => (

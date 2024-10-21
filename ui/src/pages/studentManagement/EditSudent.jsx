@@ -127,8 +127,6 @@ function EditStudent() {
         { name: 'typeOfStay', type: 'text', placeholder: 'Type of Stay', label: 'Type of Stay' },
         { name: 'paymentStatus', type: 'select', options: ['Paid', 'Pending'], placeholder: 'Payment Status', label: 'Payment Status' },
         { name: 'joinDate', type: 'date', label: 'Join Date' },
-        { name: 'phase', type: 'text', placeholder: 'phase', label: 'Phase' },
-        { name: 'branch', type: 'text', placeholder: 'branch', label: 'Branch' },
         { name: 'photo', type: 'file', accept: 'image/*', required: false, label: 'Profile Image' },
         { name: 'adharFrontImage', type: 'file', accept: 'image/*', required: false, label: 'Adhar-Front Image' },
         { name: 'adharBackImage', type: 'file', accept: 'image/*', required: false, label: 'Adhar-back Image' },
