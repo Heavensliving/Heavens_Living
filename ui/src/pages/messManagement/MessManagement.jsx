@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { FaUtensils, FaConciergeBell, FaCoffee, FaHamburger, FaPizzaSlice, FaAppleAlt, FaPlusCircle, FaUserPlus, FaCheckCircle, } from 'react-icons/fa';
+import { FaUtensils, FaConciergeBell, FaCoffee, FaHamburger, FaPizzaSlice, FaAppleAlt, FaPlusCircle, FaUserPlus, FaCheckCircle } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import API_BASE_URL from '../../config';
+import { io } from 'socket.io-client';
 
 function MessManagement() {
   const navigate = useNavigate();
@@ -11,21 +12,37 @@ function MessManagement() {
   const [todayOrders, setTodayOrders] = useState([]);
 
   useEffect(() => {
+    const socket = io('http://localhost:3000'); // Initialize socket.io client
+
+    // Listen for order updates
+    socket.on('orderUpdated', (newOrder) => {
+      setTodayOrders((prevOrders) => {
+        const existingOrderIndex = prevOrders.findIndex(order => order._id === newOrder._id);
+        if (existingOrderIndex > -1) {
+          // If order exists, update it
+          const updatedOrders = [...prevOrders];
+          updatedOrders[existingOrderIndex] = newOrder;
+          return updatedOrders;
+        }
+        // If it's a new order, add it
+        return [...prevOrders, newOrder];
+      });
+    });
+
+    // Listen for order deletions
+    socket.on('orderDeleted', (deletedOrder) => {
+      setTodayOrders((prevOrders) => prevOrders.filter(order => order._id !== deletedOrder._id));
+    });
+
+    // Fetch today's orders when component mounts
     const fetchOrders = async () => {
       try {
         const response = await axios.get(`${API_BASE_URL}/messOrder/`);
         const allOrders = response.data;
-        // Get today's date in 'YYYY-MM-DD' format
         const today = new Date().toISOString().split('T')[0];
-
-        // Filter today's orders based on the date
         const filteredTodayOrders = allOrders.filter(order => {
-          // Validate order.date
           if (!order.date) return false;
-
           const orderDate = new Date(order.date);
-          if (isNaN(orderDate)) return false;
-
           return orderDate.toISOString().split('T')[0] === today;
         });
         setTodayOrders(filteredTodayOrders);
@@ -35,6 +52,11 @@ function MessManagement() {
     };
 
     fetchOrders();
+
+    // Clean up the socket connection on component unmount
+    return () => {
+      socket.disconnect();
+    };
   }, []);
 
   const toggleExpandOrder = (orderId) => {
@@ -155,9 +177,9 @@ function MessManagement() {
                 {todayOrders.filter(order => order.mealType === 'Breakfast').length === 0 ? (
                   <li className="text-gray-500 text-center p-3">No breakfast orders.</li>
                 ) : (
-                  todayOrders.filter(order => order.mealType === 'Breakfast').map(order => (
+                  todayOrders.filter(order => order.mealType === 'Breakfast').map((order, index) => (
                     <li
-                      key={order.orderId}
+                      key={index}
                       className="bg-yellow-100 p-3 rounded-lg mb-2 cursor-pointer hover:bg-yellow-200"
                       onClick={() => toggleExpandOrder(order.orderId)}
                     >
@@ -187,9 +209,9 @@ function MessManagement() {
                 {todayOrders.filter(order => order.mealType === 'Lunch').length === 0 ? (
                   <li className="text-gray-500 text-center p-3">No lunch orders.</li>
                 ) : (
-                  todayOrders.filter(order => order.mealType === 'Lunch').map(order => (
+                  todayOrders.filter(order => order.mealType === 'Lunch').map((order, index) => (
                     <li
-                      key={order.orderId}
+                      key={index}
                       className="bg-yellow-100 p-3 rounded-lg mb-2 cursor-pointer hover:bg-yellow-200"
                       onClick={() => toggleExpandOrder(order.orderId)}
                     >
@@ -219,9 +241,9 @@ function MessManagement() {
                 {todayOrders.filter(order => order.mealType === 'Dinner').length === 0 ? (
                   <li className="text-gray-500 text-center p-3">No dinner orders.</li>
                 ) : (
-                  todayOrders.filter(order => order.mealType === 'Dinner').map(order => (
+                  todayOrders.filter(order => order.mealType === 'Dinner').map((order, index) => (
                     <li
-                      key={order.orderId}
+                      key={index}
                       className="bg-yellow-100 p-3 rounded-lg mb-2 cursor-pointer hover:bg-yellow-200"
                       onClick={() => toggleExpandOrder(order.orderId)}
                     >

@@ -1,10 +1,12 @@
-
 const express = require('express');
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const cors = require('cors');
-const fileUpload = require('express-fileupload') 
-const adminRoutes = require('./routes/admin')
+const fileUpload = require('express-fileupload');
+const http = require('http');
+const { Server } = require('socket.io');
+
+const adminRoutes = require('./routes/admin');
 const studentRoutes = require('./routes/student');
 const propertyRoutes = require('./routes/property');
 const staffRoutes = require('./routes/staff');
@@ -12,22 +14,40 @@ const feeRoutes = require('./routes/feePayment');
 const expenseRoute = require('./routes/expense');
 const messRoute = require('./routes/Mess');
 const adOnRoute = require('./routes/adOn');
-const commissionRoutes = require('./routes/Commission')
+const commissionRoutes = require('./routes/Commission');
 const peopleRoutes = require('./routes/people');
 const maintenaceRoutes = require('./routes/Maintanence');
-const messOrderRoutes = require('./routes/MessOrder');
+const { router: messOrderRoutes, setSocketIO } = require('./routes/MessOrder'); // Import the router and setSocketIO function
 const branchRoutes = require('./routes/Branch');
-const phaseRoutes = require('./routes/Phase')
+const phaseRoutes = require('./routes/Phase');
 
 dotenv.config();
 
 const app = express();
+const server = http.createServer(app);
+const io = new Server(server, {
+  cors: {
+    origin: 'http://localhost:5173', // replace with your frontend URL
+    methods: ["GET", "POST"],
+    allowedHeaders: ["Content-Type"],
+    credentials: true
+  }
+});
+
+// Set the Socket.IO instance in the messOrder routes
+setSocketIO(io);
 
 // Middleware
-app.use(cors()); 
+app.use(cors({
+  origin: 'http://localhost:5173', // replace with your frontend URL
+  methods: ["GET", "POST"],
+  allowedHeaders: ["Content-Type"],
+  credentials: true
+}));
+
 app.use(express.json());
 app.use(fileUpload({
-  createParentPath: true 
+  createParentPath: true
 }));
 
 // MongoDB Connection
@@ -36,23 +56,22 @@ mongoose.connect(process.env.MONGO_URI)
   .catch((err) => console.error('MongoDB connection error:', err));
 
 // Routes
-app.use('/api/admin', adminRoutes);  
-app.use('/api/students', studentRoutes);  
-app.use('/api/property', propertyRoutes); 
+app.use('/api/admin', adminRoutes);
+app.use('/api/students', studentRoutes);
+app.use('/api/property', propertyRoutes);
 app.use('/api/staff', staffRoutes);
 app.use('/api/fee', feeRoutes);
-app.use('/api/expense',expenseRoute);
-app.use('/api/mess',messRoute);
-app.use('/api/adOn',adOnRoute);
-app.use('/api/commission',commissionRoutes);
-app.use('/api/people',peopleRoutes);
-app.use('/api/maintenance',maintenaceRoutes);
-app.use('/api/messOrder',messOrderRoutes);
-app.use('/api/branch',branchRoutes);
-app.use('/api/phase',phaseRoutes);
-
+app.use('/api/expense', expenseRoute);
+app.use('/api/mess', messRoute);
+app.use('/api/adOn', adOnRoute);
+app.use('/api/commission', commissionRoutes);
+app.use('/api/people', peopleRoutes);
+app.use('/api/maintenance', maintenaceRoutes);
+app.use('/api/messOrder', messOrderRoutes);
+app.use('/api/branch', branchRoutes);
+app.use('/api/phase', phaseRoutes);
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
