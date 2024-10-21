@@ -36,6 +36,10 @@ import AddPhase from '../pages/property/AddPhase.jsx'
 import Property from '../pages/property/Property.jsx'
 import AddPropertyToPhase from '../pages/property/AddPropertyToPhase.jsx'
 import History from '../pages/Maintenance/History.jsx'
+import DailyRentPage from '../pages/DailyRent/DailyRentPage.jsx'
+import AddDailyRent from '../pages/DailyRent/AddDailyRent.jsx'
+
+
 const AdminRoute = () => {
     return (
         <div>
@@ -80,9 +84,8 @@ const AdminRoute = () => {
                     <Route path='/properties/:id' element={<Property/>}/>
                     <Route path='/add-property/:id' element={<AddPropertyToPhase/>}/>
                     <Route path='history' element={<History/>}/>
-
-
-
+                    <Route path="/dailyRent" element={<DailyRentPage/>}/>
+                    <Route path="/AddDailyRent" element={<AddDailyRent />}/>
                 </Route>
 
             </Routes>
