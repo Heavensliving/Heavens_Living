@@ -3,7 +3,7 @@ const router = express.Router();
 const MessOrderController = require('../controller/MessOrderController');
 
 
-router.post('/Add', MessOrderController.addOrder);
+router.post('/add', MessOrderController.addOrder);
 
 router.get('/', MessOrderController.getAllOrders);
 

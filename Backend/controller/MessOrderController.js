@@ -1,5 +1,7 @@
 const crypto = require('crypto');
 const MessOrder = require('../Models/MessOrderModel');
+const Property = require('../Models/Add_property');
+const Student = require('../Models/Add_student');
 
 const generateOrderId = () => {
   const randomNumbers = crypto.randomInt(10000, 100000);
@@ -9,7 +11,7 @@ const generateOrderId = () => {
 // Add an order
 const addOrder = async (req, res) => {
   try {
-    const { name, roomNo, contact, mealType, propertyId, adOns = [] } = req.body; // Ensure adOns is an array
+    const { name, roomNo, contact, mealType, student, property, adOns = [] } = req.body; 
 
     const orderId = generateOrderId();
 
@@ -19,12 +21,15 @@ const addOrder = async (req, res) => {
       roomNo,
       contact,
       mealType,
-      status: false, // Set default status to false
-      propertyId,
-      adOns, // Include adOns in the new order
+      status: false,
+      adOns,
+      student, 
+      property,
     });
 
     const savedOrder = await newOrder.save();
+    await Property.findByIdAndUpdate(property, { $push: { messOrders: savedOrder._id } });
+    await Student.findByIdAndUpdate(student, { $push: { messOrders: savedOrder._id } });
     res.status(201).json(savedOrder);
   } catch (error) {
     res.status(500).json({ message: 'Error adding order', error });

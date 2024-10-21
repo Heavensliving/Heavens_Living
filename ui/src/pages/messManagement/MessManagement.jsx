@@ -1,56 +1,56 @@
 import React, { useEffect, useState } from 'react';
-import {
-  FaUtensils,
-  FaConciergeBell,
-  FaCoffee,
-  FaHamburger,
-  FaPizzaSlice,
-  FaAppleAlt,
-  FaPlusCircle,
-  FaUserPlus,
-  FaCheckCircle,
-} from 'react-icons/fa';
+import { FaUtensils, FaConciergeBell, FaCoffee, FaHamburger, FaPizzaSlice, FaAppleAlt, FaPlusCircle, FaUserPlus, FaCheckCircle, } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import API_BASE_URL from '../../config';
 
 function MessManagement() {
   const navigate = useNavigate();
-  const [foodItems, setFoodItems] = useState({});
-  const [newFoodItem, setNewFoodItem] = useState('');
   const [expandedOrder, setExpandedOrder] = useState(null);
   const [expandedAddon, setExpandedAddon] = useState(null);
-  const [collectedOrders, setCollectedOrders] = useState([]);
+  const [todayOrders, setTodayOrders] = useState([]);
 
   useEffect(() => {
-    const fetchCollectedOrders = async () => {
+    const fetchOrders = async () => {
       try {
         const response = await axios.get(`${API_BASE_URL}/messOrder/`);
-        setCollectedOrders(response.data);
+        const allOrders = response.data;
+        // Get today's date in 'YYYY-MM-DD' format
+        const today = new Date().toISOString().split('T')[0];
+
+        // Filter today's orders based on the date
+        const filteredTodayOrders = allOrders.filter(order => {
+          // Validate order.date
+          if (!order.date) return false;
+
+          const orderDate = new Date(order.date);
+          if (isNaN(orderDate)) return false;
+
+          return orderDate.toISOString().split('T')[0] === today;
+        });
+        setTodayOrders(filteredTodayOrders);
       } catch (error) {
         console.error('Error fetching orders:', error);
       }
     };
 
-    fetchCollectedOrders();
+    fetchOrders();
   }, []);
 
   const toggleExpandOrder = (orderId) => {
     setExpandedOrder(expandedOrder === orderId ? null : orderId);
   };
+
   const toggleExpandAddon = (addonId) => {
     setExpandedAddon(expandedAddon === addonId ? null : addonId);
   };
 
-  const handleMarkAsDelivered = (orderId) => {
-   
-  };
-
-  const totalOrders = collectedOrders.length;
-  const totalAddons = collectedOrders.reduce((acc, order) => acc + order.adOns.length, 0);
-  const breakfastCount = collectedOrders.filter(order => order.mealType === 'Breakfast').length;
-  const lunchCount = collectedOrders.filter(order => order.mealType === 'Lunch').length;
-  const dinnerCount = collectedOrders.filter(order => order.mealType === 'Dinner').length;
+  // Today's statistics
+  const totalTodayOrders = todayOrders.length;
+  const totalTodayAddons = todayOrders.reduce((acc, order) => acc + order.adOns.length, 0);
+  const todayBreakfastCount = todayOrders.filter(order => order.mealType === 'Breakfast').length;
+  const todayLunchCount = todayOrders.filter(order => order.mealType === 'Lunch').length;
+  const todayDinnerCount = todayOrders.filter(order => order.mealType === 'Dinner').length;
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-100 p-6">
@@ -92,7 +92,7 @@ function MessManagement() {
           </div>
           <div>
             <h2 className="text-gray-500 text-xs">Total Orders</h2>
-            <p className="text-xl font-bold text-gray-800">{totalOrders}</p>
+            <p className="text-xl font-bold text-gray-800">{totalTodayOrders}</p>
           </div>
         </div>
 
@@ -103,7 +103,7 @@ function MessManagement() {
           </div>
           <div>
             <h2 className="text-gray-500 text-xs">Total Add-ons</h2>
-            <p className="text-xl font-bold text-gray-800">{totalAddons}</p>
+            <p className="text-xl font-bold text-gray-800">{totalTodayAddons}</p>
           </div>
         </div>
 
@@ -114,7 +114,7 @@ function MessManagement() {
           </div>
           <div>
             <h2 className="text-gray-500 text-xs">Breakfast</h2>
-            <p className="text-xl font-bold text-gray-800">{breakfastCount}</p>
+            <p className="text-xl font-bold text-gray-800">{todayBreakfastCount}</p>
           </div>
         </div>
 
@@ -124,7 +124,7 @@ function MessManagement() {
           </div>
           <div>
             <h2 className="text-gray-500 text-xs">Lunch</h2>
-            <p className="text-xl font-bold text-gray-800">{lunchCount}</p>
+            <p className="text-xl font-bold text-gray-800">{todayLunchCount}</p>
           </div>
         </div>
 
@@ -134,7 +134,7 @@ function MessManagement() {
           </div>
           <div>
             <h2 className="text-gray-500 text-xs">Dinner</h2>
-            <p className="text-xl font-bold text-gray-800">{dinnerCount}</p>
+            <p className="text-xl font-bold text-gray-800">{todayDinnerCount}</p>
           </div>
         </div>
       </div>
@@ -142,125 +142,126 @@ function MessManagement() {
       {/* Orders Section */}
       <div className="mt-6 flex-1 flex flex-col">
         <h2 className="text-lg font-semibold text-gray-800 mb-2">Order Details</h2>
-        
+
         <div className="flex flex-1 space-x-4">
           {/* Received Orders Column */}
           <div className="flex-1 bg-white p-4 rounded-lg shadow flex flex-col">
-  <h3 className="text-gray-600 text-md">Received Orders</h3>
+            <h3 className="text-gray-600 text-md">Received Orders</h3>
 
-  {/* Breakfast Orders */}
-  <div className="mt-4">
-    <h4 className="font-semibold text-lg">Breakfast Orders</h4>
-    <ul className="list-disc ml-5 mt-2 flex-1" style={{ maxHeight: '150px', overflowY: 'auto' }}>
-      {collectedOrders.filter(order => order.mealType === 'Breakfast').length === 0 ? (
-        <li className="text-gray-500 text-center p-3">No breakfast orders.</li>
-      ) : (
-        collectedOrders.filter(order => order.mealType === 'Breakfast').map(order => (
-          <li 
-            key={order.orderId} 
-            className="bg-yellow-100 p-3 rounded-lg mb-2 cursor-pointer hover:bg-yellow-200"
-            onClick={() => toggleExpandOrder(order.orderId)}
-          >
-            <div className="flex justify-between">
-              <span className="font-semibold">{order.name}</span>
-              <button onClick={() => handleMarkAsDelivered(order.orderId)} className="text-green-500">
-                <FaCheckCircle />
-              </button>
+            {/* Breakfast Orders */}
+            <div className="mt-4">
+              <h4 className="font-semibold text-lg">Breakfast Orders</h4>
+              <ul className="list-disc ml-5 mt-2 flex-1" style={{ maxHeight: '150px', overflowY: 'auto' }}>
+                {todayOrders.filter(order => order.mealType === 'Breakfast').length === 0 ? (
+                  <li className="text-gray-500 text-center p-3">No breakfast orders.</li>
+                ) : (
+                  todayOrders.filter(order => order.mealType === 'Breakfast').map(order => (
+                    <li
+                      key={order.orderId}
+                      className="bg-yellow-100 p-3 rounded-lg mb-2 cursor-pointer hover:bg-yellow-200"
+                      onClick={() => toggleExpandOrder(order.orderId)}
+                    >
+                      <div className="flex justify-between">
+                        <span className="font-semibold">{order.name}</span>
+                        <button onClick={() => handleMarkAsDelivered(order.orderId)} className="text-green-500">
+                          <FaCheckCircle />
+                        </button>
+                      </div>
+                      {expandedOrder === order.orderId && (
+                        <div className="mt-2">
+                          <p>Order Id: {order.orderId}</p>
+                          <p>Room No: {order.roomNo}</p>
+                          <p>Contact No: {order.contact}</p>
+                        </div>
+                      )}
+                    </li>
+                  ))
+                )}
+              </ul>
             </div>
-            {expandedOrder === order.orderId && (
-              <div className="mt-2">
-                <p>Order Id: {order.orderId}</p>
-                <p>Room No: {order.roomNo}</p>
-                <p>Contact No: {order.contact}</p>
-              </div>
-            )}
-          </li>
-        ))
-      )}
-    </ul>
-  </div>
 
-  {/* Lunch Orders */}
-  <div className="mt-4">
-    <h4 className="font-semibold text-lg">Lunch Orders</h4>
-    <ul className="list-disc ml-5 mt-2 flex-1" style={{ maxHeight: '150px', overflowY: 'auto' }}>
-      {collectedOrders.filter(order => order.mealType === 'Lunch').length === 0 ? (
-        <li className="text-gray-500 text-center p-3">No lunch orders.</li>
-      ) : (
-        collectedOrders.filter(order => order.mealType === 'Lunch').map(order => (
-          <li 
-            key={order.orderId} 
-            className="bg-yellow-100 p-3 rounded-lg mb-2 cursor-pointer hover:bg-yellow-200"
-            onClick={() => toggleExpandOrder(order.orderId)}
-          >
-            <div className="flex justify-between">
-              <span className="font-semibold">{order.name}</span>
-              <button onClick={() => handleMarkAsDelivered(order.orderId)} className="text-green-500">
-                <FaCheckCircle />
-              </button>
+            {/* Lunch Orders */}
+            <div className="mt-4">
+              <h4 className="font-semibold text-lg">Lunch Orders</h4>
+              <ul className="list-disc ml-5 mt-2 flex-1" style={{ maxHeight: '150px', overflowY: 'auto' }}>
+                {todayOrders.filter(order => order.mealType === 'Lunch').length === 0 ? (
+                  <li className="text-gray-500 text-center p-3">No lunch orders.</li>
+                ) : (
+                  todayOrders.filter(order => order.mealType === 'Lunch').map(order => (
+                    <li
+                      key={order.orderId}
+                      className="bg-yellow-100 p-3 rounded-lg mb-2 cursor-pointer hover:bg-yellow-200"
+                      onClick={() => toggleExpandOrder(order.orderId)}
+                    >
+                      <div className="flex justify-between">
+                        <span className="font-semibold">{order.name}</span>
+                        <button onClick={() => handleMarkAsDelivered(order.orderId)} className="text-green-500">
+                          <FaCheckCircle />
+                        </button>
+                      </div>
+                      {expandedOrder === order.orderId && (
+                        <div className="mt-2">
+                          <p>Order Id: {order.orderId}</p>
+                          <p>Room No: {order.roomNo}</p>
+                          <p>Contact No: {order.contact}</p>
+                        </div>
+                      )}
+                    </li>
+                  ))
+                )}
+              </ul>
             </div>
-            {expandedOrder === order.orderId && (
-              <div className="mt-2">
-                <p>Order Id: {order.orderId}</p>
-                <p>Room No: {order.roomNo}</p>
-                <p>Contact No: {order.contact}</p>
-              </div>
-            )}
-          </li>
-        ))
-      )}
-    </ul>
-  </div>
 
-  {/* Dinner Orders */}
-  <div className="mt-4">
-    <h4 className="font-semibold text-lg">Dinner Orders</h4>
-    <ul className="list-disc ml-5 mt-2 flex-1" style={{ maxHeight: '150px', overflowY: 'auto' }}>
-      {collectedOrders.filter(order => order.mealType === 'Dinner').length === 0 ? (
-        <li className="text-gray-500 text-center p-3">No dinner orders.</li>
-      ) : (
-        collectedOrders.filter(order => order.mealType === 'Dinner').map(order => (
-          <li 
-            key={order.orderId} 
-            className="bg-yellow-100 p-3 rounded-lg mb-2 cursor-pointer hover:bg-yellow-200"
-            onClick={() => toggleExpandOrder(order.orderId)}
-          >
-            <div className="flex justify-between">
-              <span className="font-semibold">{order.name}</span>
-              <button onClick={() => handleMarkAsDelivered(order.orderId)} className="text-green-500">
-                <FaCheckCircle />
-              </button>
+            {/* Dinner Orders */}
+            <div className="mt-4">
+              <h4 className="font-semibold text-lg">Dinner Orders</h4>
+              <ul className="list-disc ml-5 mt-2 flex-1" style={{ maxHeight: '150px', overflowY: 'auto' }}>
+                {todayOrders.filter(order => order.mealType === 'Dinner').length === 0 ? (
+                  <li className="text-gray-500 text-center p-3">No dinner orders.</li>
+                ) : (
+                  todayOrders.filter(order => order.mealType === 'Dinner').map(order => (
+                    <li
+                      key={order.orderId}
+                      className="bg-yellow-100 p-3 rounded-lg mb-2 cursor-pointer hover:bg-yellow-200"
+                      onClick={() => toggleExpandOrder(order.orderId)}
+                    >
+                      <div className="flex justify-between">
+                        <span className="font-semibold">{order.name}</span>
+                        <button onClick={() => handleMarkAsDelivered(order.orderId)} className="text-green-500">
+                          <FaCheckCircle />
+                        </button>
+                      </div>
+                      {expandedOrder === order.orderId && (
+                        <div className="mt-2">
+                          <p>Order Id: {order.orderId}</p>
+                          <p>Room No: {order.roomNo}</p>
+                          <p>Contact No: {order.contact}</p>
+                        </div>
+                      )}
+                    </li>
+                  ))
+                )}
+              </ul>
             </div>
-            {expandedOrder === order.orderId && (
-              <div className="mt-2">
-                <p>Order Id: {order.orderId}</p>
-                <p>Room No: {order.roomNo}</p>
-                <p>Contact No: {order.contact}</p>
-              </div>
-            )}
-          </li>
-        ))
-      )}
-    </ul>
-  </div>
-</div>
+          </div>
 
           {/* Add-on Orders Column */}
           <div className="flex-1 bg-white p-4 rounded-lg shadow flex flex-col">
             <h3 className="text-gray-600 text-md">Add-on Orders</h3>
             <ul className="list-disc ml-5 mt-2 flex-1" style={{ maxHeight: '300px' }}>
-              {totalAddons === 0 ? (
+              {totalTodayAddons === 0 ? (
                 <li className="text-gray-500 text-center p-3">No add-on orders.</li>
               ) : (
-                collectedOrders.flatMap(order => 
+                todayOrders.flatMap(order =>
                   order.adOns.map((addon, index) => (
-                    <li 
-                      key={`${order.orderId}-${index}`} 
+                    <li
+                      key={`${order.orderId}-${index}`}
                       className="bg-green-100 p-3 rounded-lg mb-2 cursor-pointer hover:bg-green-200"
                       onClick={() => toggleExpandAddon(`${order.orderId}-${index}`)} // Using a combination of orderId and index for unique key
                     >
                       <div className="flex justify-between">
-                        <span className="font-semibold">{addon}</span>
+                        {/* Display the add-on name and quantity */}
+                        <span className="font-semibold">{addon.name} - Qty: {addon.quantity}</span>
                         <button onClick={() => handleMarkAsDelivered(order.orderId)} className="text-blue-500">
                           <FaCheckCircle />
                         </button>
@@ -269,7 +270,7 @@ function MessManagement() {
                         <div className="mt-2">
                           <p>Order ID: {order.orderId}</p>
                           <p>Room No: {order.roomNo}</p>
-                          <p>Quantity: {order.qty || 1}</p>
+                          <p>Quantity: {addon.quantity}</p>
                         </div>
                       )}
                     </li>

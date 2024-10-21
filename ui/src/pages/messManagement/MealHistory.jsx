@@ -54,7 +54,15 @@ const MessOrderHistory = () => {
                 <td className="border p-2">{order.mealType}</td>
                 <td className="border p-2">{order.status ? 'Completed' : 'Pending'}</td>
                 <td className="border p-2">{new Date(order.date).toLocaleDateString()}</td>
-                <td className="border p-2">{order.adOns.join(', ') || 'None'}</td>
+                <td className="border p-2">
+                  {order.adOns.length > 0
+                    ? order.adOns.map((addon, i) => (
+                        <div key={i}>
+                          {addon.name} (x{addon.quantity})
+                        </div>
+                      ))
+                    : 'None'}
+                </td>
               </tr>
             ))
           )}
