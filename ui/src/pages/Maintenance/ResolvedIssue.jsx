@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios'; // Make sure to import axios
+import axios from 'axios'; 
+import { Link } from 'react-router-dom';  // Import Link for navigation
 import API_BASE_URL from '../../config';
-
 
 const ResolvedIssues = () => {
   const [records, setRecords] = useState([]);
@@ -9,12 +9,10 @@ const ResolvedIssues = () => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const fetchMaintenanceRecords = async () => {
+    const fetchLatestResolvedRecords = async () => {
       try {
-        const response = await axios.get(`${API_BASE_URL}/maintenance/get`);
-        // Filter records where the status is 'resolved'
-        const resolvedRecords = response.data.filter(record => record.Status === 'resolved');
-        setRecords(resolvedRecords);
+        const response = await axios.get(`${API_BASE_URL}/maintenance/getLatest`);
+        setRecords(response.data);
       } catch (err) {
         setError('Error fetching maintenance records');
       } finally {
@@ -22,7 +20,7 @@ const ResolvedIssues = () => {
       }
     };
 
-    fetchMaintenanceRecords();
+    fetchLatestResolvedRecords();
   }, []);
 
   if (loading) return <p>Loading...</p>;
@@ -30,7 +28,7 @@ const ResolvedIssues = () => {
 
   return (
     <div className="bg-white shadow-md rounded-lg p-4 w-1/2 mt-4 flex flex-col">
-      <h2 className="text-lg font-bold text-gray-800 mb-2">Resolved Issues</h2>
+      <h2 className="text-lg font-bold text-gray-800 mb-2">Latest Resolved Issues</h2>
       <div className="flex-grow"> {/* Allow scrolling if too many records */}
         <table className="min-w-full text-left">
           <thead>
@@ -39,7 +37,7 @@ const ResolvedIssues = () => {
               <th className="p-2 text-sm font-bold text-gray-700">Issuer Name</th>
               <th className="p-2 text-sm font-bold text-gray-700">Issue</th>
               <th className="p-2 text-sm font-bold text-gray-700">Resolved By</th>
-              <th className="p-2 text-sm font-bold text-grey-700">Status</th>
+              <th className="p-2 text-sm font-bold text-gray-700">Status</th>
             </tr>
           </thead>
           <tbody>
@@ -54,6 +52,16 @@ const ResolvedIssues = () => {
             ))}
           </tbody>
         </table>
+      </div>
+
+      {/* Add a link to the history page */}
+      <div className="mt-4">
+        <Link 
+          to="/History" 
+          className="bg-blue-500 text-white px-4 py-2 rounded"
+        >
+          Show History
+        </Link>
       </div>
     </div>
   );

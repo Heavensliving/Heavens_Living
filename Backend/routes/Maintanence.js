@@ -20,6 +20,10 @@ router.put('/assign/:id',MaintanaceController.assignStaffToMaintenance);
 
 router.put('/update-assigned-to/:id', MaintanaceController.updateAssignedTo);
 
+router.put('/updateStatus/:id',MaintanaceController.updateMaintenanceStatus)
+
+router.get('/getlatest',MaintanaceController.getLatestResolvedIssues)
+
 
 
 module.exports =router;

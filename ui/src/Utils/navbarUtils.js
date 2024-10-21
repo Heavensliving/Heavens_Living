@@ -74,6 +74,25 @@ const pageConfig = {
     '/update/:id': {
       title: 'Update Branch',
     },
+    "/branch-management":{
+      title:"Branch Management"
+    },
+    "/add-branch":{
+      title:"Add Branch"
+    },
+    '/phase-management/:id':{
+      title:"Phase Management"
+    },
+    '/add-phase/:id':{
+      title:"Add Phase"
+    },
+    '/History':{
+      title:"History"
+    },
+    '/add-maintanence':{
+      title:"Add Maintanence"
+    },
+    
   };
   
   export default pageConfig;

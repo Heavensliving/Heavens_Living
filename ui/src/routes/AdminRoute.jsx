@@ -35,8 +35,7 @@ import EditPhase from '../pages/property/EditPhase.jsx'
 import AddPhase from '../pages/property/AddPhase.jsx'
 import Property from '../pages/property/Property.jsx'
 import AddPropertyToPhase from '../pages/property/AddPropertyToPhase.jsx'
-
-
+import History from '../pages/Maintenance/History.jsx'
 const AdminRoute = () => {
     return (
         <div>
@@ -80,6 +79,8 @@ const AdminRoute = () => {
                     <Route path='/updatePhase/:id' element={<EditPhase/>}/>
                     <Route path='/properties/:id' element={<Property/>}/>
                     <Route path='/add-property/:id' element={<AddPropertyToPhase/>}/>
+                    <Route path='history' element={<History/>}/>
+
 
 
                 </Route>

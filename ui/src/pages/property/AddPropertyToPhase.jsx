@@ -28,6 +28,7 @@ function AddPropertyToPhase() {
 
     const [propertyData, setPropertyData] = useState({
         propertyName: '',
+        propertyOwnerName: '',
         location: '',
         address: '',
         contactNumber: '',
@@ -37,9 +38,7 @@ function AddPropertyToPhase() {
         oneSharing: '',
         twoSharing: '',
         fourSharing: '',
-        sixSharing: '',
         propertyType: '',
-        propertyOwnerName: '',
         phaseId: id,
     });
 
@@ -69,18 +68,17 @@ function AddPropertyToPhase() {
     // Configuration for form fields to avoid repetition
     const formFields = [
         { label: 'Property Name', name: 'propertyName', required: true },
+        { label: 'Property Owner\'s Name', name: 'propertyOwnerName', required: true },
         { label: 'Location', name: 'location', required: true },
         { label: 'Address', name: 'address', required: true },
         { label: 'Contact Number', name: 'contactNumber', required: true },
+        { label: 'Property Type', name: 'propertyType', required: true },
         { label: 'Total Beds', name: 'totalBeds', type: 'number', required: true },
         { label: 'Preferred By', name: 'preferredBy', required: true },
         { label: 'Starting Price', name: 'startingPrice', type: 'number', required: true },
         { label: 'One Sharing Price', name: 'oneSharing', type: 'number' },
         { label: 'Two Sharing Price', name: 'twoSharing', type: 'number' },
         { label: 'Four Sharing Price', name: 'fourSharing', type: 'number' },
-        { label: 'Six Sharing Price', name: 'sixSharing', type: 'number' },
-        { label: 'Property Type', name: 'propertyType', required: true },
-        { label: 'Property Owner\'s Name', name: 'propertyOwnerName', required: true },
     ];
 
     return (

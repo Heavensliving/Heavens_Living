@@ -25,29 +25,35 @@ const addMaintenance = async (req, res) => {
   }
 };
 
-// Assign staff to a maintenance record by ID
+// Assign staff to maintenance record
 const assignStaffToMaintenance = async (req, res) => {
   try {
     const { id } = req.params; // Maintenance record ID
-    const { staffName } = req.body; // The staff ID passed in the request body
+    const { staffName, Timeneeded } = req.body; // Get both staffName and Timeneeded from the request body
 
     // Validate the received data
-    if (!id) {
-      return res.status(400).json({ message: 'Staff ID is required.' });
+    if (!id || !Timeneeded) {
+      return res.status(400).json({ message: 'Staff ID and time needed are required.' });
     }
 
-    // Find the maintenance record by ID and update the AssignedTo field
+    // Find the maintenance record by ID and update the AssignedTo and Timeneeded fields
     const updatedMaintenance = await Maintanance.findByIdAndUpdate(
       id,
-      {AssignedTo:staffName}, // Return the updated document
+      {
+        AssignedTo: staffName,
+        Timeneeded: Timeneeded,
+        AssignedAt: new Date(), // Store the current timestamp when assigning staff
+      },
+      { new: true }
     );
+
     // Check if the maintenance record exists
     if (!updatedMaintenance) {
       return res.status(404).json({ message: 'Maintenance record not found' });
     }
 
     res.status(200).json({
-      message: 'Staff assigned successfully!',
+      message: 'Staff assigned and time updated successfully!',
       updatedMaintenance,
     });
   } catch (error) {
@@ -56,6 +62,45 @@ const assignStaffToMaintenance = async (req, res) => {
   }
 };
 
+// Update maintenance record status
+const updateMaintenanceStatus = async (req, res) => {
+  try {
+    const { id } = req.params; // Maintenance record ID
+    const { status } = req.body; // New status
+
+    // Validate the received data
+    if (!status) {
+      return res.status(400).json({ message: 'Status is required.' });
+    }
+
+    const updateData = { Status: status };
+
+    // If the status is "resolved," set the ResolutionDate to the current date
+    if (status === 'resolved') {
+      updateData.ResolutionDate = new Date();
+    }
+
+    // Find the maintenance record by ID and update the Status and ResolutionDate if applicable
+    const updatedMaintenance = await Maintanance.findByIdAndUpdate(
+      id,
+      updateData,
+      { new: true }
+    );
+
+    // Check if the maintenance record exists
+    if (!updatedMaintenance) {
+      return res.status(404).json({ message: 'Maintenance record not found' });
+    }
+
+    res.status(200).json({
+      message: 'Maintenance status updated successfully!',
+      updatedMaintenance,
+    });
+  } catch (error) {
+    console.error('Error updating maintenance status:', error);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
+};
 
 // Get total maintenance records
 const getTotalMaintenance = async (req, res) => {
@@ -126,6 +171,8 @@ const getMaintenanceByStatus = async (req, res) => {
     res.status(500).json({ message: 'Error retrieving maintenance records', error: error.message });
   }
 };
+
+// Update AssignedTo field in maintenance record
 const updateAssignedTo = async (req, res) => {
   try {
     const { id } = req.params; // Maintenance record ID
@@ -137,7 +184,7 @@ const updateAssignedTo = async (req, res) => {
     }
 
     // Find the maintenance record by ID and update the AssignedTo field
-    const updatedMaintenance = await Maintenance.findByIdAndUpdate(
+    const updatedMaintenance = await Maintanance.findByIdAndUpdate(
       id,
       { AssignedTo }, // Update with the provided staffId and staffName
       { new: true } // Return the updated document
@@ -157,14 +204,28 @@ const updateAssignedTo = async (req, res) => {
     res.status(500).json({ message: 'Internal Server Error' });
   }
 };
+const getLatestResolvedIssues = async (req, res) => {
+  try {
+    const resolvedRecords = await Maintanance.find({ Status: 'resolved' })
+      .sort({ updatedAt: -1 }) // Sort by updatedAt in descending order
+      .limit(5); // Limit to 5 records
+
+    res.status(200).json(resolvedRecords);
+  } catch (error) {
+    console.error('Error retrieving latest resolved issues:', error);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
+};
 
 module.exports = {
   addMaintenance,
-  assignStaffToMaintenance, // Export the new function
+  assignStaffToMaintenance,
+  updateMaintenanceStatus, // Export the new function
   getTotalMaintenance,
   getMaintenanceById,
   deleteMaintenanceById,
   getAllMaintenance,
   getMaintenanceByStatus,
   updateAssignedTo,
+  getLatestResolvedIssues,
 };
