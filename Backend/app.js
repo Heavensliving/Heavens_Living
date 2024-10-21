@@ -17,7 +17,8 @@ const peopleRoutes = require('./routes/people');
 const maintenaceRoutes = require('./routes/Maintanence');
 const messOrderRoutes = require('./routes/MessOrder');
 const branchRoutes = require('./routes/Branch');
-const phaseRoutes = require('./routes/Phase')
+const phaseRoutes = require('./routes/Phase');
+const DailyRentRoutes = require('./routes/DailyRent')
 
 dotenv.config();
 
@@ -50,6 +51,8 @@ app.use('/api/maintenance',maintenaceRoutes);
 app.use('/api/messOrder',messOrderRoutes);
 app.use('/api/branch',branchRoutes);
 app.use('/api/phase',phaseRoutes);
+app.use('/api/DailyRent',DailyRentRoutes)
+
 
 
 const PORT = process.env.PORT || 3000;
