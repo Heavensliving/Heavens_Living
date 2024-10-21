@@ -20,6 +20,7 @@ const maintenaceRoutes = require('./routes/Maintanence');
 const { router: messOrderRoutes, setSocketIO } = require('./routes/MessOrder'); // Import the router and setSocketIO function
 const branchRoutes = require('./routes/Branch');
 const phaseRoutes = require('./routes/Phase');
+const DailyRentRoutes = require('./routes/DailyRent')
 
 dotenv.config();
 
@@ -61,15 +62,18 @@ app.use('/api/students', studentRoutes);
 app.use('/api/property', propertyRoutes);
 app.use('/api/staff', staffRoutes);
 app.use('/api/fee', feeRoutes);
-app.use('/api/expense', expenseRoute);
-app.use('/api/mess', messRoute);
-app.use('/api/adOn', adOnRoute);
-app.use('/api/commission', commissionRoutes);
-app.use('/api/people', peopleRoutes);
-app.use('/api/maintenance', maintenaceRoutes);
-app.use('/api/messOrder', messOrderRoutes);
-app.use('/api/branch', branchRoutes);
-app.use('/api/phase', phaseRoutes);
+app.use('/api/expense',expenseRoute);
+app.use('/api/mess',messRoute);
+app.use('/api/adOn',adOnRoute);
+app.use('/api/commission',commissionRoutes);
+app.use('/api/people',peopleRoutes);
+app.use('/api/maintenance',maintenaceRoutes);
+app.use('/api/messOrder',messOrderRoutes);
+app.use('/api/branch',branchRoutes);
+app.use('/api/phase',phaseRoutes);
+app.use('/api/DailyRent',DailyRentRoutes)
+
+
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {

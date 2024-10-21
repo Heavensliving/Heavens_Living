@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { FaBuilding, FaUserGraduate, FaUserTie } from 'react-icons/fa';
+import { FaBuilding, FaCalendar, FaUserGraduate, FaUserTie } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import API_BASE_URL from '../../config';
@@ -83,6 +83,17 @@ const StatsSection = () => {
             <div className="flex flex-col justify-center">
               <h2 className="text-lg font-semibold">Total Properties</h2>
               <p className="text-2xl font-bold">{totalProperties}</p>
+            </div>
+          </div>
+        </Link>
+        <Link to={'/property'}>
+          <div className="flex items-center p-4 rounded-lg bg-blue-100">
+            <div className="flex items-center justify-center w-12 h-12 rounded-full bg-blue-500 mr-4">
+              <FaCalendar className="text-white text-3xl" />
+            </div>
+            <div className="flex flex-col justify-center">
+              <h2 className="text-lg font-semibold">Daily Rent</h2>
+              <p className="text-2xl font-bold">3</p>
             </div>
           </div>
         </Link>

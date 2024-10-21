@@ -92,7 +92,7 @@ const pageConfig = {
     '/add-maintanence':{
       title:"Add Maintanence"
     },
-    
+
   };
   
   export default pageConfig;
