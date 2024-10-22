@@ -1,25 +1,45 @@
+const CafeItemSchema = require('../Models/CafeItemModel');
 const CafeOrderSchema = require('../Models/CafeOrderModel'); 
 const crypto = require('crypto');
 
-// Function to generate a random 5-digit number
+
 const generateOrderId = () => {
-  const randomNumber = crypto.randomInt(10000, 99999); // Generates a random number between 10000 and 99999
+  const randomNumber = crypto.randomInt(10000, 99999); 
   return `HVNSCO${randomNumber}`;
 };
 
-// Add a new order
+// Add a new order and update item quantity
 const addCafeOrder = async (req, res) => {
   try {
     const { Name, Contact, Items, Extras } = req.body;
     const OrderId = generateOrderId(); // Generate unique OrderId
+
+    // Loop through items and reduce the quantity
+    for (const orderedItem of Items) {
+      const item = await CafeItemSchema.findById(orderedItem.itemId);
+      if (!item) {
+        return res.status(404).json({ message: `Item ${orderedItem.itemId} not found` });
+      }
+
+      // Check if there's enough quantity
+      if (item.quantity < orderedItem.quantity) {
+        return res.status(400).json({ message: `Not enough quantity for ${item.Itemname}` });
+      }
+
+      // Reduce the quantity
+      item.quantity -= orderedItem.quantity;
+      await item.save();
+    }
+
+    // Create the new order
     const newOrder = new CafeOrderSchema({ Name, OrderId, Contact, Items, Extras });
     const savedOrder = await newOrder.save();
+
     res.status(201).json(savedOrder);
   } catch (error) {
     res.status(500).json({ message: 'Failed to add order', error });
   }
 };
-
 // Get an order by ID
 const getCafeOrderById = async (req, res) => {
   try {
