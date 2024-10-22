@@ -86,7 +86,7 @@ const StatsSection = () => {
             </div>
           </div>
         </Link>
-        <Link to={'/property'}>
+        <Link to={'/dailyRent'}>
           <div className="flex items-center p-4 rounded-lg bg-blue-100">
             <div className="flex items-center justify-center w-12 h-12 rounded-full bg-blue-500 mr-4">
               <FaCalendar className="text-white text-3xl" />
