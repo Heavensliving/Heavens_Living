@@ -20,8 +20,9 @@ const maintenaceRoutes = require('./routes/Maintanence');
 const { router: messOrderRoutes, setSocketIO } = require('./routes/MessOrder'); // Import the router and setSocketIO function
 const branchRoutes = require('./routes/Branch');
 const phaseRoutes = require('./routes/Phase');
-const DailyRentRoutes = require('./routes/DailyRent')
-
+const DailyRentRoutes = require('./routes/DailyRent');
+const CafeItemRoutes = require('./routes/CafeItem');
+const CafeOrderRoutes = require('./routes/CafeOrder');
 dotenv.config();
 
 const app = express();
@@ -73,7 +74,9 @@ app.use('/api/maintenance',maintenaceRoutes);
 app.use('/api/messOrder',messOrderRoutes);
 app.use('/api/branch',branchRoutes);
 app.use('/api/phase',phaseRoutes);
-app.use('/api/DailyRent',DailyRentRoutes)
+app.use('/api/DailyRent',DailyRentRoutes);
+app.use('/api/CafeItem',CafeItemRoutes);
+app.use('/api/cafeOrder',CafeOrderRoutes);
 
 
 
