@@ -86,6 +86,7 @@ const AdminRoute = () => {
                     <Route path='history' element={<History/>}/>
                     <Route path="/dailyRent" element={<DailyRentPage/>}/>
                     <Route path="/AddDailyRent" element={<AddDailyRent />}/>
+                    
                 </Route>
 
             </Routes>

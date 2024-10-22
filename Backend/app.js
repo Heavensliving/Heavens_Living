@@ -39,12 +39,14 @@ const io = new Server(server, {
 setSocketIO(io);
 
 // Middleware
-app.use(cors({
-  origin: 'http://localhost:5173', // replace with your frontend URL
-  methods: ["GET", "POST"],
-  allowedHeaders: ["Content-Type"],
-  credentials: true
-}));
+app.use(cors());
+
+// {
+//   origin: 'http://localhost:5173', // replace with your frontend URL
+//   methods: ["GET", "POST"],
+//   // allowedHeaders: ["Content-Type"],
+//   // credentials: true
+// }
 
 app.use(express.json());
 app.use(fileUpload({
