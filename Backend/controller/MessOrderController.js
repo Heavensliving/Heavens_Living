@@ -11,7 +11,7 @@ const generateOrderId = () => {
 // Add an order
 const addOrder = async (req, res) => {
   try {
-    const { name, roomNo, contact, mealType, student, property, adOns = [] } = req.body; 
+    const { name, roomNo, contact, mealType, student, property, adOns = [] } = req.body;
 
     const orderId = generateOrderId();
 
@@ -23,16 +23,23 @@ const addOrder = async (req, res) => {
       mealType,
       status: false,
       adOns,
-      student, 
+      student,
       property,
     });
 
     const savedOrder = await newOrder.save();
+
+    // Update Property and Student documents
     await Property.findByIdAndUpdate(property, { $push: { messOrders: savedOrder._id } });
     await Student.findByIdAndUpdate(student, { $push: { messOrders: savedOrder._id } });
+
     res.status(201).json(savedOrder);
+    return savedOrder;
+
   } catch (error) {
+    console.error('Error adding order:', error);
     res.status(500).json({ message: 'Error adding order', error });
+    return null;
   }
 };
 

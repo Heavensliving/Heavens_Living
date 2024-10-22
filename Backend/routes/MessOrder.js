@@ -2,27 +2,30 @@ const express = require('express');
 const router = express.Router();
 const MessOrderController = require('../controller/MessOrderController');
 
-let io; // Declare a variable to hold the Socket.IO instance
-
+let io;
 // Function to set the Socket.IO instance
 const setSocketIO = (socketIo) => {
-  io = socketIo; // Assign the passed Socket.IO instance to the variable
+  io = socketIo; 
 };
 
-// Route for adding a new order
 router.post('/add', async (req, res) => {
-    try {
-      // Pass the req and res objects to the controller
-      await MessOrderController.addOrder(req, res);
-  
-      // Once the order is successfully added, you can emit the event
-      // Ensure to check that the status is 201 before emitting the event
-      io.emit('orderUpdated', req.body); // Emit the event with the new order data
-    } catch (error) {
-      console.error('Error adding order:', error);
-      res.status(500).json({ error: 'Failed to add order' });
+  try {
+    const newOrder = await MessOrderController.addOrder(req, res);
+
+    // Emit the new order if successfully returned from the controller
+    if (newOrder) {
+      io.emit('orderUpdated', newOrder); // Emit the new order
+      // console.log('Emitting new order:', newOrder);
+    } else {
+      console.error('Failed to get the new order from the controller');
     }
-  });
+
+  } catch (error) {
+    console.error('Error adding order:', error);
+    res.status(500).json({ error: 'Failed to add order' });
+  }
+});
+
 // Route for getting all orders
 router.get('/', MessOrderController.getAllOrders);
 
@@ -45,8 +48,13 @@ router.delete('/delete-order/:id', async (req, res) => {
 router.put('/update/:id', async (req, res) => {
   try {
     const updatedOrder = await MessOrderController.updateOrderStatus(req.params.id, req.body);
-    io.emit('orderUpdated', updatedOrder); // Emit the event with the updated order data
-    res.status(200).json(updatedOrder);
+if (updatedOrder) {
+  io.emit('orderUpdated', updatedOrder); // Emit the updated order only if not null
+  console.log('Emitting updated order:', updatedOrder);
+} else {
+  console.error('Failed to update the order');
+}
+
   } catch (error) {
     console.error('Error updating order status:', error);
     res.status(500).json({ error: 'Failed to update order status' });
