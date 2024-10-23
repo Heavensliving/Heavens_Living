@@ -1,9 +1,11 @@
+const Property = require('../Models/Add_property');
+const Student = require('../Models/Add_student');
 const Maintanance = require('../Models/MaintanenceModel'); // Adjust the path as necessary
 
 // Add maintenance record
 const addMaintenance = async (req, res) => {
   try {
-    const { Name, issue, description } = req.body;
+    const { Name, issue, description, propertyId, studentId } = req.body;
 
     // Validate the received data if needed
     if (!Name || !issue || !description) {
@@ -14,11 +16,16 @@ const addMaintenance = async (req, res) => {
       Name,
       issue,
       description,
+      propertyId,
+      studentId,
       Status: 'pending', // Default status to 'pending'
     });
 
     await newMaintenance.save();
-    res.status(201).json({ message: 'Maintenance issue added successfully!' });
+    await Property.findByIdAndUpdate(propertyId, { $push: { maintenance: newMaintenance._id } });
+    await Student.findByIdAndUpdate(studentId, { $push: { maintenance: newMaintenance._id } });
+    res.status(201).json(newMaintenance);
+    return newMaintenance;
   } catch (error) {
     console.error('Error adding maintenance issue:', error); // Log the error for debugging
     res.status(500).json({ message: 'Internal Server Error' });

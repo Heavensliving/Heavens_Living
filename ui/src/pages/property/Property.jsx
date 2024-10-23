@@ -7,6 +7,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 function Property() {
     const { id } = useParams();
     const [phaseId, setPhaseId] = useState('');
+    const [phase, setPhase] = useState('');
     const [properties, setProperties] = useState([]);
     const [loading, setLoading] = useState(true);
     const [errorMessage, setErrorMessage] = useState('');
@@ -15,6 +16,7 @@ function Property() {
 
     useEffect(() => {
         fetchProperties();
+        fetchPhase();
     }, []);
 
     const fetchProperties = async () => {
@@ -22,6 +24,16 @@ function Property() {
             const response = await axios.get(`http://localhost:3000/api/property/properties/${id}`);
             setProperties(response.data.Properties || []);
             setPhaseId(response.data._id)
+            setLoading(false);
+        } catch (error) {
+            setErrorMessage('Failed to fetch properties. Please try again later.');
+            setLoading(false);
+        }
+    };
+    const fetchPhase = async () => {
+        try {
+            const response = await axios.get(`http://localhost:3000/api/phase/${id}`);
+            setPhase(response.data)
             setLoading(false);
         } catch (error) {
             setErrorMessage('Failed to fetch properties. Please try again later.');
@@ -42,7 +54,7 @@ function Property() {
             <div className="bg-white p-2 rounded-lg mb-4 flex items-center w-1/4">
                 <FaHome className="text-blue-600 text-2xl mr-2" />
                 <div>
-                    <p className="text-gray-500 text-sm">Total Properties</p>
+                    <p className="text-gray-500 text-sm">Total Properties in {phase.Name}</p>
                     <p className="font-bold text-lg">{properties.length}</p>
                 </div>
             </div>
