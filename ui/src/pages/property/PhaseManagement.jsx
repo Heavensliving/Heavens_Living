@@ -9,6 +9,7 @@ function PhaseManagement() {
   const { id } = useParams();
   const [phases, setPhases] = useState([]); 
   const [branchId, setBranchId] = useState('');
+  const [branch, setBranch] = useState('');
   const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
@@ -19,6 +20,7 @@ function PhaseManagement() {
  
   useEffect(() => {
     fetchPhases();
+    fetchBranch();
   }, []);
 
   const fetchPhases = async () => {
@@ -28,6 +30,17 @@ function PhaseManagement() {
       // Extract the phases array from the response data
       setPhases(response.data.Phases || []); // Ensure that the phases is always an array
       
+      setLoading(false);
+    } catch (error) {
+      console.error('Error fetching phases:', error); // Log any error
+      setErrorMessage('Failed to fetch phases. Please try again later.');
+      setLoading(false);
+    }
+  };
+  const fetchBranch = async () => {
+    try {
+      const response = await axios.get(`${API_BASE_URL}/branch/${id}`);
+      setBranch(response.data)
       setLoading(false);
     } catch (error) {
       console.error('Error fetching phases:', error); // Log any error
@@ -73,7 +86,7 @@ function PhaseManagement() {
       <div className="bg-white p-2 rounded-lg mb-4 flex items-center w-1/4">
         <FaBuilding className="text-blue-600 text-2xl mr-2" />
         <div>
-          <p className="text-gray-500 text-sm">Total Phases</p>
+          <p className="text-gray-500 text-sm">Total Phases in {branch.Name}</p>
           <p className="font-bold text-lg">{phases.length}</p>
         </div>
       </div>

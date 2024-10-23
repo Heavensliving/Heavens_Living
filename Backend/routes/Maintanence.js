@@ -1,29 +1,49 @@
 const express = require('express');
 
 const router = express.Router();
-const MaintanaceController = require('../controller/MaintanenceController');
+const MaintenanceController = require('../controller/MaintanenceController');
 
 
-router.post("/add",MaintanaceController.addMaintenance);
+let io;
+// Function to set the Socket.IO instance
+const setMaintenanceSocketIO = (socketIo) => {
+  io = socketIo;
+};
 
-router.get("/total",MaintanaceController.getTotalMaintenance );
+// Add maintenance request
+router.post('/add', async (req, res) => {
+  try {
+    const newMaintenance = await MaintenanceController.addMaintenance(req, res);
 
-router.get("/get",MaintanaceController.getAllMaintenance );
+    if (newMaintenance) {
+      io.emit('maintenanceUpdated', newMaintenance); // Emit the new maintenance request
+    } else {
+      console.error('Failed to get the new maintenance request from the controller');
+    }
+  } catch (error) {
+    console.error('Error adding maintenance:', error);
+    res.status(500).json({ error: 'Failed to add maintenance' });
+  }
+});
 
-router.delete("/delete/:id",MaintanaceController.deleteMaintenanceById );
+router.get("/total",MaintenanceController.getTotalMaintenance );
 
-router.get("/get/:id",MaintanaceController.getMaintenanceById);
+router.get("/get",MaintenanceController.getAllMaintenance );
 
-router.get('/maintenance/status', MaintanaceController.getMaintenanceByStatus);
+router.delete("/delete/:id",MaintenanceController.deleteMaintenanceById );
 
-router.put('/assign/:id',MaintanaceController.assignStaffToMaintenance);
+router.get("/get/:id",MaintenanceController.getMaintenanceById);
 
-router.put('/update-assigned-to/:id', MaintanaceController.updateAssignedTo);
+router.get('/maintenance/status', MaintenanceController.getMaintenanceByStatus);
 
-router.put('/updateStatus/:id',MaintanaceController.updateMaintenanceStatus)
+router.put('/assign/:id',MaintenanceController.assignStaffToMaintenance);
 
-router.get('/getlatest',MaintanaceController.getLatestResolvedIssues)
+router.put('/update-assigned-to/:id', MaintenanceController.updateAssignedTo);
+
+router.put('/updateStatus/:id',MaintenanceController.updateMaintenanceStatus)
+
+router.get('/getlatest',MaintenanceController.getLatestResolvedIssues)
 
 
 
-module.exports =router;
+module.exports = { router, setMaintenanceSocketIO };

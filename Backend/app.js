@@ -16,8 +16,8 @@ const messRoute = require('./routes/Mess');
 const adOnRoute = require('./routes/adOn');
 const commissionRoutes = require('./routes/Commission');
 const peopleRoutes = require('./routes/people');
-const maintenaceRoutes = require('./routes/Maintanence');
-const { router: messOrderRoutes, setSocketIO } = require('./routes/MessOrder'); // Import the router and setSocketIO function
+const { router: maintenaceRoutes, setMaintenanceSocketIO} = require('./routes/Maintanence');
+const { router: messOrderRoutes, setSocketIO } = require('./routes/MessOrder'); 
 const branchRoutes = require('./routes/Branch');
 const phaseRoutes = require('./routes/Phase');
 const DailyRentRoutes = require('./routes/DailyRent');
@@ -38,16 +38,11 @@ const io = new Server(server, {
 
 // Set the Socket.IO instance in the messOrder routes
 setSocketIO(io);
+// Set the Socket.IO instance in the maintenance routes
+setMaintenanceSocketIO(io);
 
 // Middleware
 app.use(cors());
-
-// {
-//   origin: 'http://localhost:5173', // replace with your frontend URL
-//   methods: ["GET", "POST"],
-//   // allowedHeaders: ["Content-Type"],
-//   // credentials: true
-// }
 
 app.use(express.json());
 app.use(fileUpload({

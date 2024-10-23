@@ -1,20 +1,23 @@
 
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { FaHome, FaFilter, FaPlus, FaUsers, FaCheck, FaRegCircle } from 'react-icons/fa';
-import { useNavigate } from 'react-router-dom';
+import { FaFilter, FaPlus, FaUsers, FaCheck, FaRegCircle, FaCodeBranch, FaLayerGroup, FaBuilding } from 'react-icons/fa';
+import { Link, useNavigate } from 'react-router-dom';
 import API_BASE_URL from '../../config';
 
 function PropertyManagement() {
+  const navigate = useNavigate()
   const [properties, setProperties] = useState([]);
+  const [branches, setBranches] = useState([]);
+  const [phases, setPhases] = useState([]);
   const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
-  const navigate = useNavigate();
-  
 
   useEffect(() => {
     fetchProperties();
+    fetchBranches();
+    fetchPhases();
   }, []);
 
   const fetchProperties = async () => {
@@ -27,6 +30,23 @@ function PropertyManagement() {
       setLoading(false);
     }
   };
+  const fetchBranches = async () => {
+    try {
+      const response = await axios.get(`${API_BASE_URL}/branch`); // Adjust the endpoint if needed
+      setBranches(response.data);
+    } catch (error) {
+      setErrorMessage('Failed to fetch branches.');
+    }
+  };
+
+  const fetchPhases = async () => {
+    try {
+      const response = await axios.get(`${API_BASE_URL}/phase`); // Adjust the endpoint if needed
+      setPhases(response.data);
+    } catch (error) {
+      setErrorMessage('Failed to fetch phases.');
+    }
+  };
 
   const filteredProperties = properties.filter(property =>
     property.propertyName.toLowerCase().includes(searchQuery.toLowerCase())
@@ -37,11 +57,29 @@ function PropertyManagement() {
   return (
     <div className="min-h-screen bg-gray-100 p-4 flex flex-col">
       {/* Total Properties Card Section */}
-      <div className="bg-white p-2 rounded-lg mb-4 flex items-center w-1/4">
-        <FaHome className="text-blue-600 text-2xl mr-2" />
-        <div>
-          <p className="text-gray-500 text-sm">Total Properties</p>
-          <p className="font-bold text-lg">{properties.length}</p>
+      <div className="flex space-x-4">
+        <div onClick={()=> navigate('/')} className="bg-white p-2 rounded-lg mb-4 flex items-center w-1/4">
+          <FaBuilding className="text-blue-600 text-2xl mr-2" />
+          <div>
+            <p className="text-gray-500 text-sm">Total Properties</p>
+            <p className="font-bold text-lg">{properties.length}</p>
+          </div>
+        </div>
+        {/* Total branches Card */}
+        <div onClick={()=> navigate('/branch-management')} className="bg-white p-2 rounded-lg mb-4 flex items-center w-1/4">
+          <FaCodeBranch className="text-blue-600 text-2xl mr-2" />
+          <div>
+            <p className="text-gray-500 text-sm">Branches</p>
+            <p className="font-bold text-lg">{branches.length}</p>
+          </div>
+        </div>
+        {/* Total phases Card*/}
+        <div onClick={()=> navigate('/')} className="bg-white p-2 rounded-lg mb-4 flex items-center w-1/4">
+          <FaLayerGroup className="text-blue-600 text-2xl mr-2" />
+          <div>
+            <p className="text-gray-500 text-sm">Phases</p>
+            <p className="font-bold text-lg">{phases.length}</p>
+          </div>
         </div>
       </div>
 
@@ -79,8 +117,8 @@ function PropertyManagement() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {filteredProperties.map(property => (
               <div key={property._id}
-              onClick={()=>navigate(`/property/${property._id}`)}
-               className="bg-white p-4 rounded-lg border border-gray-300 cursor-pointer transform transition-transform duration-300 hover:scale-105 hover:shadow-lg">
+                onClick={() => navigate(`/property/${property._id}`)}
+                className="bg-white p-4 rounded-lg border border-gray-300 cursor-pointer transform transition-transform duration-300 hover:scale-105 hover:shadow-lg">
                 {/* Row 1: Name and Location */}
                 <div className="flex justify-between mb-2">
                   <div>

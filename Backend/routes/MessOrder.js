@@ -5,7 +5,7 @@ const MessOrderController = require('../controller/MessOrderController');
 let io;
 // Function to set the Socket.IO instance
 const setSocketIO = (socketIo) => {
-  io = socketIo; 
+  io = socketIo;
 };
 
 router.post('/add', async (req, res) => {
@@ -19,7 +19,6 @@ router.post('/add', async (req, res) => {
     } else {
       console.error('Failed to get the new order from the controller');
     }
-
   } catch (error) {
     console.error('Error adding order:', error);
     res.status(500).json({ error: 'Failed to add order' });
@@ -48,12 +47,12 @@ router.delete('/delete-order/:id', async (req, res) => {
 router.put('/update/:id', async (req, res) => {
   try {
     const updatedOrder = await MessOrderController.updateOrderStatus(req.params.id, req.body);
-if (updatedOrder) {
-  io.emit('orderUpdated', updatedOrder); // Emit the updated order only if not null
-  console.log('Emitting updated order:', updatedOrder);
-} else {
-  console.error('Failed to update the order');
-}
+    if (updatedOrder) {
+      io.emit('orderUpdated', updatedOrder); // Emit the updated order only if not null
+      console.log('Emitting updated order:', updatedOrder);
+    } else {
+      console.error('Failed to update the order');
+    }
 
   } catch (error) {
     console.error('Error updating order status:', error);
