@@ -9,6 +9,7 @@ const MaintananceSchema = new mongoose.Schema({
   Timeneeded:{type:String,required:false},
   AssignedAt: { type: Date, required: false },
   ResolutionDate: { type: Date, required: false },
+  Remarks:{type:String,required:false},
   Status:{ type:String,required:false,default:"Pending"},
   propertyId:{type:String,required:false},
   student: {

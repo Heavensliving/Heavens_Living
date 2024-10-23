@@ -61,12 +61,11 @@ const assignStaffToMaintenance = async (req, res) => {
     res.status(500).json({ message: 'Internal Server Error' });
   }
 };
-
-// Update maintenance record status
+// Update maintenance record status with optional remark
 const updateMaintenanceStatus = async (req, res) => {
   try {
     const { id } = req.params; // Maintenance record ID
-    const { status } = req.body; // New status
+    const { status, Remarks } = req.body; // New status and optional Remarks
 
     // Validate the received data
     if (!status) {
@@ -75,12 +74,17 @@ const updateMaintenanceStatus = async (req, res) => {
 
     const updateData = { Status: status };
 
+    // If a remark is provided, add it to the updateData
+    if (Remarks) {
+      updateData.Remarks = Remarks;
+    }
+
     // If the status is "resolved," set the ResolutionDate to the current date
     if (status === 'resolved') {
       updateData.ResolutionDate = new Date();
     }
 
-    // Find the maintenance record by ID and update the Status and ResolutionDate if applicable
+    // Find the maintenance record by ID and update the Status, Remarks, and ResolutionDate if applicable
     const updatedMaintenance = await Maintanance.findByIdAndUpdate(
       id,
       updateData,
