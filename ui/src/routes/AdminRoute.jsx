@@ -38,6 +38,12 @@ import AddPropertyToPhase from '../pages/property/AddPropertyToPhase.jsx'
 import History from '../pages/Maintenance/History.jsx'
 import DailyRentPage from '../pages/DailyRent/DailyRentPage.jsx'
 import AddDailyRent from '../pages/DailyRent/AddDailyRent.jsx'
+import PaymentDashboard from '../pages/Payment/PaymentDashboard.jsx'
+import FeePayment from '../pages/Payment/FeePayment.jsx'
+import ExpenseForm from '../pages/Payment/ExpenseForm.jsx'
+
+
+
 
 
 const AdminRoute = () => {
@@ -86,6 +92,10 @@ const AdminRoute = () => {
                     <Route path='history' element={<History/>}/>
                     <Route path="/dailyRent" element={<DailyRentPage/>}/>
                     <Route path="/AddDailyRent" element={<AddDailyRent />}/>
+                    <Route path="/Payments" element={<PaymentDashboard />}/>
+                    <Route path="/feePayment" element={<FeePayment />}/>
+                    <Route path="/AddExpense" element={<ExpenseForm />}/>
+
                     
                 </Route>
 

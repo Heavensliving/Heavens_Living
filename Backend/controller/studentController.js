@@ -57,21 +57,6 @@ const getAllStudents = async (req, res) => {
 // Function to get a students
  const getStudentById = async (req, res, next) => {
 
-  // const extractedToken = req.headers.authorization ? req.headers.authorization.split(' ')[1] : null;
-  // if (!extractedToken || extractedToken.trim() === "") {
-  //     return res.status(401).json({ message: "You are not logged in!" });
-  // }
-
-  // //verify token
-  // jwt.verify(extractedToken, process.env.SECRET_KEY, (err, decrypted) => {
-  //     if (err) {
-  //         return res.status(400).json({ message: `${err.message}` })
-  //     } else {
-  //         const adminId = decrypted.id
-  //         return;
-  //     }
-  // })
-
   const studentId = req.params.id;
   let result;
   try {
@@ -157,7 +142,21 @@ const vacateStudent = async (req, res) => {
     res.status(500).json({ message: 'Error updating student status', error });
   }
 };
+const calculateTotalFee = async (req, res) => {
+  try {
+    // Fetch all students and select only the 'fee' field
+    const students = await Student.find({}, 'monthlyRent');
+
+    // Calculate the grand total of all fees
+    const grandTotal = students.reduce((total, student) => total + (student.monthlyRent || 0), 0);
+
+    res.status(200).json({ message: 'Grand total calculated successfully', grandTotal });
+  } catch (error) {
+    console.error('Error calculating total fee:', error);
+    res.status(500).json({ message: 'Error calculating total fee', error });
+  }
+};
 
 // Export the functions for use in routes
-module.exports = { addStudent, getAllStudents, editStudent, deleteStudent, vacateStudent, getStudentById };
+module.exports = { addStudent, getAllStudents, editStudent, deleteStudent, vacateStudent, getStudentById, calculateTotalFee};
 

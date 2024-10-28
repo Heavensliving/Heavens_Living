@@ -26,7 +26,7 @@ const MaintenanceComponent = () => {
         const records = response.data;
 
         // Filter records based on status
-        const inProcess = records.filter(record => record.Status === 'pending').length;
+        const inProcess = records.filter(record => record.AssignedTo && record.Status !== 'resolved').length;
         const completed = records.filter(record => record.Status === 'resolved').length;
         const total = records.length;
         const unassigned = records.filter(record => !record.AssignedTo).length;
