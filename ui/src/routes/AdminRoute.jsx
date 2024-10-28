@@ -38,12 +38,6 @@ import AddPropertyToPhase from '../pages/property/AddPropertyToPhase.jsx'
 import History from '../pages/Maintenance/History.jsx'
 import DailyRentPage from '../pages/DailyRent/DailyRentPage.jsx'
 import AddDailyRent from '../pages/DailyRent/AddDailyRent.jsx'
-import PaymentDashboard from '../pages/Payment/PaymentDashboard.jsx'
-import FeePayment from '../pages/Payment/FeePayment.jsx'
-import ExpenseForm from '../pages/Payment/ExpenseForm.jsx'
-
-
-
 
 
 const AdminRoute = () => {
@@ -64,7 +58,7 @@ const AdminRoute = () => {
                     <Route path="/staffs" element={<StaffManagement />} />
                     <Route path="/staffs/:staffId" element={<StaffDetails />} />
                     <Route path="/staffs/edit/:staffId" element={<EditStaff />} />
-                    <Route path="/property" element={<PropertyManagement />} />
+                    <Route path="/properties" element={<PropertyManagement />} />
                     <Route path="/property/:propertyId" element={<PropertyDetails />} />
                     <Route path="/mess" element={<MessManagement />} />
                     <Route path="/manage-people" element={<ManagePeople />} />
@@ -92,10 +86,6 @@ const AdminRoute = () => {
                     <Route path='history' element={<History/>}/>
                     <Route path="/dailyRent" element={<DailyRentPage/>}/>
                     <Route path="/AddDailyRent" element={<AddDailyRent />}/>
-                    <Route path="/Payments" element={<PaymentDashboard />}/>
-                    <Route path="/feePayment" element={<FeePayment />}/>
-                    <Route path="/AddExpense" element={<ExpenseForm />}/>
-
                     
                 </Route>
 

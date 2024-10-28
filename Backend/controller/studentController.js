@@ -9,12 +9,10 @@ const generateStudentId = () => {
   return `HVNS${randomNumber}`;
 };
 
-
 // Add student function
 const addStudent = async (req, res) => {
   const propertyId = req.body.property
   try {
-
     // Generate a unique student ID
     const studentId = generateStudentId();
     
@@ -24,7 +22,6 @@ const addStudent = async (req, res) => {
     if (!property) {
       return res.status(404).json({ message: 'property not found' });
     }
-
     // Create a new student document
     const student = new Student({
       ...req.body,

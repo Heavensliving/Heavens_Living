@@ -32,7 +32,7 @@ function PropertyManagement() {
   };
   const fetchBranches = async () => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/branch`); // Adjust the endpoint if needed
+      const response = await axios.get(`${API_BASE_URL}/branch`); 
       setBranches(response.data);
     } catch (error) {
       setErrorMessage('Failed to fetch branches.');
@@ -41,7 +41,7 @@ function PropertyManagement() {
 
   const fetchPhases = async () => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/phase`); // Adjust the endpoint if needed
+      const response = await axios.get(`${API_BASE_URL}/phase`);
       setPhases(response.data);
     } catch (error) {
       setErrorMessage('Failed to fetch phases.');
@@ -58,7 +58,7 @@ function PropertyManagement() {
     <div className="min-h-screen bg-gray-100 p-4 flex flex-col">
       {/* Total Properties Card Section */}
       <div className="flex space-x-4">
-        <div onClick={()=> navigate('/')} className="bg-white p-2 rounded-lg mb-4 flex items-center w-1/4">
+        <div className="bg-white p-2 rounded-lg mb-4 flex items-center w-1/4">
           <FaBuilding className="text-blue-600 text-2xl mr-2" />
           <div>
             <p className="text-gray-500 text-sm">Total Properties</p>
@@ -74,7 +74,7 @@ function PropertyManagement() {
           </div>
         </div>
         {/* Total phases Card*/}
-        <div onClick={()=> navigate('/')} className="bg-white p-2 rounded-lg mb-4 flex items-center w-1/4">
+        <div className="bg-white p-2 rounded-lg mb-4 flex items-center w-1/4">
           <FaLayerGroup className="text-blue-600 text-2xl mr-2" />
           <div>
             <p className="text-gray-500 text-sm">Phases</p>
@@ -83,7 +83,7 @@ function PropertyManagement() {
         </div>
       </div>
 
-      <div className="flex items-center justify-between w-full mb-4">
+      <div className="flex items-center justify-between w-full mb-4 ">
         {/* Search Bar */}
         <input
           type="text"
@@ -95,19 +95,19 @@ function PropertyManagement() {
 
         <div className="flex space-x-2">
           {/* Filter Button */}
-          <button className="flex items-center px-4 py-2 bg-white border border-gray-300 rounded-full hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500">
+          {/* <button className="flex items-center px-4 py-2 bg-white border border-gray-300 rounded-full hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500">
             <FaFilter className="mr-2" />
             Filter
-          </button>
+          </button> */}
 
           {/* Add Property Button */}
-          <button
+          {/* <button
             onClick={() => navigate('/add-property')}
             className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             <FaPlus className="mr-2" />
             Add Property
-          </button>
+          </button> */}
         </div>
       </div>
 

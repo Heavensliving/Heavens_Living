@@ -4,6 +4,10 @@ import { FaEdit, FaTrash } from "react-icons/fa"; // FontAwesome icons
 import API_BASE_URL from "../../config";
 import ConfirmationModal from "../../components/reUsableComponet/ConfirmationModal";
 import { useNavigate } from "react-router-dom";
+import { ref, deleteObject, getStorage } from 'firebase/storage';
+import app from '../../firebase';
+
+const storage = getStorage();
 
 const DailyRentPage = () => {
   const [dailyRents, setDailyRents] = useState([]);
@@ -35,25 +39,57 @@ const DailyRentPage = () => {
     setIsModalOpen(true);
   };
 
-  // Confirm Delete Action
-  const ConfirmDelete = async () => {
+  // Confirm Delete Action for DailyRent with file deletion
+  const ConfirmDeleteDailyRent = async () => {
     try {
+      // Find the DailyRent entry by `selectedRentId`
+      const rentToDelete = dailyRents.find((rent) => rent._id === selectedRentId);
+      if (!rentToDelete) return;
+  
+      // Paths to the files to delete from Firebase Storage
+      const filePaths = [
+        rentToDelete?.adharFrontImage,
+        rentToDelete?.adharBackImage,
+        rentToDelete?.photo,
+      ].filter(Boolean);
+  
+      // Delete each file from Firebase Storage
+      for (const filePath of filePaths) {
+        const imageRef = ref(storage, filePath);
+        try {
+          await deleteObject(imageRef);
+          console.log(`Successfully deleted file: ${filePath}`);
+        } catch (firebaseError) {
+          console.error(`Error deleting file from Firebase: ${filePath}`, firebaseError);
+        }
+      }
+  
+      // Delete the DailyRent record from the database
       await axios.delete(`${API_BASE_URL}/DailyRent/delete/${selectedRentId}`);
-      fetchDailyRents(); // Refresh the list after deletion
+      
+      // Refresh the DailyRent list after deletion
+      fetchDailyRents();
+  
+      // Close the modal
+      setIsModalOpen(false);
     } catch (error) {
       console.error("Error deleting daily rent:", error);
     }
-    setIsModalOpen(false); // Close the modal after deletion
   };
+  
 
-  // Search filter for dailyRents
-  const filteredDailyRents = dailyRents.filter((dailyRent) =>
-    dailyRent.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+// Search filter for dailyRents
+const filteredDailyRents = dailyRents.filter((dailyRent) =>
+  dailyRent.name.toLowerCase().includes(searchTerm.toLowerCase())
+);
 
-  useEffect(() => {
-    fetchDailyRents();
-  }, []);
+useEffect(() => {
+  fetchDailyRents();
+}, []);
+
+const handleRowClick = (id) => {
+  navigate(`/dailyRent/${id}`);
+};
 
   return (
     <div className="container mx-auto px-4">
@@ -93,7 +129,7 @@ const DailyRentPage = () => {
           </thead>
           <tbody>
             {filteredDailyRents.map((dailyRent, index) => (
-              <tr key={dailyRent._id} className="border-b hover:bg-gray-50">
+              <tr key={dailyRent._id} className="border-b hover:bg-gray-50 cursor-pointer" onClick={() => handleRowClick(dailyRent._id)}>
                 <td className="py-2 px-4">{index + 1}</td>
                 <td className="py-2 px-4">{dailyRent.name}</td>
                 <td className="py-2 px-4">{dailyRent.contactNo}</td>
@@ -103,11 +139,17 @@ const DailyRentPage = () => {
                 <td className="py-2 px-4 flex space-x-4">
                   <FaEdit
                     className="text-blue-500 cursor-pointer hover:text-blue-700"
-                    onClick={() => handleEdit(dailyRent._id)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      navigate(`/dailyRent/edit/${dailyRent._id}`);
+                    }}
                   />
                   <FaTrash
                     className="text-red-500 cursor-pointer hover:text-red-700"
-                    onClick={() => handleDelete(dailyRent._id)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDelete(dailyRent._id)
+                    }}
                   />
                 </td>
               </tr>
@@ -120,7 +162,7 @@ const DailyRentPage = () => {
       <ConfirmationModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        onConfirm={ConfirmDelete}
+        onConfirm={ConfirmDeleteDailyRent}
         title="Confirm Delete"
         message={`Are you sure you want to delete this branch?`}
         confirmLabel="Delete"

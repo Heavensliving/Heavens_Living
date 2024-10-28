@@ -6,7 +6,7 @@ const links = [
     { path: '/', label: 'Dashboard', icon: <FaHome /> },
     { path: '/students', label: 'Student Management', icon: <FaUserGraduate /> },
     { path: '/staffs', label: 'Staff Management', icon: <FaUsers /> },
-    { path: '/property', label: 'Property Management', icon: <FaBuilding /> },
+    { path: '/properties', label: 'Property Management', icon: <FaBuilding /> },
     { path: '/mess', label: 'Mess Management', icon: <FaUtensils /> },
     { path: '/payments', label: 'Payments', icon: <FaMoneyBill /> },
     { path: '/maintanance', label: 'Maintanance', icon: <FaTools /> },
