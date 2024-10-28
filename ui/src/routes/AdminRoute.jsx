@@ -40,6 +40,12 @@ import DailyRentPage from '../pages/DailyRent/DailyRentPage.jsx'
 import AddDailyRent from '../pages/DailyRent/AddDailyRent.jsx'
 import DailyRentDetails from '../pages/DailyRent/DailyRentDetails.jsx'
 import EditDailyRentPerson from '../pages/DailyRent/EditDailyRentPerson.jsx'
+import PaymentDashboard from '../pages/Payment/PaymentDashboard.jsx'
+import FeePayment from '../pages/Payment/FeePayment.jsx'
+import ExpenseForm from '../pages/Payment/ExpenseForm.jsx'
+
+
+
 
 
 const AdminRoute = () => {
@@ -90,6 +96,9 @@ const AdminRoute = () => {
                     <Route path="/AddDailyRent" element={<AddDailyRent />}/>
                     <Route path="/dailyRent/:id" element={<DailyRentDetails />}/>
                     <Route path="/dailyRent/edit/:id" element={<EditDailyRentPerson />}/>
+                    <Route path="/payments" element={<PaymentDashboard />}/>
+                    <Route path='/feePayment' element={<FeePayment/>}/>
+                    <Route path='/AddExpense' element={<ExpenseForm/>}/>
                     
                 </Route>
 

@@ -4,7 +4,7 @@ const crypto = require('crypto');
 
 
 const generateOrderId = () => {
-  const randomNumber = crypto.randomInt(10000, 99999); 
+  const randomNumber = crypto.randomInt(100000, 999999); 
   return `HVNSCO${randomNumber}`;
 };
 
