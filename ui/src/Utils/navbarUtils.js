@@ -20,12 +20,14 @@ const pageConfig = {
     '/staffs/edit/:staffId': {
       title: 'Edit Staff',
     },
-    '/property': {
+    '/properties': {
       title: 'Property Management',
     },
     '/property/:propertyId': {
       title: 'Propety Details',
-
+    },
+    '/properties/:Id': {
+      title: 'Propety Management',
     },
     '/editproperty/:propertyId': {
       title: 'Edit Property',
@@ -91,6 +93,18 @@ const pageConfig = {
     },
     '/add-maintanence':{
       title:"Add Maintanence"
+    },
+    '/dailyRent':{
+      title:"Daily Rent"
+    },
+    '/dailyRent/:id':{
+      title:"Person Details"
+    },
+    '/dailyRent/edit/:id':{
+      title:"Edit Person"
+    },
+    '/AddDailyRent':{
+      title:"Add Person"
     },
 
   };

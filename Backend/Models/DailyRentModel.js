@@ -6,7 +6,8 @@ const DailyRentSchema = new mongoose.Schema({
   contactNo: { type: String, required: true },
   email: { type: String, required: true },
   bloodGroup: { type: String, required: true },
-  DailyRent: { type: Number },
+  DailyRent: { type: String,  required: true },
+  photo: { type: String,required:false },
   adharFrontImage: { type: String,required:false }, 
   adharBackImage: { type: String ,required:false },  
   roomType: { type: String },
@@ -16,12 +17,15 @@ const DailyRentSchema = new mongoose.Schema({
   pgName: { type:String },
   OccupantId: { type: String, unique: true, required: true },
   joinDate: { type: Date },
-  currentStatus: { type: String },
+  currentStatus: { type: String, default: 'Active'},
   dateOfBirth: { type: Date, required: true },
   gender: { type: String, required: true },
-  Occupation: { type: String },
   branch: { type: String, required: true },
   phase: { type: String, required: true },
+  property: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Property'
+}
 })
 
 const DailyRent = mongoose.model('DailyRent', DailyRentSchema);

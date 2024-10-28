@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import API_BASE_URL from '../../config';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import app from '../../firebase';
 
@@ -42,8 +42,9 @@ const Select = ({ label, name, value, onChange, options, required = false }) => 
   </div>
 );
 
-const AddDailyRent = () => {
+const EditDailyRentPerson = () => {
   const navigate = useNavigate();
+  const { id } = useParams(); 
   const [formData, setFormData] = useState({
     name: '',
     address: '',
@@ -51,24 +52,29 @@ const AddDailyRent = () => {
     email: '',
     bloodGroup: '',
     DailyRent: '',
-    photo: null,
+    Photo: null,
     adharFrontImage: null,
     adharBackImage: null,
     roomType: '',
     roomNo: '',
-    typeOfStay: '',
     paymentStatus: '',
-    pgName: '',
+    propertyId: '',
     joinDate: '',
     currentStatus: '',
     dateOfBirth: '',
     gender: '',
     branch: '',
     phase: '',
-    property: ''
+    property: '',
+    typeOfStay: ''
   });
 
   const [properties, setProperties] = useState([]);
+  const [oldFiles, setOldFiles] = useState({
+    Adharfrontside: '',
+    Adharbackside: '',
+    Photo: ''
+  });
 
   useEffect(() => {
     const fetchProperties = async () => {
@@ -79,8 +85,52 @@ const AddDailyRent = () => {
         console.error('Error fetching properties:', error);
       }
     };
+
+    const fetchDailyRentData = async () => {
+      try {
+        const response = await axios.get(`${API_BASE_URL}/DailyRent/${id}`);
+        const fetchedData = response.data;
+        setOldFiles({
+            Adharfrontside: fetchedData.adharFrontImage,
+            Adharbackside: fetchedData.adharBackImage,
+            Photo: fetchedData.photo,
+        });
+
+        if (fetchedData.dateOfBirth && fetchedData.joinDate) {
+            fetchedData.dateOfBirth = new Date(fetchedData.dateOfBirth).toISOString().split('T')[0];
+            fetchedData.joinDate = new Date(fetchedData.joinDate).toISOString().split('T')[0];
+        }
+        setFormData({
+            name: fetchedData.name || '',
+            address: fetchedData.address || '',
+            contactNo: fetchedData.contactNo || '',
+            email: fetchedData.email || '',
+            bloodGroup: fetchedData.bloodGroup || '',
+            DailyRent: fetchedData.DailyRent || '',
+            Photo: null,
+            adharFrontImage: null,
+            adharBackImage: null,
+            roomType: fetchedData.roomType || '',
+            roomNo: fetchedData.roomNo || '',
+            paymentStatus: fetchedData.paymentStatus || '',
+            propertyId: fetchedData.property || '', 
+            joinDate: fetchedData.joinDate || '',
+            currentStatus: fetchedData.currentStatus || '',
+            dateOfBirth: fetchedData.dateOfBirth || '',
+            gender: fetchedData.gender || '',
+            branch: fetchedData.branch || '',
+            phase: fetchedData.phase || '',
+            property: fetchedData.property || '',
+            typeOfStay: fetchedData.typeOfStay || ''
+        });
+      } catch (error) {
+        console.error('Error fetching daily rent data:', error);
+      }
+    };
+
     fetchProperties();
-  }, []);
+    fetchDailyRentData();
+  }, [id]);
 
   const handleChange = (e) => {
     const { name, type, files, value } = e.target;
@@ -110,41 +160,54 @@ const AddDailyRent = () => {
     });
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    const filesToUpload = ['photo', 'adharFrontImage', 'adharBackImage'];
-    const uploadPromises = filesToUpload.map(async (fileField) => {
-      if (formData[fileField]) {
-        const downloadURL = await uploadFile(formData[fileField]);
-        return { [fileField]: downloadURL };
-      }
-      return null;
-    });
-
-    const uploadedFiles = await Promise.all(uploadPromises);
-    console.log(uploadedFiles)
-
-    uploadedFiles.forEach((result) => {
-      if (result) {
-        const key = Object.keys(result)[0];
-        formData[key] = result[key]; // Update formData with the URL of the uploaded file
-      }
-    });
-
-    // Create FormData for submission
-    const Data = new FormData();
-    for (const key in formData) {
-      Data.append(key, formData[key]);
-    }
-
+  const deleteOldFile = async (fileURL) => {
+    if (!fileURL) return Promise.resolve();
+    const fileRef = ref(storage, fileURL);
     try {
-      const response = await axios.post(`${API_BASE_URL}/DailyRent/Add`, formData);
-      navigate('/dailyRent');
+        await deleteObject(fileRef);
     } catch (error) {
-      console.error('Error adding daily rent person:', error);
+        console.error('Error deleting file:', error);
     }
-  };
+};
+
+  const handleSubmit = async (e) => {
+        e.preventDefault();
+
+        const filesToUpload = ['photo', 'adharFrontImage', 'adharBackImage'];
+        const uploadPromises = filesToUpload.map(async (fileField) => {
+            if (formData[fileField] && typeof formData[fileField] === 'object') {
+                await deleteOldFile(oldFiles[fileField]);
+                const downloadURL = await uploadFile(formData[fileField]);
+                return { [fileField]: downloadURL };
+            }
+            return null;
+        });
+
+        const uploadedFiles = await Promise.all(uploadPromises);
+        uploadedFiles.forEach((result) => {
+            if (result) {
+                const key = Object.keys(result)[0];
+                formData[key] = result[key];
+            }
+        });
+
+        try {
+            const response = await axios.put(`${API_BASE_URL}/DailyRent/update/${id}`, formData, {
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            if (response.status === 200) {
+                console.log('Daily rent member updated successfully:', response.data);
+                navigate('/dailyRent');
+            } else {
+                console.error('Error:', response.statusText);
+            }
+        } catch (error) {
+            console.error('Error updating daily rent member:', error.response?.data || error.message);
+        }
+    };
 
   return (
     <div className="max-w-3xl mx-auto mt-10 p-6 bg-white rounded-md shadow-md">
@@ -165,7 +228,7 @@ const AddDailyRent = () => {
           required
         />
 
-        <Input label="Photo" type="file" name="photo" onChange={handleChange} accept="image/*" />
+        <Input label="Photo" type="file" name="Photo" onChange={handleChange} accept="image/*" />
         <Input label="Aadhar Front Image" type="file" name="adharFrontImage" onChange={handleChange} accept="image/*" />
         <Input label="Aadhar Back Image" type="file" name="adharBackImage" onChange={handleChange} accept="image/*" />
 
@@ -201,10 +264,10 @@ const AddDailyRent = () => {
         <Input label="Room No" name="roomNo" value={formData.roomNo} onChange={handleChange} />
         <Input label="Type of Stay" name="typeOfStay" value={formData.typeOfStay} onChange={handleChange} />
 
-        <button type="submit" className="w-full bg-blue-500 text-white py-2 px-4 rounded mt-4">Submit</button>
+        <button type="submit" className="w-full bg-blue-500 text-white py-2 px-4 rounded mt-4">Update</button>
       </form>
     </div>
   );
 };
 
-export default AddDailyRent;
+export default EditDailyRentPerson;
