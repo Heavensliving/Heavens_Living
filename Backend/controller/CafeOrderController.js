@@ -8,13 +8,13 @@ const generateOrderId = () => {
   return `HVNSCO${randomNumber}`;
 };
 
-// Add a new order and update item quantity
+
 const addCafeOrder = async (req, res) => {
   try {
     const { Name, Contact, Items, Extras } = req.body;
-    const OrderId = generateOrderId(); // Generate unique OrderId
+    const OrderId = generateOrderId(); 
 
-    // Loop through items and reduce the quantity
+    
     for (const orderedItem of Items) {
       const item = await CafeItemSchema.findById(orderedItem.itemId);
       if (!item) {

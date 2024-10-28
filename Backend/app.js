@@ -23,6 +23,11 @@ const phaseRoutes = require('./routes/Phase');
 const DailyRentRoutes = require('./routes/DailyRent');
 const CafeItemRoutes = require('./routes/CafeItem');
 const CafeOrderRoutes = require('./routes/CafeOrder');
+const CategoryRoutes = require('./routes/Category');
+const CafeLoginRoutes = require('./routes/CafeLogin')
+
+
+
 dotenv.config();
 
 const app = express();
@@ -72,6 +77,8 @@ app.use('/api/phase',phaseRoutes);
 app.use('/api/DailyRent',DailyRentRoutes);
 app.use('/api/CafeItem',CafeItemRoutes);
 app.use('/api/cafeOrder',CafeOrderRoutes);
+app.use('/api/Category' ,CategoryRoutes);
+app.use('/api/CafeLogin',CafeLoginRoutes)
 
 
 
