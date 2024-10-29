@@ -30,8 +30,8 @@ const addCafeItem = async (req, res) => {
 // Get food item by ItemId
 const getCafeItemById = async (req, res) => {
   try {
-    const itemId = req.params.id;
-    const foodItem = await CafeItemSchema.findOne({ itemId });
+    const _id = req.params.id;
+    const foodItem = await CafeItemSchema.findOne({ _id});
     if (!foodItem) {
       return res.status(404).json({ message: 'Food item not found' });
     }
@@ -56,9 +56,9 @@ const getAllCafeItem = async (req, res) => {
 // Update a food item by ItemId
 const updateCafeItem = async (req, res) => {
   try {
-    const itemId = req.params.id;
+    const _id = req.params.id;
     const updatedItem = await CafeItemSchema.findOneAndUpdate(
-      { itemId },
+      { _id },
       req.body,
       { new: true }
     );
@@ -75,8 +75,8 @@ const updateCafeItem = async (req, res) => {
 // Delete a food item by ItemId
 const deleteCafeItem = async (req, res) => {
   try {
-    const itemId = req.params.id;
-    const deletedItem = await CafeItemSchema.findOneAndDelete({ itemId });
+    const _id = req.params.id;
+    const deletedItem = await CafeItemSchema.findOneAndDelete({ _id });
     if (!deletedItem) {
       return res.status(404).json({ message: 'Food item not found' });
     }
