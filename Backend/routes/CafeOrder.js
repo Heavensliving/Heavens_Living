@@ -13,4 +13,6 @@ router.put('/update/:id',cafeOrderController.updateCafeOrder);
 
 router.delete('/delete/:id',cafeOrderController.deleteCafeOrder);
 
+router.patch("/status/:id", cafeOrderController.changeOrderStatus);
+
 module.exports = router;
