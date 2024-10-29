@@ -4,20 +4,22 @@ const crypto = require('crypto');
 // Add a new food item
 const addCafeItem = async (req, res) => {
   try {
-    const { Itemname, prize, value, Description, image, quantity } = req.body; 
-    
+    const { itemname, category, prize, value, itemCode, description, image, quantity } = req.body; 
 
-    const ItemId = 'HVNSCI' + crypto.randomInt(100000, 999999);
+    const itemId = 'HVNSCI' + crypto.randomInt(100000, 999999);
 
     const newItem = new CafeItemSchema({ 
-      itemname: Itemname, 
-      itemId: ItemId, 
+      itemname, 
+      category, 
+      itemId, 
       prize, 
-      value, // Using separate value
-      description: Description, 
+      value,
+      itemCode,
+      description, 
       image, 
       quantity 
     });
+
     const savedItem = await newItem.save();
     res.status(201).json(savedItem);
   } catch (error) {
@@ -102,6 +104,21 @@ const toggleCafeItemStatus = async (req, res) => {
   }
 };
 
+// Get food item by itemCode
+const getCafeItemByCode = async (req, res) => {
+  try {
+    const itemCode = req.params.code;
+    const foodItem = await CafeItemSchema.findOne({ itemCode });
+    if (!foodItem) {
+      return res.status(404).json({ message: 'Food item not found' });
+    }
+    res.status(200).json(foodItem);
+  } catch (error) {
+    console.error('Error retrieving food item by itemCode:', error);
+    res.status(500).json({ message: 'Failed to retrieve food item', error: error.message });
+  }
+};
+
 module.exports = {
   addCafeItem,
   getCafeItemById,
@@ -109,4 +126,5 @@ module.exports = {
   updateCafeItem,
   deleteCafeItem,
   toggleCafeItemStatus,
+  getCafeItemByCode,
 };

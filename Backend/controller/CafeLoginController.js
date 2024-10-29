@@ -17,7 +17,7 @@ const loginUser = async (req, res) => {
       // Generate JWT token
       const token = jwt.sign({ email }, JWT_SECRET, { expiresIn: '24h' }); 
 
-      return res.status(200).json({ message: 'Login successful', token });
+      return res.status(200).json({ message: 'Login successful', token,email });
     } else {
       return res.status(401).json({ message: 'Invalid credentials' });
     }

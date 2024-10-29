@@ -7,7 +7,7 @@ const CafeOrder = new mongoose.Schema({
   Items:{type:String, required:true},
   Date:{type:Date, default: Date.now, required:true},
   Extras:{type:String, required:true}
-})
+}, { timestamps: true })
 
 const CafeOrderSchema = mongoose.model('CafeOrderSchema',CafeOrder);
 

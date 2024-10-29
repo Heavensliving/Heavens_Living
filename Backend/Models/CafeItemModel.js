@@ -4,6 +4,7 @@ const Cafe = new mongoose.Schema({
   itemname:{type:String,required:true},
   category:{type:String,required:true},
   itemId:{type:String,required:true,unique:true},
+  itemCode:{type:String,required:false,unique:true},
   prize:{type:Number,required:true},
   value:{type:Number,required:true},
   description:{type:String,required:true},
@@ -14,7 +15,7 @@ const Cafe = new mongoose.Schema({
     enum: ['available', 'unavailable'], 
     default: 'unavailable', 
   },
-})
+}, { timestamps: true })
 
 const CafeItemSchema = mongoose.model('CafeItemSchema',Cafe);
 
