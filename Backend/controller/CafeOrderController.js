@@ -1,101 +1,143 @@
-const CafeItemSchema = require('../Models/CafeItemModel');
-const CafeOrderSchema = require('../Models/CafeOrderModel'); 
+const CafeOrder = require("../Models/CafeOrderModel");
+const Item = require("../Models/CafeItemModel");
 const crypto = require('crypto');
 
-
+// Function to generate a unique order ID
 const generateOrderId = () => {
   const randomNumber = crypto.randomInt(100000, 999999); 
   return `HVNSCO${randomNumber}`;
 };
 
-
+// Add a new cafe order
 const addCafeOrder = async (req, res) => {
   try {
-    const { Name, Contact, Items, Extras } = req.body;
-    const OrderId = generateOrderId(); 
+    // Destructure required fields from the request body
+    const { itemName, rate, quantity, discount, total, paymentMethod, creditorName, creditorPhoneNumber } = req.body;
 
-    
-    for (const orderedItem of Items) {
-      const item = await CafeItemSchema.findById(orderedItem.itemId);
-      if (!item) {
-        return res.status(404).json({ message: `Item ${orderedItem.itemId} not found` });
-      }
-
-      // Check if there's enough quantity
-      if (item.quantity < orderedItem.quantity) {
-        return res.status(400).json({ message: `Not enough quantity for ${item.Itemname}` });
-      }
-
-      // Reduce the quantity
-      item.quantity -= orderedItem.quantity;
-      await item.save();
+    // Validate required fields
+    if (!itemName || !rate || !quantity || !discount || !total || !paymentMethod) {
+      return res.status(400).json({ message: "All fields except creditor info are required" });
     }
 
-    // Create the new order
-    const newOrder = new CafeOrderSchema({ Name, OrderId, Contact, Items, Extras });
-    const savedOrder = await newOrder.save();
+    // Validate creditorName and creditorPhoneNumber only for Credit payment method
+    if (paymentMethod === "Credit") {
+      if (!creditorName || !creditorPhoneNumber) {
+        return res.status(400).json({ message: "Creditor name and phone number are required for Credit payment" });
+      }
+    }
 
-    res.status(201).json(savedOrder);
+    // Generate a unique order ID
+    const OrderId = generateOrderId();
+
+    // Find the item in the inventory
+    const item = await Item.findOne({ itemname: itemName }); // Adjust this query as per your schema
+    if (!item) {
+      return res.status(404).json({ message: "Item not found" });
+    }
+
+    // Check if enough quantity is available
+    if (item.quantity < quantity) {
+      return res.status(400).json({ message: "Not enough quantity available" });
+    }
+
+    // Reduce the item's quantity
+    item.quantity -= quantity;
+
+    // Save the updated item back to the database
+    await item.save();
+
+    // Create a new order with the generated OrderId
+    const newOrder = new CafeOrder({ ...req.body, OrderId }); // Spread req.body and add OrderId
+    await newOrder.save();
+    
+    res.status(201).json({ message: "Order added successfully", order: newOrder });
   } catch (error) {
-    res.status(500).json({ message: 'Failed to add order', error });
+    console.error("Error details:", error); // Log the error details
+    res.status(400).json({ message: "Error adding order", error });
   }
 };
-// Get an order by ID
+
+
+// Get all cafe orders
+const getAllCafeOrders = async (req, res) => {
+  try {
+    const orders = await CafeOrder.find();
+    res.status(200).json(orders);
+  } catch (error) {
+    console.error("Error fetching orders:", error); // Log the error details
+    res.status(500).json({ message: "Error fetching orders", error });
+  }
+};
+
+// Get a cafe order by ID
 const getCafeOrderById = async (req, res) => {
   try {
-    const orderId = req.params.id;
-    const order = await CafeOrderSchema.findById(orderId);
+    const order = await CafeOrder.findById(req.params.id);
     if (!order) {
-      return res.status(404).json({ message: 'Order not found' });
+      return res.status(404).json({ message: "Order not found" });
     }
     res.status(200).json(order);
   } catch (error) {
-    res.status(500).json({ message: 'Failed to retrieve order', error });
+    console.error("Error fetching order:", error); // Log the error details
+    res.status(500).json({ message: "Error fetching order", error });
   }
 };
 
-// Get all orders
-const getAllCafeOrders = async (req, res) => {
-  try {
-    const orders = await CafeOrderSchema.find();
-    res.status(200).json(orders);
-  } catch (error) {
-    res.status(500).json({ message: 'Failed to retrieve orders', error });
-  }
-};
-
-// Update an order
+// Update a cafe order by ID
 const updateCafeOrder = async (req, res) => {
   try {
-    const orderId = req.params.id;
-    const updatedOrder = await CafeOrderSchema.findByIdAndUpdate(orderId, req.body, { new: true });
-    if (!updatedOrder) {
-      return res.status(404).json({ message: 'Order not found' });
+    const order = await CafeOrder.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    if (!order) {
+      return res.status(404).json({ message: "Order not found" });
     }
-    res.status(200).json(updatedOrder);
+    res.status(200).json({ message: "Order updated successfully", order });
   } catch (error) {
-    res.status(500).json({ message: 'Failed to update order', error });
+    console.error("Error updating order:", error); // Log the error details
+    res.status(400).json({ message: "Error updating order", error });
   }
 };
 
-// Delete an order
+// Delete a cafe order by ID
 const deleteCafeOrder = async (req, res) => {
   try {
-    const orderId = req.params.id;
-    const deletedOrder = await CafeOrderSchema.findByIdAndDelete(orderId);
-    if (!deletedOrder) {
-      return res.status(404).json({ message: 'Order not found' });
+    const order = await CafeOrder.findByIdAndDelete(req.params.id);
+    if (!order) {
+      return res.status(404).json({ message: "Order not found" });
     }
-    res.status(200).json({ message: 'Order deleted successfully' });
+    res.status(200).json({ message: "Order deleted successfully" });
   } catch (error) {
-    res.status(500).json({ message: 'Failed to delete order', error });
+    console.error("Error deleting order:", error); // Log the error details
+    res.status(500).json({ message: "Error deleting order", error });
+  }
+};
+
+// Change the status of a cafe order from pending to completed
+const changeOrderStatus = async (req, res) => {
+  try {
+    const order = await CafeOrder.findById(req.params.id);
+    if (!order) {
+      return res.status(404).json({ message: "Order not found" });
+    }
+    
+    // Check if the current status is pending
+    if (order.status === "pending") {
+      order.status = "completed";
+      await order.save();
+      res.status(200).json({ message: "Order status updated to completed", order });
+    } else {
+      res.status(400).json({ message: "Order status is not pending" });
+    }
+  } catch (error) {
+    console.error("Error updating order status:", error); // Log the error details
+    res.status(500).json({ message: "Error updating order status", error });
   }
 };
 
 module.exports = {
   addCafeOrder,
-  getCafeOrderById,
   getAllCafeOrders,
+  getCafeOrderById,
   updateCafeOrder,
   deleteCafeOrder,
+  changeOrderStatus,
 };

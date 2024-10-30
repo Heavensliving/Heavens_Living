@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const Cafe = new mongoose.Schema({
   itemname: { type: String, required: true },
