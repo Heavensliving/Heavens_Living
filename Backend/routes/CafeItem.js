@@ -5,7 +5,7 @@ const router = express.Router()
 
 router.get('/',cafeItemController.getAllCafeItem);
 
-router.get('/id/:id',cafeItemController.getCafeItemById);
+router.get('/:id',cafeItemController.getCafeItemById);
 
 router.post('/Add',cafeItemController.addCafeItem);
 

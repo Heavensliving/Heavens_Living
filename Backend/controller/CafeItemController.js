@@ -1,26 +1,28 @@
 const CafeItemSchema = require('../Models/CafeItemModel');
 const crypto = require('crypto');
+const CategorySchema = require('../Models/CategoryModel');
 
 // Add a new food item
 const addCafeItem = async (req, res) => {
   try {
-    const { itemname, category, prize, value, itemCode, description, image, quantity } = req.body; 
+    const { itemname, categoryName, prize, value, itemCode, description, image, quantity, category } = req.body;
 
     const itemId = 'HVNSCI' + crypto.randomInt(100000, 999999);
 
-    const newItem = new CafeItemSchema({ 
-      itemname, 
-      category, 
-      itemId, 
-      prize, 
+    const newItem = new CafeItemSchema({
+      itemname,
+      categoryName,
+      itemId,
+      prize,
       value,
       itemCode,
-      description, 
-      image, 
-      quantity 
+      description,
+      image,
+      quantity,
+      category
     });
-
     const savedItem = await newItem.save();
+    await CategorySchema.findByIdAndUpdate(category, { $push: { items: savedItem._id } });
     res.status(201).json(savedItem);
   } catch (error) {
     res.status(500).json({ message: 'Failed to add food item', error });
@@ -31,7 +33,7 @@ const addCafeItem = async (req, res) => {
 const getCafeItemById = async (req, res) => {
   try {
     const _id = req.params.id;
-    const foodItem = await CafeItemSchema.findOne({ _id});
+    const foodItem = await CafeItemSchema.findOne({ _id });
     if (!foodItem) {
       return res.status(404).json({ message: 'Food item not found' });
     }
@@ -41,6 +43,7 @@ const getCafeItemById = async (req, res) => {
     res.status(500).json({ message: 'Failed to retrieve food item', error: error.message });
   }
 };
+
 
 // Get all food items
 const getAllCafeItem = async (req, res) => {
@@ -56,21 +59,35 @@ const getAllCafeItem = async (req, res) => {
 // Update a food item by ItemId
 const updateCafeItem = async (req, res) => {
   try {
-    const _id = req.params.id;
+    const itemId = req.params.id;
+    const updatedItemData = req.body;
+
+    // Update the food item
     const updatedItem = await CafeItemSchema.findOneAndUpdate(
-      { _id },
-      req.body,
+      { _id: itemId },
+      updatedItemData,
       { new: true }
     );
+
     if (!updatedItem) {
       return res.status(404).json({ message: 'Food item not found' });
     }
+    const categoryId = updatedItem.category;
+
+    // Update the category's items array if necessary
+    await CategorySchema.findOneAndUpdate(
+      { _id: categoryId },
+      { $addToSet: { items: itemId } },
+      { new: true }
+    );
+
     res.status(200).json(updatedItem);
   } catch (error) {
     console.error('Error updating food item:', error);
     res.status(500).json({ message: 'Failed to update food item', error: error.message });
   }
 };
+
 
 // Delete a food item by ItemId
 const deleteCafeItem = async (req, res) => {

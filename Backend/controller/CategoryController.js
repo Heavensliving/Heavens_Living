@@ -1,3 +1,4 @@
+const CafeItemSchema = require('../Models/CafeItemModel');
 const Category = require('../Models/CategoryModel');
 
 // Add a new category
@@ -36,6 +37,27 @@ const getCategoryById = async (req, res) => {
   }
 };
 
+const getItemsByCategory = async (req, res) => {
+  const { categoryId } = req.params;
+  try {
+    // First, find the category by its ID
+    const category = await Category.findById(categoryId).select('items'); // Fetch only the items array
+    
+    if (!category) {
+      return res.status(404).json({ message: 'Category not found' });
+    }
+
+    // Then, fetch the items using the IDs in the category's items array
+    const foodItems = await CafeItemSchema.find({ _id: { $in: category.items } });
+
+    res.status(200).json(foodItems);
+  } catch (error) {
+    console.error('Error retrieving food items:', error);
+    res.status(500).json({ message: 'Failed to retrieve food items', error: error.message });
+  }
+};
+
+
 // Update a category by ID
 const updateCategory = async (req, res) => {
   try {
@@ -68,6 +90,7 @@ module.exports = {
   addCategory,
   getAllCategories,
   getCategoryById,
+  getItemsByCategory,
   updateCategory,
   deleteCategory,
 };

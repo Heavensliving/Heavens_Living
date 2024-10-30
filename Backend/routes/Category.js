@@ -8,6 +8,8 @@ router.post('/add', CategoryController.addCategory);
 
 router.get('/', CategoryController.getAllCategories);
 
+router.get('/:categoryId', CategoryController.getItemsByCategory);
+
 router.get('/:id', CategoryController.getCategoryById);
 
 router.put('/update/:id', CategoryController.updateCategory);
