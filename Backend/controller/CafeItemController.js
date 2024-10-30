@@ -2,31 +2,33 @@ const CafeItemSchema = require('../Models/CafeItemModel');
 const crypto = require('crypto');
 const CategorySchema = require('../Models/CategoryModel');
 
-// Add a new food item
+// Add a new cafe item
 const addCafeItem = async (req, res) => {
-  try {
-    const { itemname, categoryName, prize, value, itemCode, description, image, quantity, category } = req.body;
+    try {
+        const { itemname, categoryName, prize, value, itemCode, description, image, quantity, category, lowStock } = req.body;
 
-    const itemId = 'HVNSCI' + crypto.randomInt(100000, 999999);
+        const itemId = 'HVNSCI' + crypto.randomInt(100000, 999999);
 
-    const newItem = new CafeItemSchema({
-      itemname,
-      categoryName,
-      itemId,
-      prize,
-      value,
-      itemCode,
-      description,
-      image,
-      quantity,
-      category
-    });
-    const savedItem = await newItem.save();
-    await CategorySchema.findByIdAndUpdate(category, { $push: { items: savedItem._id } });
-    res.status(201).json(savedItem);
-  } catch (error) {
-    res.status(500).json({ message: 'Failed to add food item', error });
-  }
+        const newItem = new CafeItemSchema({
+            itemname,
+            categoryName,
+            itemId,
+            prize,
+            value,
+            itemCode,
+            description,
+            image,
+            quantity,
+            category,
+            lowStock
+        });
+        
+        const savedItem = await newItem.save();
+        await CategorySchema.findByIdAndUpdate(category, { $push: { items: savedItem._id } });
+        res.status(201).json(savedItem);
+    } catch (error) {
+        res.status(500).json({ message: 'Failed to add cafe item', error });
+    }
 };
 
 // Get food item by ItemId
@@ -134,12 +136,25 @@ const getCafeItemByCode = async (req, res) => {
     console.error('Error retrieving food item by itemCode:', error);
     res.status(500).json({ message: 'Failed to retrieve food item', error: error.message });
   }
+}
+const getLowStockItems = async (req, res) => {
+  try {
+    
+    const foodItems = await CafeItemSchema.find();
+    const lowStockItems = foodItems.filter(item => item.quantity <= item.lowStock);
+    res.status(200).json(lowStockItems);
+  } catch (error) {
+    console.error('Error retrieving low stock items:', error);
+    res.status(500).json({ message: 'Failed to retrieve low stock items', error: error.message });
+  }
 };
+
 
 module.exports = {
   addCafeItem,
   getCafeItemById,
   getAllCafeItem,
+  getLowStockItems, 
   updateCafeItem,
   deleteCafeItem,
   toggleCafeItemStatus,

@@ -17,4 +17,6 @@ router.patch('/toggleStatus/:id',cafeItemController.toggleCafeItemStatus);
 
 router.get('/code/:code',cafeItemController.getCafeItemByCode)
 
+router.get('/cafe/lowstock', cafeItemController.getLowStockItems);
+
 module.exports = router;

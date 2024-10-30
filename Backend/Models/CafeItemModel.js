@@ -10,7 +10,7 @@ const Cafe = new mongoose.Schema({
   description: { type: String, required: false },
   image: { type: String, required: true },
   quantity: { type: Number, required: true },
-  lowStock: { type: Boolean, default: false },
+  lowStock: { type: Number, required: true },
   status: {
     type: String,
     enum: ['available', 'unavailable'],
