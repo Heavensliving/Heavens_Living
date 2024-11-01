@@ -13,7 +13,7 @@ router.put('/update/:id',cafeOrderController.updateCafeOrder);
 
 router.delete('/delete/:id',cafeOrderController.deleteCafeOrder);
 
-router.patch("/status/:id", cafeOrderController.changeOrderStatus);
+router.put('/orders/status/:id', cafeOrderController.completeCafeOrder);
 
 router.get('/transaction/completed', cafeOrderController.getAllCompletedCafeOrders);
 

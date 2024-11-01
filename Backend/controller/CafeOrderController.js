@@ -111,28 +111,7 @@ const deleteCafeOrder = async (req, res) => {
   }
 };
 
-// Change the status of a cafe order from pending to completed
-const changeOrderStatus = async (req, res) => {
-  try {
-    const { id } = req.params;
-    // Add logic to update the status of the transaction
-    // For example:
-    const updatedTransaction = await TransactionModel.findByIdAndUpdate(
-        id,
-        { status: 'completed' }, // or whatever the completed status is
-        { new: true } // return the updated document
-    );
 
-    if (!updatedTransaction) {
-        return res.status(404).json({ message: 'Transaction not found' });
-    }
-
-    res.status(200).json(updatedTransaction);
-} catch (error) {
-    console.error('Error updating transaction status:', error);
-    res.status(500).json({ message: 'Internal Server Error' });
-}
-};
 const getAllCompletedCafeOrders = async (req, res) => {
   try {
     // Fetch only orders with status "completed"
@@ -143,6 +122,26 @@ const getAllCompletedCafeOrders = async (req, res) => {
     res.status(500).json({ message: "Error fetching completed orders", error });
   }
 };
+const completeCafeOrder = async (req, res) => {
+  try {
+    // Find the order by ID and update the status
+    const order = await CafeOrder.findByIdAndUpdate(
+      req.params.id,
+      { status: "completed" }, // Update the status to completed
+      { new: true } // Return the updated order
+    );
+
+    if (!order) {
+      return res.status(404).json({ message: "Order not found" });
+    }
+
+    res.status(200).json({ message: "Order status updated to completed", order });
+  } catch (error) {
+    console.error("Error updating order status:", error); // Log the error details
+    res.status(400).json({ message: "Error updating order status", error });
+  }
+};
+
 
 
 
@@ -152,5 +151,6 @@ module.exports = {
   getCafeOrderById,
   updateCafeOrder,
   deleteCafeOrder,
-  changeOrderStatus,
-  getAllCompletedCafeOrders};
+  getAllCompletedCafeOrders,
+  completeCafeOrder
+};
