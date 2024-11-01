@@ -24,7 +24,7 @@ const DailyRentRoutes = require('./routes/DailyRent');
 const CafeItemRoutes = require('./routes/CafeItem');
 const CafeOrderRoutes = require('./routes/CafeOrder');
 const CategoryRoutes = require('./routes/Category');
-const CafeLoginRoutes = require('./routes/CafeLogin')
+const CafeLoginRoutes = require('./routes/CafeLogin.js')
 
 
 

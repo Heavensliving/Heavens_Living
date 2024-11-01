@@ -2,61 +2,80 @@ const CafeOrder = require("../Models/CafeOrderModel");
 const Item = require("../Models/CafeItemModel");
 const crypto = require('crypto');
 
-// Function to generate a unique order ID
 const generateOrderId = () => {
   const randomNumber = crypto.randomInt(100000, 999999); 
   return `HVNSCO${randomNumber}`;
 };
 
 // Add a new cafe order
-const addCafeOrder = async (req, res) => {
+const addCafeOrder = async (req, res, next) => {
   try {
-    // Destructure required fields from the request body
-    const { itemName, rate, quantity, discount, total, paymentMethod, creditorName, creditorPhoneNumber } = req.body;
+    const { items, discount, paymentMethod, creditorName, creditorPhoneNumber } = req.body;
+    console.log(req.body)
 
-    // Validate required fields
-    if (!itemName || !rate || !quantity || !discount || !total || !paymentMethod) {
-      return res.status(400).json({ message: "All fields except creditor info are required" });
+    if (!items || !Array.isArray(items) || items.length === 0) {
+      return res.status(400).json({ message: "Items array is required and must not be empty" });
     }
 
-    // Validate creditorName and creditorPhoneNumber only for Credit payment method
-    if (paymentMethod === "Credit") {
+    if (!paymentMethod) {
+      return res.status(400).json({ message: "Payment method is required" });
+    }
+
+    if (paymentMethod === "credit") {
       if (!creditorName || !creditorPhoneNumber) {
         return res.status(400).json({ message: "Creditor name and phone number are required for Credit payment" });
       }
     }
 
-    // Generate a unique order ID
-    const OrderId = generateOrderId();
+    const orderId = generateOrderId();
 
-    // Find the item in the inventory
-    const item = await Item.findOne({ itemname: itemName }); // Adjust this query as per your schema
-    if (!item) {
-      return res.status(404).json({ message: "Item not found" });
+    let totalOrderAmount = 0;
+
+    for (const item of items) {
+      const { itemName, quantity } = item;
+
+      const inventoryItem = await Item.findOne({ itemname: itemName });
+      if (!inventoryItem) {
+        return res.status(404).json({ message: `Item ${itemName} not found` });
+      }
+
+      if (inventoryItem.quantity < quantity) {
+        return res.status(400).json({ message: `Not enough quantity available for ${itemName}` });
+      }
+
+      inventoryItem.quantity -= quantity;
+
+      await inventoryItem.save();
+
+      const itemTotal = inventoryItem.prize * quantity; 
+      totalOrderAmount += itemTotal;
+
+      item.rate = inventoryItem.prize; 
+      item.total = itemTotal; 
     }
 
-    // Check if enough quantity is available
-    if (item.quantity < quantity) {
-      return res.status(400).json({ message: "Not enough quantity available" });
-    }
+    const status = (paymentMethod === "cash" || paymentMethod === "account") ? "completed" : "pending";
 
-    // Reduce the item's quantity
-    item.quantity -= quantity;
+    const newOrder = new CafeOrder({
+      items: items, 
+      orderId,
+      total: totalOrderAmount, 
+      discount,
+      paymentMethod,
+      status, 
+      creditorName,
+      creditorPhoneNumber
+    });
 
-    // Save the updated item back to the database
-    await item.save();
-
-    // Create a new order with the generated OrderId
-    const newOrder = new CafeOrder({ ...req.body, OrderId }); // Spread req.body and add OrderId
+    console.log(newOrder);
     await newOrder.save();
-    
+
     res.status(201).json({ message: "Order added successfully", order: newOrder });
   } catch (error) {
     console.error("Error details:", error); // Log the error details
     res.status(400).json({ message: "Error adding order", error });
   }
 };
-
 
 // Get all cafe orders
 const getAllCafeOrders = async (req, res) => {

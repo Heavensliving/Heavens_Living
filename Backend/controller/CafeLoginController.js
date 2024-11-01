@@ -6,8 +6,6 @@ const predefinedCredentials = {
   password: 'password123',
 };
 
-const JWT_SECRET = 'JWT_SECRET'; // Replace with a secure secret key
-
 // Login a user
 const loginUser = async (req, res) => {
   try {
@@ -15,7 +13,7 @@ const loginUser = async (req, res) => {
     console.log(req.body);
 
     if (email === predefinedCredentials.email && password === predefinedCredentials.password) {
-      const token = jwt.sign({ email }, JWT_SECRET, { expiresIn: '24h' });
+      const token = jwt.sign({ email }, process.env.JWT_SECRET, { expiresIn: '24h' });
 
       const loginTime = new Date();
 
