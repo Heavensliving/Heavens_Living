@@ -16,6 +16,6 @@ router.delete('/delete/:id', verifyToken, cafeOrderController.deleteCafeOrder);
 
 router.patch("/status/:id", verifyToken, cafeOrderController.changeOrderStatus);
 
-router.get('/transaction/completed', cafeOrderController.getAllCompletedCafeOrders);
+router.get('/transaction/completed', verifyToken, cafeOrderController.getAllCompletedCafeOrders);
 
 module.exports = router;

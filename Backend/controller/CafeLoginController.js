@@ -2,15 +2,22 @@ const jwt = require('jsonwebtoken');
 const LoginDetailSchema = require("../Models/LoginDetail");
 
 const predefinedCredentials = {
-  email: 'user@example.com', 
-  password: 'password123',
+  email: 'hevenscafe@gmail.com', 
+  password: 'Hevens@123',
 };
 
 // Login a user
 const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
-    console.log(req.body);
+
+    if (email !== predefinedCredentials.email) {
+      return res.status(401).json({ message: 'Email not found' });
+    }
+
+    if (password !== predefinedCredentials.password) {
+      return res.status(401).json({ message: 'Invalid password' });
+    }
 
     if (email === predefinedCredentials.email && password === predefinedCredentials.password) {
       const token = jwt.sign({ email }, process.env.JWT_SECRET, { expiresIn: '24h' });
@@ -30,7 +37,7 @@ const loginUser = async (req, res) => {
       return res.status(401).json({ message: 'Invalid credentials' });
     }
   } catch (error) {
-    res.status(500).json({ message: 'Failed to login user', error });
+    res.status(500).json({ message: 'Failed to login staff', error });
   }
 };
 
