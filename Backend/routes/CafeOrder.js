@@ -1,17 +1,18 @@
 const express = require("express")
-const cafeOrderController = require('../controller/CafeOrderController')
+const cafeOrderController = require('../controller/CafeOrderController');
+const { verifyToken } = require("../middleware/tokenVerify");
 
 const router = express.Router()
 
-router.get('/',cafeOrderController.getAllCafeOrders);
+router.get('/', verifyToken, cafeOrderController.getAllCafeOrders);
 
-router.get('/:id',cafeOrderController.getCafeOrderById);
+router.get('/:id', verifyToken, cafeOrderController.getCafeOrderById);
 
-router.post('/Add',cafeOrderController.addCafeOrder);
+router.post('/add', verifyToken, cafeOrderController.addCafeOrder);
 
-router.put('/update/:id',cafeOrderController.updateCafeOrder);
+router.put('/update/:id', verifyToken, cafeOrderController.updateCafeOrder);
 
-router.delete('/delete/:id',cafeOrderController.deleteCafeOrder);
+router.delete('/delete/:id', verifyToken, cafeOrderController.deleteCafeOrder);
 
 router.put('/orders/status/:id', cafeOrderController.completeCafeOrder);
 
