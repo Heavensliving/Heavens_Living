@@ -114,24 +114,37 @@ const deleteCafeOrder = async (req, res) => {
 // Change the status of a cafe order from pending to completed
 const changeOrderStatus = async (req, res) => {
   try {
-    const order = await CafeOrder.findById(req.params.id);
-    if (!order) {
-      return res.status(404).json({ message: "Order not found" });
+    const { id } = req.params;
+    // Add logic to update the status of the transaction
+    // For example:
+    const updatedTransaction = await TransactionModel.findByIdAndUpdate(
+        id,
+        { status: 'completed' }, // or whatever the completed status is
+        { new: true } // return the updated document
+    );
+
+    if (!updatedTransaction) {
+        return res.status(404).json({ message: 'Transaction not found' });
     }
-    
-    // Check if the current status is pending
-    if (order.status === "pending") {
-      order.status = "completed";
-      await order.save();
-      res.status(200).json({ message: "Order status updated to completed", order });
-    } else {
-      res.status(400).json({ message: "Order status is not pending" });
-    }
+
+    res.status(200).json(updatedTransaction);
+} catch (error) {
+    console.error('Error updating transaction status:', error);
+    res.status(500).json({ message: 'Internal Server Error' });
+}
+};
+const getAllCompletedCafeOrders = async (req, res) => {
+  try {
+    // Fetch only orders with status "completed"
+    const completedOrders = await CafeOrder.find({ status: "completed" });
+    res.status(200).json(completedOrders);
   } catch (error) {
-    console.error("Error updating order status:", error); // Log the error details
-    res.status(500).json({ message: "Error updating order status", error });
+    console.error("Error fetching completed orders:", error);
+    res.status(500).json({ message: "Error fetching completed orders", error });
   }
 };
+
+
 
 module.exports = {
   addCafeOrder,
@@ -140,4 +153,4 @@ module.exports = {
   updateCafeOrder,
   deleteCafeOrder,
   changeOrderStatus,
-};
+  getAllCompletedCafeOrders};
