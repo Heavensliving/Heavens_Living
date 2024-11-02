@@ -11,7 +11,6 @@ const generateOrderId = () => {
 const addCafeOrder = async (req, res, next) => {
   try {
     const { items, discount, paymentMethod, creditorName, creditorPhoneNumber } = req.body;
-    console.log(req.body)
 
     if (!items || !Array.isArray(items) || items.length === 0) {
       return res.status(400).json({ message: "Items array is required and must not be empty" });
@@ -49,6 +48,7 @@ const addCafeOrder = async (req, res, next) => {
 
       const itemTotal = inventoryItem.prize * quantity; 
       totalOrderAmount += itemTotal;
+      amountPayable = totalOrderAmount-discount
 
       item.rate = inventoryItem.prize; 
       item.total = itemTotal; 
@@ -60,16 +60,14 @@ const addCafeOrder = async (req, res, next) => {
       items: items, 
       orderId,
       total: totalOrderAmount, 
+      amountPayable: amountPayable, 
       discount,
       paymentMethod,
       status, 
       creditorName,
       creditorPhoneNumber
     });
-
-    console.log(newOrder);
     await newOrder.save();
-
     res.status(201).json({ message: "Order added successfully", order: newOrder });
   } catch (error) {
     console.error("Error details:", error); // Log the error details

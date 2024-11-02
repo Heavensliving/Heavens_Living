@@ -31,7 +31,6 @@ const loginUser = async (req, res) => {
         loginTime,
       });
       await loginRecord.save();
-
       return res.status(200).json({ message: 'Login successful', token, email });
     } else {
       return res.status(401).json({ message: 'Invalid credentials' });

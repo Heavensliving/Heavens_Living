@@ -5,6 +5,7 @@ const router = express.Router();
 
 // Define routes
 router.post('/login', CafeLoginController.loginUser);
+router.post('/logout', CafeLoginController.logoutUser);
 
 
 module.exports = router;

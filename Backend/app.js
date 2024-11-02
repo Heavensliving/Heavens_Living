@@ -78,7 +78,7 @@ app.use('/api/DailyRent',DailyRentRoutes);
 app.use('/api/CafeItem',CafeItemRoutes);
 app.use('/api/cafeOrder',CafeOrderRoutes);
 app.use('/api/Category' ,CategoryRoutes);
-app.use('/api/CafeLogin',CafeLoginRoutes)
+app.use('/api/CafeAuth',CafeLoginRoutes)
 
 
 
