@@ -1,19 +1,20 @@
 const express = require('express');
 const  CategoryController = require("../controller/CategoryController");
+const { verifyToken } = require('../middleware/tokenVerify');
 
 const router = express.Router();
 
 
-router.post('/add', CategoryController.addCategory);
+router.post('/add', verifyToken, CategoryController.addCategory);
 
-router.get('/', CategoryController.getAllCategories);
+router.get('/', verifyToken, CategoryController.getAllCategories);
 
-router.get('/:categoryId', CategoryController.getItemsByCategory);
+router.get('/:categoryId', verifyToken, CategoryController.getItemsByCategory);
 
-router.get('/:id', CategoryController.getCategoryById);
+router.get('/:id', verifyToken, CategoryController.getCategoryById);
 
-router.put('/update/:id', CategoryController.updateCategory);
+router.put('/update/:id', verifyToken, CategoryController.updateCategory);
 
-router.delete('/delete/:id', CategoryController.deleteCategory);
+router.delete('/delete/:id', verifyToken, CategoryController.deleteCategory);
 
 module.exports = router;

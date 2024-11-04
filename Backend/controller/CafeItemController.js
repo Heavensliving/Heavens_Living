@@ -64,24 +64,40 @@ const updateCafeItem = async (req, res) => {
     const itemId = req.params.id;
     const updatedItemData = req.body;
 
-    // Update the food item
-    const updatedItem = await CafeItemSchema.findOneAndUpdate(
-      { _id: itemId },
+    const existingItem = await CafeItemSchema.findById(itemId);
+    if (!existingItem) {
+      return res.status(404).json({ message: 'Food item not found' });
+    }
+
+    const previousCategoryId = existingItem.category;
+    const newCategoryId = updatedItemData.category;
+
+    const updatedItem = await CafeItemSchema.findByIdAndUpdate(
+      itemId,
       updatedItemData,
       { new: true }
     );
 
     if (!updatedItem) {
-      return res.status(404).json({ message: 'Food item not found' });
+      return res.status(404).json({ message: 'Food item not found after update' });
     }
-    const categoryId = updatedItem.category;
 
-    // Update the category's items array if necessary
-    await CategorySchema.findOneAndUpdate(
-      { _id: categoryId },
-      { $addToSet: { items: itemId } },
-      { new: true }
-    );
+    // If the category has changed, update the categories accordingly
+    if (newCategoryId && newCategoryId !== previousCategoryId) {
+      // Remove the item from the previous category
+      await CategorySchema.findByIdAndUpdate(
+        previousCategoryId,
+        { $pull: { items: itemId } },
+        { new: true }
+      );
+
+      // Add the item to the new category
+      await CategorySchema.findByIdAndUpdate(
+        newCategoryId,
+        { $addToSet: { items: itemId } },
+        { new: true }
+      );
+    }
 
     res.status(200).json(updatedItem);
   } catch (error) {
@@ -89,6 +105,7 @@ const updateCafeItem = async (req, res) => {
     res.status(500).json({ message: 'Failed to update food item', error: error.message });
   }
 };
+
 
 
 // Delete a food item by ItemId

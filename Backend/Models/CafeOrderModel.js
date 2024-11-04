@@ -12,8 +12,9 @@ const CafeOrder = new mongoose.Schema(
       }
     ],
     orderId: { type: String, required: true, unique: true },
-    discount: { type: String, required: false },
+    discount: { type: Number, required: false },
     total: { type: Number, required: true },
+    amountPayable: { type: Number, required: true },
     paymentMethod: {
       type: String,
       required: true,
