@@ -30,20 +30,23 @@ const ExpenseForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('http://localhost:3000/api/expense/add-expense', formData);
+      const response = await axios.post('http://localhost:3000/api/expense/addExpense', formData);
       console.log('Expense added:', response.data);
       // Redirect to the expenses list or another page
       navigate('/expenses'); // Change to your desired route
     } catch (error) {
       console.error('Error adding expense:', error);
+      if (error.response && error.response.data) {
+        alert(`Failed to add expense: ${error.response.data.error}`);
+      } else {
+        alert('Failed to add expense. Please check the input data and try again.');
+      }
     }
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
       <div className="bg-white p-6 rounded-md shadow-md w-full max-w-lg">
-        <h2 className="text-2xl font-semibold mb-4">Add Expense</h2>
-        
         <form onSubmit={handleSubmit} className="space-y-4">
           {['title', 'type', 'category', 'paymentMethod', 'amount', 'date'].map((field, index) => (
             <div key={index} className="mb-4">
@@ -93,6 +96,7 @@ const ExpenseForm = () => {
                 value={formData.propertyName}
                 onChange={handleChange}
                 className="w-full p-2 border rounded-md"
+                required
               />
             </div>
             <div className="w-1/2">
@@ -103,6 +107,7 @@ const ExpenseForm = () => {
                 value={formData.propertyId}
                 onChange={handleChange}
                 className="w-full p-2 border rounded-md"
+                required
               />
             </div>
           </div>

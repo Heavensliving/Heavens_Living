@@ -10,7 +10,6 @@ const predefinedCredentials = {
 const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
-    console.log(req.body);
 
     if (email === predefinedCredentials.email && password === predefinedCredentials.password) {
       const token = jwt.sign({ email }, process.env.JWT_SECRET, { expiresIn: '24h' });

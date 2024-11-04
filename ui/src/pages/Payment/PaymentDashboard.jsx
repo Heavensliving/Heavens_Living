@@ -1,134 +1,151 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const PaymentDashboard = () => {
-  const [transactions, setTransactions] = useState([]);
-  const [search, setSearch] = useState('');
-  const [totalGave, setTotalGave] = useState(0);
+  const [totalReceived, setTotalReceived] = useState(0);
   const [totalGot, setTotalGot] = useState(0);
-  const navigate = useNavigate(); // Initialize useNavigate for routing
+  const [totalMonthlyRent, setTotalMonthlyRent] = useState(0);
+  const [totalExpense, setTotalExpense] = useState(0); // New state for total expense
+  const [totalCommission, setTotalCommission] = useState(0); // State for total commission
+  const [totalWaveoff, setTotalWaveoff] = useState(0); // State for total waveoff
+  const navigate = useNavigate();
 
-  // Fetch transactions on component mount
   useEffect(() => {
-    const fetchTransactions = async () => {
+    const fetchTotals = async () => {
       try {
-        const response = await axios.get('http://localhost:3000/api/fee');
-        setTransactions(response.data);
+        const feeResponse = await axios.get("http://localhost:3000/api/fee");
 
-        // Calculate totals for "You Gave" and "You Got"
-        let gaveTotal = 0;
+        let receivedTotal = 0;
         let gotTotal = 0;
-        response.data.forEach((transaction) => {
-          gaveTotal += transaction.youGave || 0;
-          gotTotal += transaction.youGot || 0;
-        });
+        let monthlyRentTotal = 0;
+        let waveoffTotal = 0;
 
-        setTotalGave(gaveTotal);
+        feeResponse.data.forEach((transaction) => {
+          receivedTotal += transaction.totalAmount || 0;
+          gotTotal += transaction.totalAmount || 0;
+          monthlyRentTotal += transaction.rentAmount || 0;
+          waveoffTotal += transaction.waveOff || 0;
+        });
+        console.log(waveoffTotal);
+        setTotalReceived(receivedTotal);
         setTotalGot(gotTotal);
+        setTotalMonthlyRent(monthlyRentTotal);
+        setTotalWaveoff(waveoffTotal); // Set the total waveoff
       } catch (error) {
-        console.error("Error fetching transactions:", error);
+        console.error("Error fetching fee totals:", error);
       }
     };
-    
-    fetchTransactions();
+
+    const fetchTotalExpense = async () => {
+      try {
+        const expenseResponse = await axios.get(
+          "http://localhost:3000/api/expense/totalexpense"
+        );
+        setTotalExpense(expenseResponse.data.totalAmount); // Set total expense
+      } catch (error) {
+        console.error("Error fetching total expense:", error);
+      }
+    };
+
+    const fetchTotalCommission = async () => {
+      try {
+        const commissionResponse = await axios.get(
+          "http://localhost:3000/api/commission"
+        ); // Adjust the API endpoint if necessary
+        const total = commissionResponse.data.reduce(
+          (sum, commission) => sum + (commission.amount || 0),
+          0
+        ); // Sum total commissions
+        setTotalCommission(total); // Set total commission
+      } catch (error) {
+        console.error("Error fetching total commission:", error);
+      }
+    };
+
+    fetchTotals();
+    fetchTotalExpense();
+    fetchTotalCommission();
   }, []);
 
-  const netBalance = totalGot - totalGave;
-
-  // Handle search input
-  const handleSearch = (e) => {
-    setSearch(e.target.value);
-  };
-
-  // Filter transactions based on search
-  const filteredTransactions = transactions.filter((transaction) =>
-    transaction.customerName?.toLowerCase().includes(search.toLowerCase())
-  );
+  // Calculate payment pending
+  const paymentPending = totalMonthlyRent - totalReceived;
+  const paymentPendingDisplay = paymentPending < 0 ? 0 : paymentPending;
+  const netBalance = totalGot - totalReceived;
 
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
       <div className="bg-white rounded-md shadow-md p-4 w-full h-full">
         <div className="flex items-center justify-between border-b pb-3 mb-4">
-          <h1 className="text-2xl font-semibold text-gray-800">Transactions Reports</h1>
+          <h1 className="text-2xl font-semibold text-gray-800">
+            Transactions Reports
+          </h1>
           <div className="space-x-4">
-            <button className="px-4 py-2 bg-blue-500 text-white rounded-md">Download PDF</button>
             <button
-              onClick={() => navigate('/feePayment')}
+              onClick={() => navigate("/feePayment")}
               className="px-4 py-2 bg-green-500 text-white rounded-md"
             >
               Add Payment
             </button>
             <button
-              onClick={() => navigate('/AddExpense')}
+              onClick={() => navigate("/AddExpense")}
               className="px-4 py-2 bg-orange-500 text-white rounded-md"
             >
               Add Expense
             </button>
-          </div>
-        </div>
-
-        {/* Search and Period Selection */}
-        <div className="flex space-x-6 mb-6">
-          <div className="w-1/2">
-            <label className="block text-gray-600 mb-2">Customer Name</label>
-            <input
-              type="text"
-              placeholder="Search"
-              value={search}
-              onChange={handleSearch}
-              className="w-full p-2 border border-gray-300 rounded-md"
-            />
-          </div>
-          <div className="w-1/2">
-            <label className="block text-gray-600 mb-2">Period</label>
-            <select className="w-full p-2 border border-gray-300 rounded-md">
-              <option>This Month</option>
-              {/* Add more period options if needed */}
-            </select>
+            <button
+              onClick={() => navigate("/AddCommission")}
+              className="px-4 py-2 bg-red-500 text-white rounded-md"
+            >
+              Add Commission
+            </button>
           </div>
         </div>
 
         {/* Totals Display */}
         <div className="grid grid-cols-3 gap-4 text-center mb-6">
-          <div className="p-4 bg-green-100 text-green-500 rounded-md">
-            <p className="text-lg font-semibold">₹{totalGave}</p>
-            <p>You Gave</p>
+          <div
+            className="p-4 bg-green-100 text-green-500 rounded-md cursor-pointer"
+            onClick={() => navigate("/paymentReceived")}
+          >
+            <p className="text-lg font-semibold">₹{totalReceived}</p>
+            <p>Payment Received</p>
           </div>
-          <div className="p-4 bg-red-100 text-red-500 rounded-md">
-            <p className="text-lg font-semibold">₹{totalGot}</p>
-            <p>You Got</p>
+          <div
+            className="p-4 bg-red-100 text-red-500 rounded-md cursor-pointer"
+            onClick={() => navigate("/paymentPending")}
+          >
+            <p className="text-lg font-semibold">₹{paymentPendingDisplay}</p>
+            <p>Payment Pending</p>
           </div>
           <div className="p-4 bg-yellow-100 text-yellow-500 rounded-md">
-            <p className="text-lg font-semibold">₹{netBalance}</p>
-            <p>Net Balance</p>
+            <p className="text-lg font-semibold">₹{totalMonthlyRent}</p>
+            <p>Monthly Rent</p>
           </div>
-        </div>
-
-        {/* Transactions Table */}
-        <div className="overflow-auto">
-          <table className="w-full text-left">
-            <thead>
-              <tr className="border-b">
-                <th className="py-2 text-gray-600">DATE</th>
-                <th className="py-2 text-gray-600">Customer Name</th>
-                <th className="py-2 text-gray-600">DETAILS</th>
-                <th className="py-2 text-gray-600">YOU GAVE</th>
-                <th className="py-2 text-gray-600">YOU GOT</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredTransactions.map((transaction) => (
-                <tr key={transaction.id} className="border-b hover:bg-gray-100">
-                  <td className="py-2">{transaction.date}</td>
-                  <td className="py-2">{transactions.customerName}</td>
-                  <td className="py-2">{transaction.details}</td>
-                  <td className="py-2">₹{transaction.youGave}</td>
-                  <td className="py-2">₹{transaction.youGot}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <div
+            className="p-4 bg-violet-100 text-violet-500 rounded-md cursor-pointer"
+            onClick={() => navigate("/expenses")}
+          >
+            <p className="text-lg font-semibold">₹{totalExpense}</p>{" "}
+            {/* Updated to show total expense */}
+            <p>Expense</p>
+          </div>
+          <div
+            className="p-4 bg-pink-100 text-pink-500 rounded-md cursor-pointer"
+            onClick={() => navigate("/commissions")}
+          >
+            <p className="text-lg font-semibold">₹{totalCommission || 0}</p>{" "}
+            {/* Updated to show total commission */}
+            <p>Commission</p>
+          </div>
+          <div
+            className="p-4 bg-blue-100 text-blue-500 rounded-md cursor-pointer"
+            onClick={() => navigate("/waveoff")}
+          >
+            <p className="text-lg font-semibold">₹{totalWaveoff || 0}</p>{" "}
+            {/* Updated to show total waveoff */}
+            <p>Total Waveoff</p>
+          </div>
         </div>
       </div>
     </div>

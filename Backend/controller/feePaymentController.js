@@ -104,12 +104,43 @@ const deleteFeePayment = async (req, res) => {
   }
 };
 
+const getPendingPayments = async (req, res) => {
+  try {
+    const pendingPayments = await FeePayment.find({ paymentStatus: 'pending' });
+
+    if (pendingPayments.length === 0) {
+      return res.status(404).json({ message: 'No pending payments found' });
+    }
+
+    res.status(200).json(pendingPayments);
+  } catch (error) {
+    console.error('Error fetching pending payments:', error);
+    res.status(500).json({ message: 'Error fetching pending payments', error });
+  }
+};
+const getWaveOffPayments = async (req, res) => {
+  try {
+    // Find payments where waveOff amount is greater than 0
+    const waveOffPayments = await FeePayment.find({ waveOff: { $gt: 0 } });
+
+    if (waveOffPayments.length === 0) {
+      return res.status(404).json({ message: 'No payments with wave-off amounts found' });
+    }
+
+    res.status(200).json(waveOffPayments);
+  } catch (error) {
+    console.error('Error fetching payments with wave-off amounts:', error);
+    res.status(500).json({ message: 'Error fetching payments with wave-off amounts', error });
+  }
+};
 const feePaymentController = {
   addFeePayment,
   getAllFeePayments,
   getFeePaymentsByStudentId,
   editFeePayment,
   deleteFeePayment,
+  getPendingPayments,
+  getWaveOffPayments,
 };
 
 module.exports = feePaymentController;

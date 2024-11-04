@@ -4,10 +4,12 @@ const expenseController = require('../controller/expenseController');
 const router = express.Router();
 
 // Route to add a new expense
-router.post('/add-expense', expenseController.addExpense);
+router.post('/addExpense', expenseController.addExpense);
 
 // Route to get total expenses
-router.get('/total-expense', expenseController.getTotalExpense);
+router.get('/totalexpense', expenseController.getTotalExpense);
+
+router.get('/', expenseController.getAllExpenses);
 
 // Route to get total expenses by property ID
 router.get('/total-expense/by-filter', expenseController.getTotalExpenseByFilter);

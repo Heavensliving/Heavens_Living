@@ -48,21 +48,9 @@ const FeePayment = () => {
     }
   };
 
-  const handleFetchData = async () => {
-    try {
-      const response = await axios.get('http://localhost:3000/api'); // Adjust the endpoint as necessary
-      console.log("Fetched Data:", response.data); // Handle the fetched data as needed
-      alert('Data fetched successfully! Check the console for details.');
-    } catch (error) {
-      console.error("Error fetching data:", error);
-      alert('Failed to fetch data. Please try again.');
-    }
-  };
-
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
       <div className="bg-white p-6 rounded-md shadow-md w-full max-w-lg">
-        <h2 className="text-2xl font-semibold mb-6">Record Fee Payment</h2>
         
         <form onSubmit={handleSubmit}>
           {/* Two fields in one line */}
@@ -91,7 +79,7 @@ const FeePayment = () => {
             </div>
           </div>
 
-          {/* Additional fields can be added in a similar fashion */}
+          {/* Additional fields */}
           <div className="flex justify-between mb-4">
             <div className="w-1/2 pr-2">
               <label className="block text-gray-700 mb-2">Hostel ID</label>
@@ -201,22 +189,13 @@ const FeePayment = () => {
             />
           </div>
 
-          {/* Button container */}
-          <div className="flex justify-between">
-            <button
-              type="submit"
-              className="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 transition mr-2"
-            >
-           Fetch Data
-            </button>
-            <button
-              type="button"
-              onClick={handleFetchData}
-              className="w-full bg-green-500 text-white py-2 rounded-md hover:bg-green-600 transition"
-            >
-               Submit Fee Payment
-            </button>
-          </div>
+          {/* Submit button */}
+          <button
+            type="submit"
+            className="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 transition"
+          >
+            Submit Fee Payment
+          </button>
         </form>
       </div>
     </div>

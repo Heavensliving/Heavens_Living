@@ -77,13 +77,21 @@ const getExpensesByProperty = async (req, res) => {
     res.status(500).json({ error: 'Error fetching expenses' });
   }
 };
-
+const getAllExpenses = async (req, res) => {
+  try {
+    const expenses = await Expense.find(); // Retrieve all expenses
+    res.json({ expenses });
+  } catch (error) {
+    res.status(500).json({ error: 'Error fetching expenses' });
+  }
+};
 // Exporting the functions using const
 const expenseController = {
   addExpense,
   getTotalExpense,
   getTotalExpenseByFilter,
   getExpensesByProperty,
+  getAllExpenses,
 };
 
 module.exports = expenseController;

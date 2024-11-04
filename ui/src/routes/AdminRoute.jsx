@@ -43,6 +43,12 @@ import EditDailyRentPerson from '../pages/DailyRent/EditDailyRentPerson.jsx'
 import PaymentDashboard from '../pages/Payment/PaymentDashboard.jsx'
 import FeePayment from '../pages/Payment/FeePayment.jsx'
 import ExpenseForm from '../pages/Payment/ExpenseForm.jsx'
+import PaymentReceived from '../pages/Payment/PaymentReceived.jsx'
+import ExpenseTable from '../pages/Payment/ExpenseTable.jsx'
+import CommissionForm from '../pages/Payment/CommissionForm.jsx'
+import CommissionTable from '../pages/Payment/CommissionTable.jsx'
+import PendingPaymentsPage from '../pages/Payment/PendingPaymentsPage.jsx'
+import WaveOffPaymentsPage from '../pages/Payment/WaveOffPaymentsPage.jsx'
 
 
 
@@ -99,6 +105,13 @@ const AdminRoute = () => {
                     <Route path="/payments" element={<PaymentDashboard />}/>
                     <Route path='/feePayment' element={<FeePayment/>}/>
                     <Route path='/AddExpense' element={<ExpenseForm/>}/>
+                    <Route path='/paymentReceived' element={<PaymentReceived/>}/> 
+                    <Route path='/expenses' element={<ExpenseTable/>}/> 
+                    <Route path='/AddCommission' element={<CommissionForm/>}/> 
+                    <Route path='/commissions' element={<CommissionTable/>}/> 
+                    <Route path='/paymentPending' element={<PendingPaymentsPage/>}/> 
+                    <Route path='/waveoff' element={<WaveOffPaymentsPage/>}/>
+
                     
                 </Route>
 

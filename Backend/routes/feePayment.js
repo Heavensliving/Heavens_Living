@@ -18,4 +18,8 @@ router.put('/:id', feePaymentController.editFeePayment);
 // Route to delete a fee payment
 router.delete('/:id', feePaymentController.deleteFeePayment);
 
+router.get('/payments/pendingPayments', feePaymentController.getPendingPayments);
+
+router.get('/payments/waveoffpayments', feePaymentController.getWaveOffPayments);
+
 module.exports = router;

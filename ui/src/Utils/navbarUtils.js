@@ -106,6 +106,35 @@ const pageConfig = {
     '/AddDailyRent':{
       title:"Add Person"
     },
+    '/payments':{
+      title:"Payments"
+    },
+    '/paymentReceived':{
+      title:"Payments Received"
+    },
+    '/expenses':{
+      title:"Expenses"
+    },
+    '/commissions':{
+      title:"Commissions"
+    },'/feePayment':{
+      title:"Fee Payments"
+    },
+    '/AddExpense':{
+      title:"Add Expense"
+    },
+    '/AddCommission':{
+      title:"Add Commissions"
+    },
+    '/paymentPending':{
+      title:"Pending Payments"
+    },
+    '/waveoff':{
+      title:"Waveoff"
+    },
+    
+    
+    
 
   };
   

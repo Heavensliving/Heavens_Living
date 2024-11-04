@@ -4,7 +4,9 @@ const {
   getCommissionsByPropertyId, 
   updateCommission, 
   deleteCommission, 
-  getCommissionById 
+  getCommissionById, 
+  getAllCommissions,
+  getTotalCommission
 } = require('../controller/commissionController'); // Adjust the path accordingly
 
 const router = express.Router();
@@ -25,5 +27,11 @@ router.delete('/delete/:commissionId', deleteCommission);
 router.get('/:commissionId', getCommissionById);
 
 router.get('/total/:propertyId', getCommissionsByPropertyId);
+
+router.get('/',getAllCommissions);
+
+router.get('/totalCommission',getTotalCommission)
+
+
 
 module.exports = router;
