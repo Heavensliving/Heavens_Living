@@ -3,8 +3,8 @@ const mongoose = require('mongoose');
 const studentSchema = new mongoose.Schema({
   name: { type: String, required: true },
   address: { type: String, required: true },
-  contactNo: { type: String, required: true },
-  email: { type: String, required: true },
+  contactNo: { type: String, required: true ,unique:true},
+  email: { type: String, required: true,unique:true },
   bloodGroup: { type: String, required: true },
   parentName: { type: String, required: true },
   parentNumber: { type: String, required: true },

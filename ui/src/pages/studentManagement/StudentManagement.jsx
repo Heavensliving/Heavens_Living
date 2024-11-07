@@ -18,7 +18,8 @@ const StudentManagement = () => {
   const [deleteStudentId, setDeleteStudentId] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [sortOption, setSortOption] = useState('All'); // Default to "All"
+  const [sortOption, setSortOption] = useState('All');
+  const [propertySort, setPropertySort] = useState(''); 
 
   useEffect(() => {
     const fetchStudents = async () => {
@@ -52,7 +53,7 @@ const StudentManagement = () => {
   const confirmDelete = async () => {
     try {
       const studentToDelete = students.find(student => student._id === deleteStudentId);
-      const propertyId = studentToDelete.property
+      const propertyId = studentToDelete.property;
       const filePaths = [studentToDelete?.adharFrontImage, studentToDelete?.adharBackImage, studentToDelete?.photo].filter(Boolean);
 
       // Delete images from Firebase Storage
@@ -78,24 +79,31 @@ const StudentManagement = () => {
   const sortingOptions = [
     { value: 'All', label: 'All' },
     { value: 'Pending', label: 'Pending' },
-    { value: 'Paid', label: 'Paid' },
+    { value: 'Paid', label: 'Paid' }
   ];
 
   const handleSortChange = (option) => {
     setSortOption(option);
   };
 
+  const handlePropertySortChange = (e) => {
+    setPropertySort(e.target.value);
+  };
+
   const sortedStudents = () => {
     let sorted = filteredStudents;
 
-    // Filter based on paymentStatus
     if (sortOption === 'Pending') {
       sorted = filteredStudents.filter(student => student.paymentStatus === 'Pending');
     } else if (sortOption === 'Paid') {
       sorted = filteredStudents.filter(student => student.paymentStatus === 'Paid');
     }
 
-    // Return the sorted or filtered list
+    // Sort by pgName if selected
+    if (propertySort) {
+      sorted = sorted.filter(student => student.pgName === propertySort);
+    }
+
     return sorted;
   };
 
@@ -116,6 +124,22 @@ const StudentManagement = () => {
         onSortChange={handleSortChange}
         addNewEntryPath="/add-student"
       />
+
+      {/* New field for sorting by pgName */}
+      <div className="mb-4">
+        <label htmlFor="propertySort" className="block text-sm font-medium text-gray-700">Sort by PG Name</label>
+        <select
+          id="propertySort"
+          value={propertySort}
+          onChange={handlePropertySortChange}
+          className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+        >
+          <option value="">Select PG Name</option>
+          {[...new Set(students.map(student => student.pgName))].map(pgName => (
+            <option key={pgName} value={pgName}>{pgName}</option>
+          ))}
+        </select>
+      </div>
 
       <main className="flex-1 bg-white p-4 rounded-lg shadow overflow-x-auto">
         <StudentTable students={sortedStudents()} onRowClick={handleRowClick} onDelete={handleDelete} />
