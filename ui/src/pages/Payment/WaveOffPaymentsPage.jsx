@@ -11,7 +11,7 @@ const WaveOffPaymentsPage = () => {
   useEffect(() => {
     const fetchWaveOffPayments = async () => {
       try {
-        // Fetch data from the new API endpoint
+        // Fetch data from the API endpoint
         const response = await axios.get('http://localhost:3000/api/fee/payments/waveoffpayments');
         setWaveOffPayments(response.data);
         setFilteredPayments(response.data); // Initialize filtered data
@@ -47,7 +47,6 @@ const WaveOffPaymentsPage = () => {
 
   return (
     <div className="container mx-auto px-4 py-8">
-
       <div className="mb-4">
         <input
           type="text"
@@ -58,7 +57,9 @@ const WaveOffPaymentsPage = () => {
         />
       </div>
 
-      {filteredPayments.length === 0 ? (
+      {waveOffPayments.length === 0 ? (
+        <p className="text-center text-gray-600">No data found.</p>
+      ) : filteredPayments.length === 0 ? (
         <p className="text-center text-gray-600">No matching payments found.</p>
       ) : (
         <div className="overflow-x-auto">
