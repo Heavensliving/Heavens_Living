@@ -132,6 +132,9 @@ const pageConfig = {
     '/waveoff':{
       title:"Waveoff"
     },
+    '/addonPage':{
+      title:"Add-ons"
+    },
     
     
     

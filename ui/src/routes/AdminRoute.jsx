@@ -49,6 +49,7 @@ import CommissionForm from '../pages/Payment/CommissionForm.jsx'
 import CommissionTable from '../pages/Payment/CommissionTable.jsx'
 import PendingPaymentsPage from '../pages/Payment/PendingPaymentsPage.jsx'
 import WaveOffPaymentsPage from '../pages/Payment/WaveOffPaymentsPage.jsx'
+import AddonPage from '../pages/messManagement/AddonPage.jsx'
 
 
 
@@ -111,6 +112,8 @@ const AdminRoute = () => {
                     <Route path='/commissions' element={<CommissionTable/>}/> 
                     <Route path='/paymentPending' element={<PendingPaymentsPage/>}/> 
                     <Route path='/waveoff' element={<WaveOffPaymentsPage/>}/>
+                    <Route path='/addonPage' element={<AddonPage/>}/>
+
 
                     
                 </Route>

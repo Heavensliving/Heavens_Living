@@ -73,6 +73,9 @@ function MessManagement() {
   const toggleExpandAddon = (addonId) => {
     setExpandedAddon(expandedAddon === addonId ? null : addonId);
   };
+  const handleAddonsClick = () => {
+    navigate('/addonPage');
+  };
   // Today's statistics
   const totalTodayOrders = todayOrders.length;
   const totalTodayAddons = todayOrders.reduce((acc, order) => acc + order.adOns.length, 0);
@@ -103,7 +106,10 @@ function MessManagement() {
       {/* Metrics Section */}
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 mb-6">
         <MetricCard icon={FaUtensils} bgColor="bg-blue-500" title="Total Orders" value={totalTodayOrders} />
-        <MetricCard icon={FaConciergeBell} bgColor="bg-green-500" title="Total Add-ons" value={totalTodayAddons} />
+       {/* Add clickable div for "Total Add-ons" card */}
+       <div onClick={handleAddonsClick} className="cursor-pointer">
+          <MetricCard icon={FaConciergeBell} bgColor="bg-green-500" title="Total Add-ons" value={totalTodayAddons} />
+        </div>
         <MetricCard icon={FaCoffee} bgColor="bg-yellow-500" title="Breakfast" value={todayBreakfastCount} />
         <MetricCard icon={FaHamburger} bgColor="bg-red-500" title="Lunch" value={todayLunchCount} />
         <MetricCard icon={FaPizzaSlice} bgColor="bg-purple-500" title="Dinner" value={todayDinnerCount} />
@@ -215,4 +221,6 @@ function MessManagement() {
 }
 
 export default MessManagement;
+
+
 
