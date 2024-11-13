@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 const MaintananceSchema = new mongoose.Schema({
   Name: { type: String, required: false },
   issue: { type: String, required: true },
+  ticketId:{ type: String, required:true, unique:true},
   description: { type: String, required: true },
   AssignedTo: { type: String, required: false },
   Timeneeded: { type: String, required: false },

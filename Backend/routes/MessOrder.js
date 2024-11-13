@@ -60,5 +60,7 @@ router.put('/update/:id', async (req, res) => {
   }
 });
 
+router.get('/user/orders',MessOrderController.getOrder)
+
 // Export the router and the setSocketIO function
 module.exports = { router, setSocketIO };

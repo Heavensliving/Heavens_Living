@@ -1,8 +1,15 @@
 const Property = require('../Models/Add_property');
 const Student = require('../Models/Add_student');
 const Maintanance = require('../Models/MaintanenceModel'); // Adjust the path as necessary
+const crypto = require('crypto');
 
-// Add maintenance record
+const generateTicketId = () => {
+  // Generate a random 5-digit number between 10000 and 99999
+  const randomNum = crypto.randomInt(100, 100000); 
+  return `HVNSM${randomNum}`;
+};
+
+// Add maintenance record with unique ticketId
 const addMaintenance = async (req, res) => {
   try {
     const { Name, issue, description, propertyId, studentId } = req.body;
@@ -12,19 +19,23 @@ const addMaintenance = async (req, res) => {
       return res.status(400).json({ message: 'All fields are required.' });
     }
 
+    // Generate a unique ticketId
+    const ticketId = generateTicketId();
+
     const newMaintenance = new Maintanance({
       Name,
       issue,
       description,
       propertyId,
       studentId,
+      ticketId,  // Assign the generated ticketId
       Status: 'pending', // Default status to 'pending'
     });
 
     await newMaintenance.save();
     await Property.findByIdAndUpdate(propertyId, { $push: { maintenance: newMaintenance._id } });
     await Student.findByIdAndUpdate(studentId, { $push: { maintenance: newMaintenance._id } });
-    res.status(201).json(newMaintenance);
+    res.status(200).json(newMaintenance);
     return newMaintenance;
   } catch (error) {
     console.error('Error adding maintenance issue:', error); // Log the error for debugging

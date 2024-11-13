@@ -66,6 +66,16 @@ const getOrderById = async (req, res) => {
     res.status(500).json({ message: 'Error fetching order', error });
   }
 };
+const getOrder = async (req, res, next) => {
+  const studentId = req.query.student;
+  try {
+      const studentOrders = await MessOrder.find({ student: studentId })
+      return res.status(200).json({ studentOrders });
+  } catch (error) {
+      return res.status(500).json({ message: "There was a problem retrieving the Bookings." });
+  }
+}
+
 
 // Delete an order by ID
 const deleteOrder = async (req, res) => {
@@ -104,6 +114,8 @@ const MessOrderController = {
   getOrderById,
   deleteOrder,
   updateOrderStatus,
+  getOrder,
+  
 };
 
 module.exports = MessOrderController;
