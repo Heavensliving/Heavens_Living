@@ -4,8 +4,10 @@ import AssignStaffModal from './AssignStaffModal';
 import DetailModal from './DetailModal'; 
 import API_BASE_URL from '../../config';
 import { io } from 'socket.io-client';
+import { useSelector } from 'react-redux';
 
 const PendingIssues = () => {
+  const admin = useSelector(store => store.auth.admin);
   const [records, setRecords] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -42,7 +44,9 @@ const PendingIssues = () => {
     // Fetch maintenance records when component mounts
     const fetchMaintenanceRecords = async () => {
       try {
-        const response = await axios.get(`${API_BASE_URL}/maintenance/get`);
+        const response = await axios.get(`${API_BASE_URL}/maintenance/get`,
+          {headers: { 'Authorization': `Bearer ${admin.token}` }}
+        );
         const unassignedRecords = response.data.filter(record => !record.AssignedTo);
         setRecords(unassignedRecords);
       } catch (err) {
@@ -55,7 +59,9 @@ const PendingIssues = () => {
     // Fetch staff members
     const fetchStaffMembers = async () => {
       try {
-        const response = await axios.get(`${API_BASE_URL}/staff`);
+        const response = await axios.get(`${API_BASE_URL}/staff`,
+          {headers: { 'Authorization': `Bearer ${admin.token}` }}
+        );
         setStaffMembers(response.data);
       } catch (err) {
         console.error('Error fetching staff members', err);
@@ -94,7 +100,9 @@ const PendingIssues = () => {
       await axios.put(`${API_BASE_URL}/maintenance/assign/${selectedRecord._id}`, {
         staffName,
         Timeneeded: timeNeeded,
-      });
+      },
+      {headers: { 'Authorization': `Bearer ${admin.token}` }}
+    );
       window.location.reload();
       setIsModalOpen(false);
     } catch (err) {

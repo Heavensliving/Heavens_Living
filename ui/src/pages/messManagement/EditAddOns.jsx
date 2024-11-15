@@ -2,8 +2,10 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate, useParams } from 'react-router-dom';
 import API_BASE_URL from '../../config';
+import { useSelector } from 'react-redux';
 
 function EditAddOns() {
+    const admin = useSelector(store => store.auth.admin);
     const navigate = useNavigate();
     const { id } = useParams(); // Assuming you're passing the ID in the URL
     const [inputs, setInputs] = useState({
@@ -20,7 +22,9 @@ function EditAddOns() {
     useEffect(() => {
         const fetchAddOnData = async () => {
             try {
-                const response = await axios.get(`${API_BASE_URL}/adOn/getAddOn/${id}`);
+                const response = await axios.get(`${API_BASE_URL}/adOn/getAddOn/${id}`,
+                    {headers: { 'Authorization': `Bearer ${admin.token}` }}
+                );
                 setInputs(response.data); // Assuming the response data matches the inputs structure
             } catch (error) {
                 console.error('Error fetching add-on data:', error);
@@ -40,7 +44,9 @@ function EditAddOns() {
         e.preventDefault();
 
         try {
-            await axios.put(`${API_BASE_URL}/adOn/update-addOn/${id}`, inputs); // Change to PUT request for editing
+            await axios.put(`${API_BASE_URL}/adOn/update-addOn/${id}`, inputs,
+                {headers: { 'Authorization': `Bearer ${admin.token}` }}
+            ); // Change to PUT request for editing
             setMessage('Add-on item updated successfully!');
             resetForm();
             navigate('/add-ons');

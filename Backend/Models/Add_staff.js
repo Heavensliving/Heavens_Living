@@ -13,7 +13,7 @@ const staffSchema = new mongoose.Schema({
   Adharfrontside: { type: String, required: false },
   Adharbackside: { type: String, required: false },
   Salary: {type: String, required: true},
-  PaymentDate: {type: Date, required: true},
+  joinDate: {type: Date, required: true},
   PaySchedule: {type: String, required: true},
   Status: {type: String, required: true},
   branch: {type: String, required: true},

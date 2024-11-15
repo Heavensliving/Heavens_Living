@@ -2,9 +2,11 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate, useParams } from 'react-router-dom';
 import API_BASE_URL from '../../config';
+import { useSelector } from 'react-redux';
 
 
 function EditBranch() {
+  const admin = useSelector(store => store.auth.admin);
   const navigate = useNavigate();
   const { id } = useParams(); // Get the branch ID from the URL
   const [branchData, setBranchData] = useState({
@@ -16,7 +18,9 @@ function EditBranch() {
     // Fetch the existing branch data
     const fetchBranchData = async () => {
       try {
-        const response = await axios.get(`${API_BASE_URL}/branch/${id}`);
+        const response = await axios.get(`${API_BASE_URL}/branch/${id}`,
+          {headers: { 'Authorization': `Bearer ${admin.token}` }}
+        );
         setBranchData(response.data);
       } catch (error) {
         console.error('Error fetching branch data:', error);
@@ -38,7 +42,9 @@ function EditBranch() {
     e.preventDefault();
 
     try {
-      const response = await axios.put(`${API_BASE_URL}/branch/update/${id}`, branchData);
+      const response = await axios.put(`${API_BASE_URL}/branch/update/${id}`, branchData,
+        {headers: { 'Authorization': `Bearer ${admin.token}` }}
+      );
       if (response.status === 200) {
         navigate('/branch-management'); // Redirect to the branch management page after updating
       }

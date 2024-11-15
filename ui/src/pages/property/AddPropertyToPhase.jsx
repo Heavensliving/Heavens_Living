@@ -2,6 +2,7 @@ import { useState, useCallback } from 'react';
 import axios from 'axios';
 import { useNavigate, useParams } from 'react-router-dom';
 import API_BASE_URL from '../../config';
+import { useSelector } from 'react-redux';
 
 // Reusable Input Component
 const InputField = ({ label, name, type = 'text', value, handleChange, required = false }) => (
@@ -23,6 +24,7 @@ const InputField = ({ label, name, type = 'text', value, handleChange, required 
 );
 
 function AddPropertyToPhase() {
+    const admin = useSelector(store => store.auth.admin);
     const { id } = useParams();
     const navigate = useNavigate();
 
@@ -57,7 +59,9 @@ function AddPropertyToPhase() {
         e.preventDefault();
 
         try {
-            const response = await axios.post(`${API_BASE_URL}/property/add`, propertyData);
+            const response = await axios.post(`${API_BASE_URL}/property/add`, propertyData, 
+                {headers: { 'Authorization': `Bearer ${admin.token}` }}
+            );
             if (response.status === 201) {
                 navigate(`/properties/${id}`);
             }

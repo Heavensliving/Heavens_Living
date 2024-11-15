@@ -1,20 +1,21 @@
 const express = require('express');
 const expenseController = require('../controller/expenseController');
+const { verifyToken } = require('../middleware/tokenVerify');
 
 const router = express.Router();
 
 // Route to add a new expense
-router.post('/addExpense', expenseController.addExpense);
+router.post('/addExpense', verifyToken, expenseController.addExpense);
 
 // Route to get total expenses
-router.get('/totalexpense', expenseController.getTotalExpense);
+router.get('/totalexpense', verifyToken, expenseController.getTotalExpense);
 
-router.get('/', expenseController.getAllExpenses);
+router.get('/', verifyToken, expenseController.getAllExpenses);
 
 // Route to get total expenses by property ID
-router.get('/total-expense/by-filter', expenseController.getTotalExpenseByFilter);
+router.get('/total-expense/by-filter', verifyToken, expenseController.getTotalExpenseByFilter);
 
 // Route to get expenses by property name
-router.get('/expenses/by-property', expenseController.getExpensesByProperty);
+router.get('/expenses/by-property', verifyToken, expenseController.getExpensesByProperty);
 
 module.exports = router;

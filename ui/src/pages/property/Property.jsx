@@ -3,8 +3,10 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { FaHome, FaFilter, FaPlus, FaUsers, FaCheck, FaRegCircle } from 'react-icons/fa';
 import { useNavigate, useParams } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 
 function Property() {
+    const admin = useSelector(store => store.auth.admin);
     const { id } = useParams();
     const [phaseId, setPhaseId] = useState('');
     const [phase, setPhase] = useState('');
@@ -21,7 +23,9 @@ function Property() {
 
     const fetchProperties = async () => {
         try {
-            const response = await axios.get(`http://localhost:3000/api/property/properties/${id}`);
+            const response = await axios.get(`http://localhost:3000/api/property/properties/${id}`,
+                {headers: { 'Authorization': `Bearer ${admin.token}` }}
+            );
             setProperties(response.data.Properties || []);
             setPhaseId(response.data._id)
             setLoading(false);
@@ -32,7 +36,9 @@ function Property() {
     };
     const fetchPhase = async () => {
         try {
-            const response = await axios.get(`http://localhost:3000/api/phase/${id}`);
+            const response = await axios.get(`http://localhost:3000/api/phase/${id}`,
+                {headers: { 'Authorization': `Bearer ${admin.token}` }}
+            );
             setPhase(response.data)
             setLoading(false);
         } catch (error) {
@@ -71,10 +77,10 @@ function Property() {
 
                 <div className="flex space-x-2">
                     {/* Filter Button */}
-                    <button className="flex items-center px-4 py-2 bg-white border border-gray-300 rounded-full hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    {/* <button className="flex items-center px-4 py-2 bg-white border border-gray-300 rounded-full hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500">
                         <FaFilter className="mr-2" />
                         Filter
-                    </button>
+                    </button> */}
 
                     {/* Add Property Button */}
                     <button

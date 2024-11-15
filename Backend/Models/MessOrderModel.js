@@ -8,7 +8,9 @@ const MessOrderSchema = new mongoose.Schema({
   contact: { type: String, required: true },
   mealType: { type: String, required: true },
   status: { type: Boolean, required: true },
-  date: { type: Date, default: Date.now, required: false },
+  bookingStatus: { type: String, required: true },
+  bookingDate: { type: Date, default: Date.now, required: false },
+  deliverDate: { type: Date, required: false },
   adOns: {
     type: [
       {

@@ -73,8 +73,10 @@ const getAllFeePayments = async (req, res) => {
 // Function to get fee payments by student ID
 const getFeePaymentsByStudentId = async (req, res) => {
   try {
+    console.log(req.params)
     const { studentId } = req.params;
-    const feePayments = await FeePayment.find({ studentId });
+    const feePayments = await FeePayment.find({ student: studentId });
+    console.log(feePayments)
 
     if (feePayments.length === 0) {
       return res.status(404).json({ message: 'No fee payments found for this student ID' });

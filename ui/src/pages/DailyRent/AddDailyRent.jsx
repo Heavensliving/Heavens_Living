@@ -4,6 +4,7 @@ import API_BASE_URL from '../../config';
 import { useNavigate } from 'react-router-dom';
 import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import app from '../../firebase';
+import { useSelector } from 'react-redux';
 
 const storage = getStorage(app);
 
@@ -43,6 +44,7 @@ const Select = ({ label, name, value, onChange, options, required = false }) => 
 );
 
 const AddDailyRent = () => {
+  const admin = useSelector(store => store.auth.admin);
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     name: '',
@@ -73,7 +75,9 @@ const AddDailyRent = () => {
   useEffect(() => {
     const fetchProperties = async () => {
       try {
-        const response = await axios.get(`${API_BASE_URL}/property`);
+        const response = await axios.get(`${API_BASE_URL}/property`,
+          {headers: { 'Authorization': `Bearer ${admin.token}` }}
+        );
         setProperties(response.data);
       } catch (error) {
         console.error('Error fetching properties:', error);
@@ -139,7 +143,9 @@ const AddDailyRent = () => {
     }
 
     try {
-      const response = await axios.post(`${API_BASE_URL}/DailyRent/Add`, formData);
+      const response = await axios.post(`${API_BASE_URL}/DailyRent/Add`, formData,
+        {headers: { 'Authorization': `Bearer ${admin.token}` }}
+      );
       navigate('/dailyRent');
     } catch (error) {
       console.error('Error adding daily rent person:', error);

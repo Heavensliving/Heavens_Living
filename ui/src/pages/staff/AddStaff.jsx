@@ -4,10 +4,12 @@ import app from '../../firebase';
 import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { useNavigate } from 'react-router-dom';
 import API_BASE_URL from '../../config';
+import { useSelector } from 'react-redux';
 
 const storage = getStorage();
 
 function AddStaff() {
+  const admin = useSelector(store => store.auth.admin);
   const navigate = useNavigate();
   const [staffData, setStaffData] = useState({
     Name: '',
@@ -21,7 +23,7 @@ function AddStaff() {
     Adharbackside: null,
     Type: '',
     Salary: '',
-    PaymentDate: '',
+    JoinDate: '',
     PaySchedule: '',
     propertyName: '',
     Status: 'Active'
@@ -32,7 +34,9 @@ function AddStaff() {
     // Fetch property names from the backend
     const fetchProperties = async () => {
       try {
-        const response = await axios.get(`${API_BASE_URL}/property`);
+        const response = await axios.get(`${API_BASE_URL}/property`,
+          {headers: { 'Authorization': `Bearer ${admin.token}` }}
+        );
         setProperties(response.data);
       } catch (error) {
         console.error('Error fetching properties:', error);
@@ -133,6 +137,7 @@ function AddStaff() {
       const response = await axios.post(`${API_BASE_URL}/staff/add`, staffData, {
         headers: {
           'Content-Type': 'multipart/form-data',
+          'Authorization': `Bearer ${admin.token}` 
         },
       });
 
@@ -171,7 +176,7 @@ function AddStaff() {
       label: 'Property Name',
       required: true,
     },
-    { name: 'PaymentDate', label: 'Payment Date', type: 'date', placeholder: 'Payment Date', required: true },
+    { name: 'joinDate', label: 'Join Date', type: 'date', placeholder: 'Join Date', required: true },
     { name: 'Photo', label: 'Photo', type: 'file', placeholder: 'Upload Photo', accept: 'image/*' },
     { name: 'Adharfrontside', label: 'Aadhar Front', type: 'file', placeholder: 'Upload Aadhar Front', accept: 'image/*' },
     { name: 'Adharbackside', label: 'Aadhar Back', type: 'file', placeholder: 'Upload Aadhar Back', accept: 'image/*' },

@@ -1,9 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import app from '../../firebase';
+import { getStorage, ref, uploadBytesResumable, getDownloadURL, deleteObject } from "firebase/storage";
 import { useNavigate, useParams } from 'react-router-dom';
 import API_BASE_URL from '../../config';
+import { useSelector } from 'react-redux';
+
+const storage = getStorage();
 
 function EditStaff() {
+    const admin = useSelector(store => store.auth.admin);
     const { staffId } = useParams(); // Get staffId from URL params
     const navigate = useNavigate();
     const [staffData, setStaffData] = useState({
@@ -18,23 +24,39 @@ function EditStaff() {
         Adharbackside: null,
         Type: '',
         Salary: '',
-        PaymentDate: '',
+        JoinDate: '',
         PaySchedule: '',
         propertyName: '',
         Status: 'Active',
         property: '',
     });
     const [properties, setProperties] = useState([]);
+    const [uploadProgress, setUploadProgress] = useState({});
+    const [oldFiles, setOldFiles] = useState({
+        adharFrontImage: '',
+        adharBackImage: '',
+        photo: '',
+    });
 
     useEffect(() => {
         // Fetch staff data and property names from the backend
         const fetchData = async () => {
             try {
-                const staffResponse = await axios.get(`${API_BASE_URL}/staff/${staffId}`);
-                const propertiesResponse = await axios.get(`${API_BASE_URL}/property`);
+                const staffResponse = await axios.get(`${API_BASE_URL}/staff/${staffId}`,
+                    { headers: { 'Authorization': `Bearer ${admin.token}` } }
+                );
+                const propertiesResponse = await axios.get(`${API_BASE_URL}/property`,
+                    { headers: { 'Authorization': `Bearer ${admin.token}` } }
+                );
 
                 // Ensure the date fields are in the correct format (YYYY-MM-DD)
                 const staff = staffResponse.data;
+                setOldFiles({
+                    Adharfrontside: staff.Adharfrontside,
+                    Adharbackside: staff.Adharbackside,
+                    Photo: staff.Photo,
+                });
+
                 setStaffData({
                     ...staff,
                     DOB: staff.DOB ? new Date(staff.DOB).toISOString().split('T')[0] : '',
@@ -77,8 +99,63 @@ function EditStaff() {
         }
     };
 
+    // Upload file to Firebase
+    const uploadFile = (file) => {
+        return new Promise((resolve, reject) => {
+            const storageRef = ref(storage, 'staff/' + file.name);
+            const uploadTask = uploadBytesResumable(storageRef, file);
+
+            uploadTask.on('state_changed',
+                (snapshot) => {
+                    const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                    setUploadProgress((prevProgress) => ({
+                        ...prevProgress,
+                        [file.name]: progress
+                    }));
+                },
+                (error) => reject(error),
+                () => {
+                    getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => resolve(downloadURL));
+                }
+            );
+        });
+    };
+
+    // Delete old file from Firebase
+    const deleteOldFile = async (fileURL) => {
+        if (!fileURL) return Promise.resolve();  // If no file to delete, skip
+        const fileRef = ref(storage, fileURL);
+        try {
+            await deleteObject(fileRef);
+        } catch (error) {
+            console.error('Error deleting file:', error);
+        }
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        const filesToUpload = ['Adharfrontside', 'Adharbackside', 'Photo'];
+        const uploadPromises = filesToUpload.map(async (fileField) => {
+            // Check if a new file has been selected for upload
+            if (staffData[fileField] && typeof staffData[fileField] !== 'string') {
+                // Delete the old file
+                await deleteOldFile(oldFiles[fileField]);
+
+                // Upload the new file
+                const downloadURL = await uploadFile(staffData[fileField]);
+                return { [fileField]: downloadURL };
+            }
+            return null;
+        });
+
+        const uploadedFiles = await Promise.all(uploadPromises);
+        uploadedFiles.forEach((result) => {
+            if (result) {
+                const key = Object.keys(result)[0];
+                staffData[key] = result[key];  // Update student data with the new file URLs
+            }
+        });
 
         const formData = new FormData();
         for (const key in staffData) {
@@ -89,6 +166,7 @@ function EditStaff() {
             const response = await axios.put(`${API_BASE_URL}/staff/edit/${staffId}`, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
+                    'Authorization': `Bearer ${admin.token}`
                 },
             });
 
@@ -127,7 +205,7 @@ function EditStaff() {
             label: 'Property Name',
             required: true,
         },
-        { name: 'PaymentDate', label: 'Payment Date', type: 'date', placeholder: 'Payment Date', required: true },
+        { name: 'joinDate', label: 'Join Date', type: 'date', placeholder: 'Join Date', required: true },
         { name: 'Photo', label: 'Photo', type: 'file', placeholder: 'Upload Photo', accept: 'image/*' },
         { name: 'Adharfrontside', label: 'Aadhar Front', type: 'file', placeholder: 'Upload Aadhar Front', accept: 'image/*' },
         { name: 'Adharbackside', label: 'Aadhar Back', type: 'file', placeholder: 'Upload Aadhar Back', accept: 'image/*' },
@@ -158,17 +236,26 @@ function EditStaff() {
                                         ))}
                                     </select>
                                 ) : (
-                                    <input
-                                        id={field.name}
-                                        type={field.type}
-                                        name={field.name}
-                                        placeholder={field.placeholder}
-                                        className="p-3 border border-gray-300 rounded-lg w-full"
-                                        value={field.type !== 'file' ? staffData[field.name] : undefined}
-                                        onChange={handleChange}
-                                        required={field.required}
-                                        accept={field.accept || undefined}
-                                    />
+                                    <>
+                                        <input
+                                            id={field.name}
+                                            type={field.type}
+                                            name={field.name}
+                                            placeholder={field.placeholder}
+                                            className="p-3 border border-gray-300 rounded-lg w-full"
+                                            value={field.type !== 'file' ? staffData[field.name] : undefined}
+                                            onChange={handleChange}
+                                            required={field.required}
+                                            accept={field.accept || undefined}
+                                        />
+                                        {oldFiles[field.name] && (
+                                            <img
+                                                src={oldFiles[field.name]}
+                                                alt={`${field.label} Preview`}
+                                                className="mt-2 w-32 h-32 object-cover border rounded-lg"
+                                            />
+                                        )}
+                                    </>
                                 )}
                             </div>
                         ))}

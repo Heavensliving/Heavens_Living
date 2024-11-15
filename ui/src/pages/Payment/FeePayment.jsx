@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { FaSearch } from 'react-icons/fa';
+import API_BASE_URL from '../../config';
+import { useSelector } from 'react-redux';
 
 const InputField = ({ label, name, type = 'text', value, onChange, required = false, disabled = false }) => (
   <div className="w-full md:w-1/2 px-2 mb-4">
@@ -20,6 +22,7 @@ const InputField = ({ label, name, type = 'text', value, onChange, required = fa
 );
 
 const FeePayment = () => {
+  const admin = useSelector(store => store.auth.admin);
   const navigate = useNavigate();
 
   // Function to generate month/year options
@@ -79,7 +82,9 @@ const FeePayment = () => {
     const studentId = `HVNS${formData.studentId}`;
     setStudentId(studentId)
     try {
-      const response = await axios.get(`http://localhost:3000/api/students/studentId/${studentId}`);
+      const response = await axios.get(`${API_BASE_URL}/students/studentId/${studentId}`,
+        {headers: { 'Authorization': `Bearer ${admin.token}` }}
+      );
       setPaymentData(response.data)
       setErrorMessage('');
       setIsStudentDataFetched(true);
@@ -120,7 +125,9 @@ const FeePayment = () => {
 
     try {
       console.log(comprehensiveFormData); // Log to verify all data is present
-      await axios.post('http://localhost:3000/api/fee/add', comprehensiveFormData);
+      await axios.post(`${API_BASE_URL}/fee/add`, comprehensiveFormData,
+        {headers: { 'Authorization': `Bearer ${admin.token}` }}
+      );
       navigate('/payments');
     } catch (error) {
       console.error("Error recording fee payment:", error);

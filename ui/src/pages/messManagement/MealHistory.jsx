@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import API_BASE_URL from '../../config';
+import { useSelector } from 'react-redux';
 
 const MessOrderHistory = () => {
+  const admin = useSelector(store => store.auth.admin);
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -10,7 +12,9 @@ const MessOrderHistory = () => {
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        const response = await axios.get(`${API_BASE_URL}/messOrder/`);
+        const response = await axios.get(`${API_BASE_URL}/messOrder/`,
+          {headers: { 'Authorization': `Bearer ${admin.token}` }}
+        );
         setOrders(response.data);
       } catch (err) {
         setError('Error fetching orders');

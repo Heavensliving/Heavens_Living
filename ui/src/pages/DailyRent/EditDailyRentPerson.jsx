@@ -4,6 +4,7 @@ import API_BASE_URL from '../../config';
 import { useNavigate, useParams } from 'react-router-dom';
 import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import app from '../../firebase';
+import { useSelector } from 'react-redux';
 
 const storage = getStorage(app);
 
@@ -43,6 +44,7 @@ const Select = ({ label, name, value, onChange, options, required = false }) => 
 );
 
 const EditDailyRentPerson = () => {
+  const admin = useSelector(store => store.auth.admin);
   const navigate = useNavigate();
   const { id } = useParams(); 
   const [formData, setFormData] = useState({
@@ -79,7 +81,9 @@ const EditDailyRentPerson = () => {
   useEffect(() => {
     const fetchProperties = async () => {
       try {
-        const response = await axios.get(`${API_BASE_URL}/property`);
+        const response = await axios.get(`${API_BASE_URL}/property`,
+          {headers: { 'Authorization': `Bearer ${admin.token}` }}
+        );
         setProperties(response.data);
       } catch (error) {
         console.error('Error fetching properties:', error);
@@ -88,7 +92,9 @@ const EditDailyRentPerson = () => {
 
     const fetchDailyRentData = async () => {
       try {
-        const response = await axios.get(`${API_BASE_URL}/DailyRent/${id}`);
+        const response = await axios.get(`${API_BASE_URL}/DailyRent/${id}`,
+          {headers: { 'Authorization': `Bearer ${admin.token}` }}
+        );
         const fetchedData = response.data;
         setOldFiles({
             Adharfrontside: fetchedData.adharFrontImage,
@@ -195,7 +201,9 @@ const EditDailyRentPerson = () => {
             const response = await axios.put(`${API_BASE_URL}/DailyRent/update/${id}`, formData, {
                 headers: {
                     'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${admin.token}`, 
                 },
+                
             });
 
             if (response.status === 200) {

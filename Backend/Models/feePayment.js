@@ -11,6 +11,11 @@ const FeePaymentSchema = new mongoose.Schema({
   waveOff: { type: Number, default: 0 },
   waveOffReason: { type: String },
   transactionId: { type: String, required: true },
+  paymentMode: { 
+    type: String, 
+    enum: ['Cash', 'Net Banking', 'UPI'],
+    required: true 
+  },
   student: { 
     type: mongoose.Schema.Types.ObjectId, 
     ref: 'Student', 

@@ -9,11 +9,14 @@ import axios from 'axios';
 import app from '../../firebase';
 import { ref, deleteObject, getStorage } from 'firebase/storage';
 import API_BASE_URL from '../../config';
+import { useSelector } from 'react-redux';
 
 const storage = getStorage();
 
 const StudentManagement = () => {
+  const admin = useSelector(store => store.auth.admin);
   const navigate = useNavigate();
+  const [isAddEntryModalOpen, setIsAddEntryModalOpen] = useState(false);
   const [students, setStudents] = useState([]);
   const [deleteStudentId, setDeleteStudentId] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -24,7 +27,9 @@ const StudentManagement = () => {
   useEffect(() => {
     const fetchStudents = async () => {
       try {
-        const res = await axios.get(`${API_BASE_URL}/students`);
+        const res = await axios.get(`${API_BASE_URL}/students`,
+          { headers: { 'Authorization': `Bearer ${admin.token}` } }
+        );
         setStudents(res.data);
       } catch (error) {
         console.error('Error fetching students:', error);
@@ -64,7 +69,8 @@ const StudentManagement = () => {
 
       // Delete student record from the database
       await axios.delete(`${API_BASE_URL}/students/delete/${deleteStudentId}`, {
-        params: { propertyId } // Pass propertyId as query parameter
+        params: { propertyId },
+        headers: { 'Authorization': `Bearer ${admin.token}` } 
       });
       setStudents((prevStudents) => prevStudents.filter((student) => student._id !== deleteStudentId));
 
@@ -127,14 +133,14 @@ const StudentManagement = () => {
 
       {/* New field for sorting by pgName */}
       <div className="mb-4">
-        <label htmlFor="propertySort" className="block text-sm font-medium text-gray-700">Sort by PG Name</label>
+        <label htmlFor="propertySort" className="block text-sm font-medium text-gray-700">Filter by Property</label>
         <select
           id="propertySort"
           value={propertySort}
           onChange={handlePropertySortChange}
           className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
         >
-          <option value="">Select PG Name</option>
+          <option value="">Select Property</option>
           {[...new Set(students.map(student => student.pgName))].map(pgName => (
             <option key={pgName} value={pgName}>{pgName}</option>
           ))}

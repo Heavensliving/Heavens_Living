@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
+import API_BASE_URL from "../../config";
 
 const PaymentDashboard = () => {
+  const admin = useSelector(store => store.auth.admin);
   const [totalReceived, setTotalReceived] = useState(0);
   const [totalGot, setTotalGot] = useState(0);
   const [totalMonthlyRent, setTotalMonthlyRent] = useState(0);
@@ -14,7 +17,9 @@ const PaymentDashboard = () => {
   useEffect(() => {
     const fetchTotals = async () => {
       try {
-        const feeResponse = await axios.get("http://localhost:3000/api/fee");
+        const feeResponse = await axios.get(`${API_BASE_URL}/fee`,
+          {headers: { 'Authorization': `Bearer ${admin.token}` }}
+        );
 
         let receivedTotal = 0;
         let gotTotal = 0;
@@ -40,7 +45,8 @@ const PaymentDashboard = () => {
     const fetchTotalExpense = async () => {
       try {
         const expenseResponse = await axios.get(
-          "http://localhost:3000/api/expense/totalexpense"
+          `${API_BASE_URL}/expense/totalexpense`,
+          {headers: { 'Authorization': `Bearer ${admin.token}` }}
         );
         setTotalExpense(expenseResponse.data.totalAmount); // Set total expense
       } catch (error) {
@@ -51,7 +57,8 @@ const PaymentDashboard = () => {
     const fetchTotalCommission = async () => {
       try {
         const commissionResponse = await axios.get(
-          "http://localhost:3000/api/commission"
+          `${API_BASE_URL}/commission`,
+          {headers: { 'Authorization': `Bearer ${admin.token}` }}
         ); // Adjust the API endpoint if necessary
         const total = commissionResponse.data.reduce(
           (sum, commission) => sum + (commission.amount || 0),
@@ -104,6 +111,10 @@ const PaymentDashboard = () => {
 
         {/* Totals Display */}
         <div className="grid grid-cols-3 gap-4 text-center mb-6">
+          <div className="p-4 bg-yellow-100 text-yellow-500 rounded-md">
+            <p className="text-lg font-semibold">₹{totalMonthlyRent}</p>
+            <p>Monthly Rent</p>
+          </div>
           <div
             className="p-4 bg-green-100 text-green-500 rounded-md cursor-pointer"
             onClick={() => navigate("/paymentReceived")}
@@ -117,10 +128,6 @@ const PaymentDashboard = () => {
           >
             <p className="text-lg font-semibold">₹{paymentPendingDisplay}</p>
             <p>Payment Pending</p>
-          </div>
-          <div className="p-4 bg-yellow-100 text-yellow-500 rounded-md">
-            <p className="text-lg font-semibold">₹{totalMonthlyRent}</p>
-            <p>Monthly Rent</p>
           </div>
           <div
             className="p-4 bg-violet-100 text-violet-500 rounded-md cursor-pointer"

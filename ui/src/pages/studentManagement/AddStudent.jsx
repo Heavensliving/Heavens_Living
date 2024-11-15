@@ -4,10 +4,12 @@ import app from '../../firebase';
 import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { useNavigate } from 'react-router-dom';
 import API_BASE_URL from '../../config';
+import { useSelector } from 'react-redux';
 
 const storage = getStorage();
 
 function AddStudent() {
+  const admin = useSelector(store => store.auth.admin);
   const navigate = useNavigate()
   const initialData = {
     name: '',
@@ -50,7 +52,9 @@ function AddStudent() {
     // Fetch property names from the backend
     const fetchProperties = async () => {
       try {
-        const response = await axios.get(`${API_BASE_URL}/property`);  // Update with actual API endpoint
+        const response = await axios.get(`${API_BASE_URL}/property`,
+          {headers: { 'Authorization': `Bearer ${admin.token}` }}
+        );  // Update with actual API endpoint
         setProperties(response.data);  // Assuming the API returns an array of properties
       } catch (error) {
         console.error('Error fetching properties:', error);
@@ -63,20 +67,20 @@ function AddStudent() {
 
   const fields = [
     { name: 'name', type: 'text', placeholder: 'Name', required: true, label: 'Name' },
-    { name: 'gender', type: 'text', placeholder: 'Gender', required: true, label: 'Gender' },
+    { name: 'gender', type: 'text', placeholder: 'Gender', required: false, label: 'Gender' },
     { name: 'email', type: 'email', placeholder: 'Email', required: true, label: 'Email' },
     { name: 'password', type: 'password', placeholder: 'Password', required: true, label: 'Password' },
-    { name: 'address', type: 'text', placeholder: 'Address', required: true, label: 'Address' },
+    { name: 'address', type: 'text', placeholder: 'Address', required: false, label: 'Address' },
     { name: 'contactNo', type: 'text', placeholder: 'Contact Number', required: true, label: 'Contact Number' },
-    { name: 'dateOfBirth', type: 'date', required: true, label: 'DOB' },
-    { name: 'bloodGroup', type: 'text', placeholder: 'Blood Group', required: true, label: 'Blood Group' },
-    { name: 'parentName', type: 'text', placeholder: "Parent's Name", required: true, label: 'Parent Name' },
-    { name: 'parentNumber', type: 'text', placeholder: "Parent's Contact Number", required: true, label: 'Parent Contact' },
-    { name: 'parentOccupation', type: 'text', placeholder: "Parent's Occupation", label: `Parent's Occupation` },
-    { name: 'workingPlace', type: 'text', placeholder: 'Working Place', label: 'Working Place' },
-    { name: 'collegeName', type: 'text', placeholder: 'College Name', required: true, label: 'College Name' },
-    { name: 'course', type: 'text', placeholder: 'Course', label: 'Course of study' },
-    { name: 'year', type: 'text', placeholder: 'Year', required: true, label: 'Year of study' },
+    { name: 'dateOfBirth', type: 'date', required: false, label: 'DOB' },
+    { name: 'bloodGroup', type: 'text', placeholder: 'Blood Group', required: false, label: 'Blood Group' },
+    { name: 'parentName', type: 'text', placeholder: "Parent's Name", required: false, label: 'Parent Name' },
+    { name: 'parentNumber', type: 'text', placeholder: "Parent's Contact Number", required: false, label: 'Parent Contact' },
+    { name: 'parentOccupation', type: 'text', placeholder: "Parent's Occupation", label: `Parent's Occupation`, required: false, },
+    { name: 'workingPlace', type: 'text', placeholder: 'Working Place', label: 'Working Place', required: false, },
+    { name: 'collegeName', type: 'text', placeholder: 'College Name', required: true, label: 'College Name', required: false, },
+    { name: 'course', type: 'text', placeholder: 'Course', label: 'Course of study', required: false, },
+    { name: 'year', type: 'text', placeholder: 'Year', required: true, label: 'Year of study', required: false, },
     {
       name: 'pgName',
       type: 'select',
@@ -88,15 +92,15 @@ function AddStudent() {
       label: 'Property Name',
       required: true,
     },
-    { name: 'advanceFee', type: 'number', placeholder: 'Advance Fee', label: 'Advance Fee' },
-    { name: 'nonRefundableDeposit', type: 'number', placeholder: 'Non-Refundable Deposit', label: 'Deposit' },
-    { name: 'monthlyRent', type: 'number', placeholder: 'Monthly Rent', label: 'Rent' },
+    { name: 'refundabledeposit', type: 'number', placeholder: 'Refundable Deposit', label: 'Refundable Deposit', required: true, },
+    { name: 'nonRefundableDeposit', type: 'number', placeholder: 'Non-Refundable Deposit', label: 'Non-Refundable Deposit', required: true, },
+    { name: 'monthlyRent', type: 'number', placeholder: 'Monthly Rent', label: 'Rent', required: true, },
     { name: 'roomType', type: 'select', options: ['Single', 'Shared', 'Deluxe'], placeholder: 'Room Type', required: true, label: 'Room' },
     { name: 'roomNo', type: 'text', placeholder: 'Room Number', label: 'Room Number' },
-    { name: 'referredBy', type: 'text', placeholder: 'Referred By', required: true, label: 'Referred By' },
-    { name: 'typeOfStay', type: 'text', placeholder: 'Type of Stay', label: 'Type of Stay' },
+    { name: 'referredBy', type: 'text', placeholder: 'Referred By', required: false, label: 'Referred By' },
+    { name: 'typeOfStay', type: 'text', placeholder: 'Type of Stay', label: 'Type of Stay', required: true, },
     // { name: 'paymentStatus', type: 'select', options: ['Paid', 'Pending'], placeholder: 'Payment Status', label: 'Payment Status' },
-    { name: 'joinDate', type: 'date', label: 'Join Date' },
+    { name: 'joinDate', type: 'date', label: 'Join Date', required: true, },
     { name: 'photo', type: 'file', accept: 'image/*', required: false, label: 'Profile Image' },
     { name: 'adharFrontImage', type: 'file', accept: 'image/*', required: false, label: 'Adhar-Front Image' },
     { name: 'adharBackImage', type: 'file', accept: 'image/*', required: false, label: 'Adhar-back Image' },
@@ -201,6 +205,7 @@ function AddStudent() {
       const response = await axios.post(`${API_BASE_URL}/students/add`, studentData, {
         headers: {
           'Content-Type': 'multipart/form-data',
+          'Authorization': `Bearer ${admin.token}` 
         },
       });
 
@@ -238,13 +243,14 @@ function AddStudent() {
                   </select>
                 ) : (
                   <input
-                  // required
+                  required={field.required}
                   type={field.type}
                   name={field.name}
                   placeholder={field.placeholder}
                   onChange={handleChange}
                   accept={field.accept}
                   className="p-3 border border-gray-300 rounded-lg w-full"
+                  min={'0'}
                 />
                 
                 )}

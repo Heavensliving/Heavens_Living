@@ -1,7 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { useSelector } from 'react-redux';
+import API_BASE_URL from '../../config';
 
 const CommissionTable = () => {
+  const admin = useSelector(store => store.auth.admin);
   const [commissions, setCommissions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -10,7 +13,9 @@ const CommissionTable = () => {
   useEffect(() => {
     const fetchCommissions = async () => {
       try {
-        const response = await axios.get('http://localhost:3000/api/commission/');
+        const response = await axios.get(`${API_BASE_URL}/commission/`,
+          {headers: { 'Authorization': `Bearer ${admin.token}` }}
+        );
         setCommissions(response.data); // Adjust based on the actual response structure
       } catch (error) {
         console.error('Error fetching commission data:', error);

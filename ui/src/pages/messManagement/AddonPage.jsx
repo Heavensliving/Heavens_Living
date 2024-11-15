@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import API_BASE_URL from '../../config';
+import { useSelector } from 'react-redux';
 
 const AddonPage = () => {
+  const admin = useSelector(store => store.auth.admin);
   const [orders, setOrders] = useState([]);
   const [addonSummary, setAddonSummary] = useState([]);
   const [error, setError] = useState(null);
@@ -10,7 +12,9 @@ const AddonPage = () => {
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        const response = await axios.get(`${API_BASE_URL}/messOrder/`);
+        const response = await axios.get(`${API_BASE_URL}/messOrder/`,
+          {headers: { 'Authorization': `Bearer ${admin.token}` }}
+        );
 
         // Check if the response data is an array
         if (Array.isArray(response.data)) {

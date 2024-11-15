@@ -2,17 +2,18 @@ const express = require('express');
 
 const router = express.Router();
 const AddPeopleController = require('../controller/AddPeopleController');
+const { verifyToken } = require('../middleware/tokenVerify');
 
 
-router.post("/add",AddPeopleController.addPeople);
+router.post("/add", verifyToken, AddPeopleController.addPeople);
 
-router.get("/get-people", AddPeopleController.getAllPeople);
+router.get("/get-people", verifyToken, AddPeopleController.getAllPeople);
 
-router.put("/edit-person/:id",AddPeopleController.updatePerson);
+router.put("/edit-person/:id", verifyToken, AddPeopleController.updatePerson);
 
-router.delete("/delete-person/:id", AddPeopleController.deletePerson);
+router.delete("/delete-person/:id", verifyToken, AddPeopleController.deletePerson);
 
-router.get("/get-people/:id",AddPeopleController.getPersonById)
+router.get("/get-people/:id", verifyToken, AddPeopleController.getPersonById)
 
 
 

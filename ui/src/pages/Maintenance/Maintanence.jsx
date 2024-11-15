@@ -7,9 +7,11 @@ import ResolvedIssues from './ResolvedIssue';
 import { FaCheckCircle, FaPauseCircle, FaTools } from 'react-icons/fa';
 import { MdAssignment } from 'react-icons/md';
 import API_BASE_URL from '../../config';
+import { useSelector } from 'react-redux';
 
 
 const MaintenanceComponent = () => {
+  const admin = useSelector(store => store.auth.admin);
   const [stats, setStats] = useState({ inProcess: 0, completed: 0, onHold: 0, total: 0 });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -22,7 +24,9 @@ const MaintenanceComponent = () => {
   useEffect(() => {
     const fetchMaintenanceComponent = async () => {
       try {
-        const response = await axios.get(`${API_BASE_URL}/maintenance/get`);
+        const response = await axios.get(`${API_BASE_URL}/maintenance/get`,
+          {headers: { 'Authorization': `Bearer ${admin.token}` }}
+        );
         const records = response.data;
 
         // Filter records based on status

@@ -1,8 +1,11 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
+import API_BASE_URL from '../../config';
 
 const CommissionForm = () => {
+  const admin = useSelector(store => store.auth.admin);
   const [agentName, setAgentName] = useState('');
   const [amount, setAmount] = useState('');
   const [note, setNote] = useState('');
@@ -17,7 +20,7 @@ const CommissionForm = () => {
     e.preventDefault();
 
     try {
-      const response = await axios.post('http://localhost:3000/api/commission/add', {
+      const response = await axios.post(`${API_BASE_URL}/commission/add`, {
         agentName,
         amount,
         note,
@@ -25,7 +28,9 @@ const CommissionForm = () => {
         transactionId,
         propertyId,
         propertyName,
-      });
+      },
+      {headers: { 'Authorization': `Bearer ${admin.token}` }}
+    );
       setMessage(response.data.message);
       
       // Navigate to '/payments' after successful submission

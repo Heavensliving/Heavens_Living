@@ -110,8 +110,10 @@ import { FaBuilding, FaCalendar, FaUserGraduate, FaUserTie } from 'react-icons/f
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import API_BASE_URL from '../../config';
+import { useSelector } from 'react-redux';
 
 const StatsSection = () => {
+  const admin = useSelector(store => store.auth.admin);
   const [totalStudents, setTotalStudents] = useState();
   const [totalStaffs, setTotalStaffs] = useState(); 
   const [totalProperties, setTotalProperties] = useState(); 
@@ -119,7 +121,9 @@ const StatsSection = () => {
   useEffect(() => {
     const fetchTotalStudents = async () => {
       try {
-        const response = await axios.get(`${API_BASE_URL}/students`); 
+        const response = await axios.get(`${API_BASE_URL}/students`,
+          { headers: { 'Authorization': `Bearer ${admin.token}` } }
+        ); 
         setTotalStudents(response.data.length); 
       } catch (error) {
         console.error('Error fetching total students:', error);
@@ -132,7 +136,9 @@ const StatsSection = () => {
   useEffect(() => {
     const fetchTotalStaffs = async () => {
       try {
-        const response = await axios.get(`${API_BASE_URL}/staff`); 
+        const response = await axios.get(`${API_BASE_URL}/staff`,
+          { headers: { 'Authorization': `Bearer ${admin.token}` } }
+        ); 
         setTotalStaffs(response.data.length); 
       } catch (error) {
         console.error('Error fetching total staff:', error);
@@ -145,7 +151,9 @@ const StatsSection = () => {
   useEffect(() => {
     const fetchTotalProperties = async () => {
       try {
-        const response = await axios.get(`${API_BASE_URL}/property`); 
+        const response = await axios.get(`${API_BASE_URL}/property`,
+          { headers: { 'Authorization': `Bearer ${admin.token}` } }
+        ); 
         setTotalProperties(response.data.length); 
       } catch (error) {
         console.error('Error fetching total properties:', error);

@@ -4,10 +4,12 @@ import app from '../../firebase';
 import { getStorage, ref, uploadBytesResumable, getDownloadURL, deleteObject } from "firebase/storage";
 import { useNavigate, useParams } from 'react-router-dom';
 import API_BASE_URL from '../../config';
+import { useSelector } from 'react-redux';
 
 const storage = getStorage();
 
 function EditStudent() {
+    const admin = useSelector(store => store.auth.admin);
     const { studentId } = useParams();  // Get student ID from URL params
     const navigate = useNavigate();
 
@@ -57,7 +59,9 @@ function EditStudent() {
     useEffect(() => {
         const fetchStudentData = async () => {
             try {
-                const response = await axios.get(`${API_BASE_URL}/students/${studentId}`);
+                const response = await axios.get(`${API_BASE_URL}/students/${studentId}`,
+                    { headers: { 'Authorization': `Bearer ${admin.token}` } }
+                );
                 const fetchedData = response.data.result;
 
                 // Store old file URLs to delete them later if needed
@@ -85,7 +89,9 @@ function EditStudent() {
         // Fetch property names from the backend
         const fetchProperties = async () => {
             try {
-                const response = await axios.get(`${API_BASE_URL}/property`);
+                const response = await axios.get(`${API_BASE_URL}/property`,
+                    { headers: { 'Authorization': `Bearer ${admin.token}` } }
+                );
                 setProperties(response.data);  // Assuming the API returns an array of properties
             } catch (error) {
                 console.error('Error fetching properties:', error);
@@ -211,6 +217,7 @@ function EditStudent() {
             const response = await axios.put(`${API_BASE_URL}/students/edit/${studentId}`, studentData, {
                 headers: {
                     'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${admin.token}` 
                 },
             });
 
@@ -234,22 +241,24 @@ function EditStudent() {
                                 <label htmlFor={field.name} className="font-medium text-gray-700 mb-2">
                                     {field.label}
                                 </label>
-                                {field.type === 'select' ? (
-                                    <select
-                                        id={field.name}
-                                        name={field.name}
-                                        className="p-3 border border-gray-300 rounded-lg w-full"
-                                        value={studentData[field.name] || ""}  // Ensure the value is never undefined or null
-                                        onChange={handleChange}
-                                        required={field.required}
-                                    >
-                                        <option value="">{field.placeholder}</option>
-                                        {field.options.map((option) => (
-                                            <option key={option} value={option}>
-                                                {option}
-                                            </option>
-                                        ))}
-                                    </select>
+                                {field.type === 'file' ? (
+                                    <>
+                                        <input
+                                            id={field.name}
+                                            type="file"
+                                            name={field.name}
+                                            accept={field.accept}
+                                            className="p-3 border border-gray-300 rounded-lg w-full"
+                                            onChange={handleChange}
+                                        />
+                                        {oldFiles[field.name] && (
+                                            <img
+                                                src={oldFiles[field.name]}
+                                                alt={`${field.label} Preview`}
+                                                className="mt-2 w-32 h-32 object-cover border rounded-lg"
+                                            />
+                                        )}
+                                    </>
                                 ) : (
                                     <input
                                         id={field.name}
@@ -257,13 +266,11 @@ function EditStudent() {
                                         name={field.name}
                                         placeholder={field.placeholder}
                                         className="p-3 border border-gray-300 rounded-lg w-full"
-                                        value={field.type === 'file' ? undefined : (studentData[field.name] || "")}  // Ensure file input doesn't have a value, and other inputs get a valid string
-                                        accept={field.accept || undefined}
+                                        value={studentData[field.name] || ""}
                                         onChange={handleChange}
                                         required={field.required}
                                     />
                                 )}
-
                             </div>
                         ))}
                     </div>

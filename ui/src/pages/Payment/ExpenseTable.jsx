@@ -2,8 +2,11 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable'; // Make sure to import the autoTable plugin
+import API_BASE_URL from '../../config';
+import { useSelector } from 'react-redux';
 
 const ExpenseTable = () => {
+  const admin = useSelector(store => store.auth.admin);
   const [expenses, setExpenses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -15,7 +18,9 @@ const ExpenseTable = () => {
   useEffect(() => {
     const fetchExpenses = async () => {
       try {
-        const response = await axios.get('http://localhost:3000/api/expense/');
+        const response = await axios.get(`${API_BASE_URL}/expense/`,
+          {headers: { 'Authorization': `Bearer ${admin.token}` }}
+        );
         setExpenses(response.data.expenses);
       } catch (error) {
         setError('Error fetching expenses');

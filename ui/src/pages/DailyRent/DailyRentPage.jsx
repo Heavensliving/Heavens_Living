@@ -6,10 +6,12 @@ import ConfirmationModal from "../../components/reUsableComponet/ConfirmationMod
 import { useNavigate } from "react-router-dom";
 import { ref, deleteObject, getStorage } from 'firebase/storage';
 import app from '../../firebase';
+import { useSelector } from "react-redux";
 
 const storage = getStorage();
 
 const DailyRentPage = () => {
+  const admin = useSelector(store => store.auth.admin);
   const [dailyRents, setDailyRents] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -18,7 +20,9 @@ const DailyRentPage = () => {
 
   const fetchDailyRents = async () => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/DailyRent`);
+      const response = await axios.get(`${API_BASE_URL}/DailyRent`,
+        {headers: { 'Authorization': `Bearer ${admin.token}` }}
+      );
       setDailyRents(response.data);
     } catch (error) {
       console.error("Error fetching daily rents:", error);
@@ -55,7 +59,9 @@ const DailyRentPage = () => {
         }
       }
 
-      await axios.delete(`${API_BASE_URL}/DailyRent/delete/${selectedRentId}`);
+      await axios.delete(`${API_BASE_URL}/DailyRent/delete/${selectedRentId}`,
+        {headers: { 'Authorization': `Bearer ${admin.token}` }}
+      );
       fetchDailyRents();
       setIsModalOpen(false);
     } catch (error) {

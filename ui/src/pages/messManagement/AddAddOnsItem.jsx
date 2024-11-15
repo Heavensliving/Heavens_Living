@@ -2,8 +2,10 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import API_BASE_URL from '../../config';
+import { useSelector } from 'react-redux';
 
 function AddAddOnsItem() {
+    const admin = useSelector(store => store.auth.admin);
     const navigate = useNavigate();
     const [inputs, setInputs] = useState({
         Itemname: '',
@@ -21,7 +23,9 @@ function AddAddOnsItem() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            await axios.post(`${API_BASE_URL}/adOn/add-adOn`, inputs);
+            await axios.post(`${API_BASE_URL}/adOn/add-adOn`, inputs,
+                {headers: { 'Authorization': `Bearer ${admin.token}` }}
+            );
             setMessage('Add-on item added successfully!');
             setInputs({ Itemname: '', prize: '', Description: '', image: '', status: 'unavailable' });
             navigate('/add-ons');

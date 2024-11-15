@@ -12,7 +12,7 @@ const ConfirmationModal = ({
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 z-10 flex items-center justify-center p-3" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div className="fixed inset-0 z-20 flex items-center justify-center p-3" aria-labelledby="modal-title" role="dialog" aria-modal="true">
             {/* Background backdrop */}
             <div className="fixed inset-0 bg-gray-500 bg-opacity-80 transition-opacity" aria-hidden="true"></div>
 
