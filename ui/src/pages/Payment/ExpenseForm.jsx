@@ -332,7 +332,7 @@ const ExpenseForm = () => {
                   setFormData((prevData) => ({
                     ...prevData,
                     propertyName: e.target.value,
-                    propertyId: selectedProperty?.id || '',
+                    propertyId: selectedProperty?.propertyId || '',
                   }));
                 }}
                 className="w-full p-2 border rounded-md"
@@ -353,7 +353,7 @@ const ExpenseForm = () => {
               <input
                 type="text"
                 name="propertyId"
-                value={property.propertyId}
+                value={formData.propertyId}
                 className="w-full p-2 border rounded-md bg-gray-100"
                 readOnly
               />
