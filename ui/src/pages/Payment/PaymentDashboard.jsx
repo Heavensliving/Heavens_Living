@@ -6,59 +6,51 @@ import API_BASE_URL from "../../config";
 
 const PaymentDashboard = () => {
   const admin = useSelector(store => store.auth.admin);
+  const [transactions, setTransactions] = useState([]);
   const [totalReceived, setTotalReceived] = useState(0);
-  const [totalGot, setTotalGot] = useState(0);
+  // const [totalGot, setTotalGot] = useState(0);
   const [totalMonthlyRent, setTotalMonthlyRent] = useState(0);
   const [totalExpense, setTotalExpense] = useState(0); // New state for total expense
   const [totalCommission, setTotalCommission] = useState(0); // State for total commission
-  const [totalWaveoff, setTotalWaveoff] = useState(0); // State for total waveoff
+  // const [totalWaveoff, setTotalWaveoff] = useState(0); // State for total waveoff
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchTotals = async () => {
       try {
-        const feeResponse = await axios.get(`${API_BASE_URL}/fee`,
-          {headers: { 'Authorization': `Bearer ${admin.token}` }}
-        );
-
-        let receivedTotal = 0;
-        let gotTotal = 0;
-        let monthlyRentTotal = 0;
-        let waveoffTotal = 0;
-
-        feeResponse.data.forEach((transaction) => {
-          receivedTotal += transaction.totalAmount || 0;
-          gotTotal += transaction.totalAmount || 0;
-          monthlyRentTotal += transaction.rentAmount || 0;
-          waveoffTotal += transaction.waveOff || 0;
+        const feeResponse = await axios.get(`${API_BASE_URL}/fee`, {
+          headers: { Authorization: `Bearer ${admin.token}` },
         });
-        console.log(waveoffTotal);
-        setTotalReceived(receivedTotal);
-        setTotalGot(gotTotal);
-        setTotalMonthlyRent(monthlyRentTotal);
-        setTotalWaveoff(waveoffTotal); // Set the total waveoff
+        setTransactions(feeResponse.data);
+  
+        // Calculate total directly from feeResponse.data
+        const totalAmount = feeResponse.data.reduce(
+          (acc, transaction) => acc + (transaction.amountPaid || 0),
+          0
+        );
+        setTotalReceived(totalAmount); // Set total received directly
       } catch (error) {
         console.error("Error fetching fee totals:", error);
       }
     };
-
+  
     const fetchTotalExpense = async () => {
       try {
         const expenseResponse = await axios.get(
           `${API_BASE_URL}/expense/totalexpense`,
-          {headers: { 'Authorization': `Bearer ${admin.token}` }}
+          { headers: { Authorization: `Bearer ${admin.token}` } }
         );
         setTotalExpense(expenseResponse.data.totalAmount); // Set total expense
       } catch (error) {
         console.error("Error fetching total expense:", error);
       }
     };
-
+  
     const fetchTotalCommission = async () => {
       try {
         const commissionResponse = await axios.get(
           `${API_BASE_URL}/commission`,
-          {headers: { 'Authorization': `Bearer ${admin.token}` }}
+          { headers: { Authorization: `Bearer ${admin.token}` } }
         ); // Adjust the API endpoint if necessary
         const total = commissionResponse.data.reduce(
           (sum, commission) => sum + (commission.amount || 0),
@@ -69,16 +61,29 @@ const PaymentDashboard = () => {
         console.error("Error fetching total commission:", error);
       }
     };
-
+  
+    const fetchTotalMonthlyRent = async () => {
+      try {
+        const rentResponse = await axios.get(`${API_BASE_URL}/fee/totalMonthlyRent`, {
+          headers: { Authorization: `Bearer ${admin.token}` },
+        });
+        setTotalMonthlyRent(rentResponse.data.totalMonthlyRent); // Set total monthly rent
+      } catch (error) {
+        console.error("Error fetching total monthly rent:", error);
+      }
+    };
+  
     fetchTotals();
+    fetchTotalMonthlyRent();
     fetchTotalExpense();
     fetchTotalCommission();
-  }, []);
+  }, [admin.token]);
+  
 
   // Calculate payment pending
   const paymentPending = totalMonthlyRent - totalReceived;
   const paymentPendingDisplay = paymentPending < 0 ? 0 : paymentPending;
-  const netBalance = totalGot - totalReceived;
+  // const netBalance = totalGot - totalReceived;
 
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
@@ -149,7 +154,7 @@ const PaymentDashboard = () => {
             className="p-4 bg-blue-100 text-blue-500 rounded-md cursor-pointer"
             onClick={() => navigate("/waveoff")}
           >
-            <p className="text-lg font-semibold">₹{totalWaveoff || 0}</p>{" "}
+            <p className="text-lg font-semibold">₹{'' || 0}</p>{" "}
             {/* Updated to show total waveoff */}
             <p>Total Waveoff</p>
           </div>

@@ -10,6 +10,10 @@ router.post('/add', verifyToken, feePaymentController.addFeePayment);
 // Route to get all fee payments
 router.get('/', verifyToken, feePaymentController.getAllFeePayments);
 
+router.get('/totalMonthlyRent', verifyToken, feePaymentController.getTotalMonthlyRent);
+
+router.get('/payments/pendingPayments', verifyToken, feePaymentController.getPendingPayments);
+
 // Route to get fee payments by student ID
 router.get('/:studentId', verifyToken, feePaymentController.getFeePaymentsByStudentId);
 
@@ -19,7 +23,7 @@ router.put('/:id', verifyToken, feePaymentController.editFeePayment);
 // Route to delete a fee payment
 router.delete('/:id', verifyToken, feePaymentController.deleteFeePayment);
 
-router.get('/payments/pendingPayments', verifyToken, feePaymentController.getPendingPayments);
+
 
 router.get('/payments/waveoffpayments', verifyToken, feePaymentController.getWaveOffPayments);
 

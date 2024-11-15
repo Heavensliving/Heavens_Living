@@ -1,7 +1,9 @@
 const mongoose = require('mongoose');
 
 const FeePaymentSchema = new mongoose.Schema({
+  name: { type: String, required: true },
   studentId: { type: String, required: true }, // Custom format ID, not MongoDB ObjectId
+  rentAmount: { type: Number, required: true },
   totalAmountToPay: { type: Number, default: 0 },
   amountPaid: { type: Number, default: 0 },
   pendingBalance: { type: Number, default: 0 },

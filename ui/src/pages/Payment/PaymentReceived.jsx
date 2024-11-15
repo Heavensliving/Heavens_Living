@@ -19,6 +19,7 @@ const PaymentReceived = () => {
           {headers: { 'Authorization': `Bearer ${admin.token}` }}
         );
         setTransactions(response.data);
+        console.log(response.data)
       } catch (error) {
         console.error("Error fetching transactions:", error);
       }
@@ -34,14 +35,14 @@ const PaymentReceived = () => {
   );
 
   const furtherFilteredTransactions = filteredTransactions.filter(transaction => {
-    const date = new Date(transaction.paidDate);
+    const date = new Date(transaction.paymentDate);
     const monthMatches = selectedMonth ? date.getMonth() + 1 === parseInt(selectedMonth) : true;
     const yearMatches = selectedYear ? date.getFullYear() === parseInt(selectedYear) : true;
 
     return monthMatches && yearMatches;
   });
 
-  const totalAmount = furtherFilteredTransactions.reduce((acc, transaction) => acc + (transaction.totalAmount || 0), 0);
+  const totalAmount = furtherFilteredTransactions.reduce((acc, transaction) => acc + (transaction.amountPaid || 0), 0);
 
   const months = Array.from({ length: 12 }, (_, i) => ({
     value: i + 1,
@@ -70,9 +71,9 @@ const PaymentReceived = () => {
         transaction.name || 'N/A',
         transaction.studentId || 'N/A',
         transaction.transactionId || 'N/A',
-        transaction.paidDate ? new Date(transaction.paidDate).toLocaleDateString() : 'N/A',
+        transaction.paymentDate ? new Date(transaction.paymentDate).toLocaleDateString() : 'N/A',
         transaction.rentAmount || 'N/A',
-        transaction.totalAmount || 'N/A',
+        transaction.amountPaid || 'N/A',
       ]),
     });
   
@@ -157,11 +158,11 @@ const PaymentReceived = () => {
                 <td className="py-2 px-4 border">{transaction.transactionId || 'N/A'}</td>
                 <td className="py-2 px-4 border">{transaction.paymentDate ? new Date(transaction.paymentDate).toLocaleDateString() : 'N/A'}</td>
                 <td className="py-2 px-4 border">{transaction.rentAmount || 'N/A'}</td>
-                <td className="py-2 px-4 border">{transaction.totalAmountToPay || 'N/A'}</td>
+                <td className="py-2 px-4 border">{transaction.amountPaid || 'N/A'}</td>
               </tr>
             ))
           ) : (
-            <tr>a
+            <tr>
               <td colSpan="7" className="text-center py-4 text-gray-500">No transactions found.</td>
             </tr>
           )}

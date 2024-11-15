@@ -56,6 +56,7 @@ const FeePayment = () => {
   const [paymentData, setPaymentData] = useState('');
   const [totalAmountToPay, setTotalAmountToPay] = useState('');
   const [monthYearOptions, setMonthYearOptions] = useState([]);
+  const [paymentMode, setPaymentMode] = useState('');
   const [waveOffAmount, setWaveOffAmount] = useState('');
   const [waveOffReason, setWaveOffReason] = useState('');
   const [payingAmount, setPayingAmount] = useState('');
@@ -83,7 +84,7 @@ const FeePayment = () => {
     setStudentId(studentId)
     try {
       const response = await axios.get(`${API_BASE_URL}/students/studentId/${studentId}`,
-        {headers: { 'Authorization': `Bearer ${admin.token}` }}
+        { headers: { 'Authorization': `Bearer ${admin.token}` } }
       );
       setPaymentData(response.data)
       setErrorMessage('');
@@ -120,13 +121,14 @@ const FeePayment = () => {
       transactionId,
       paidDate,
       feeClearedMonthYear: monthYear, // The selected month/year
-      totalAmountToPay
+      totalAmountToPay,
+      paymentMode,
     };
 
     try {
       console.log(comprehensiveFormData); // Log to verify all data is present
       await axios.post(`${API_BASE_URL}/fee/add`, comprehensiveFormData,
-        {headers: { 'Authorization': `Bearer ${admin.token}` }}
+        { headers: { 'Authorization': `Bearer ${admin.token}` } }
       );
       navigate('/payments');
     } catch (error) {
@@ -143,10 +145,10 @@ const FeePayment = () => {
           </div>
         )}
         <form onSubmit={handleSubmit}>
-          <div className="flex flex-wrap -mx-2">
-            {/* Student ID Field with Fixed Prefix and Fetch Button */}
+          {/* Student ID Field with Fixed Prefix and Fetch Button */}
+          <div className="w-full flex justify-center px-2 mb-4">
             <div className="w-full md:w-1/2 px-2 mb-4">
-              <label className="block text-gray-700 mb-2">Enter Student ID</label>
+              <label className="block text-gray-700 mb-2 text-center">Enter Student ID</label>
               <div className="relative flex items-center">
                 <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">HVNS</span>
                 <input
@@ -166,7 +168,8 @@ const FeePayment = () => {
                 </button>
               </div>
             </div>
-
+          </div>
+          <div className="flex flex-wrap -mx-2">
             {/* Other Input Fields */}
             {paymentData.name && (
               <InputField label="Name" name="name" value={paymentData.name || ''} required disabled />
@@ -201,9 +204,21 @@ const FeePayment = () => {
                 <InputField label="Wave-Off Reason" name="waveOffReason" value={waveOffReason} onChange={(e) => setWaveOffReason(e.target.value)} />
                 <InputField label="Total Amount to Pay" name="totalAmount" type="number" value={totalAmountToPay} onChange={(e) => setTotalAmountToPay(e.target.value)} />
                 <InputField label="Amount Paying" name="payingAmount" type="number" value={payingAmount} onChange={(e) => setPayingAmount(e.target.value)} />
+                <div className="w-full md:w-1/2 px-2 mb-4">
+                  <label className="block text-gray-700 mb-2">Payment Mode</label>
+                  <select
+                    name="paymentMode"
+                    className="w-full p-2 border rounded-md"
+                    required
+                    onChange={(e) => setPaymentMode(e.target.value)} // Set the payment mode
+                  >
+                    <option value="">Select Payment Mode</option>
+                    <option value="Cash">Cash</option>
+                    <option value="Net Banking">Net Banking</option>
+                    <option value="UPI">UPI</option>
+                  </select>
+                </div>
                 <InputField label="Transaction ID" name="transactionID" value={transactionId} onChange={(e) => setTransactionId(e.target.value)} />
-                <InputField label="Paid Date" name="paidDate" type="date" value={paidDate} onChange={(e) => setPaidDate(e.target.value)} />
-
                 <div className="w-full md:w-1/2 px-2 mb-4">
                   <label className="block text-gray-700 mb-2">Fee Cleared Month/Year</label>
                   <select
@@ -220,6 +235,8 @@ const FeePayment = () => {
                     ))}
                   </select>
                 </div>
+                <InputField label="Paid Date" name="paidDate" type="date" value={paidDate} onChange={(e) => setPaidDate(e.target.value)} />
+
               </>
             )}
           </div>

@@ -8,12 +8,14 @@ const addFeePayment = async (req, res) => {
     const {
       name,
       studentId, // custom unique ID
+      monthlyRent,
       totalAmountToPay,
       payingAmount,
       feeClearedMonthYear,
       waveOffAmount,
       paidDate,
       waveOffReason,
+      paymentMode,
       transactionId,
       _id,
     } = req.body;
@@ -26,11 +28,11 @@ const addFeePayment = async (req, res) => {
       balance = totalAmountToPay - payingAmount;
     }
 
-
     // Create a new fee payment document
     const feePayment = new FeePayment({
       studentId, // Custom ID format
       name,
+      rentAmount: monthlyRent,
       totalAmountToPay,
       amountPaid: payingAmount,
       pendingBalance: balance,
@@ -40,6 +42,7 @@ const addFeePayment = async (req, res) => {
       waveOff: waveOffAmount,
       waveOffReason,
       transactionId,
+      paymentMode,
       student: _id,
     });
 
@@ -58,7 +61,6 @@ const addFeePayment = async (req, res) => {
   }
 };
 
-
 // Function to get all fee payments
 const getAllFeePayments = async (req, res) => {
   try {
@@ -75,7 +77,7 @@ const getFeePaymentsByStudentId = async (req, res) => {
   try {
     console.log(req.params)
     const { studentId } = req.params;
-    const feePayments = await FeePayment.find({ student: studentId });
+    const feePayments = await FeePayment.find({ student: mongoose.Types.ObjectId(studentId) });
     console.log(feePayments)
 
     if (feePayments.length === 0) {
@@ -155,6 +157,25 @@ const getWaveOffPayments = async (req, res) => {
     res.status(500).json({ message: 'Error fetching payments with wave-off amounts', error });
   }
 };
+
+const getTotalMonthlyRent = async (req, res) => {
+  try {
+    // Fetch all students from the database
+    const students = await Student.find({}, 'monthlyRent'); // Only selecting monthlyRent field
+
+    // Calculate total monthly rent by summing up each student's monthlyRent
+    const totalMonthlyRent = students.reduce((acc, student) => {
+      return acc + (student.monthlyRent || 0); // Default to 0 if monthlyRent is undefined
+    }, 0);
+
+    // Respond with the total monthly rent
+    res.status(200).json({ totalMonthlyRent });
+  } catch (error) {
+    console.error("Error calculating total monthly rent:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
 const feePaymentController = {
   addFeePayment,
   getAllFeePayments,
@@ -163,6 +184,7 @@ const feePaymentController = {
   deleteFeePayment,
   getPendingPayments,
   getWaveOffPayments,
+  getTotalMonthlyRent
 };
 
 module.exports = feePaymentController;
