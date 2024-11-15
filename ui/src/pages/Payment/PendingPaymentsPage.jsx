@@ -37,46 +37,62 @@ const PendingPaymentsPage = () => {
   }
 
   return (
-    <div className="container mx-auto p-6 bg-gray-100 rounded-lg shadow-lg min-h-screen">
-      <h1 className="text-2xl font-bold text-gray-800 mb-6">Pending Payments</h1>
-
-      {pendingPayments.length === 0 ? (
-        <p className="text-center text-gray-500 py-6">
-          No pending payments found.
-        </p>
-      ) : (
+    
+      <div className="container mx-auto px-4 py-8">
+        <div className="mb-4">
+          <input
+            type="text"
+            placeholder="Search by name, student ID, hostel name, or transaction ID"
+            value={searchTerm}
+            onChange={handleSearch}
+            className="w-full p-2 border rounded shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+    
         <div className="overflow-x-auto">
-          <table className="min-w-full bg-white border border-gray-300 rounded-lg shadow-md">
-            <thead className="bg-gray-300 text-black">
+          <table className="min-w-full bg-white border border-gray-300">
+            <thead className="bg-gray-200">
               <tr>
-                <th className="py-3 px-4 border text-left text-sm">Name</th>
-                <th className="py-3 px-4 border text-left text-sm">Student ID</th>
-                <th className="py-3 px-4 border text-left text-sm">Last Rent Cleared Month</th>
-                <th className="py-3 px-4 border text-left text-sm">Paid Date</th>
-                <th className="py-3 px-4 border text-left text-sm">Rent Amount</th>
-                <th className="py-3 px-4 border text-left text-sm">Total Amount</th>
+                <th className="px-4 py-2 border">Name</th>
+                <th className="px-4 py-2 border">Student ID</th>
+                <th className="px-4 py-2 border">Transaction ID</th>
+                <th className="px-4 py-2 border">Month/Year</th>
+                <th className="px-4 py-2 border">Paid Date</th>
+                <th className="px-4 py-2 border">Rent Amount</th>
+                <th className="px-4 py-2 border">Wave-Off Amount</th>
               </tr>
             </thead>
             <tbody>
-              {pendingPayments.map((payment, index) => (
-                <tr
-                  key={payment.studentId}
-                  className="hover:bg-gray-100 transition-colors"
-                >
-                  <td className="py-2 px-4 border text-sm">{payment.name || "N/A"}</td>
-                  <td className="py-2 px-4 border text-sm">{payment.studentId || "N/A"}</td>
-                  <td className="py-2 px-4 border text-sm">{payment.paymentClearedMonthYear || "N/A"}</td>
-                  <td className="py-2 px-4 border text-sm">{payment.lastPaidDate || "N/A"}</td>
-                  <td className="py-2 px-4 border text-sm">₹{payment.rentAmount || "N/A"}</td>
-                  <td className="py-2 px-4 border text-sm">₹{payment.totalAmount || "N/A"}</td>
+              {pendingPayments.length === 0 ? (
+                <tr>
+                  <td colSpan="7" className="text-center px-4 py-2 text-gray-600">
+                    No wave-off data found.
+                  </td>
                 </tr>
-              ))}
+              ) : filteredPayments.length === 0 ? (
+                <tr>
+                  <td colSpan="7" className="text-center px-4 py-2 text-gray-600">
+                    No matching payments found.
+                  </td>
+                </tr>
+              ) : (
+                filteredPayments.map((payment) => (
+                  <tr key={payment._id} className="odd:bg-white even:bg-gray-50">
+                    <td className="px-4 py-2 border">{payment.name}</td>
+                    <td className="px-4 py-2 border">{payment.studentId}</td>
+                    <td className="px-4 py-2 border">{payment.transactionId}</td>
+                    <td className="px-4 py-2 border">{payment.paymentClearedMonthYear}</td>
+                    <td className="px-4 py-2 border">{payment.paymentDate}</td>
+                    <td className="px-4 py-2 border">{payment.rentAmount}</td>
+                    <td className="px-4 py-2 border">{payment.waveOff}</td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
-      )}
-    </div>
-  );
+      </div>
+    );    
 };
 
 export default PendingPaymentsPage;
