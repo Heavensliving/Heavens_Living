@@ -2,7 +2,9 @@ import { useState } from 'react';
 import axios from 'axios';
 import { Link, useNavigate } from 'react-router-dom';
 import API_BASE_URL from '../../config';
+import { useSelector } from 'react-redux';
 function AddBranch() {
+  const admin = useSelector(store => store.auth.admin);
   const [name, setName] = useState('');
   const [location, setLocation] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
@@ -11,14 +13,14 @@ function AddBranch() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     try {
       // Send POST request to backend API
       const response = await axios.post(`${API_BASE_URL}/branch/add`, {
         Name: name,
         Location: location,
-  
-      });
+      },
+      {headers: { 'Authorization': `Bearer ${admin.token}` }}
+    );
       if (response.status === 201) {
        
         navigate('/branch-management');

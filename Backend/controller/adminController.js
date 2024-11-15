@@ -9,7 +9,8 @@ const passwordValidation = new RegExp(
 const JWT_SECRET = process.env.JWT_SECRET || "heavensliving";
 
 exports.signup = async (req, res) => {
-    const { name, email, password } = req.body;
+    console.log(req.body)
+    const { name, email, password, role } = req.body;
 
     // Validate the password before any other operation
     if (!passwordValidation.test(password)) {
@@ -34,6 +35,7 @@ exports.signup = async (req, res) => {
             name,
             email,
             password: hashedPassword,
+            role
         });
     
         await admin.save(); // Ensure to wait for the save operation
@@ -50,7 +52,7 @@ exports.signup = async (req, res) => {
 
 // login
 exports.login = async (req, res) => {
-    const { email, password, role } = req.body;
+    const { email, password } = req.body;
 
     try {
         const admin = await Admin.findOne({ email })
@@ -59,13 +61,11 @@ exports.login = async (req, res) => {
                 .status(404)
                 .json({ message: "You are not registered in the system." });
         }
-
         const isPasswordValid = await bcrypt.compare(password, admin.password);
         if (!isPasswordValid) {
             return res.status(401).json({ message: "Invalid credentials." });
         }
-
-        const token = jwt.sign({ adminId: admin._id }, JWT_SECRET);
+        const token = jwt.sign({ adminId: admin._id }, JWT_SECRET, { expiresIn: '24h' });
         const adminName = admin.name
         const role = admin.role
         res.status(200).json({ token , adminName, role});

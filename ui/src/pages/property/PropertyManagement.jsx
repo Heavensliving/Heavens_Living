@@ -181,8 +181,10 @@ import axios from 'axios';
 import { FaFilter, FaPlus, FaUsers, FaCheck, FaRegCircle, FaCodeBranch, FaLayerGroup, FaBuilding } from 'react-icons/fa';
 import { Link, useNavigate } from 'react-router-dom';
 import API_BASE_URL from '../../config';
+import { useSelector } from 'react-redux';
 
 function PropertyManagement() {
+  const admin = useSelector(store => store.auth.admin);
   const navigate = useNavigate()
   const [properties, setProperties] = useState([]);
   const [branches, setBranches] = useState([]);
@@ -199,7 +201,9 @@ function PropertyManagement() {
 
   const fetchProperties = async () => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/property`);
+      const response = await axios.get(`${API_BASE_URL}/property`,
+        {headers: { 'Authorization': `Bearer ${admin.token}` }}
+      );
       setProperties(response.data);
       setLoading(false);
     } catch (error) {
@@ -209,7 +213,9 @@ function PropertyManagement() {
   };
   const fetchBranches = async () => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/branch`); 
+      const response = await axios.get(`${API_BASE_URL}/branch`,
+        {headers: { 'Authorization': `Bearer ${admin.token}` }}
+      ); 
       setBranches(response.data);
     } catch (error) {
       setErrorMessage('Failed to fetch branches.');
@@ -218,7 +224,9 @@ function PropertyManagement() {
 
   const fetchPhases = async () => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/phase`);
+      const response = await axios.get(`${API_BASE_URL}/phase`,
+        {headers: { 'Authorization': `Bearer ${admin.token}` }}
+      );
       setPhases(response.data);
     } catch (error) {
       setErrorMessage('Failed to fetch phases.');

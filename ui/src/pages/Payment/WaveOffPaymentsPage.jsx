@@ -1,7 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { useSelector } from 'react-redux';
+import API_BASE_URL from '../../config';
 
 const WaveOffPaymentsPage = () => {
+  const admin = useSelector(store => store.auth.admin);
   const [waveOffPayments, setWaveOffPayments] = useState([]);
   const [filteredPayments, setFilteredPayments] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -12,7 +15,9 @@ const WaveOffPaymentsPage = () => {
     const fetchWaveOffPayments = async () => {
       try {
         // Fetch data from the API endpoint
-        const response = await axios.get('http://localhost:3000/api/fee/payments/waveoffpayments');
+        const response = await axios.get(`${API_BASE_URL}/fee/payments/waveoffpayments`,
+          {headers: { 'Authorization': `Bearer ${admin.token}` }}
+        );
         setWaveOffPayments(response.data);
         setFilteredPayments(response.data); // Initialize filtered data
       } catch (error) {

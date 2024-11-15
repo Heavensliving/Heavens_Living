@@ -3,9 +3,11 @@ import axios from 'axios';
 import { FaEdit, FaTrashAlt } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import API_BASE_URL from '../../config';
+import { useSelector } from 'react-redux';
 
 
 function ManagePeople() {
+  const admin = useSelector(store => store.auth.admin);
   const navigate =useNavigate()
   const [people, setPeople] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
@@ -17,7 +19,9 @@ function ManagePeople() {
   useEffect(() => {
     const fetchPeople = async () => {
       try {
-        const response = await axios.get(`${API_BASE_URL}/people/get-people`);
+        const response = await axios.get(`${API_BASE_URL}/people/get-people`,
+          {headers: { 'Authorization': `Bearer ${admin.token}` }}
+        );
         
         setPeople(response.data.data || []);
       } catch (error) {
@@ -34,7 +38,9 @@ function ManagePeople() {
 
     setIsDeleting(true);
     try {
-      await axios.delete(`${API_BASE_URL}/people/delete-person/${personToDelete._id}`);
+      await axios.delete(`${API_BASE_URL}/people/delete-person/${personToDelete._id}`,
+        {headers: { 'Authorization': `Bearer ${admin.token}` }}
+      );
       setPeople(people.filter((person) => person._id !== personToDelete._id));
       setDeleteModal(false); // Close modal after successful deletion
     } catch (error) {

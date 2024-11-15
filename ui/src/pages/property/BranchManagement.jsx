@@ -4,10 +4,10 @@ import { FaBuilding, FaFilter, FaPlus, FaTrashAlt, FaEdit } from 'react-icons/fa
 import { useNavigate } from 'react-router-dom';
 import ConfirmationModal from '../../components/reUsableComponet/ConfirmationModal';
 import API_BASE_URL from '../../config';
-
-
+import { useSelector } from 'react-redux';
 
 function BranchManagement() {
+  const admin = useSelector(store => store.auth.admin);
   const [branches, setBranches] = useState([]);
   const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState('');
@@ -22,7 +22,9 @@ function BranchManagement() {
 
   const fetchBranches = async () => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/branch`);
+      const response = await axios.get(`${API_BASE_URL}/branch`,
+        {headers: { 'Authorization': `Bearer ${admin.token}` }}
+      );
       setBranches(response.data);
       setLoading(false);
     } catch (error) {
@@ -87,10 +89,10 @@ function BranchManagement() {
 
         <div className="flex space-x-2">
           {/* Filter Button */}
-          <button className="flex items-center px-4 py-2 bg-white border border-gray-300 rounded-full hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500">
+          {/* <button className="flex items-center px-4 py-2 bg-white border border-gray-300 rounded-full hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500">
             <FaFilter className="mr-2" />
             Filter
-          </button>
+          </button> */}
 
           {/* Add Branch Button */}
           <button

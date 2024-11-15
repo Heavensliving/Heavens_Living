@@ -4,8 +4,10 @@ import { FaBuilding, FaFilter, FaPlus, FaTrashAlt, FaEdit } from 'react-icons/fa
 import { useNavigate, useParams } from 'react-router-dom';
 import ConfirmationModal from '../../components/reUsableComponet/ConfirmationModal';
 import API_BASE_URL from '../../config';
+import { useSelector } from 'react-redux';
 
 function PhaseManagement() {
+  const admin = useSelector(store => store.auth.admin);
   const { id } = useParams();
   const [phases, setPhases] = useState([]); 
   const [branchId, setBranchId] = useState('');
@@ -25,7 +27,9 @@ function PhaseManagement() {
 
   const fetchPhases = async () => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/phase/phases/${id}`);
+      const response = await axios.get(`${API_BASE_URL}/phase/phases/${id}`,
+        {headers: { 'Authorization': `Bearer ${admin.token}` }}
+      );
       setBranchId(response.data._id)
       // Extract the phases array from the response data
       setPhases(response.data.Phases || []); // Ensure that the phases is always an array
@@ -39,7 +43,9 @@ function PhaseManagement() {
   };
   const fetchBranch = async () => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/branch/${id}`);
+      const response = await axios.get(`${API_BASE_URL}/branch/${id}`,
+        {headers: { 'Authorization': `Bearer ${admin.token}` }}
+      );
       setBranch(response.data)
       setLoading(false);
     } catch (error) {
@@ -66,7 +72,8 @@ function PhaseManagement() {
     if (phaseToDelete) {
       try {
         await axios.delete(`${API_BASE_URL}/phase/delete/${phaseToDelete}`,{
-          params: { branchId }
+          params: { branchId },
+          headers: { 'Authorization': `Bearer ${admin.token}` }
         });
         fetchPhases(); // Refresh the phase list after deletion
         setIsModalOpen(false); // Close the modal
@@ -103,10 +110,10 @@ function PhaseManagement() {
 
         <div className="flex space-x-2">
           {/* Filter Button */}
-          <button className="flex items-center px-4 py-2 bg-white border border-gray-300 rounded-full hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500">
+          {/* <button className="flex items-center px-4 py-2 bg-white border border-gray-300 rounded-full hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500">
             <FaFilter className="mr-2" />
             Filter
-          </button>
+          </button> */}
 
           {/* Add Phase Button */}
           <button

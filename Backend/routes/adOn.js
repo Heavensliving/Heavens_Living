@@ -1,13 +1,14 @@
 const express = require('express');
 const adOnController = require('../controller/adOnController');
+const { verifyToken } = require('../middleware/tokenVerify');
 
 const router = express.Router()
 
-router.post('/add-adOn',adOnController.addAdOn);
-router.get('/',adOnController.showAdOns);
-router.get('/getAddOn/:id',adOnController.getAdOnById);
-router.put('/update-addOn/:id',adOnController.editAdOn);
-router.delete('/:id',adOnController.deleteAdOn);
-router.put('/:id/status',adOnController.updateAdOnStatus);
+router.post('/add-adOn', verifyToken, adOnController.addAdOn);
+router.get('/', verifyToken, adOnController.showAdOns);
+router.get('/getAddOn/:id', verifyToken, adOnController.getAdOnById);
+router.put('/update-addOn/:id', verifyToken, adOnController.editAdOn);
+router.delete('/:id', verifyToken, adOnController.deleteAdOn);
+router.put('/:id/status', verifyToken, adOnController.updateAdOnStatus);
 
 module.exports = router;

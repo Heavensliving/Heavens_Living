@@ -1,30 +1,38 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useDispatch } from "react-redux";
 import axios from 'axios';
 import { setAdmin } from '../../store/AuthSlice';
 import API_BASE_URL from '../../config';
+import { FaEye, FaEyeSlash } from 'react-icons/fa';
 
 const Login = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const [role, setRole] = useState(""); // New state for role
-    const [errorMsg, setErrorMsg] = useState('');
+    const [errors, setErrors] = useState({ email: "", password: "" });
+    const [showPassword, setShowPassword] = useState(false);
 
     const handleSubmit = (e) => {
         e.preventDefault();
-    
-        setErrorMsg('');
-        if (!email || !password || !role) {
-            setErrorMsg('All fields are required.');
+
+        // Reset errors
+        setErrors({ email: "", password: "" });
+
+        // Front-end validation for each field
+        let validationErrors = {};
+        if (!email) validationErrors.email = 'Email is required.';
+        if (!password) validationErrors.password = 'Password is required.';
+
+        if (Object.keys(validationErrors).length > 0) {
+            setErrors(validationErrors);
             return;
         }
-    
-        axios.post(`${API_BASE_URL}/admin/login`, { email, password, role })
+
+        axios.post(`${API_BASE_URL}/admin/login`, { email, password })
             .then((res) => {
-                setErrorMsg('');
+                setErrors({ email: "", password: "" });
                 const admin = {
                     adminName: res.data.adminName,
                     token: res.data.token,
@@ -34,15 +42,21 @@ const Login = () => {
                 navigate('/');
             })
             .catch(error => {
-                console.log(error); // Log the full error object
+                console.error(error);
                 if (error.response && error.response.data && error.response.data.errors) {
-                    setErrorMsg(error.response.data.errors.map((err, index) => (
-                        <div key={index} className="error-message">{err}</div>
-                    )));
+                    const apiErrors = {};
+                    error.response.data.errors.forEach(err => {
+                        if (err.field === 'email') {
+                            apiErrors.email = err.message;
+                        } else if (err.field === 'password') {
+                            apiErrors.password = err.message;
+                        }
+                    });
+                    setErrors(apiErrors);
                 } else if (error.response && error.response.data && error.response.data.msg) {
-                    setErrorMsg([<div key="backendError" className="error-message">{error.response.data.msg}</div>]);
+                    setErrors({ password: error.response.data.msg });
                 } else {
-                    setErrorMsg([<div key="connectionError" className="error-message">Failed to connect to API</div>]);
+                    setErrors({ password: 'Failed to connect to API' });
                 }
             });
     };
@@ -70,38 +84,40 @@ const Login = () => {
                     <p className="mb-4">We are happy to have you back in login</p>
 
                     <form onSubmit={handleSubmit}>
-                        {errorMsg && (
-                            <div className="text-red-500 mb-2">{errorMsg}</div>
-                        )}
+                        {errors.email && (<div className="text-red-500 mt-1">{errors.email}</div>)}
                         <div className="mb-4">
                             <input
                                 type="email"
                                 className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500"
                                 placeholder="Email address"
                                 value={email}
-                                onChange={(e) => setEmail(e.target.value)}
+                                onChange={(e) => {
+                                    setEmail(e.target.value);
+                                    if (errors.email) {
+                                        setErrors(prevErrors => ({ ...prevErrors, email: "" }));
+                                    }
+                                }}
                             />
                         </div>
-                        <div className="mb-4">
+                        {errors.password && (<div className="text-red-500 mt-1">{errors.password}</div>)}
+                        <div className="relative w-full mb-2">
                             <input
-                                type="password"
-                                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500"
+                                type={showPassword ? "text" : "password"}
+                                className="block w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500"
                                 placeholder="Password"
                                 value={password}
-                                onChange={(e) => setPassword(e.target.value)}
+                                onChange={(e) => {
+                                    setPassword(e.target.value);
+                                    if (errors.password && e.target.value) setErrors((prev) => ({ ...prev, password: "" }));
+                                }}
                             />
-                        </div>
-                        <div className="mb-4">
-                            <select
-                                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500"
-                                value={role}
-                                onChange={(e) => setRole(e.target.value)}
+                            <button
+                                type="button"
+                                className="absolute right-3 top-4 text-gray-500 focus:outline-none"
+                                onClick={() => setShowPassword(!showPassword)}
                             >
-                                <option value="">Select Role</option>
-                                <option value="mainAdmin">Main Admin</option>
-                                <option value="branchAdmin">Branch Admin</option>
-                                <option value="propertyAdmin">Property Admin</option>
-                            </select>
+                                {showPassword ? <FaEyeSlash /> : <FaEye />}
+                            </button>
                         </div>
                         <div>
                             <button
@@ -112,12 +128,6 @@ const Login = () => {
                             </button>
                         </div>
                     </form>
-
-                    <div className="mt-4 text-center">
-                        <small>
-                            Don't have an account? <Link to={'/signup'} className="text-blue-600 hover:underline">Signup</Link>
-                        </small>
-                    </div>
                 </div>
 
             </div>

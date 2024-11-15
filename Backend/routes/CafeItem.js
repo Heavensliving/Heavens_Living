@@ -4,7 +4,7 @@ const { verifyToken } = require("../middleware/tokenVerify");
 
 const router = express.Router()
 
-router.get('/', cafeItemController.getAllCafeItem);
+router.get('/', verifyToken, cafeItemController.getAllCafeItem);
 
 router.get('/:id', verifyToken, cafeItemController.getCafeItemById);
 

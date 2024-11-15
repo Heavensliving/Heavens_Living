@@ -2,9 +2,11 @@ import React, { useState } from 'react';
 import axios from 'axios'; 
 import { useNavigate } from 'react-router-dom';
 import API_BASE_URL from '../../config';
+import { useSelector } from 'react-redux';
 
 
 function AddPeople() {
+  const admin = useSelector(store => store.auth.admin);
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     name: '',
@@ -82,6 +84,7 @@ function AddPeople() {
           months: formData.months,
           days: formData.days,
         },
+        headers: { 'Authorization': `Bearer ${admin.token}` }
       });
 
       // Reset form after successful submission

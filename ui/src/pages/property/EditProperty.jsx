@@ -2,9 +2,11 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate, useParams } from 'react-router-dom';
 import API_BASE_URL from '../../config';
+import { useSelector } from 'react-redux';
 
 
 function EditProperty() {
+  const admin = useSelector(store => store.auth.admin);
   const { propertyId } = useParams(); // Get propertyId from URL
   const navigate = useNavigate();
   const [propertyData, setPropertyData] = useState({
@@ -29,7 +31,9 @@ function EditProperty() {
   useEffect(() => {
     const fetchPropertyDetails = async () => {
       try {
-        const response = await axios.get(`${API_BASE_URL}/property/${propertyId}`);
+        const response = await axios.get(`${API_BASE_URL}/property/${propertyId}`,
+          {headers: { 'Authorization': `Bearer ${admin.token}` }}
+        );
         setPropertyData(response.data);
       } catch (error) {
         setError('Failed to load property details');
@@ -52,7 +56,9 @@ function EditProperty() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.put(`${API_BASE_URL}/property/edit/${propertyId}`, propertyData);
+      const response = await axios.put(`${API_BASE_URL}/property/edit/${propertyId}`, propertyData,
+        {headers: { 'Authorization': `Bearer ${admin.token}` }}
+      );
       if (response.status === 200) {
         navigate(`/property/${propertyId}`); 
       }

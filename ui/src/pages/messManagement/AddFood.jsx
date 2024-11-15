@@ -5,6 +5,7 @@ import API_BASE_URL from '../../config';
 import axios from 'axios';
 
 function AddFood() {
+  
   const navigate = useNavigate();
   const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
@@ -33,7 +34,9 @@ function AddFood() {
   useEffect(() => {
     const fetchMenuData = async () => {
       try {
-        const response = await axios.get(`${API_BASE_URL}/mess/getAllMeals`);
+        const response = await axios.get(`${API_BASE_URL}/mess/getAllMeals`,
+          {headers: { 'Authorization': `Bearer ${admin.token}` }}
+        );
         const menuData = response.data.reduce((acc, menuItem) => {
           acc[menuItem.dayOfWeek] = menuItem;
           return acc;
@@ -110,7 +113,9 @@ function AddFood() {
           },
         };
 
-        const response = await axios.post(`${API_BASE_URL}/mess/addFood`, requestBody);
+        const response = await axios.post(`${API_BASE_URL}/mess/addFood`, requestBody,
+          {headers: { 'Authorization': `Bearer ${admin.token}` }}
+        );
        
       } catch (error) {
         console.error('Error adding food items:', error);
@@ -130,7 +135,9 @@ function AddFood() {
           itemToDelete: mealToDelete, // Ensure this matches with backend
         };
 
-        const response = await axios.put(`${API_BASE_URL}/mess/deleteFoodItem`, requestBody); // Remove 'data' key
+        const response = await axios.put(`${API_BASE_URL}/mess/deleteFoodItem`, requestBody,
+          {headers: { 'Authorization': `Bearer ${admin.token}` }}
+        ); // Remove 'data' key
        
 
         // Update the local state to remove the item
@@ -159,7 +166,9 @@ function AddFood() {
           dayOfWeek: selectedDay,
         };
         // Call the API to delete all food items for the selected day
-        const response = await axios.delete(`${API_BASE_URL}/mess/deleteMealPlan/${selectedDay}`, { data: requestBody })
+        const response = await axios.delete(`${API_BASE_URL}/mess/deleteMealPlan/${selectedDay}`, { data: requestBody },
+          {headers: { 'Authorization': `Bearer ${admin.token}` }}
+        )
         // Clear the menu for the selected day in local state
         setMenus((prevMenus) => ({
           ...prevMenus,

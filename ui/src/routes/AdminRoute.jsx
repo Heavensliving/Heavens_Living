@@ -51,10 +51,6 @@ import PendingPaymentsPage from '../pages/Payment/PendingPaymentsPage.jsx'
 import WaveOffPaymentsPage from '../pages/Payment/WaveOffPaymentsPage.jsx'
 import AddonPage from '../pages/messManagement/AddonPage.jsx'
 
-
-
-
-
 const AdminRoute = () => {
     return (
         <div>

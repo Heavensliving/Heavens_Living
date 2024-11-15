@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { useSelector } from 'react-redux';
 
 const PendingPaymentsPage = () => {
+  const admin = useSelector(store => store.auth.admin);
   const [pendingPayments, setPendingPayments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -9,7 +11,9 @@ const PendingPaymentsPage = () => {
   useEffect(() => {
     const fetchPendingPayments = async () => {
       try {
-        const response = await axios.get('http://localhost:3000/api/fee/payments/pendingPayments');
+        const response = await axios.get('http://localhost:3000/api/fee/payments/pendingPayments',
+          {headers: { 'Authorization': `Bearer ${admin.token}` }}
+        );
         setPendingPayments(response.data);
       } catch (error) {
         setError('Error fetching pending payments');

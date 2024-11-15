@@ -5,8 +5,10 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEdit, faTrash } from '@fortawesome/free-solid-svg-icons';
 import ConfirmationModal from '../../components/reUsableComponet/ConfirmationModal';
 import API_BASE_URL from '../../config';
+import { useSelector } from 'react-redux';
 
 const PropertyDetails = () => {
+  const admin = useSelector(store => store.auth.admin);
   const { propertyId } = useParams();
   const [property, setProperty] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -17,7 +19,9 @@ const PropertyDetails = () => {
   useEffect(() => {
     const fetchPropertyDetails = async () => {
       try {
-        const response = await axios.get(`${API_BASE_URL}/property/${propertyId}`);
+        const response = await axios.get(`${API_BASE_URL}/property/${propertyId}`,
+          {headers: { 'Authorization': `Bearer ${admin.token}` }}
+        );
         setProperty(response.data);
       } catch (error) {
         setError('Failed to fetch property details');
@@ -31,7 +35,9 @@ const PropertyDetails = () => {
 
   const handleDelete = async () => {
     try {
-      await axios.delete(`${API_BASE_URL}/property/delete/${propertyId}`);
+      await axios.delete(`${API_BASE_URL}/property/delete/${propertyId}`,
+        {headers: { 'Authorization': `Bearer ${admin.token}` }}
+      );
       navigate('/property');
     } catch (error) {
       console.error('Error deleting property:', error);

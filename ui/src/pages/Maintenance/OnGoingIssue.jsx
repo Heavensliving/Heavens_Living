@@ -147,8 +147,10 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import API_BASE_URL from '../../config';
+import { useSelector } from 'react-redux';
 
 const OngoingIssues = () => {
+  const admin = useSelector(store => store.auth.admin);
   const [records, setRecords] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -158,7 +160,9 @@ const OngoingIssues = () => {
   useEffect(() => {
     const fetchMaintenanceRecords = async () => {
       try {
-        const response = await axios.get(`${API_BASE_URL}/maintenance/get`);
+        const response = await axios.get(`${API_BASE_URL}/maintenance/get`,
+          {headers: { 'Authorization': `Bearer ${admin.token}` }}
+        );
         const resolvedRecords = response.data.filter(record => record.Status === 'pending' && record.AssignedTo);
         setRecords(resolvedRecords);
       } catch (err) {
@@ -196,7 +200,9 @@ const OngoingIssues = () => {
         await axios.put(`${API_BASE_URL}/maintenance/updateStatus/${selectedRecord._id}`, {
           status: 'resolved',
           Remarks: skip ? '' : remark, // If skip is true, submit without a remark
-        });
+        },
+        {headers: { 'Authorization': `Bearer ${admin.token}` }}
+      );
         setSelectedRecord(null); // Close modal after successful submission
         setRemark(''); // Reset remark input
         window.location.reload(); // Reload page to reflect changes

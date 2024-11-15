@@ -4,8 +4,10 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import API_BASE_URL from '../../config';
 import ConfirmationModal from '../../components/reUsableComponet/ConfirmationModal';
+import { useSelector } from 'react-redux';
 
 function AddOns() {
+  const admin = useSelector(store => store.auth.admin);
   const [isToggled, setIsToggled] = useState({}); // To manage toggle states
   const [products, setProducts] = useState([]); // To store fetched products
   const [isModalOpen, setIsModalOpen] = useState(false); // State for the modal
@@ -16,7 +18,9 @@ function AddOns() {
   useEffect(() => {
     const fetchAddOns = async () => {
       try {
-        const response = await axios.get(`${API_BASE_URL}/adOn`);
+        const response = await axios.get(`${API_BASE_URL}/adOn`,
+          {headers: { 'Authorization': `Bearer ${admin.token}` }}
+        );
         setProducts(response.data);
         const initialToggledState = {};
         response.data.forEach((product) => {
@@ -38,6 +42,7 @@ function AddOns() {
     try {
       await axios.put(`${API_BASE_URL}/adOn/${productId}/status`, {
         status: newStatus,
+        headers: { 'Authorization': `Bearer ${admin.token}` }
       });
 
       setIsToggled((prevState) => ({
@@ -54,7 +59,9 @@ function AddOns() {
     if (!productToDelete) return; // Exit if no product is selected
 
     try {
-      const response = await axios.delete(`${API_BASE_URL}/adOn/${productToDelete}`);
+      const response = await axios.delete(`${API_BASE_URL}/adOn/${productToDelete}`,
+        {headers: { 'Authorization': `Bearer ${admin.token}` }}
+      );
 
       if (response.status === 200) {
         setProducts((prevProducts) =>

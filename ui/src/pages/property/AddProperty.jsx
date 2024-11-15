@@ -2,9 +2,11 @@ import { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import API_BASE_URL from '../../config';
+import { useSelector } from 'react-redux';
 
 
 function AddProperty() {
+  const admin = useSelector(store => store.auth.admin);
   const navigate = useNavigate(); 
   const [propertyData, setPropertyData] = useState({
     propertyName: '',
@@ -37,7 +39,9 @@ function AddProperty() {
   
   
     try {
-      const response = await axios.post(`${API_BASE_URL}/property/add`, propertyData);
+      const response = await axios.post(`${API_BASE_URL}/property/add`, propertyData,
+        {headers: { 'Authorization': `Bearer ${admin.token}` }}
+      );
       if (response.status === 201) {
        
         navigate('/property');

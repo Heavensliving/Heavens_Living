@@ -2,8 +2,10 @@ import { useState } from 'react';
 import axios from 'axios';
 import { useNavigate, useParams } from 'react-router-dom';
 import API_BASE_URL from '../../config';
+import { useSelector } from 'react-redux';
 
 function AddPhase() {
+  const admin = useSelector(store => store.auth.admin);
   const { id } = useParams();
   const [name, setName] = useState('');
   const [location, setLocation] = useState('');
@@ -19,7 +21,9 @@ function AddPhase() {
         Name: name,
         Location: location,
         Branch: id
-      });
+      },
+      {headers: { 'Authorization': `Bearer ${admin.token}` }}
+    );
       if (response.status === 201) {
         // On success, show a success message and reset the form
         setSuccessMessage('Phase added successfully!');

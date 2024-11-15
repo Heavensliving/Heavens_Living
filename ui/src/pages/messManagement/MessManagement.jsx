@@ -7,8 +7,10 @@ import { io } from 'socket.io-client';
 import MetricCard from './MetricCard';
 import ActionButton from './ActionButton';
 import ListItem from './ListItem';
+import { useSelector } from 'react-redux';
 
 function MessManagement() {
+  const admin = useSelector(store => store.auth.admin);
   const navigate = useNavigate();
   const [expandedOrder, setExpandedOrder] = useState(null);
   const [expandedAddon, setExpandedAddon] = useState(null);
@@ -20,7 +22,6 @@ function MessManagement() {
     // Listen for order updates
     socket.on('orderUpdated', (newOrder) => {
       if (newOrder && newOrder._id) {
-        // console.log('Order updated:', newOrder);
         setTodayOrders((prevOrders) => {
           const existingOrderIndex = prevOrders.findIndex(order => order._id === newOrder._id);
           if (existingOrderIndex > -1) {
@@ -41,18 +42,28 @@ function MessManagement() {
       setTodayOrders((prevOrders) => prevOrders.filter(order => order._id !== deletedOrder._id));
     });
 
-    // Fetch today's orders when component mounts
+    // Check current time to determine if orders should be displayed
+    const now = new Date();
+    const isAfter11PM = now.getHours() >= 23;
+
+    // Fetch tomorrow's orders if it's after 11 pm
     const fetchOrders = async () => {
       try {
-        const response = await axios.get(`${API_BASE_URL}/messOrder/`);
-        const allOrders = response.data;
-        const today = new Date().toISOString().split('T')[0];
-        const filteredTodayOrders = allOrders.filter(order => {
-          if (!order.date) return false;
-          const orderDate = new Date(order.date);
-          return orderDate.toISOString().split('T')[0] === today;
-        });
-        setTodayOrders(filteredTodayOrders);
+        if (isAfter11PM) {
+          const response = await axios.get(`${API_BASE_URL}/messOrder/`, {
+            headers: { 'Authorization': `Bearer ${admin.token}` }
+          });
+          const allOrders = response.data;
+          const tomorrow = new Date(now);
+          tomorrow.setDate(now.getDate() + 1);
+          const tomorrowDate = tomorrow.toISOString().split('T')[0];
+          const filteredTomorrowOrders = allOrders.filter(order => {
+            if (!order.deliverDate) return false;
+            const orderDate = new Date(order.deliverDate);
+            return orderDate.toISOString().split('T')[0] === tomorrowDate;
+          });
+          setTodayOrders(filteredTomorrowOrders);
+        }
       } catch (error) {
         console.error('Error fetching orders:', error);
       }

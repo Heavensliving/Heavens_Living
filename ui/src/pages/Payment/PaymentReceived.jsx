@@ -178,8 +178,11 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
+import { useSelector } from 'react-redux';
+import API_BASE_URL from '../../config';
 
 const PaymentReceived = () => {
+  const admin = useSelector(store => store.auth.admin);
   const [transactions, setTransactions] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedMonth, setSelectedMonth] = useState('');
@@ -188,7 +191,9 @@ const PaymentReceived = () => {
   useEffect(() => {
     const fetchTransactions = async () => {
       try {
-        const response = await axios.get('http://localhost:3000/api/fee');
+        const response = await axios.get(`${API_BASE_URL}/fee`,
+          {headers: { 'Authorization': `Bearer ${admin.token}` }}
+        );
         setTransactions(response.data);
       } catch (error) {
         console.error("Error fetching transactions:", error);

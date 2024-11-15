@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { FaBell, FaCog, FaSearch } from 'react-icons/fa';
 import pageConfig from '../../../Utils/NavbarUtils';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -14,6 +14,19 @@ const Navbar = () => {
     const admin = useSelector(store => store.auth.admin);
 
     const [showDropdown, setShowDropdown] = useState(false); // State for dropdown
+    const dropdownRef = useRef(null); // Ref for dropdown container
+
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+                setShowDropdown(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, []);
 
     const getPageTitle = (path) => {
         const matchedPath = Object.keys(pageConfig).find((key) => {
@@ -60,7 +73,7 @@ const Navbar = () => {
                     </button>
 
                     {/* Settings Button with Dropdown */}
-                    <div className="relative">
+                    <div className="relative" ref={dropdownRef}>
                         <button
                             onClick={() => setShowDropdown(!showDropdown)}
                             className="p-2 bg-white rounded-full shadow"

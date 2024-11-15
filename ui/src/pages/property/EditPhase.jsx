@@ -2,9 +2,10 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate, useParams } from 'react-router-dom';
 import API_BASE_URL from '../../config';
-
+import { useSelector } from 'react-redux';
 
 function EditPhase() {
+  const admin = useSelector(store => store.auth.admin);
   const navigate = useNavigate();
   const { id } = useParams(); // Get the phase ID from the URL
   const [phaseData, setPhaseData] = useState({
@@ -17,7 +18,9 @@ function EditPhase() {
     // Fetch the existing phase data
     const fetchPhaseData = async () => {
       try {
-        const response = await axios.get(`${API_BASE_URL}/phase/${id}`);
+        const response = await axios.get(`${API_BASE_URL}/phase/${id}`,
+          {headers: { 'Authorization': `Bearer ${admin.token}` }}
+        );
         setPhaseData(response.data);
       } catch (error) {
         console.error('Error fetching phase data:', error);
@@ -39,7 +42,9 @@ function EditPhase() {
     e.preventDefault();
 
     try {
-      const response = await axios.put(`${API_BASE_URL}/phase/update/${id}`, phaseData);
+      const response = await axios.put(`${API_BASE_URL}/phase/update/${id}`, phaseData,
+        {headers: { 'Authorization': `Bearer ${admin.token}` }}
+      );
       if (response.status === 200) {
         navigate('/phase-management'); // Redirect to the phase management page after updating
       }

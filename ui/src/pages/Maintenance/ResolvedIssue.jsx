@@ -2,8 +2,10 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios'; 
 import { Link } from 'react-router-dom';  // Import Link for navigation
 import API_BASE_URL from '../../config';
+import { useSelector } from 'react-redux';
 
 const ResolvedIssues = () => {
+  const admin = useSelector(store => store.auth.admin);
   const [records, setRecords] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -11,7 +13,9 @@ const ResolvedIssues = () => {
   useEffect(() => {
     const fetchLatestResolvedRecords = async () => {
       try {
-        const response = await axios.get(`${API_BASE_URL}/maintenance/getLatest`);
+        const response = await axios.get(`${API_BASE_URL}/maintenance/getLatest`,
+          {headers: { 'Authorization': `Bearer ${admin.token}` }}
+        );
         setRecords(response.data);
       } catch (err) {
         setError('Error fetching maintenance records');

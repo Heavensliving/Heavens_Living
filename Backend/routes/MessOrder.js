@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const MessOrderController = require('../controller/MessOrderController');
+const { verifyToken } = require('../middleware/tokenVerify');
 
 let io;
 // Function to set the Socket.IO instance
@@ -8,7 +9,7 @@ const setSocketIO = (socketIo) => {
   io = socketIo;
 };
 
-router.post('/add', async (req, res) => {
+router.post('/add', verifyToken, async (req, res) => {
   try {
     const newOrder = await MessOrderController.addOrder(req, res);
 
@@ -25,14 +26,16 @@ router.post('/add', async (req, res) => {
   }
 });
 
+router.post('/add-onOrder', verifyToken, MessOrderController.addAdonOrder)
+
 // Route for getting all orders
-router.get('/', MessOrderController.getAllOrders);
+router.get('/', verifyToken, MessOrderController.getAllOrders);
 
 // Route for getting an order by ID
-router.get('/:id', MessOrderController.getOrderById);
+router.get('/:id', verifyToken, MessOrderController.getOrderById);
 
 // Route for deleting an order
-router.delete('/delete-order/:id', async (req, res) => {
+router.delete('/delete-order/:id', verifyToken, async (req, res) => {
   try {
     const deletedOrder = await MessOrderController.deleteOrder(req.params.id);
     io.emit('orderDeleted', deletedOrder); // Emit an event when an order is deleted
@@ -44,7 +47,7 @@ router.delete('/delete-order/:id', async (req, res) => {
 });
 
 // Route for updating an order's status
-router.put('/update/:id', async (req, res) => {
+router.put('/update/:id', verifyToken, async (req, res) => {
   try {
     const updatedOrder = await MessOrderController.updateOrderStatus(req.params.id, req.body);
     if (updatedOrder) {
@@ -60,7 +63,7 @@ router.put('/update/:id', async (req, res) => {
   }
 });
 
-router.get('/user/orders',MessOrderController.getOrder)
+router.get('/user/orders', verifyToken, MessOrderController.getOrder)
 
 // Export the router and the setSocketIO function
 module.exports = { router, setSocketIO };

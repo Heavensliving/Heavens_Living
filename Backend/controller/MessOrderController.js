@@ -2,6 +2,7 @@ const crypto = require('crypto');
 const MessOrder = require('../Models/MessOrderModel');
 const Property = require('../Models/Add_property');
 const Student = require('../Models/Add_student');
+const adOnOrder = require('../Models/AdonOrder');
 
 const generateOrderId = () => {
   const randomNumbers = crypto.randomInt(10000, 100000);
@@ -11,7 +12,7 @@ const generateOrderId = () => {
 // Add an order
 const addOrder = async (req, res) => {
   try {
-    const { name, roomNo, contact, mealType, student, property, adOns = [] } = req.body;
+    const { name, roomNo, contact, mealType, student, property, adOns = [], bookingStatus, deliverDate } = req.body;
 
     const orderId = generateOrderId();
 
@@ -25,6 +26,8 @@ const addOrder = async (req, res) => {
       adOns,
       student,
       property,
+      bookingStatus,
+      deliverDate
     });
 
     const savedOrder = await newOrder.save();
@@ -40,6 +43,35 @@ const addOrder = async (req, res) => {
     console.error('Error adding order:', error);
     res.status(500).json({ message: 'Error adding order', error });
     return null;
+  }
+};
+
+const addAdonOrder = async (req, res) => {
+  try {
+    const { items, totalAmount, contact, status, student } = req.body;
+
+    // Calculate total based on item quantity and rate if needed
+    const calculatedTotalAmount = items.reduce((acc, item) => acc + item.quantity * item.rate, 0);
+
+    if (calculatedTotalAmount !== totalAmount) {
+      return res.status(400).json({ message: 'Total amount does not match calculated amount.' });
+    }
+
+    // Create new order
+    const newOrder = new adOnOrder({
+      items,
+      totalAmount: calculatedTotalAmount,
+      contact,
+      status,
+      student,
+    });
+
+    await newOrder.save();
+
+    res.status(201).json({ message: 'Adon order added successfully', order: newOrder });
+  } catch (error) {
+    console.error('Error adding adon order:', error);
+    res.status(500).json({ message: 'Error adding adon order', error });
   }
 };
 
@@ -115,6 +147,7 @@ const MessOrderController = {
   deleteOrder,
   updateOrderStatus,
   getOrder,
+  addAdonOrder,
   
 };
 

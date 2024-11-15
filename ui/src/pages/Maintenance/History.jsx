@@ -2,8 +2,10 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios'; 
 import API_BASE_URL from '../../config';
 import DetailModal from './DetailModal'; // Import the Modal component
+import { useSelector } from 'react-redux';
 
 const ResolvedHistory = () => {
+  const admin = useSelector(store => store.auth.admin);
   const [records, setRecords] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -14,7 +16,9 @@ const ResolvedHistory = () => {
   useEffect(() => {
     const fetchResolvedRecords = async () => {
       try {
-        const response = await axios.get(`${API_BASE_URL}/maintenance/get`);
+        const response = await axios.get(`${API_BASE_URL}/maintenance/get`,
+          {headers: { 'Authorization': `Bearer ${admin.token}` }}
+        );
         // Filter records where the status is 'resolved'
         const resolvedRecords = response.data.filter(record => record.Status === 'resolved');
         setRecords(resolvedRecords);

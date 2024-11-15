@@ -1,8 +1,11 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
+import API_BASE_URL from '../../config';
 
 const ExpenseForm = () => {
+  const admin = useSelector(store => store.auth.admin);
   const [formData, setFormData] = useState({
     title: '',
     type: '',
@@ -30,7 +33,9 @@ const ExpenseForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('http://localhost:3000/api/expense/addExpense', formData);
+      const response = await axios.post(`${API_BASE_URL}/expense/addExpense`, formData,
+        {headers: { 'Authorization': `Bearer ${admin.token}` }}
+      );
       console.log('Expense added:', response.data);
       // Redirect to the expenses list or another page
       navigate('/expenses'); // Change to your desired route

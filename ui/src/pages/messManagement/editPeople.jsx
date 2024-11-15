@@ -2,8 +2,10 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios'; 
 import { useParams, useNavigate } from 'react-router-dom';
 import API_BASE_URL from '../../config';
+import { useSelector } from 'react-redux';
 
 function EditPeople() {
+  const admin = useSelector(store => store.auth.admin);
   const { id } = useParams(); // Get the ID from the URL
   const navigate = useNavigate();
 
@@ -71,7 +73,9 @@ function EditPeople() {
 
   const fetchPersonData = async () => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/people/get-people/${id}`);
+      const response = await axios.get(`${API_BASE_URL}/people/get-people/${id}`,
+        {headers: { 'Authorization': `Bearer ${admin.token}` }}
+      );
       const personData = response.data.data; // Access the nested data object
 
       
@@ -116,7 +120,8 @@ function EditPeople() {
           months: formData.months,
           days: formData.days,
         },
-        joinDate: formData.joinDate // Include joinDate in the request payload
+        joinDate: formData.joinDate, // Include joinDate in the request payload
+        headers: { 'Authorization': `Bearer ${admin.token}` }
       });
 
       setFormData({

@@ -1,19 +1,20 @@
 const express = require('express');
 const PhaseController = require('../controller/PhaseContoller');
+const { verifyToken } = require('../middleware/tokenVerify');
 
 const router = express.Router()
 
-router.get('/',PhaseController.getAllPhases);
+router.get('/', verifyToken, PhaseController.getAllPhases);
 
-router.get('/:id',PhaseController.getPhaseById);
+router.get('/:id', verifyToken, PhaseController.getPhaseById);
 
-router.get('/phases/:id',PhaseController.getPhasesForBranch);
+router.get('/phases/:id', verifyToken, PhaseController.getPhasesForBranch);
 
-router.post('/add',PhaseController.addPhase);
+router.post('/add', verifyToken, PhaseController.addPhase);
 
-router.put('/update/:id',PhaseController.updatePhase);
+router.put('/update/:id', verifyToken, PhaseController.updatePhase);
 
-router.delete('/delete/:id',PhaseController.deletePhase);
+router.delete('/delete/:id', verifyToken, PhaseController.deletePhase);
 
 
 module.exports = router;
