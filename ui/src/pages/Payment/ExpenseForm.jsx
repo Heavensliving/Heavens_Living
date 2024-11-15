@@ -72,7 +72,7 @@ const ExpenseForm = () => {
 
   return (
     <div className="min-h-screen items-center justify-center bg-gray-100">
-      <div className="bg-white p-6 rounded-md shadow-md w-full max-w-4xl">
+      <div className="bg-white p-6 rounded-md shadow-md w-full ">
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Title and Type */}
           <div className="grid grid-cols-2 gap-4">
