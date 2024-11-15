@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
-import { useSelector } from 'react-redux';
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import { useSelector } from "react-redux";
+import API_BASE_URL from "../../config";
 
 const PendingPaymentsPage = () => {
-  const admin = useSelector(store => store.auth.admin);
+  const admin = useSelector((store) => store.auth.admin);
   const [pendingPayments, setPendingPayments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -11,12 +12,14 @@ const PendingPaymentsPage = () => {
   useEffect(() => {
     const fetchPendingPayments = async () => {
       try {
-        const response = await axios.get('http://localhost:3000/api/fee/payments/pendingPayments',
-          {headers: { 'Authorization': `Bearer ${admin.token}` }}
+        const response = await axios.get(
+          `${API_BASE_URL}/fee/payments/pendingPayments`,
+          { headers: { Authorization: `Bearer ${admin.token}` } }
         );
+        console.log(response.data);
         setPendingPayments(response.data);
       } catch (error) {
-        setError('Error fetching pending payments');
+        setError("Error fetching pending payments");
       } finally {
         setLoading(false);
       }
@@ -26,51 +29,51 @@ const PendingPaymentsPage = () => {
   }, []);
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <div className="text-center py-6 text-gray-500">Loading...</div>;
   }
 
   if (error) {
-    return <div>{error}</div>;
+    return <div className="text-center py-6 text-red-500">{error}</div>;
   }
 
   return (
-    <div>
-      <h1>Pending Payments</h1>
+    <div className="container mx-auto p-6 bg-gray-100 rounded-lg shadow-lg min-h-screen">
+      <h1 className="text-2xl font-bold text-gray-800 mb-6">Pending Payments</h1>
+
       {pendingPayments.length === 0 ? (
-        <p>No pending payments found.</p>
+        <p className="text-center text-gray-500 py-6">
+          No pending payments found.
+        </p>
       ) : (
-        <table border="1">
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Student ID</th>
-              <th>Hostel Name</th>
-              <th>Transaction ID</th>
-              <th>Month/Year</th>
-              <th>Paid Date</th>
-              <th>Rent Amount</th>
-              <th>Wave-Off Amount</th>
-              <th>Total Amount</th>
-              <th>Payment Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {pendingPayments.map((payment) => (
-              <tr key={payment._id}>
-                <td>{payment.name}</td>
-                <td>{payment.studentId}</td>
-                <td>{payment.hostelName}</td>
-                <td>{payment.transactionId}</td>
-                <td>{payment.monthYear}</td>
-                <td>{payment.paidDate}</td>
-                <td>{payment.rentAmount}</td>
-                <td>{payment.waveOff}</td>
-                <td>{payment.totalAmount}</td>
-                <td>{payment.paymentStatus}</td>
+        <div className="overflow-x-auto">
+          <table className="min-w-full bg-white border border-gray-300 rounded-lg shadow-md">
+            <thead className="bg-gray-300 text-black">
+              <tr>
+                <th className="py-3 px-4 border text-left text-sm">Name</th>
+                <th className="py-3 px-4 border text-left text-sm">Student ID</th>
+                <th className="py-3 px-4 border text-left text-sm">Last Rent Cleared Month</th>
+                <th className="py-3 px-4 border text-left text-sm">Paid Date</th>
+                <th className="py-3 px-4 border text-left text-sm">Rent Amount</th>
+                <th className="py-3 px-4 border text-left text-sm">Total Amount</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {pendingPayments.map((payment, index) => (
+                <tr
+                  key={payment.studentId}
+                  className="hover:bg-gray-100 transition-colors"
+                >
+                  <td className="py-2 px-4 border text-sm">{payment.name || "N/A"}</td>
+                  <td className="py-2 px-4 border text-sm">{payment.studentId || "N/A"}</td>
+                  <td className="py-2 px-4 border text-sm">{payment.paymentClearedMonthYear || "N/A"}</td>
+                  <td className="py-2 px-4 border text-sm">{payment.lastPaidDate || "N/A"}</td>
+                  <td className="py-2 px-4 border text-sm">₹{payment.rentAmount || "N/A"}</td>
+                  <td className="py-2 px-4 border text-sm">₹{payment.totalAmount || "N/A"}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
     </div>
   );

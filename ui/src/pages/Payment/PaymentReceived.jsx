@@ -73,7 +73,7 @@ const PaymentReceived = () => {
         transaction.name || 'N/A',
         transaction.studentId || 'N/A',
         transaction.transactionId || 'N/A',
-        transaction.paymentDate ? new Date(transaction.paymentDate).toLocaleDateString() : 'N/A',
+        transaction.paidDate ? new Date(transaction.paidDate).toLocaleDateString() : 'N/A',
         transaction.rentAmount || 'N/A',
         transaction.amountPaid || 'N/A',
       ]),
