@@ -3,9 +3,10 @@ import { FaArrowLeft, FaTrash } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import API_BASE_URL from '../../config';
 import axios from 'axios';
+import { useSelector } from 'react-redux';
 
 function AddFood() {
-  
+  const admin = useSelector(store => store.auth.admin);
   const navigate = useNavigate();
   const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 

@@ -16,9 +16,8 @@ const studentSchema = new mongoose.Schema({
   adharFrontImage: { type: String, required: false },  // Store Firebase URL
   adharBackImage: { type: String, required: false },   // Store Firebase URL
   photo: { type: String, required: false },            // Store Firebase URL
-  hostelName: { type: String, required: true },
   roomType: { type: String, required: true},
-  roomNo: { type: String, required: true},
+  roomNo: { type: String, required: false},
   referredBy: { type: String, required: false},
   typeOfStay: { type: String, required: true},
   pgName: { type: String, required: true},
@@ -34,6 +33,7 @@ const studentSchema = new mongoose.Schema({
   workingPlace: { type: String,required: false },
   branch: { type: String, required: true },
   phase: { type: String, required: true },
+  profileCompletionPercentage: { type: String, required: true, default: '10' },
   maintenance: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Maintanance' }],
   messOrders: [{ type: mongoose.Schema.Types.ObjectId, ref: 'MessOrder' }],
   addOnOrders: [{ type: mongoose.Schema.Types.ObjectId, ref: 'adonOrderSchema' }],
