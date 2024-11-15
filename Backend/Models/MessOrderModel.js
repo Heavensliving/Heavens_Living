@@ -29,6 +29,7 @@ const MessOrderSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Property'
   },
+  expiryDate: { type:String,required:false}
 
 });
 

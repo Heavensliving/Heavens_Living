@@ -14,6 +14,8 @@ const addOrder = async (req, res) => {
     const { name, roomNo, contact, mealType, student, property, adOns = [] } = req.body;
 
     const orderId = generateOrderId();
+    const expiryDate = new Date();
+    expiryDate.setDate(expiryDate.getDate() + 2);
 
     const newOrder = new MessOrder({
       name,
@@ -25,6 +27,7 @@ const addOrder = async (req, res) => {
       adOns,
       student,
       property,
+      expiryDate,
     });
 
     const savedOrder = await newOrder.save();
@@ -53,6 +56,15 @@ const getAllOrders = async (req, res) => {
   }
 };
 
+// cron.schedule('0 0 * * *', async () => {
+//   try {
+//     const currentDate = new Date();
+//     const result = await MessOrder.deleteMany({ expiryDate: { $lt: currentDate } });
+//     console.log(`Deleted ${result.deletedCount} expired orders`);
+//   } catch (error) {
+//     console.error('Error deleting expired orders:', error);
+//   }
+// });
 // Get order by ID
 const getOrderById = async (req, res) => {
   try {
