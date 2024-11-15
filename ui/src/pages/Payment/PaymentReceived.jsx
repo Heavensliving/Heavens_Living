@@ -57,10 +57,20 @@ const PaymentReceived = () => {
 
   const downloadPDF = () => {
     const doc = new jsPDF();
-    doc.setFontSize(18); 
+    
+    // Add Header
+    doc.setFontSize(18);
     doc.text('Payment Report', 14, 20);
-    doc.setFontSize(10); 
-    doc.text('Date: ' + new Date().toLocaleDateString(), 14, 30); 
+    
+    // Add Date
+    doc.setFontSize(10);
+    doc.text('Date: ' + new Date().toLocaleDateString(), 14, 30);
+  
+    // Calculate total amount if not already done
+    const calculatedTotalAmount = furtherFilteredTransactions.reduce(
+      (sum, transaction) => sum + (transaction.totalAmount || 0),
+      0
+    );
   
     // Add the table
     doc.autoTable({
@@ -71,12 +81,18 @@ const PaymentReceived = () => {
         transaction.name || 'N/A',
         transaction.studentId || 'N/A',
         transaction.transactionId || 'N/A',
-        transaction.paymentDate ? new Date(transaction.paymentDate).toLocaleDateString() : 'N/A',
+        transaction.paidDate ? new Date(transaction.paidDate).toLocaleDateString() : 'N/A',
         transaction.rentAmount || 'N/A',
         transaction.totalAmount || 'N/A',
       ]),
     });
   
+    // Add Total Amount Summary below the table
+    const finalY = doc.lastAutoTable.finalY + 10; // Position after the table
+    doc.setFontSize(12);
+    doc.text(`Total Amount: ₹${calculatedTotalAmount.toFixed(2)}`, 14, finalY);
+  
+    // Save the PDF
     doc.save('transactions.pdf');
   };
 

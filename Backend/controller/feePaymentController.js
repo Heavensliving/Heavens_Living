@@ -130,18 +130,40 @@ const deleteFeePayment = async (req, res) => {
 
 const getPendingPayments = async (req, res) => {
   try {
-    const pendingPayments = await FeePayment.find({ paymentStatus: 'pending' });
+    // Find students with a payment status of "Pending"
+    const students = await Student.find({ paymentStatus: 'Pending' });
 
-    if (pendingPayments.length === 0) {
+    if (students.length === 0) {
       return res.status(404).json({ message: 'No pending payments found' });
     }
 
-    res.status(200).json(pendingPayments);
+    // Array to store the student details along with their latest payment
+    const pendingPaymentsDetails = await Promise.all(
+      students.map(async (student) => {
+        // Find the latest payment for the student
+        const latestPayment = await FeePayment.findOne({ studentId: student._id })
+          .sort({ createdAt: -1 }) // Sort payments by the most recent first
+          .lean(); // Optional: Convert Mongoose document to plain JS object
+
+        return {
+          studentId: student.studentId,
+          name: student.name,
+          rentAmount:student.rentAmout,
+          paymentClearedMonthYear: student.paymentClearedMonthYear,
+          lastPaidDate: student.paymentDate,
+          latestPayment: latestPayment || null, // Include null if no payments found
+        };
+      })
+    );
+
+    res.status(200).json(pendingPaymentsDetails);
   } catch (error) {
     console.error('Error fetching pending payments:', error);
     res.status(500).json({ message: 'Error fetching pending payments', error });
   }
 };
+
+
 const getWaveOffPayments = async (req, res) => {
   try {
     // Find payments where waveOff amount is greater than 0
