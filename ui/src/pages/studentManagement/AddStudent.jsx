@@ -79,9 +79,9 @@ function AddStudent() {
     { name: 'parentNumber', type: 'text', placeholder: "Parent's Contact Number", required: false, label: 'Parent Contact' },
     { name: 'parentOccupation', type: 'text', placeholder: "Parent's Occupation", label: `Parent's Occupation`, required: false, },
     { name: 'workingPlace', type: 'text', placeholder: 'Working Place', label: 'Working Place', required: false, },
-    { name: 'collegeName', type: 'text', placeholder: 'College Name', required: true, label: 'College Name', required: false, },
+    { name: 'collegeName', type: 'text', placeholder: 'College Name', label: 'College Name', required: false, },
     { name: 'course', type: 'text', placeholder: 'Course', label: 'Course of study', required: false, },
-    { name: 'year', type: 'text', placeholder: 'Year', required: true, label: 'Year of study', required: false, },
+    { name: 'year', type: 'text', placeholder: 'Year', label: 'Year of study', required: false, },
     {
       name: 'pgName',
       type: 'select',
