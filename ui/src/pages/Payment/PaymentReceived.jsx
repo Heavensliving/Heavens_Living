@@ -57,15 +57,17 @@ const PaymentReceived = () => {
 
   const downloadPDF = () => {
     const doc = new jsPDF();
-    doc.setFontSize(18); 
+  
+    // Header Section
+    doc.setFontSize(18);
     doc.text('Payment Report', 14, 20);
-    doc.setFontSize(10); 
-    doc.text('Date: ' + new Date().toLocaleDateString(), 14, 30); 
+    doc.setFontSize(10);
+    doc.text('Date: ' + new Date().toLocaleDateString(), 14, 30);
   
     // Add the table
     doc.autoTable({
       startY: 35,
-      head: [['#', 'Name', 'Occupant ID', 'Transaction ID', 'Date', 'Monthly Rent', 'Total Amount']],
+      head: [['#', 'Name', 'Occupant ID', 'Transaction ID', 'Date', 'Monthly Rent', 'Amount Paid']],
       body: furtherFilteredTransactions.map((transaction, index) => [
         index + 1,
         transaction.name || 'N/A',
@@ -77,8 +79,20 @@ const PaymentReceived = () => {
       ]),
     });
   
+    // Calculate the Total Amount
+    const totalAmount = furtherFilteredTransactions.reduce((sum, transaction) => {
+      return sum + (transaction.amountPaid || 0); // Default to 0 if amountPaid is undefined
+    }, 0);
+  
+    // Add Total Amount Below Table
+    const finalY = doc.lastAutoTable.finalY || 0; // Get the Y position after the table
+    doc.setFontSize(12);
+    doc.text(`Total Amount: Rs.${totalAmount.toFixed(2)}`, 14, finalY + 10);
+  
+    // Save the PDF
     doc.save('transactions.pdf');
   };
+  
 
   return (
     <div className="container mx-auto p-6 bg-gray-100 rounded-lg shadow-lg min-h-screen">
