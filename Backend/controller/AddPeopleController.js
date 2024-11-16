@@ -6,9 +6,12 @@ const mongoose = require('mongoose');
 // Add a new person
 const addPeople = async (req, res) => {
   try {
+  
     const { password } = req.body; 
+    console.log(password)
     const hashedPassword = await bcrypt.hash(password, 10); // Hash the password
     const newPerson = new peopleModel({ ...req.body, password: hashedPassword }); 
+    console.log(newPerson);
 
     await newPerson.save();
     res.status(201).json({ message: 'Person added successfully', data: newPerson });

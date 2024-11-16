@@ -89,6 +89,7 @@ function ManagePeople() {
               <th className="py-3 px-6 text-left">Contact Number</th>
               <th className="py-3 px-6 text-left">Email</th>
               <th className="py-3 px-6 text-left">Meal Type</th>
+              <th className="py-3 px-6 text-left">Monthly Amount</th>
               <th className="py-3 px-6 text-left">Time Period</th>
               <th className="py-3 px-6 text-left">Join Date</th>
               <th className="py-3 px-6 text-left">Days Left</th>
@@ -109,6 +110,7 @@ function ManagePeople() {
                   <td className="py-3 px-6 text-left">{person.contactNumber}</td>
                   <td className="py-3 px-6 text-left">{person.email || 'N/A'}</td>
                   <td className="py-3 px-6 text-left">{person.mealType}</td>
+                  <td className="py-3 px-6 text-left">{person.monthlyAmount}</td>
                   <td className="py-3 px-6 text-left">
                     {person.timePeriod.months} Months / {person.timePeriod.days} Days
                   </td>

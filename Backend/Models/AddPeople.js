@@ -17,6 +17,10 @@ const peopleSchema = new mongoose.Schema({
     type: String,  
     enum: ['Breakfast', 'Lunch', 'Dinner', 'Whole Meal'],  
     required: true  
+  },
+  monthlyAmount: {
+    type: Number,
+    required:true
   },  
   timePeriod: {  
     months: {  
@@ -31,6 +35,10 @@ const peopleSchema = new mongoose.Schema({
   password: {  
     type: String,  
     required: true 
+  },
+  propertyName: {
+    type: String,
+    required: true
   },
   propertyId: {
     type: String,
