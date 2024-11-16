@@ -147,7 +147,7 @@ const FeePayment = () => {
           {/* Student ID Field with Fixed Prefix and Fetch Button */}
           <div className="w-full flex justify-center px-2 mb-4">
             <div className="w-full md:w-1/2 px-2 mb-4">
-              <label className="block text-gray-700 mb-2 text-center">Enter Student ID</label>
+              <label className="block text-gray-700 mb-2">Enter Occupant ID</label>
               <div className="relative flex items-center">
                 <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">HVNS</span>
                 <input

@@ -23,6 +23,7 @@ const PropertySchema = new mongoose.Schema(
     staffs: [{ type: mongoose.Schema.Types.ObjectId, ref: "Staff" }],
     maintenance: [{ type: mongoose.Schema.Types.ObjectId, ref: "Maintanance" }],
     messOrders: [{ type: mongoose.Schema.Types.ObjectId, ref: "MessOrder" }],
+    messPeople: [{ type: mongoose.Schema.Types.ObjectId, ref: "peopleModel" }],
     phase: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Phase",

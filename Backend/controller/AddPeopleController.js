@@ -2,19 +2,25 @@ const bcrypt = require('bcrypt');
 const peopleModel = require('../Models/AddPeople'); 
 const moment = require('moment');
 const mongoose = require('mongoose');
+const Property = require('../Models/Add_property');
 
 // Add a new person
 const addPeople = async (req, res) => {
-  console.log(req.body)
+  console.log("req.body", req.body)
   try {
   
     const { password } = req.body; 
-    console.log(password)
+    console.log("password",password)
     const hashedPassword = await bcrypt.hash(password, 10); // Hash the password
     const newPerson = new peopleModel({ ...req.body, password: hashedPassword }); 
-    console.log(newPerson);
+    const propertyId = newPerson.propertyId
+    console.log("newPerson",newPerson);
 
     await newPerson.save();
+    const property = await Property.findOne({propertyId:propertyId});
+    console.log("property",property._id);
+    console.log("new person", newPerson._id)
+    await Property.findByIdAndUpdate(property._id, { $push: { messPeople: newPerson._id } });
     res.status(201).json({ message: 'Person added successfully', data: newPerson });
   } catch (error) {
     res.status(500).json({ message: 'Error adding person', error: error.message });

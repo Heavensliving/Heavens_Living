@@ -50,6 +50,7 @@ import CommissionTable from '../pages/Payment/CommissionTable.jsx'
 import PendingPaymentsPage from '../pages/Payment/PendingPaymentsPage.jsx'
 import WaveOffPaymentsPage from '../pages/Payment/WaveOffPaymentsPage.jsx'
 import AddonPage from '../pages/messManagement/AddonPage.jsx'
+import MessOnlyPayment from '../pages/Payment/messOnlyPayment.jsx'
 
 const AdminRoute = () => {
     return (
@@ -101,6 +102,7 @@ const AdminRoute = () => {
                     <Route path="/dailyRent/edit/:id" element={<EditDailyRentPerson />}/>
                     <Route path="/payments" element={<PaymentDashboard />}/>
                     <Route path='/feePayment' element={<FeePayment/>}/>
+                    <Route path='/messOnlyPayment' element={<MessOnlyPayment/>}/>
                     <Route path='/AddExpense' element={<ExpenseForm/>}/>
                     <Route path='/paymentReceived' element={<PaymentReceived/>}/> 
                     <Route path='/expenses' element={<ExpenseTable/>}/> 

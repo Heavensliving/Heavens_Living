@@ -118,7 +118,10 @@ const pageConfig = {
     '/commissions':{
       title:"Commissions"
     },'/feePayment':{
-      title:"Fee Payments"
+      title:"Add Payments"
+    },
+    '/messOnlyPayment':{
+      title:"Add Payments"
     },
     '/AddExpense':{
       title:"Add Expense"

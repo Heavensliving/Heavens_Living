@@ -9,7 +9,6 @@ const SalaryDetails = ({ onClose, slideIn }) => {
     const admin = useSelector((store) => store.auth.admin);
     const { staffId } = useParams();
     const [expenses, setExpenses] = useState([]);
-    console.log(staffId);
 
     useEffect(() => {
         if (staffId) {
@@ -31,9 +30,8 @@ const SalaryDetails = ({ onClose, slideIn }) => {
 
     return (
         <div
-            className={`fixed inset-y-0 right-0 bg-white w-full max-w-md shadow-2xl transform transition-transform duration-300 ${
-                slideIn ? 'translate-x-0' : 'translate-x-full'
-            } z-50`}
+            className={`fixed inset-y-0 right-0 bg-white w-full max-w-md shadow-2xl transform transition-transform duration-300 ${slideIn ? 'translate-x-0' : 'translate-x-full'
+                } z-50`}
         >
             <div className="p-4 h-full flex flex-col">
                 <h2 className="text-lg font-bold text-gray-900 text-center mb-4">
@@ -50,14 +48,7 @@ const SalaryDetails = ({ onClose, slideIn }) => {
                                 <div className="flex justify-end items-end">
                                     <FiCheckCircle className="text-green-500 text-lg" />
                                 </div>
-                                <div className="flex justify-between items-center">
-                                    <div className="flex flex-col">
-                                        <p className="text-gray-700 text-sm">
-                                            <strong>Title</strong>
-                                        </p>
-                                        <p className="text-gray-800 text-md">{expense.title}</p>
-                                    </div>
-                                </div>
+
                                 <div className="grid grid-cols-2 gap-2">
                                     <div>
                                         <p className="text-gray-700 text-sm">
@@ -69,22 +60,14 @@ const SalaryDetails = ({ onClose, slideIn }) => {
                                     </div>
                                     <div>
                                         <p className="text-gray-700 text-sm">
-                                            <strong>Date of Payment</strong>
-                                        </p>
-                                        <p className="text-md text-gray-900">
-                                            {new Date(expense.date).toLocaleDateString()}
-                                        </p>
-                                    </div>
-                                </div>
-                                <div className="grid grid-cols-2 gap-2">
-                                    <div>
-                                        <p className="text-gray-700 text-sm">
                                             <strong>Payment Method</strong>
                                         </p>
                                         <p className="text-md text-gray-900">
                                             {expense.paymentMethod}
                                         </p>
                                     </div>
+                                </div>
+                                <div className="grid grid-cols-2 gap-2">
                                     <div>
                                         <p className="text-gray-700 text-sm">
                                             <strong>Transaction ID</strong>
@@ -93,14 +76,14 @@ const SalaryDetails = ({ onClose, slideIn }) => {
                                             {expense.transactionId || 'N/A'}
                                         </p>
                                     </div>
-                                </div>
-                                <div>
-                                    <p className="text-gray-700 text-sm">
-                                        <strong>Property Name</strong>
-                                    </p>
-                                    <p className="text-md text-gray-900">
-                                        {expense.propertyName}
-                                    </p>
+                                    <div>
+                                        <p className="text-gray-700 text-sm">
+                                            <strong>Date of Payment</strong>
+                                        </p>
+                                        <p className="text-md text-gray-900">
+                                            {new Date(expense.date).toLocaleDateString()}
+                                        </p>
+                                    </div>
                                 </div>
                             </div>
                         ))

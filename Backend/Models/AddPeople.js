@@ -51,7 +51,11 @@ const peopleSchema = new mongoose.Schema({
   joinDate: {
     type: Date,
     default: Date.now
-  }
+  },
+  property: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Property'
+}
 }); 
 
 const peopleModel = mongoose.model('peopleModel', peopleSchema);

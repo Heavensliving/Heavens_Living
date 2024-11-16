@@ -115,7 +115,7 @@ const getExpensesByStaff = async (req, res) => {
       return res.status(404).json({ error: "No expenses found for the provided staff ID" });
     }
 
-    res.status(200).json({ expenses });
+    res.status(200).json(expenses );
   } catch (error) {
     console.error("Error fetching expenses by staff ID:", error);
     res.status(500).json({ error: "Error fetching expenses by staff ID" });
