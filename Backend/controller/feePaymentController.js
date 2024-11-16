@@ -1,3 +1,4 @@
+const { mongoose } = require('mongoose');
 const Student = require('../Models/Add_student');
 const FeePayment = require('../Models/feePayment'); // Ensure the path is correct
 
@@ -49,10 +50,15 @@ const addFeePayment = async (req, res) => {
     // Save fee payment to the database
     await feePayment.save();
 
+    const updateData = { $push: { payments: feePayment._id } };
+
+    // If payingAmount is enough to cover the totalAmountToPay, update paymentStatus to 'Paid'
+    if (payingAmount >= totalAmountToPay) {
+      updateData.paymentStatus = 'Paid';
+    }
+
     // Update Student's payment info
-    await Student.findByIdAndUpdate(_id, {
-      $push: { payments: feePayment._id },
-    });
+    await Student.findByIdAndUpdate(_id, updateData);
 
     res.status(201).json({ message: 'Fee payment added successfully', feePayment });
   } catch (error) {
@@ -77,7 +83,7 @@ const getFeePaymentsByStudentId = async (req, res) => {
   try {
     console.log(req.params)
     const { studentId } = req.params;
-    const feePayments = await FeePayment.find({ student: mongoose.Types.ObjectId(studentId) });
+    const feePayments = await FeePayment.find({ student: studentId });
     console.log(feePayments)
 
     if (feePayments.length === 0) {
@@ -137,21 +143,66 @@ const getPendingPayments = async (req, res) => {
       return res.status(404).json({ message: 'No pending payments found' });
     }
 
-    // Array to store the student details along with their latest payment
+    // Array to store the student details along with their pending rent amount
     const pendingPaymentsDetails = await Promise.all(
       students.map(async (student) => {
         // Find the latest payment for the student
-        const latestPayment = await FeePayment.findOne({ studentId: student._id })
+        const latestPayment = await FeePayment.findOne({ student: student._id })
           .sort({ createdAt: -1 }) // Sort payments by the most recent first
           .lean(); // Optional: Convert Mongoose document to plain JS object
+
+        // Calculate unpaid months and pending rent amount
+        const today = new Date();
+        const joinDate = new Date(student.joinDate);
+        const joinDay = joinDate.getDate(); // Get the exact join day
+
+        let unpaidMonths = 0;
+        let advanceBalance = latestPayment ? latestPayment.advanceBalance || 0 : 0;
+        let waveOffAmount = latestPayment ? latestPayment.waveOff || 0 : 0;
+
+        if (latestPayment && latestPayment.paymentClearedMonthYear) {
+          const [clearedMonth, clearedYear] = latestPayment.paymentClearedMonthYear.split(', ');
+          const clearedDate = new Date(`${clearedYear}-${clearedMonth}-01`);
+          clearedDate.setDate(joinDay); // Set to join day
+
+          // Calculate unpaid months
+          unpaidMonths = (today.getFullYear() - clearedDate.getFullYear()) * 12 + (today.getMonth() - clearedDate.getMonth());
+          if (today.getDate() < clearedDate.getDate()) {
+            unpaidMonths--;
+          }
+        } else {
+          // If no cleared payment date, calculate from join date
+          unpaidMonths = (today.getFullYear() - joinDate.getFullYear()) * 12 + (today.getMonth() - joinDate.getMonth());
+          if (today.getDate() < joinDate.getDate()) {
+            unpaidMonths--;
+          }
+        }
+
+        // Calculate total rent due
+        const monthlyRent = student.monthlyRent || 0;
+        const totalRentDue = unpaidMonths * monthlyRent;
+
+        // Calculate pending rent amount
+        let pendingRentAmount = totalRentDue + (latestPayment ? latestPayment.pendingBalance || 0 : 0) - waveOffAmount - advanceBalance;
+
+        // Adjust values for negative pending rent
+        if (pendingRentAmount < 0) {
+          advanceBalance = Math.abs(pendingRentAmount);
+          pendingRentAmount = 0;
+        } else {
+          advanceBalance = 0;
+        }
 
         return {
           studentId: student.studentId,
           name: student.name,
-          rentAmount:student.rentAmout,
-          paymentClearedMonthYear: student.paymentClearedMonthYear,
-          lastPaidDate: student.paymentDate,
-          latestPayment: latestPayment || null, // Include null if no payments found
+          monthlyRent,
+          unpaidMonths,
+          pendingRentAmount,
+          advanceBalance,
+          waveOffAmount,
+          lastPaidDate: latestPayment ? latestPayment.paymentDate : null,
+          paymentClearedMonthYear: latestPayment ? latestPayment.paymentClearedMonthYear : null,
         };
       })
     );
@@ -162,6 +213,7 @@ const getPendingPayments = async (req, res) => {
     res.status(500).json({ message: 'Error fetching pending payments', error });
   }
 };
+
 
 
 const getWaveOffPayments = async (req, res) => {

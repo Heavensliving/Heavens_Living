@@ -1,41 +1,53 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
-import { useSelector } from 'react-redux';
-import API_BASE_URL from '../../config';
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
+import API_BASE_URL from "../../config";
 
 const ExpenseForm = () => {
   const admin = useSelector((store) => store.auth.admin);
-
   const [formData, setFormData] = useState({
-    title: '',
-    type: '',
-    category: '',
-    otherReason: '',
-    paymentMethod: '',
-    transactionId: '',
-    amount: '',
-    date: '',
-    propertyName: '',
-    propertyId: '',
+    title: "",
+    type: "",
+    category: "",
+    otherReason: "",
+    paymentMethod: "",
+    transactionId: "",
+    amount: "",
+    date: "",
+    propertyName: "",
+    propertyId: "",
+    staff: "",
   });
 
   const [properties, setProperties] = useState([]);
+  const [staffMembers, setStaffMembers] = useState([]);
 
   useEffect(() => {
-    // Fetch property names from the backend
     const fetchProperties = async () => {
       try {
         const response = await axios.get(`${API_BASE_URL}/property`, {
           headers: { Authorization: `Bearer ${admin.token}` },
         });
-        setProperties(response.data); // Assuming the API returns an array of properties
+        setProperties(response.data);
       } catch (error) {
-        console.error('Error fetching properties:', error);
+        console.error("Error fetching properties:", error);
+      }
+    };
+
+    const fetchStaffMembers = async () => {
+      try {
+        const response = await axios.get(`${API_BASE_URL}/staff`, {
+          headers: { Authorization: `Bearer ${admin.token}` },
+        });
+        setStaffMembers(response.data);
+      } catch (err) {
+        console.error("Error fetching staff members:", err);
       }
     };
 
     fetchProperties();
+    fetchStaffMembers();
   }, [admin.token]);
 
   const navigate = useNavigate();
@@ -49,6 +61,7 @@ const ExpenseForm = () => {
   };
 
   const handleSubmit = async (e) => {
+    console.log(formData)
     e.preventDefault();
     try {
       const response = await axios.post(
@@ -58,172 +71,156 @@ const ExpenseForm = () => {
           headers: { Authorization: `Bearer ${admin.token}` },
         }
       );
-      console.log('Expense added:', response.data);
-      navigate('/expenses');
+      console.log("Expense added:", response.data);
+      navigate("/expenses");
     } catch (error) {
-      console.error('Error adding expense:', error);
-      if (error.response && error.response.data) {
-        alert(`Failed to add expense: ${error.response.data.error}`);
-      } else {
-        alert('Failed to add expense. Please check the input data and try again.');
-      }
+      console.error("Error adding expense:", error);
+      alert(
+        error.response?.data?.error ||
+          "Failed to add expense. Please check the input data and try again."
+      );
     }
   };
 
+  const renderInput = (label, name, type, value, onChange, extraProps = {}) => (
+    <div>
+      <label className="block text-gray-700 mb-2">{label}</label>
+      <input
+        type={type}
+        name={name}
+        value={value}
+        onChange={onChange}
+        className="w-full p-2 border rounded-md"
+        {...extraProps}
+      />
+    </div>
+  );
+
+  const renderSelect = (label, name, value, onChange, options, extraProps = {}) => (
+    <div>
+      <label className="block text-gray-700 mb-2">{label}</label>
+      <select
+        name={name}
+        value={value}
+        onChange={onChange}
+        className="w-full p-2 border rounded-md"
+        {...extraProps}
+      >
+        <option value="" disabled>
+          Select {label.toLowerCase()}
+        </option>
+        {options.map((option, idx) =>
+          typeof option === "object" ? (
+            <option key={idx} value={option.value}>
+              {option.label}
+            </option>
+          ) : (
+            <option key={idx} value={option}>
+              {option}
+            </option>
+          )
+        )}
+      </select>
+    </div>
+  );
+
   return (
     <div className="min-h-screen items-center justify-center bg-gray-100">
-      <div className="bg-white p-6 rounded-md shadow-md w-full max-w-4xl">
+      <div className="bg-white p-6 rounded-md shadow-md w-full">
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Title and Type */}
           <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-gray-700 mb-2">Title</label>
-              <input
-                type="text"
-                name="title"
-                value={formData.title}
-                onChange={handleChange}
-                className="w-full p-2 border rounded-md"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-gray-700 mb-2">Type</label>
-              <input
-                type="text"
-                name="type"
-                value={formData.type}
-                onChange={handleChange}
-                className="w-full p-2 border rounded-md"
-                required
-              />
-            </div>
+            {renderInput("Title", "title", "text", formData.title, handleChange, { required: true })}
+            {renderInput("Type", "type", "text", formData.type, handleChange, { required: true })}
           </div>
 
           {/* Category and Payment Method */}
-          <div className="grid grid-cols-2 gap-4 mb-4">
-            <div>
-              <label className="block text-gray-700 mb-2">Category</label>
-              <select
-                name="category"
-                value={formData.category}
-                onChange={handleChange}
-                className="w-full p-2 border rounded-md"
-                required
-              >
-                <option value="" disabled>
-                  Select a category
-                </option>
-                <option value="Salary">Salary</option>
-                <option value="Grocery">Grocery</option>
-                <option value="Vehicle">Vehicle</option>
-                <option value="Cafe">Cafe</option>
-                <option value="Others">Others</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-gray-700 mb-2">Payment Method</label>
-              <input
-                type="text"
-                name="paymentMethod"
-                value={formData.paymentMethod}
-                onChange={handleChange}
-                className="w-full p-2 border rounded-md"
-                required
-              />
-            </div>
+          <div className="grid grid-cols-2 gap-4">
+            {renderSelect(
+              "Category",
+              "category",
+              formData.category,
+              handleChange,
+              ["Salary", "Grocery", "Vehicle", "Cafe", "Others"],
+              { required: true }
+            )}
+            {renderInput(
+              "Payment Method",
+              "paymentMethod",
+              "text",
+              formData.paymentMethod,
+              handleChange,
+              { required: true }
+            )}
           </div>
 
+          {/* Conditionally Render Staff Member Dropdown */}
+          {formData.category === "Salary" && (
+            <div>
+              {renderSelect(
+                "Staff Member",
+                "staff",
+                formData.staff,
+                handleChange,
+                staffMembers.map((staff) => ({
+                  value: staff._id,
+                  label: staff.Name,
+                })),
+                { required: true }
+              )}
+            </div>
+          )}
+
           {/* Amount and Date */}
-          <div className="grid grid-cols-2 gap-4 mb-4">
-            <div>
-              <label className="block text-gray-700 mb-2">Amount</label>
-              <input
-                type="number"
-                name="amount"
-                value={formData.amount}
-                onChange={handleChange}
-                className="w-full p-2 border rounded-md"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-gray-700 mb-2">Date</label>
-              <input
-                type="date"
-                name="date"
-                value={formData.date}
-                onChange={handleChange}
-                className="w-full p-2 border rounded-md"
-                required
-              />
-            </div>
+          <div className="grid grid-cols-2 gap-4">
+            {renderInput("Amount", "amount", "number", formData.amount, handleChange, {
+              required: true,
+            })}
+            {renderInput("Date", "date", "date", formData.date, handleChange, { required: true })}
           </div>
 
           {/* Other Reason and Transaction ID */}
-          <div className="grid grid-cols-2 gap-4 mb-4">
-            <div>
-              <label className="block text-gray-700 mb-2">Other Reason</label>
-              <input
-                type="text"
-                name="otherReason"
-                value={formData.otherReason}
-                onChange={handleChange}
-                className="w-full p-2 border rounded-md"
-              />
-            </div>
-            <div>
-              <label className="block text-gray-700 mb-2">Transaction ID</label>
-              <input
-                type="text"
-                name="transactionId"
-                value={formData.transactionId}
-                onChange={handleChange}
-                className="w-full p-2 border rounded-md"
-              />
-            </div>
+          <div className="grid grid-cols-2 gap-4">
+            {renderInput("Other Reason", "otherReason", "text", formData.otherReason, handleChange)}
+            {renderInput(
+              "Transaction ID",
+              "transactionId",
+              "text",
+              formData.transactionId,
+              handleChange
+            )}
           </div>
 
           {/* Property Name and Property ID */}
-          <div className="grid grid-cols-2 gap-4 mb-4">
-            <div>
-              <label className="block text-gray-700 mb-2">Property Name</label>
-              <select
-                name="propertyName"
-                value={formData.propertyName}
-                onChange={(e) => {
-                  const selectedProperty = properties.find(
-                    (property) => property.propertyName === e.target.value
-                  );
-                  setFormData((prevData) => ({
-                    ...prevData,
-                    propertyName: e.target.value,
-                    propertyId: selectedProperty?.propertyId || '',
-                  }));
-                }}
-                className="w-full p-2 border rounded-md"
-                required
-              >
-                <option value="" disabled>
-                  Select Property
-                </option>
-                {properties.map((property) => (
-                  <option key={property._id} value={property.propertyName}>
-                    {property.propertyName}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="block text-gray-700 mb-2">Property ID</label>
-              <input
-                type="text"
-                name="propertyId"
-                value={formData.propertyId}
-                className="w-full p-2 border rounded-md bg-gray-100"
-                readOnly
-              />
-            </div>
+          <div className="grid grid-cols-2 gap-4">
+            {renderSelect(
+              "Property Name",
+              "propertyName",
+              formData.propertyName,
+              (e) => {
+                const selectedProperty = properties.find(
+                  (property) => property.propertyName === e.target.value
+                );
+                setFormData((prevData) => ({
+                  ...prevData,
+                  propertyName: e.target.value,
+                  propertyId: selectedProperty?.propertyId || "",
+                }));
+              },
+              properties.map((property) => ({
+                value: property.propertyName,
+                label: property.propertyName,
+              })),
+              { required: true }
+            )}
+            {renderInput(
+              "Property ID",
+              "propertyId",
+              "text",
+              formData.propertyId,
+              null,
+              { readOnly: true, className: "bg-gray-100" }
+            )}
           </div>
 
           <button

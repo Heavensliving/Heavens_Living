@@ -138,7 +138,6 @@ const StaffDetails = () => {
               <h3 className="text-lg font-semibold mb-4 text-gray-700">Payment Information</h3>
               <div className="space-y-4">
                 <InfoItem icon={FaMoneyBill} label="Salary" value={`₹${staffData.salary}`} />
-                <InfoItem icon={FaCalendarAlt} label="Payment Date" value={staffData.paymentDate} />
                 <InfoItem icon={FaClock} label="Pay Schedule" value={staffData.paySchedule} />
               </div>
             </div>

@@ -51,10 +51,10 @@ const PendingPaymentsPage = () => {
               <tr>
                 <th className="py-3 px-4 border text-left text-sm">Name</th>
                 <th className="py-3 px-4 border text-left text-sm">Student ID</th>
-                <th className="py-3 px-4 border text-left text-sm">Last Rent Cleared Month</th>
-                <th className="py-3 px-4 border text-left text-sm">Paid Date</th>
                 <th className="py-3 px-4 border text-left text-sm">Rent Amount</th>
-                <th className="py-3 px-4 border text-left text-sm">Total Amount</th>
+                <th className="py-3 px-4 border text-left text-sm">Last Paid Date</th>
+                <th className="py-3 px-4 border text-left text-sm">Rent Cleared Month</th>
+                <th className="py-3 px-4 border text-left text-sm">Total Amount To Pay</th>
               </tr>
             </thead>
             <tbody>
@@ -65,10 +65,10 @@ const PendingPaymentsPage = () => {
                 >
                   <td className="py-2 px-4 border text-sm">{payment.name || "N/A"}</td>
                   <td className="py-2 px-4 border text-sm">{payment.studentId || "N/A"}</td>
+                  <td className="py-2 px-4 border text-sm">{payment.monthlyRent || "N/A"}</td>
+                  <td className="py-2 px-4 border text-sm">{new Date(payment.lastPaidDate).toLocaleDateString()  || "N/A"}</td>
                   <td className="py-2 px-4 border text-sm">{payment.paymentClearedMonthYear || "N/A"}</td>
-                  <td className="py-2 px-4 border text-sm">{payment.lastPaidDate || "N/A"}</td>
-                  <td className="py-2 px-4 border text-sm">₹{payment.rentAmount || "N/A"}</td>
-                  <td className="py-2 px-4 border text-sm">₹{payment.totalAmount || "N/A"}</td>
+                  <td className="py-2 px-4 border text-sm">{payment.pendingRentAmount || "N/A"}</td>
                 </tr>
               ))}
             </tbody>

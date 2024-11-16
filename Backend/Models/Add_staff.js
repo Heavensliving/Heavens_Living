@@ -19,6 +19,7 @@ const staffSchema = new mongoose.Schema({
   branch: {type: String, required: true},
   phase: {type: String, required: true},
   propertyName: {type: String, required: true},
+  salaryPayments: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Expense' }],
   property: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Property'

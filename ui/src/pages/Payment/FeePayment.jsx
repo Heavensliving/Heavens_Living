@@ -107,7 +107,6 @@ const FeePayment = () => {
     }
   }, [waveOffAmount, paymentData.pendingRentAmount]);
 
-
   const handleSubmit = async (e) => {
     e.preventDefault();
 

@@ -1,18 +1,18 @@
 const Expense = require('../Models/expensePay');
-const Property = require('../Models/Add_property'); // Assuming property model follows same format as in propertyController
+const Property = require('../Models/Add_property');
+const Staff = require('../Models/Add_staff'); 
 
 // Add new expense
 const addExpense = async (req, res) => {
+  console.log(req.body)
   try {
-    const { propertyId } = req.body;
+    const { propertyId, transactionId, category, staff } = req.body;
 
     // Ensure the propertyId exists
     const property = await Property.findOne({ propertyId });
     if (!property) {
       return res.status(400).json({ error: 'Invalid property ID' });
     }
-
-    const { transactionId } = req.body;
 
     // Check if transactionId already exists
     if (transactionId) {
@@ -22,13 +22,28 @@ const addExpense = async (req, res) => {
       }
     }
 
+    // Create the new expense
     const expense = new Expense(req.body);
     await expense.save();
+
+    // If category is "salary", update staff's salaryPayments array
+    if (category.toLowerCase() === 'salary') {    
+      const staffData = await Staff.findByIdAndUpdate(staff, { $push: { salaryPayments: expense._id } });
+      if (!staff) {
+        return res.status(400).json({ error: 'Invalid Staff ID' });
+      }
+      
+      if (!staffData) {
+        return res.status(400).json({ error: 'Staff ID is required for salary payments' });
+      }
+    }
     res.status(201).json({ expense, id: expense._id });
   } catch (error) {
+    console.error(error);
     res.status(400).json({ error: 'Error adding expense' });
   }
 };
+
 
 // Get total expense
 const getTotalExpense = async (req, res) => {
