@@ -51,87 +51,98 @@ const CommissionForm = () => {
   };
 
   return (
-    <div className="p-6 bg-gray-100 min-h-screen flex items-center justify-center">
-      <div className="bg-white rounded-md shadow-md p-4 max-w-md w-full">
-        {message && <p className="text-green-500">{message}</p>}
-        <form onSubmit={handleSubmit}>
-          <div className="mb-4">
-            <label className="block text-gray-700">Agent Name</label>
-            <input
-              type="text"
-              value={agentName}
-              onChange={(e) => setAgentName(e.target.value)}
-              required
-              className="mt-1 p-2 border border-gray-300 rounded w-full"
-            />
-          </div>
-          <div className="mb-4">
-            <label className="block text-gray-700">Amount</label>
-            <input
-              type="number"
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
-              required
-              className="mt-1 p-2 border border-gray-300 rounded w-full"
-            />
-          </div>
-          <div className="mb-4">
-            <label className="block text-gray-700">Note</label>
-            <textarea
-              value={note}
-              onChange={(e) => setNote(e.target.value)}
-              className="mt-1 p-2 border border-gray-300 rounded w-full"
-            ></textarea>
-          </div>
-          <div className="mb-4">
-            <label className="block text-gray-700">Payment Type</label>
-            <input
-              type="text"
-              value={paymentType}
-              onChange={(e) => setPaymentType(e.target.value)}
-              required
-              className="mt-1 p-2 border border-gray-300 rounded w-full"
-            />
-          </div>
-          <div className="mb-4">
-            <label className="block text-gray-700">Transaction ID</label>
-            <input
-              type="text"
-              value={transactionId}
-              onChange={(e) => setTransactionId(e.target.value)}
-              className="mt-1 p-2 border border-gray-300 rounded w-full"
-            />
-          </div>
-          <div className="mb-4">
-            <label className="block text-gray-700">Property ID</label>
-            <input
-              type="text"
-              value={propertyId}
-              onChange={(e) => setPropertyId(e.target.value)}
-              required
-              className="mt-1 p-2 border border-gray-300 rounded w-full"
-            />
-          </div>
-          <div className="mb-4">
-            <label className="block text-gray-700">Property Name</label>
-            <input
-              type="text"
-              value={propertyName}
-              onChange={(e) => setPropertyName(e.target.value)}
-              required
-              className="mt-1 p-2 border border-gray-300 rounded w-full"
-            />
-          </div>
-          <button
-            type="submit"
-            className="bg-blue-500 text-white p-2 rounded w-full"
-          >
-            Add Commission
-          </button>
-        </form>
+    <div className="min-h-screen items-center justify-center bg-gray-100">
+  <div className="bg-white p-6 rounded-md shadow-md w-full">
+    {message && (
+      <p className="mb-4 text-center text-sm text-green-600 bg-green-100 p-2 rounded-md">
+        {message}
+      </p>
+    )}
+   
+    <form onSubmit={handleSubmit} className="grid grid-cols-2 gap-6">
+      <div>
+        <label className="block text-sm font-medium text-gray-700">
+          Agent Name
+        </label>
+        <input
+          type="text"
+          value={agentName}
+          onChange={(e) => setAgentName(e.target.value)}
+          required
+          className="mt-1 p-3 border border-gray-300 rounded-md w-full focus:ring-blue-500 focus:border-blue-500"
+          placeholder="Enter agent name"
+        />
       </div>
-    </div>
-  );
-};
+      <div>
+        <label className="block text-sm font-medium text-gray-700">
+          Amount
+        </label>
+        <input
+          type="number"
+          value={amount}
+          onChange={(e) => setAmount(e.target.value)}
+          required
+          className="mt-1 p-3 border border-gray-300 rounded-md w-full focus:ring-blue-500 focus:border-blue-500"
+          placeholder="Enter amount"
+        />
+      </div>
+      <div>
+        <label className="block text-sm font-medium text-gray-700">Note</label>
+        <textarea
+          value={note}
+          onChange={(e) => setNote(e.target.value)}
+          className="mt-1 p-3 border border-gray-300 rounded-md w-full focus:ring-blue-500 focus:border-blue-500"
+          rows="4"
+          placeholder="Add a note (optional)"
+        ></textarea>
+      </div>
+      <div>
+        <label className="block text-sm font-medium text-gray-700">
+          Payment Type
+        </label>
+        <input
+          type="text"
+          value={paymentType}
+          onChange={(e) => setPaymentType(e.target.value)}
+          required
+          className="mt-1 p-3 border border-gray-300 rounded-md w-full focus:ring-blue-500 focus:border-blue-500"
+          placeholder="Enter payment type"
+        />
+      </div>
+      <div>
+        <label className="block text-sm font-medium text-gray-700">
+          Transaction ID
+        </label>
+        <input
+          type="text"
+          value={transactionId}
+          onChange={(e) => setTransactionId(e.target.value)}
+          className="mt-1 p-3 border border-gray-300 rounded-md w-full focus:ring-blue-500 focus:border-blue-500"
+          placeholder="Enter transaction ID (optional)"
+        />
+      </div>
+      <div>
+        <label className="block text-sm font-medium text-gray-700">
+          Property Name
+        </label>
+        <input
+          type="text"
+          value={propertyName}
+          onChange={(e) => setPropertyName(e.target.value)}
+          required
+          className="mt-1 p-3 border border-gray-300 rounded-md w-full focus:ring-blue-500 focus:border-blue-500"
+          placeholder="Enter property name"
+        />
+      </div>
+      <button
+        type="submit"
+        className="bg-blue-600 hover:bg-blue-700 text-white text-lg font-medium p-3 rounded-md w-full transition duration-300"
+      >
+        Add Commission
+      </button>
+    </form>
+  </div>
+</div>
 
+  )}
 export default CommissionForm;

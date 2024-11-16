@@ -21,7 +21,7 @@ const WaveOffPaymentsPage = () => {
         setWaveOffPayments(response.data);
         setFilteredPayments(response.data); // Initialize filtered data
       } catch (error) {
-        setError('Error fetching payments with wave-off amounts');
+        <p>no data found</p>
       } finally {
         setLoading(false);
       }
@@ -51,57 +51,60 @@ const WaveOffPaymentsPage = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="mb-4">
-        <input
-          type="text"
-          placeholder="Search by name, student ID, hostel name, or transaction ID"
-          value={searchTerm}
-          onChange={handleSearch}
-          className="w-full p-2 border rounded shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-      </div>
-
-      {waveOffPayments.length === 0 ? (
-        <p className="text-center text-gray-600">No data found.</p>
-      ) : filteredPayments.length === 0 ? (
-        <p className="text-center text-gray-600">No matching payments found.</p>
-      ) : (
+  
+      <div className="container mx-auto px-4 py-8">
+        
+        <div className="mb-4">
+          <input
+            type="text"
+            placeholder="Search by name, student ID, hostel name, or transaction ID"
+            value={searchTerm}
+            onChange={handleSearch}
+            className="w-full p-2 border rounded shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+        
+    
         <div className="overflow-x-auto">
           <table className="min-w-full bg-white border border-gray-300">
             <thead className="bg-gray-200">
               <tr>
                 <th className="px-4 py-2 border">Name</th>
                 <th className="px-4 py-2 border">Student ID</th>
-                <th className="px-4 py-2 border">Hostel Name</th>
                 <th className="px-4 py-2 border">Transaction ID</th>
                 <th className="px-4 py-2 border">Month/Year</th>
                 <th className="px-4 py-2 border">Paid Date</th>
                 <th className="px-4 py-2 border">Rent Amount</th>
                 <th className="px-4 py-2 border">Wave-Off Amount</th>
-                <th className="px-4 py-2 border">Total Amount</th>
               </tr>
             </thead>
             <tbody>
-              {filteredPayments.map((payment) => (
-                <tr key={payment._id} className="odd:bg-white even:bg-gray-50">
-                  <td className="px-4 py-2 border">{payment.name}</td>
-                  <td className="px-4 py-2 border">{payment.studentId}</td>
-                  <td className="px-4 py-2 border">{payment.hostelName}</td>
-                  <td className="px-4 py-2 border">{payment.transactionId}</td>
-                  <td className="px-4 py-2 border">{payment.monthYear}</td>
-                  <td className="px-4 py-2 border">{payment.paidDate}</td>
-                  <td className="px-4 py-2 border">{payment.rentAmount}</td>
-                  <td className="px-4 py-2 border">{payment.waveOff}</td>
-                  <td className="px-4 py-2 border">{payment.totalAmount}</td>
+              {filteredPayments.length === 0 ? (
+                <tr>
+                  <td
+                    colSpan="7"
+                    className="text-center px-4 py-2 text-gray-600"
+                  >
+                    No wave-off payments found.
+                  </td>
                 </tr>
-              ))}
+              ) : (
+                filteredPayments.map((payment) => (
+                  <tr key={payment._id} className="odd:bg-white even:bg-gray-50">
+                    <td className="px-4 py-2 border">{payment.name}</td>
+                    <td className="px-4 py-2 border">{payment.studentId}</td>
+                    <td className="px-4 py-2 border">{payment.transactionId}</td>
+                    <td className="px-4 py-2 border">{payment.paymentClearedMonthYear}</td>
+                    <td className="px-4 py-2 border">{payment.paymentDate}</td>
+                    <td className="px-4 py-2 border">{payment.rentAmount}</td>
+                    <td className="px-4 py-2 border">{payment.waveOff}</td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
-      )}
-    </div>
-  );
-};
-
+      </div>
+    );
+  }    
 export default WaveOffPaymentsPage;
