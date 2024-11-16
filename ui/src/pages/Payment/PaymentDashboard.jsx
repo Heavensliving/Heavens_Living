@@ -7,6 +7,7 @@ import API_BASE_URL from "../../config";
 const PaymentDashboard = () => {
   const admin = useSelector(store => store.auth.admin);
   const [transactions, setTransactions] = useState([]);
+  const [totalSalary,setTotalSalary] = useState();
   const [totalReceived, setTotalReceived] = useState(0);
   const [totalMonthlyRent, setTotalMonthlyRent] = useState(0);
   const [totalExpense, setTotalExpense] = useState(0);
