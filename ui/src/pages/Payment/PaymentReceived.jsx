@@ -169,7 +169,7 @@ const PaymentReceived = () => {
                 <td className="py-2 px-4 border">{index + 1}</td>
                 <td className="py-2 px-4 border">{transaction.name || 'N/A'}</td>
                 <td className="py-2 px-4 border">{transaction.studentId || 'N/A'}</td>
-                <td className="py-2 px-4 border">{transaction.rentAmount || 'N/A'}</td>
+                <td className="py-2 px-4 border">{transaction.monthlyRent || 'N/A'}</td>
                 <td className="py-2 px-4 border">{transaction.paymentDate ? new Date(transaction.paymentDate).toLocaleDateString() : 'N/A'}</td>
                 <td className="py-2 px-4 border">{transaction.transactionId || 'N/A'}</td>
                 <td className="py-2 px-4 border">{transaction.amountPaid || 'N/A'}</td>

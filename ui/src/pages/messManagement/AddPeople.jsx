@@ -621,7 +621,7 @@ function AddPeople() {
 
           {/* Submit Button */}
           <div className="mt-6">
-            <button type="submit" className="w-full py-3 px-4 bg-blue-500 text-white rounded-lg">
+            <button type="submit" className="w-full py-3 px-4 bg-green-500 text-white rounded-lg">
               Submit
             </button>
             {apiError && <p className="text-red-500 text-center mt-2">{apiError}</p>}
