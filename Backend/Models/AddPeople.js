@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 
 const peopleSchema = new mongoose.Schema({
+  studentId: { type: String, unique: true, required: true },
   name: {  
     type: String,  
     required: true  
@@ -18,7 +19,7 @@ const peopleSchema = new mongoose.Schema({
     enum: ['Breakfast', 'Lunch', 'Dinner', 'Whole Meal'],  
     required: true  
   },
-  monthlyAmount: {
+  monthlyRent: {
     type: Number,
     required:true
   },  
@@ -55,7 +56,8 @@ const peopleSchema = new mongoose.Schema({
   property: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Property'
-}
+},
+payments: [{ type: mongoose.Schema.Types.ObjectId, ref: 'FeePayment' }],  
 }); 
 
 const peopleModel = mongoose.model('peopleModel', peopleSchema);

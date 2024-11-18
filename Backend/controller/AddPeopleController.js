@@ -3,16 +3,23 @@ const peopleModel = require('../Models/AddPeople');
 const moment = require('moment');
 const mongoose = require('mongoose');
 const Property = require('../Models/Add_property');
+const crypto = require('crypto');
+
+const generateStudentId = () => {
+  const randomNumber = crypto.randomInt(1000, 100000);
+  return `HVNMP${randomNumber}`;
+};
 
 // Add a new person
 const addPeople = async (req, res) => {
   console.log("req.body", req.body)
   try {
-  
     const { password } = req.body; 
     console.log("password",password)
+    const studentId = generateStudentId();
+    console.log(studentId)
     const hashedPassword = await bcrypt.hash(password, 10); // Hash the password
-    const newPerson = new peopleModel({ ...req.body, password: hashedPassword }); 
+    const newPerson = new peopleModel({ ...req.body, password: hashedPassword, studentId }); 
     const propertyId = newPerson.propertyId
     console.log("newPerson",newPerson);
 

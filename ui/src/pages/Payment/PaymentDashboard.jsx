@@ -6,14 +6,16 @@ import API_BASE_URL from "../../config";
 
 const PaymentDashboard = () => {
   const admin = useSelector(store => store.auth.admin);
-  const [transactions, setTransactions] = useState([]);
+  // const [transactions, setTransactions] = useState([]);
   const [totalReceived, setTotalReceived] = useState(0);
+  const [totalReceivedMess, setTotalReceivedMess] = useState(0);
   const [totalMonthlyRent, setTotalMonthlyRent] = useState(0);
+  const [totalMonthlyRentMess, setTotalMonthlyRentMess] = useState(0);
   const [totalExpense, setTotalExpense] = useState(0);
   const [totalCommission, setTotalCommission] = useState(0);
   const [showModal, setShowModal] = useState(false);
   const navigate = useNavigate();
-  
+
   const openModal = () => setShowModal(true);
   const closeModal = () => setShowModal(false);
 
@@ -23,13 +25,18 @@ const PaymentDashboard = () => {
         const feeResponse = await axios.get(`${API_BASE_URL}/fee`, {
           headers: { Authorization: `Bearer ${admin.token}` },
         });
-        setTransactions(feeResponse.data);
-
         const totalAmount = feeResponse.data.reduce(
           (acc, transaction) => acc + (transaction.amountPaid || 0),
           0
         );
-        setTotalReceived(totalAmount);
+        const messPeopleTransactions = feeResponse.data.filter((transaction) => transaction.messPeople);
+
+        const messPeopleTotal = messPeopleTransactions.reduce(
+          (acc, transaction) => acc + (transaction.amountPaid || 0),
+          0
+        );
+        setTotalReceived(totalAmount-messPeopleTotal);
+        setTotalReceivedMess(messPeopleTotal);
       } catch (error) {
         console.error("Error fetching fee totals:", error);
       }
@@ -68,7 +75,8 @@ const PaymentDashboard = () => {
         const rentResponse = await axios.get(`${API_BASE_URL}/fee/totalMonthlyRent`, {
           headers: { Authorization: `Bearer ${admin.token}` },
         });
-        setTotalMonthlyRent(rentResponse.data.totalMonthlyRent);
+        setTotalMonthlyRent(rentResponse.data.totalMonthlyRentStudents);
+        setTotalMonthlyRentMess(rentResponse.data.totalMonthlyRentMess);
       } catch (error) {
         console.error("Error fetching total monthly rent:", error);
       }
@@ -82,8 +90,8 @@ const PaymentDashboard = () => {
 
   const paymentPending = totalMonthlyRent - totalReceived;
   const paymentPendingDisplay = paymentPending < 0 ? 0 : paymentPending;
-
-
+  const paymentPendingMess = totalMonthlyRentMess - totalReceivedMess;
+  const paymentPendingDisplayMess = paymentPendingMess < 0 ? 0 : paymentPendingMess;
 
   const handlePaymentOption = (option) => {
     closeModal();
@@ -142,6 +150,30 @@ const PaymentDashboard = () => {
             <p>Payment Pending</p>
           </div>
           <div
+            className="p-4 bg-yellow-100 text-yellow-500 rounded-md cursor-pointer"
+            onClick={() => navigate("/expenses")}
+          >
+            <p className="text-lg font-semibold">₹{totalMonthlyRentMess}</p>
+             <p>Monthly Rent</p>
+             <span>(Mess Only)</span>
+          </div>
+          <div
+            className="p-4 bg-green-100 text-green-500 rounded-md cursor-pointer"
+            onClick={() => navigate("/paymentReceived")}
+          >
+            <p className="text-lg font-semibold">₹{totalReceivedMess || 0}</p>
+            <p>Payment Received</p>
+            <span>(Mess Only)</span>
+          </div>
+          <div
+            className="p-4 bg-red-100 text-red-500 rounded-md cursor-pointer"
+            onClick={() => navigate("/waveoff")}
+          >
+            <p className="text-lg font-semibold">₹{paymentPendingDisplayMess || 0}</p>
+            <p>Payment Pending</p>
+            <span>(Mess Only)</span>
+          </div>
+          <div
             className="p-4 bg-violet-100 text-violet-500 rounded-md cursor-pointer"
             onClick={() => navigate("/expenses")}
           >
@@ -165,8 +197,8 @@ const PaymentDashboard = () => {
         </div>
       </div>
 
-     {/* Modal */}
-     {showModal && (
+      {/* Modal */}
+      {showModal && (
         <div className="fixed inset-0 ml-60 z-50 bg-black bg-opacity-50 flex items-center justify-center">
           <div className="bg-white rounded-lg shadow-lg w-96 p-6 relative">
             {/* Close Icon */}

@@ -167,8 +167,7 @@ function AddFood() {
           dayOfWeek: selectedDay,
         };
         // Call the API to delete all food items for the selected day
-        const response = await axios.delete(`${API_BASE_URL}/mess/deleteMealPlan/${selectedDay}`, { data: requestBody },
-          {headers: { 'Authorization': `Bearer ${admin.token}` }}
+        const response = await axios.delete(`${API_BASE_URL}/mess/deleteMealPlan/${selectedDay}`, { data: requestBody, headers: { 'Authorization': `Bearer ${admin.token}` } },
         )
         // Clear the menu for the selected day in local state
         setMenus((prevMenus) => ({

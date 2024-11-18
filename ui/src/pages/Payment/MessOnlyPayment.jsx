@@ -25,112 +25,34 @@ const MessOnlyPayment = () => {
     const admin = useSelector(store => store.auth.admin);
     const navigate = useNavigate();
 
-    // Function to generate month/year options
-    const generateMonthYearOptions = () => {
-        const options = [];
-        const currentDate = new Date();
-
-        // Generate the past 12 months
-        for (let i = 0; i < 12; i++) {
-            const month = currentDate.getMonth() - i;
-            const year = currentDate.getFullYear() + Math.floor(month / 12); // Adjust year when going back over December
-            const adjustedDate = new Date(year, (month + 12) % 12); // Correct month for each iteration
-
-            // Format month as full name and year as YYYY
-            const formattedMonth = adjustedDate.toLocaleString('default', { month: 'long' });
-            const formattedYear = adjustedDate.getFullYear();
-
-            options.push({
-                label: `${formattedMonth}, ${formattedYear}`, // Format as "November, 2024"
-                value: `${formattedMonth}, ${formattedYear}`,
-            });
-        }
-        setMonthYearOptions(options);
-    };
-    useEffect(() => {
-        generateMonthYearOptions();
-    }, []);
-
-    const [formData, setFormData] = useState('');
     const [studentId, setStudentId] = useState('');
-    const [paymentData, setPaymentData] = useState('');
-    const [totalAmountToPay, setTotalAmountToPay] = useState('');
-    const [monthYearOptions, setMonthYearOptions] = useState([]);
     const [paymentMode, setPaymentMode] = useState('');
-    const [waveOffAmount, setWaveOffAmount] = useState('');
-    const [waveOffReason, setWaveOffReason] = useState('');
     const [payingAmount, setPayingAmount] = useState('');
     const [transactionId, setTransactionId] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
     const [paidDate, setPaidDate] = useState('');
-    const [monthYear, setMonthYear] = useState('');
-    const [isStudentDataFetched, setIsStudentDataFetched] = useState(false);
-
-    const handleStudentIdChange = (e) => {
-        setFormData({ studentId: e.target.value });
-    };
-
-    const fetchStudentData = async () => {
-        if (!formData.studentId) {
-            setErrorMessage("Please enter a valid student ID.");
-            setTimeout(() => {
-                // setFormData(initialFormData);
-                setErrorMessage('');
-            }, 2000);
-            return;
-        }
-
-        const studentId = `HVNS${formData.studentId}`;
-        setStudentId(studentId)
-        try {
-            const response = await axios.get(`${API_BASE_URL}/students/studentId/${studentId}`,
-                { headers: { 'Authorization': `Bearer ${admin.token}` } }
-            );
-            setPaymentData(response.data)
-            setErrorMessage('');
-            setIsStudentDataFetched(true);
-        } catch (error) {
-            console.error("Error fetching student data:", error);
-            setErrorMessage("Student not found. Please check the Student ID.");
-            setTimeout(() => {
-                setErrorMessage('');
-            }, 2000);
-            setIsStudentDataFetched(false);
-        }
-    };
-
-    // Dynamically update total amount to pay when waveOffAmount changes
-    useEffect(() => {
-        if (paymentData.pendingRentAmount !== undefined) {
-            const newTotal = Math.max(paymentData.pendingRentAmount - waveOffAmount, 0);
-            setTotalAmountToPay(newTotal);
-        }
-    }, [waveOffAmount, paymentData.pendingRentAmount]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        // Construct formData with all necessary fields
         const comprehensiveFormData = {
-            ...paymentData, // Includes fetched student details like name, pgName, etc.
-            studentId,
-            waveOffAmount,
-            waveOffReason,
+            studentId: studentId,
             payingAmount,
             transactionId,
             paidDate,
-            feeClearedMonthYear: monthYear, // The selected month/year
-            totalAmountToPay,
+            payingAmount,
             paymentMode,
+            isMessPayment: true,
         };
 
         try {
             console.log(comprehensiveFormData); // Log to verify all data is present
             await axios.post(`${API_BASE_URL}/fee/add`, comprehensiveFormData,
-                { headers: { 'Authorization': `Bearer ${admin.token}` } }
+                { headers: { 'Authorization': `Bearer ${admin.token}`} }
             );
             navigate('/payments');
         } catch (error) {
+            setErrorMessage(error)
             console.error("Error recording fee payment:", error);
         }
     };
@@ -146,7 +68,7 @@ const MessOnlyPayment = () => {
                 <form onSubmit={handleSubmit}>
                 <div className="flex flex-wrap -mx-2">
                         <h1 className="w-full text-lg font-semibold mt-4 text-center mb-4">Make Payment</h1>
-                        <InputField label="Enter Id" name="id" type="text" value={waveOffAmount} onChange={(e) => setWaveOffAmount(e.target.value)} />
+                        <InputField label="Enter Id" name="id" type="text" value={studentId} onChange={(e) => setStudentId(e.target.value)} />
                         <InputField label="Amount Paying" name="payingAmount" type="number" value={payingAmount} onChange={(e) => setPayingAmount(e.target.value)} />
                         <div className="w-full md:w-1/2 px-2 mb-4">
                             <label className="block text-gray-700 mb-2">Payment Mode</label>

@@ -40,10 +40,10 @@ function AddOns() {
     const newStatus = currentStatus ? 'unavailable' : 'available';
 
     try {
-      await axios.put(`${API_BASE_URL}/adOn/${productId}/status`, {
-        status: newStatus,
-        headers: { 'Authorization': `Bearer ${admin.token}` }
-      });
+      await axios.put(`${API_BASE_URL}/adOn/${productId}/status`, 
+        {status: newStatus},
+        {headers: { 'Authorization': `Bearer ${admin.token}` }},
+      );
 
       setIsToggled((prevState) => ({
         ...prevState,

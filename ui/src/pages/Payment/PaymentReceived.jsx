@@ -16,9 +16,9 @@ const PaymentReceived = () => {
     const fetchTransactions = async () => {
       try {
         const response = await axios.get(`${API_BASE_URL}/fee`,
-          {headers: { 'Authorization': `Bearer ${admin.token}` }}
+          { headers: { 'Authorization': `Bearer ${admin.token}` } }
         );
-        setTransactions(response.data);
+        setTransactions(response.data.reverse());
         console.log(response.data)
       } catch (error) {
         console.error("Error fetching transactions:", error);
@@ -42,7 +42,19 @@ const PaymentReceived = () => {
     return monthMatches && yearMatches;
   });
 
-  const totalAmount = furtherFilteredTransactions.reduce((acc, transaction) => acc + (transaction.amountPaid || 0), 0);
+  const totalAmount = transactions.reduce(
+    (acc, transaction) => acc + (transaction.amountPaid || 0),
+    0
+  );
+  
+  // Filter messPeople transactions
+  const messPeopleTransactions = transactions.filter((transaction) => transaction.messPeople);
+
+  // Calculate total amount paid by messPeople
+  const messPeopleTotal = messPeopleTransactions.reduce(
+    (acc, transaction) => acc + (transaction.amountPaid || 0),
+    0
+  );
 
   const months = Array.from({ length: 12 }, (_, i) => ({
     value: i + 1,
@@ -57,13 +69,13 @@ const PaymentReceived = () => {
 
   const downloadPDF = () => {
     const doc = new jsPDF();
-  
+
     // Header Section
     doc.setFontSize(18);
     doc.text('Payment Report', 14, 20);
     doc.setFontSize(10);
     doc.text('Date: ' + new Date().toLocaleDateString(), 14, 30);
-  
+
     // Add the table
     doc.autoTable({
       startY: 35,
@@ -74,29 +86,29 @@ const PaymentReceived = () => {
         transaction.studentId || 'N/A',
         transaction.transactionId || 'N/A',
         transaction.paidDate ? new Date(transaction.paidDate).toLocaleDateString() : 'N/A',
-        transaction.rentAmount || 'N/A',
+        transaction.monthlyRent || 'N/A',
         transaction.amountPaid || 'N/A',
       ]),
     });
-  
+
     // Calculate the Total Amount
     const totalAmount = furtherFilteredTransactions.reduce((sum, transaction) => {
       return sum + (transaction.amountPaid || 0); // Default to 0 if amountPaid is undefined
     }, 0);
-  
+
     // Add Total Amount Below Table
     const finalY = doc.lastAutoTable.finalY || 0; // Get the Y position after the table
     doc.setFontSize(12);
     doc.text(`Total Amount: Rs.${totalAmount.toFixed(2)}`, 14, finalY + 10);
-  
+
     // Save the PDF
     doc.save('transactions.pdf');
   };
-  
+
 
   return (
     <div className="container mx-auto p-6 bg-gray-100 rounded-lg shadow-lg min-h-screen">
-      <button 
+      <button
         onClick={downloadPDF}
         className="mb-4 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-700"
       >
@@ -143,12 +155,15 @@ const PaymentReceived = () => {
         </div>
       </div>
 
-      <div className="flex justify-between mb-4">
-        <div></div>
+      <div className="flex flex-col items-end mb-4">
         <div className="text-lg font-semibold">
-          Total Amount: <span className="text-gray-700">₹{totalAmount}</span>
+          Total Received: <span className="text-gray-700">₹{totalAmount}</span>
+        </div>
+        <div className="text-lg font-semibold mt-2">
+          Mess Only: <span className="text-gray-700">₹{messPeopleTotal}</span>
         </div>
       </div>
+
 
       <table className="min-w-full bg-white border border-gray-300 rounded-lg shadow-md">
         <thead className="bg-gray-300 text-black">
@@ -169,7 +184,7 @@ const PaymentReceived = () => {
                 <td className="py-2 px-4 border">{index + 1}</td>
                 <td className="py-2 px-4 border">{transaction.name || 'N/A'}</td>
                 <td className="py-2 px-4 border">{transaction.studentId || 'N/A'}</td>
-                <td className="py-2 px-4 border">{transaction.rentAmount || 'N/A'}</td>
+                <td className="py-2 px-4 border">{transaction.monthlyRent || 'N/A'}</td>
                 <td className="py-2 px-4 border">{transaction.paymentDate ? new Date(transaction.paymentDate).toLocaleDateString() : 'N/A'}</td>
                 <td className="py-2 px-4 border">{transaction.transactionId || 'N/A'}</td>
                 <td className="py-2 px-4 border">{transaction.amountPaid || 'N/A'}</td>

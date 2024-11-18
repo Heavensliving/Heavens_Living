@@ -17,7 +17,7 @@ const studentSchema = new mongoose.Schema({
   adharBackImage: { type: String, required: false },   // Store Firebase URL
   photo: { type: String, required: false },            // Store Firebase URL
   roomType: { type: String, required: true},
-  roomNo: { type: String, required: false},
+  roomNo: { type: String, required: false },
   referredBy: { type: String, required: false},
   typeOfStay: { type: String, required: true},
   pgName: { type: String, required: true},

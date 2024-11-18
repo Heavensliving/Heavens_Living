@@ -1,14 +1,15 @@
 const { mongoose } = require('mongoose');
 const Student = require('../Models/Add_student');
 const FeePayment = require('../Models/feePayment'); // Ensure the path is correct
+const peopleModel = require('../Models/AddPeople');
 
 // Function to add a fee payment
 const addFeePayment = async (req, res) => {
-  console.log(req.body)
+  console.log(req.body);
   try {
     const {
       name,
-      studentId, // custom unique ID
+      studentId,
       monthlyRent,
       totalAmountToPay,
       payingAmount,
@@ -19,48 +20,83 @@ const addFeePayment = async (req, res) => {
       paymentMode,
       transactionId,
       _id,
+      isMessPayment, // Field to differentiate payment type
     } = req.body;
+    const student = _id
 
+    // Calculate balances
     let advanceBalance = 0;
     let balance = 0;
     if (payingAmount > totalAmountToPay) {
       advanceBalance = payingAmount - totalAmountToPay;
-    } else{
+    } else {
       balance = totalAmountToPay - payingAmount;
     }
 
-    // Create a new fee payment document
-    const feePayment = new FeePayment({
-      studentId, // Custom ID format
-      name,
-      rentAmount: monthlyRent,
-      totalAmountToPay,
+    let feePaymentData = {
+      studentId,
+      monthlyRent,
       amountPaid: payingAmount,
-      pendingBalance: balance,
+      pendingBalance: isMessPayment ? null : balance,
       advanceBalance,
-      paymentClearedMonthYear: feeClearedMonthYear,
       paymentDate: paidDate,
-      waveOff: waveOffAmount,
-      waveOffReason,
       transactionId,
       paymentMode,
-      student: _id,
-    });
+      student
+    };
 
-    // Save fee payment to the database
-    await feePayment.save();
+    // Update logic based on payment type
+    if (isMessPayment) {
+      const messPeople = await peopleModel.findOne({ studentId: studentId });
+      console.log(messPeople)
+      if (!messPeople) {
+        return res.status(404).json({ message: 'Mess person not found' });
+      }
 
-    const updateData = { $push: { payments: feePayment._id } };
+      // Add mess-specific fields to feePaymentData
+      feePaymentData.name = messPeople.name;
+      feePaymentData.monthlyRent = messPeople.monthlyRent;
+      feePaymentData.messPeople = messPeople._id
 
-    // If payingAmount is enough to cover the totalAmountToPay, update paymentStatus to 'Paid'
-    if (payingAmount >= totalAmountToPay) {
-      updateData.paymentStatus = 'Paid';
+      // Save the fee payment record
+      const feePayment = new FeePayment(feePaymentData);
+      console.log("here",feePayment)
+      await feePayment.save();
+
+      // Update mess people payments
+      await peopleModel.findByIdAndUpdate(
+        messPeople._id,
+        { $push: { payments: feePayment._id } },
+        { new: true }
+      );
+
+      res.status(201).json({ message: 'Mess fee payment added successfully', feePayment });
+    } else {
+      // Add student-specific fields to feePaymentData
+      feePaymentData.name = name;
+      feePaymentData.monthlyRent = monthlyRent;
+      feePaymentData.totalAmountToPay = totalAmountToPay;
+      feePaymentData.paymentClearedMonthYear = feeClearedMonthYear;
+      feePaymentData.waveOff = waveOffAmount;
+      feePaymentData.waveOffReason = waveOffReason;
+      feePaymentData.student = _id;
+
+      // Save the fee payment record
+      const feePayment = new FeePayment(feePaymentData);
+      await feePayment.save();
+
+      // Update Student model for student payments
+      const updateData = { $push: { payments: feePayment._id } };
+
+      // Update payment status if fully paid
+      if (payingAmount >= totalAmountToPay) {
+        updateData.paymentStatus = 'Paid';
+      }
+
+      await Student.findByIdAndUpdate(_id, updateData, { new: true });
+
+      res.status(201).json({ message: 'Student fee payment added successfully', feePayment });
     }
-
-    // Update Student's payment info
-    await Student.findByIdAndUpdate(_id, updateData);
-
-    res.status(201).json({ message: 'Fee payment added successfully', feePayment });
   } catch (error) {
     console.error('Error adding fee payment:', error);
     res.status(500).json({ message: 'Error adding fee payment', error });
@@ -214,8 +250,6 @@ const getPendingPayments = async (req, res) => {
   }
 };
 
-
-
 const getWaveOffPayments = async (req, res) => {
   try {
     // Find payments where waveOff amount is greater than 0
@@ -236,14 +270,17 @@ const getTotalMonthlyRent = async (req, res) => {
   try {
     // Fetch all students from the database
     const students = await Student.find({}, 'monthlyRent'); // Only selecting monthlyRent field
+    const messPeople = await peopleModel.find({}, 'monthlyRent');
 
-    // Calculate total monthly rent by summing up each student's monthlyRent
-    const totalMonthlyRent = students.reduce((acc, student) => {
+    const totalMonthlyRentStudents = students.reduce((acc, student) => {
       return acc + (student.monthlyRent || 0); // Default to 0 if monthlyRent is undefined
     }, 0);
 
-    // Respond with the total monthly rent
-    res.status(200).json({ totalMonthlyRent });
+    const totalMonthlyRentMess = messPeople.reduce((acc, mess) => {
+      return acc + (mess.monthlyRent || 0); // Default to 0 if monthlyRent is undefined
+    }, 0);
+
+    res.status(200).json({ totalMonthlyRentStudents, totalMonthlyRentMess });
   } catch (error) {
     console.error("Error calculating total monthly rent:", error);
     res.status(500).json({ error: "Internal server error" });
@@ -258,7 +295,7 @@ const feePaymentController = {
   deleteFeePayment,
   getPendingPayments,
   getWaveOffPayments,
-  getTotalMonthlyRent
+  getTotalMonthlyRent,
 };
 
 module.exports = feePaymentController;

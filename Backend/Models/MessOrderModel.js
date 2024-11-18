@@ -4,7 +4,7 @@ const MessOrderSchema = new mongoose.Schema({
 
   name: { type: String, required: true },
   orderId: { type: String, required: false, unique: true },
-  roomNo: { type: String, required: true },
+  roomNo: { type: String, required: false },
   contact: { type: String, required: true },
   mealType: { type: String, required: true },
   status: { type: Boolean, required: true },
