@@ -14,7 +14,7 @@ router.get('/', verifyToken, expenseController.getAllExpenses);
 
 router.get('/staff/:staffId', verifyToken, expenseController.getExpensesByStaff);
 
-// Route to get total expenses by property ID
+
 router.get('/total-expense/by-filter', verifyToken, expenseController.getTotalExpenseByFilter);
 
 // Route to get expenses by property name

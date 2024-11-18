@@ -122,7 +122,6 @@ const getExpensesByStaff = async (req, res) => {
   }
 };
 
-
 // Exporting the functions using const
 const expenseController = {
   addExpense,
@@ -130,7 +129,8 @@ const expenseController = {
   getTotalExpenseByFilter,
   getExpensesByProperty,
   getAllExpenses,
-  getExpensesByStaff
+  getExpensesByStaff,
+
 };
 
 module.exports = expenseController;

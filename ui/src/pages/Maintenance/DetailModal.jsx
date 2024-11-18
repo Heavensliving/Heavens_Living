@@ -10,6 +10,7 @@ const DetailModal = ({ isOpen, onClose, record }) => {
         <p><strong>Issuer Name:</strong> {record.Name}</p>
         <p><strong>Issue:</strong> {record.issue}</p>
         <p><strong>Description:</strong> {record.description}</p>
+        <p><strong>Room no.:</strong> {record.roomNo}</p>
         <p><strong>Date and Time:</strong> {new Date(record.createdAt).toLocaleString()}</p>
         <p><strong>Status:</strong> {record.Status}</p>
 

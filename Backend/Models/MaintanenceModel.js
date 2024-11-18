@@ -6,6 +6,7 @@ const MaintananceSchema = new mongoose.Schema({
   issue: { type: String, required: true },
   ticketId:{ type: String, required:true, unique:true},
   description: { type: String, required: true },
+  roomNo: { type: String, required: false},
   AssignedTo: { type: String, required: false },
   Timeneeded: { type: String, required: false },
   AssignedAt: { type: Date, required: false },
