@@ -26,6 +26,7 @@ const CafeOrderRoutes = require('./routes/CafeOrder');
 const CategoryRoutes = require('./routes/Category');
 const CafeLoginRoutes = require('./routes/CafeLogin.js')
 const userRoutes = require('./routes/user.js')
+const roomAllocationRoutes = require('./routes/RoomAllocation.js')
 
 
 
@@ -81,8 +82,9 @@ app.use('/api/DailyRent',DailyRentRoutes);
 app.use('/api/CafeItem',CafeItemRoutes);
 app.use('/api/cafeOrder',CafeOrderRoutes);
 app.use('/api/Category' ,CategoryRoutes);
-app.use('/api/CafeAuth',CafeLoginRoutes)
-app.use('/api/user/',userRoutes)
+app.use('/api/CafeAuth',CafeLoginRoutes);
+app.use('/api/user/',userRoutes);
+app.use('/api/room/',roomAllocationRoutes)
 
 
 
