@@ -100,7 +100,7 @@ function AddStudent() {
     { name: 'roomNo', type: 'text', placeholder: 'Room Number', label: 'Room Number' },
     { name: 'referredBy', type: 'text', placeholder: 'Referred By', required: false, label: 'Referred By' },
     { name: 'typeOfStay', type: 'text', placeholder: 'Type of Stay', label: 'Type of Stay', required: true, },
-    // { name: 'paymentStatus', type: 'select', options: ['Paid', 'Pending'], placeholder: 'Payment Status', label: 'Payment Status' },
+    { name: 'paymentStatus', type: 'select', options: ['Paid', 'Pending'], placeholder: 'Payment Status', label: 'Payment Status' },
     { name: 'joinDate', type: 'date', label: 'Join Date', required: true, },
     { name: 'photo', type: 'file', accept: 'image/*', required: false, label: 'Profile Image' },
     { name: 'adharFrontImage', type: 'file', accept: 'image/*', required: false, label: 'Adhar-Front Image' },
@@ -221,9 +221,7 @@ function AddStudent() {
     navigate('/students')
   };
 
-
   return (
-
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
       <div className="bg-white shadow-lg rounded-lg p-8 max-w-4xl w-full">
         <form onSubmit={handleSubmit} className="space-y-6">

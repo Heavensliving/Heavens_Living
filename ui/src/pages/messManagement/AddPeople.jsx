@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios'; 
+import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import API_BASE_URL from '../../config';
 import { useSelector } from 'react-redux';
@@ -13,12 +13,13 @@ function AddPeople() {
     email: '',
     mealType: [],
     monthlyRent: '',
-    months: 0, 
-    days: 0, 
+    months: 0,
+    days: 0,
     password: '',
     confirmPassword: '',
     propertyName: '',
     propertyId: '',
+    paymentStatus: 'Pending',  // Added paymentStatus field
   });
   const [errors, setErrors] = useState({});
   const [apiError, setApiError] = useState('');
@@ -114,6 +115,7 @@ function AddPeople() {
         confirmPassword: '',
         propertyName: '',
         propertyId: '',
+        paymentStatus: 'Pending', // Reset payment status to default
       });
       navigate('/mess');
     } catch (error) {
@@ -300,12 +302,31 @@ function AddPeople() {
             {errors.password && <p className="text-red-500">{errors.password}</p>}
           </div>
 
-          {/* Submit Button */}
-          <div className="mt-6">
-            <button type="submit" className="w-full py-3 px-4 bg-green-500 text-white rounded-lg">
-              Submit
+          {/* Payment Status */}
+          <div>
+            <label className="block mb-2 font-bold">Payment Status</label>
+            <select
+              name="paymentStatus"
+              value={formData.paymentStatus}
+              onChange={handleChange}
+              className="p-3 border border-gray-300 rounded-lg w-full"
+              required
+            >
+              <option value="Pending">Pending</option>
+              <option value="Paid">Paid</option>
+            </select>
+          </div>
+
+          {/* API Error */}
+          {apiError && <p className="text-red-500 text-center">{apiError}</p>}
+
+          <div className="mt-4">
+            <button
+              type="submit"
+              className="bg-blue-600 text-white py-3 px-8 rounded-full w-full"
+            >
+              Add Person
             </button>
-            {apiError && <p className="text-red-500 text-center mt-2">{apiError}</p>}
           </div>
         </form>
       </div>

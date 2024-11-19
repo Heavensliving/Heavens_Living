@@ -71,7 +71,7 @@ const ResolvedHistory = () => {
               <th className="p-2 text-sm font-bold text-gray-700">Issuer Name</th>
               <th className="p-2 text-sm font-bold text-gray-700">Issue</th>
               <th className="p-2 text-sm font-bold text-gray-700">Resolved By</th>
-              <th className="p-2 text-sm font-bold text-gray-700">Resolution Date</th>
+              <th className="p-2 text-sm font-bold text-gray-700">Resolved Date</th>
               <th className="p-2 text-sm font-bold text-gray-700">Status</th>
             </tr>
           </thead>

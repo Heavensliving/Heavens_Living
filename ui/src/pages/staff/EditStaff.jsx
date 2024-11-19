@@ -24,7 +24,7 @@ function EditStaff() {
         Adharbackside: null,
         Type: '',
         Salary: '',
-        JoinDate: '',
+        joinDate: '',
         PaySchedule: '',
         propertyName: '',
         Status: 'Active',
@@ -60,7 +60,7 @@ function EditStaff() {
                 setStaffData({
                     ...staff,
                     DOB: staff.DOB ? new Date(staff.DOB).toISOString().split('T')[0] : '',
-                    PaymentDate: staff.PaymentDate ? new Date(staff.PaymentDate).toISOString().split('T')[0] : '',
+                    joinDate: staff.joinDate ? new Date(staff.joinDate).toISOString().split('T')[0] : '',
                     propertyName: staff.propertyName,
                 });
                 setProperties(propertiesResponse.data);
@@ -134,7 +134,7 @@ function EditStaff() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-
+        console.log(staffData)
         const filesToUpload = ['Adharfrontside', 'Adharbackside', 'Photo'];
         const uploadPromises = filesToUpload.map(async (fileField) => {
             // Check if a new file has been selected for upload
@@ -163,7 +163,7 @@ function EditStaff() {
         }
 
         try {
-            const response = await axios.put(`${API_BASE_URL}/staff/edit/${staffId}`, formData, {
+            const response = await axios.put(`${API_BASE_URL}/staff/edit/${staffId}`, staffData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                     'Authorization': `Bearer ${admin.token}`

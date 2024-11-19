@@ -56,20 +56,55 @@ const getStaffById = async (req, res) => {
 
 // Update a staff member by ID
 const updateStaff = async (req, res) => {
+    const { property } = req.body;  // Get the new property ID from the request body
+    console.log(req.body)
     try {
-        const staff = await Staff.findByIdAndUpdate(
-            req.params.id,
-            req.body,
-            { new: true, runValidators: true }
-        );
+        // Find the current staff member
+        const staff = await Staff.findById(req.params.id);
+
         if (!staff) {
             return res.status(404).json({ message: 'Staff member not found' });
         }
-        res.status(200).json({ message: 'Staff member updated successfully', staff });
+
+        // Check if the property has changed
+        if (property && property !== staff.property.toString()) {
+            // If property changed, first remove the staff from the old property
+            await Property.findByIdAndUpdate(staff.property, {
+                $pull: { staffs: staff._id },
+            });
+
+            // Find the new property details
+            const newProperty = await Property.findById(property);
+
+            if (!newProperty) {
+                return res.status(404).json({ message: 'New property not found' });
+            }
+
+            // Add the staff to the new property
+            await Property.findByIdAndUpdate(property, {
+                $push: { staffs: staff._id },
+            });
+
+            // Update staff with new property, phase, and branch info
+            staff.property = property;
+            staff.phase = newProperty.phaseName;
+            staff.branch = newProperty.branchName;
+        }
+
+        // Update the staff record with new data
+        const updatedStaff = await Staff.findByIdAndUpdate(
+            req.params.id,
+            { ...req.body, phase: staff.phase, branch: staff.branch }, // Ensuring phase and branch are updated
+            { new: true, runValidators: true }
+        );
+
+        res.status(200).json({ message: 'Staff member updated successfully', staff: updatedStaff });
     } catch (error) {
-        res.status(400).json({ error: error.message });
+        console.error('Error updating staff:', error);
+        res.status(500).json({ error: error.message });
     }
 };
+
 
 // Delete a staff member by ID
 const deleteStaff = async (req, res) => {

@@ -15,9 +15,7 @@ const addPeople = async (req, res) => {
   console.log("req.body", req.body)
   try {
     const { password } = req.body; 
-    console.log("password",password)
     const studentId = generateStudentId();
-    console.log(studentId)
     const hashedPassword = await bcrypt.hash(password, 10); // Hash the password
     const newPerson = new peopleModel({ ...req.body, password: hashedPassword, studentId }); 
     const propertyId = newPerson.propertyId

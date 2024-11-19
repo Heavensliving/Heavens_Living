@@ -2,6 +2,7 @@ const { mongoose } = require('mongoose');
 const Student = require('../Models/Add_student');
 const FeePayment = require('../Models/feePayment'); // Ensure the path is correct
 const peopleModel = require('../Models/AddPeople');
+const DailyRent = require('../Models/DailyRentModel');
 
 // Function to add a fee payment
 const addFeePayment = async (req, res) => {
@@ -21,8 +22,10 @@ const addFeePayment = async (req, res) => {
       transactionId,
       _id,
       isMessPayment, // Field to differentiate payment type
+      isDailyRent, // Field to handle daily rent payments
     } = req.body;
-    const student = _id
+
+    const student = _id;
 
     // Calculate balances
     let advanceBalance = 0;
@@ -37,18 +40,44 @@ const addFeePayment = async (req, res) => {
       studentId,
       monthlyRent,
       amountPaid: payingAmount,
-      pendingBalance: isMessPayment ? null : balance,
+      pendingBalance: isMessPayment || isDailyRent ? null : balance,
       advanceBalance,
       paymentDate: paidDate,
+      paymentClearedMonthYear: feeClearedMonthYear,
       transactionId,
       paymentMode,
-      student
+      student,
     };
 
-    // Update logic based on payment type
+    if (isDailyRent) {
+      // Handle daily rent payments
+      const dailyRentPerson = await DailyRent.findOne({OccupantId: studentId });
+      if (!dailyRentPerson) {
+        return res.status(404).json({ message: 'Daily rent person not found' });
+      }
+
+      // Add daily-rent-specific fields to feePaymentData
+      feePaymentData.name = dailyRentPerson.name;
+      feePaymentData.dailyRentAmount = dailyRentPerson.DailyRent;
+      feePaymentData.dailyRent = dailyRentPerson._id;
+
+      // Save the fee payment record
+      const feePayment = new FeePayment(feePaymentData);
+      await feePayment.save();
+
+      // Update daily rent person payments
+      await DailyRent.findByIdAndUpdate(
+        dailyRentPerson._id,
+        { $push: { payments: feePayment._id } },
+        { new: true }
+      );
+
+      return res.status(201).json({ message: 'Daily rent payment added successfully', feePayment });
+    }
+
+    // Handle mess payments
     if (isMessPayment) {
       const messPeople = await peopleModel.findOne({ studentId: studentId });
-      console.log(messPeople)
       if (!messPeople) {
         return res.status(404).json({ message: 'Mess person not found' });
       }
@@ -56,11 +85,10 @@ const addFeePayment = async (req, res) => {
       // Add mess-specific fields to feePaymentData
       feePaymentData.name = messPeople.name;
       feePaymentData.monthlyRent = messPeople.monthlyRent;
-      feePaymentData.messPeople = messPeople._id
+      feePaymentData.messPeople = messPeople._id;
 
       // Save the fee payment record
       const feePayment = new FeePayment(feePaymentData);
-      console.log("here",feePayment)
       await feePayment.save();
 
       // Update mess people payments
@@ -70,38 +98,39 @@ const addFeePayment = async (req, res) => {
         { new: true }
       );
 
-      res.status(201).json({ message: 'Mess fee payment added successfully', feePayment });
-    } else {
-      // Add student-specific fields to feePaymentData
-      feePaymentData.name = name;
-      feePaymentData.monthlyRent = monthlyRent;
-      feePaymentData.totalAmountToPay = totalAmountToPay;
-      feePaymentData.paymentClearedMonthYear = feeClearedMonthYear;
-      feePaymentData.waveOff = waveOffAmount;
-      feePaymentData.waveOffReason = waveOffReason;
-      feePaymentData.student = _id;
-
-      // Save the fee payment record
-      const feePayment = new FeePayment(feePaymentData);
-      await feePayment.save();
-
-      // Update Student model for student payments
-      const updateData = { $push: { payments: feePayment._id } };
-
-      // Update payment status if fully paid
-      if (payingAmount >= totalAmountToPay) {
-        updateData.paymentStatus = 'Paid';
-      }
-
-      await Student.findByIdAndUpdate(_id, updateData, { new: true });
-
-      res.status(201).json({ message: 'Student fee payment added successfully', feePayment });
+      return res.status(201).json({ message: 'Mess fee payment added successfully', feePayment });
     }
+
+    // Handle student payments
+    feePaymentData.name = name;
+    feePaymentData.monthlyRent = monthlyRent;
+    feePaymentData.totalAmountToPay = totalAmountToPay;
+    feePaymentData.paymentClearedMonthYear = feeClearedMonthYear;
+    feePaymentData.waveOff = waveOffAmount;
+    feePaymentData.waveOffReason = waveOffReason;
+    feePaymentData.student = _id;
+
+    // Save the fee payment record
+    const feePayment = new FeePayment(feePaymentData);
+    await feePayment.save();
+
+    // Update Student model for student payments
+    const updateData = { $push: { payments: feePayment._id } };
+
+    // Update payment status if fully paid
+    if (payingAmount >= totalAmountToPay) {
+      updateData.paymentStatus = 'Paid';
+    }
+
+    await Student.findByIdAndUpdate(_id, updateData, { new: true });
+
+    res.status(201).json({ message: 'Student fee payment added successfully', feePayment });
   } catch (error) {
     console.error('Error adding fee payment:', error);
     res.status(500).json({ message: 'Error adding fee payment', error });
   }
 };
+
 
 // Function to get all fee payments
 const getAllFeePayments = async (req, res) => {
@@ -172,25 +201,25 @@ const deleteFeePayment = async (req, res) => {
 
 const getPendingPayments = async (req, res) => {
   try {
-    // Find students with a payment status of "Pending"
+    // Find students and mess people with a payment status of "Pending"
     const students = await Student.find({ paymentStatus: 'Pending' });
+    const messPeople = await peopleModel.find({ paymentStatus: 'Pending' });
 
-    if (students.length === 0) {
-      return res.status(404).json({ message: 'No pending payments found' });
+    if (students.length === 0 && messPeople.length === 0) {
+      return res.status(200).json([]);
     }
 
     // Array to store the student details along with their pending rent amount
-    const pendingPaymentsDetails = await Promise.all(
-      students.map(async (student) => {
-        // Find the latest payment for the student
+    const pendingPaymentsDetails = await Promise.all([
+      // Handling students
+      ...students.map(async (student) => {
         const latestPayment = await FeePayment.findOne({ student: student._id })
-          .sort({ createdAt: -1 }) // Sort payments by the most recent first
-          .lean(); // Optional: Convert Mongoose document to plain JS object
+          .sort({ createdAt: -1 })
+          .lean();
 
-        // Calculate unpaid months and pending rent amount
         const today = new Date();
         const joinDate = new Date(student.joinDate);
-        const joinDay = joinDate.getDate(); // Get the exact join day
+        const joinDay = joinDate.getDate();
 
         let unpaidMonths = 0;
         let advanceBalance = latestPayment ? latestPayment.advanceBalance || 0 : 0;
@@ -199,29 +228,24 @@ const getPendingPayments = async (req, res) => {
         if (latestPayment && latestPayment.paymentClearedMonthYear) {
           const [clearedMonth, clearedYear] = latestPayment.paymentClearedMonthYear.split(', ');
           const clearedDate = new Date(`${clearedYear}-${clearedMonth}-01`);
-          clearedDate.setDate(joinDay); // Set to join day
+          clearedDate.setDate(joinDay);
 
-          // Calculate unpaid months
           unpaidMonths = (today.getFullYear() - clearedDate.getFullYear()) * 12 + (today.getMonth() - clearedDate.getMonth());
           if (today.getDate() < clearedDate.getDate()) {
             unpaidMonths--;
           }
         } else {
-          // If no cleared payment date, calculate from join date
           unpaidMonths = (today.getFullYear() - joinDate.getFullYear()) * 12 + (today.getMonth() - joinDate.getMonth());
           if (today.getDate() < joinDate.getDate()) {
             unpaidMonths--;
           }
         }
 
-        // Calculate total rent due
         const monthlyRent = student.monthlyRent || 0;
         const totalRentDue = unpaidMonths * monthlyRent;
 
-        // Calculate pending rent amount
         let pendingRentAmount = totalRentDue + (latestPayment ? latestPayment.pendingBalance || 0 : 0) - waveOffAmount - advanceBalance;
 
-        // Adjust values for negative pending rent
         if (pendingRentAmount < 0) {
           advanceBalance = Math.abs(pendingRentAmount);
           pendingRentAmount = 0;
@@ -240,15 +264,69 @@ const getPendingPayments = async (req, res) => {
           lastPaidDate: latestPayment ? latestPayment.paymentDate : null,
           paymentClearedMonthYear: latestPayment ? latestPayment.paymentClearedMonthYear : null,
         };
-      })
-    );
+      }),
 
+      // Handling mess people
+      ...messPeople.map(async (person) => {
+        const latestPayment = await FeePayment.findOne({ messPeople: person._id })
+          .sort({ createdAt: -1 })
+          .lean();
+        const today = new Date();
+        const joinDate = new Date(person.joinDate);
+        const joinDay = joinDate.getDate();
+
+        let unpaidMonths = 0;
+        let advanceBalance = latestPayment ? latestPayment.advanceBalance || 0 : 0;
+        let waveOffAmount = latestPayment ? latestPayment.waveOff || 0 : 0;
+
+        if (latestPayment && latestPayment.paymentClearedMonthYear) {
+          const [clearedMonth, clearedYear] = latestPayment.paymentClearedMonthYear.split(', ');
+          const clearedDate = new Date(`${clearedYear}-${clearedMonth}-01`);
+          clearedDate.setDate(joinDay);
+
+          unpaidMonths = (today.getFullYear() - clearedDate.getFullYear()) * 12 + (today.getMonth() - clearedDate.getMonth());
+          if (today.getDate() < clearedDate.getDate()) {
+            unpaidMonths--;
+          }
+        } else {
+          unpaidMonths = (today.getFullYear() - joinDate.getFullYear()) * 12 + (today.getMonth() - joinDate.getMonth());
+          if (today.getDate() < joinDate.getDate()) {
+            unpaidMonths--;
+          }
+        }
+
+        const monthlyRent = person.monthlyRent || 0;
+        const totalRentDue = unpaidMonths * monthlyRent;
+
+        let pendingRentAmount = totalRentDue + (latestPayment ? latestPayment.pendingBalance || 0 : 0) - waveOffAmount - advanceBalance;
+
+        if (pendingRentAmount < 0) {
+          advanceBalance = Math.abs(pendingRentAmount);
+          pendingRentAmount = 0;
+        } else {
+          advanceBalance = 0;
+        }
+
+        return {
+          studentId: person.studentId,
+          name: person.name,
+          monthlyRent,
+          unpaidMonths,
+          pendingRentAmount,
+          advanceBalance,
+          waveOffAmount,
+          lastPaidDate: latestPayment ? latestPayment.paymentDate : null,
+          paymentClearedMonthYear: latestPayment ? latestPayment.paymentClearedMonthYear : null,
+        };
+      }),
+    ]);
     res.status(200).json(pendingPaymentsDetails);
   } catch (error) {
     console.error('Error fetching pending payments:', error);
     res.status(500).json({ message: 'Error fetching pending payments', error });
   }
 };
+
 
 const getWaveOffPayments = async (req, res) => {
   try {

@@ -41,7 +41,7 @@ const StudentDetails = () => {
           Authorization: `Bearer ${admin.token}`,
         },
       })
-        .then(res => setStudent(res.data.result))
+        .then(res => {setStudent(res.data.result),setWarnings(res.data.result.warningStatus)})
         .catch(err => console.log(err));
     }
   }, [admin?.token, studentId]);
@@ -95,8 +95,8 @@ const StudentDetails = () => {
     collegeName: student.collegeName,
     parentOccupation: student.parentOccupation,
     workingPlace: student.workingPlace,
+    waringStatus: student.waringStatus,
   };
-
   // Function to open the modal with the selected image
   const handleImageClick = (imageSrc) => {
     setModalImage(imageSrc);
@@ -112,11 +112,8 @@ const StudentDetails = () => {
         setIsDropdownOpen(false);
       }
     };
-
-    // Attach event listener
     document.addEventListener('mousedown', handleClickOutside);
     return () => {
-      // Cleanup the event listener
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, []);
@@ -126,22 +123,30 @@ const StudentDetails = () => {
 
   const handleConfirmWarning = () => {
     if (warnings < 3) {
-      setWarnings(warnings + 1);
+      updateWarnings()
       setIsWarningModalOpen(false);
     }
   };
-  // Example transactions
-  const transactions = [
-    { id: 'TXN001', date: '01/10/2024', amount: 150, status: 'Paid', details: 'Payment for course materials' },
-    { id: 'TXN002', date: '02/10/2024', amount: 200, status: 'Pending', details: 'Payment for tuition fee' },
-    { id: 'TXN003', date: '01/10/2024', amount: 150, status: 'Failed', details: 'Payment for course materials' },
-    { id: 'TXN004', date: '02/10/2024', amount: 200, status: 'Paid', details: 'Payment for tuition fee' },
-    { id: 'TXN005', date: '01/10/2024', amount: 150, status: 'Pending', details: 'Payment for course materials' },
-    { id: 'TXN006', date: '02/10/2024', amount: 200, status: 'Failed', details: 'Payment for tuition fee' }
-  ];
-  // Function to handle transaction click
-  const handleTransactionClick = (transaction) => {
-    setSelectedTransaction(transaction);
+
+  const updateWarnings = async () => {
+    try {
+      console.log("Student ID:", studentId);
+      const updatedWarnings = warnings + 1;
+      console.log("Updated Warnings:", updatedWarnings);
+      setWarnings(updatedWarnings);
+      await axios.put(
+        `${API_BASE_URL}/students/${studentId}/warning`, {warningStatus: updatedWarnings},
+        {
+          headers: { Authorization: `Bearer ${admin.token}` },
+        }
+      );
+      setIsWarningModalOpen(false); // Close modal
+    } catch (error) {
+      console.error("Failed to update warnings:", error);
+    }
+  };
+
+  const handleTransactionClick = () => {
     setSlideIn(true);
     setIsTransactionOpen(true);
   };
@@ -161,51 +166,51 @@ const StudentDetails = () => {
             </div>
           </div>
           <div className="mt-4 flex justify-center items-center pr-12 pl-12">
-                {/* Left Side: Name and Warnings */}
-                <div className="text-center md:text-left">
-                  <h2 className="text-2xl font-bold text-gray-900">{studentData.name}</h2>
-                  <p className="text-side-bar text-sm">{studentData.name} is located at {studentData.pgName}.</p>
-                  {warnings === 1 &&  <span className="text-orange-400 text-sm">{studentData.name} is on their first warning</span>}
-                  {warnings === 2 && <span className="text-orange-600 text-sm">{studentData.name} has received a second warning</span>}
-                  {warnings === 3 && <span className="text-red-700 text-sm">{studentData.name} has been blacklisted due to multiple warnings</span>}
-                  <p className="text-gray-500">{studentData.studentId}</p>
-                </div>
+            {/* Left Side: Name and Warnings */}
+            <div className="text-center md:text-left">
+              <h2 className="text-2xl font-bold text-gray-900">{studentData.name}</h2>
+              <p className="text-side-bar text-sm">{studentData.name} is located at {studentData.pgName}.</p>
+              {warnings === 1 && <span className="text-orange-400 text-sm">{studentData.name} is on their first warning</span>}
+              {warnings === 2 && <span className="text-orange-600 text-sm">{studentData.name} has received a second warning</span>}
+              {warnings === 3 && <span className="text-red-700 text-sm">{studentData.name} has been blacklisted due to multiple warnings</span>}
+              <p className="text-gray-500">{studentData.studentId}</p>
+            </div>
 
-                {/* Right Side: Transaction History Section */}
-                <div className="ml-auto flex items-center space-x-8 relative">
-                  <h2
-                    className="text-lg font-bold text-gray-800 cursor-pointer"
-                    onClick={() => handleTransactionClick(transactions)}
+            {/* Right Side: Transaction History Section */}
+            <div className="ml-auto flex items-center space-x-8 relative">
+              <h2
+                className="text-lg font-bold text-gray-800 cursor-pointer"
+                onClick={() => handleTransactionClick()}
+              >
+                Transaction History
+              </h2>
+              <FaEllipsisH
+                className="text-gray-500 cursor-pointer hover:text-gray-700"
+                onClick={toggleDropdown}
+              />
+
+              {/* Dropdown Menu for Options */}
+              {isDropdownOpen && (
+                <div
+                  ref={dropdownRef}
+                  className="absolute top-5 right-0 mt-2 bg-white shadow-lg rounded-md z-20"
+                >
+                  <button
+                    onClick={() => navigate(`/students/edit/${studentId}`)}
+                    className="block px-4 py-2 text-gray-800 hover:bg-gray-200"
                   >
-                    Transaction History
-                  </h2>
-                  <FaEllipsisH
-                    className="text-gray-500 cursor-pointer hover:text-gray-700"
-                    onClick={toggleDropdown}
-                  />
-
-                  {/* Dropdown Menu for Options */}
-                  {isDropdownOpen && (
-                    <div
-                      ref={dropdownRef}
-                      className="absolute top-5 right-0 mt-2 bg-white shadow-lg rounded-md z-20"
-                    >
-                      <button
-                        onClick={() => navigate(`/students/edit/${studentId}`)}
-                        className="block px-4 py-2 text-gray-800 hover:bg-gray-200"
-                      >
-                        Edit
-                      </button>
-                      <button
-                        onClick={handleOpenWarning}
-                        className="block px-4 py-2 text-gray-800 hover:bg-gray-200"
-                      >
-                        Issue Warning
-                      </button>
-                    </div>
-                  )}
+                    Edit
+                  </button>
+                  <button
+                    onClick={handleOpenWarning}
+                    className="block px-4 py-2 text-gray-800 hover:bg-gray-200"
+                  >
+                    Issue Warning
+                  </button>
                 </div>
-              </div>
+              )}
+            </div>
+          </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pr-6 pl-6 pb-6">
             {/* Left Column - Personal Information */}

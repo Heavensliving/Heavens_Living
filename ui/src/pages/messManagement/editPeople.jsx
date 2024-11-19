@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios'; 
+import axios from 'axios';
 import { useParams, useNavigate } from 'react-router-dom';
 import API_BASE_URL from '../../config';
 import { useSelector } from 'react-redux';
@@ -16,6 +16,7 @@ function EditPeople() {
     mealType: [],
     months: 0,
     days: 0,
+    paymentStatus: '',
     password: '',
     confirmPassword: '',
     propertyId: '',
@@ -74,11 +75,10 @@ function EditPeople() {
   const fetchPersonData = async () => {
     try {
       const response = await axios.get(`${API_BASE_URL}/people/get-people/${id}`,
-        {headers: { 'Authorization': `Bearer ${admin.token}` }}
+        { headers: { 'Authorization': `Bearer ${admin.token}` } }
       );
       const personData = response.data.data; // Access the nested data object
-
-      
+      console.log(response.data.data)
 
       if (personData) {
         const updatedFormData = {
@@ -89,13 +89,11 @@ function EditPeople() {
           months: personData.timePeriod?.months || 0,
           days: personData.timePeriod?.days || 0,
           password: '', // Leave this blank as per your requirement
+          paymentStatus: personData.paymentStatus || '',
           confirmPassword: '',
           propertyId: personData.propertyId || '',
           joinDate: personData.joinDate // Save joinDate to the form data
         };
-
-        
-
         setFormData(updatedFormData); // Set the form data
       }
     } catch (error) {
@@ -121,9 +119,10 @@ function EditPeople() {
           days: formData.days,
         },
         joinDate: formData.joinDate, // Include joinDate in the request payload
+      }, {
         headers: { 'Authorization': `Bearer ${admin.token}` }
       });
-
+      
       setFormData({
         name: '',
         contactNumber: '',
@@ -131,6 +130,7 @@ function EditPeople() {
         mealType: [],
         months: 0,
         days: 0,
+        paymentStatus: '',
         password: '',
         confirmPassword: '',
         propertyId: '',
@@ -239,6 +239,20 @@ function EditPeople() {
               <p className="text-red-500 mt-2">{errors.timePeriod}</p>
             )}
           </div>
+
+          {/* Payment Status Dropdown */}
+          <label className="block mb-2 font-bold">Payment Status</label>
+          <select
+            name="paymentStatus"
+            value={formData.paymentStatus}
+            onChange={handleChange}
+            className="p-3 border border-gray-300 rounded-lg w-full"
+            required
+          >
+            <option value="">Select Payment Status</option>
+            <option value="Paid">Paid</option>
+            <option value="Pending">Pending</option>
+          </select>
 
           {/* Password */}
           <label className="block mb-2 font-bold">Create Password</label>

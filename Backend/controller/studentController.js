@@ -1,4 +1,4 @@
-const { default: mongoose } = require('mongoose');
+
 const Property = require('../Models/Add_property');
 const Student = require('../Models/Add_student');
 const crypto = require('crypto');
@@ -84,52 +84,108 @@ const editStudent = async (req, res) => {
   try {
     const { id } = req.params; // Get student ID from the request parameters
     const updatedData = req.body; // Get the updated student data from the request body
+    console.log(updatedData)
 
-    const student = await Student.findByIdAndUpdate(id, updatedData, { new: true }); // Update the student
-
+    // Find the current student
+    const student = await Student.findById(id);
     if (!student) {
       return res.status(404).json({ message: 'Student not found' });
     }
 
-    res.status(200).json({ message: 'Student updated successfully', student });
+    // If the property is changing, update the reference
+    if (updatedData.property && updatedData.property !== student.property.toString()) {
+      const oldPropertyId = student.property;
+      const newPropertyId = updatedData.property;
+      console.log(oldPropertyId,newPropertyId)
+
+      // Remove the student from the old property (if property is changing)
+      await Property.findByIdAndUpdate(oldPropertyId, { $pull: { occupanets: student._id } });
+
+      // Add the student to the new property
+      await Property.findByIdAndUpdate(newPropertyId, { $push: { occupanets: student._id } });
+    }
+
+    // Update the student data (with new property reference)
+    const updatedStudent = await Student.findByIdAndUpdate(id, updatedData, { new: true });
+
+    if (!updatedStudent) {
+      return res.status(404).json({ message: 'Student not found' });
+    }
+
+    res.status(200).json({ message: 'Student updated successfully', student: updatedStudent });
   } catch (error) {
     console.error('Error updating student:', error); // Log the error
     res.status(500).json({ message: 'Error updating student', error });
   }
 };
 
+const currentStatus = async (req, res) => {
+  try {
+    const { studentId } = req.params;
+
+    const student = await Student.findById(studentId);
+    if (!student) {
+      return res.status(404).json({ message: 'Student not found' });
+    }
+
+    const newStatus = student.currentStatus === 'checkedIn' ? 'checkedOut' : 'checkedIn';
+    student.currentStatus = newStatus;
+
+    await student.save();
+
+    res.status(200).json({ 
+      message: `Student status updated to ${newStatus} successfully`, 
+      student 
+    });
+  } catch (error) {
+    console.error('Error updating student status:', error); // Log the error
+    res.status(500).json({ message: 'Error updating student status', error });
+  }
+};
+
 // Function to delete a student
 const deleteStudent = async (req, res) => {
   try {
-    const { id } = req.params; // Get student ID from the request parameters
-    const propertyId = req.query.propertyId; // Get propertyId as a string from query params
+    const { id } = req.params; 
+    const propertyId = req.query.propertyId; 
+    const role = req.headers.role; // Get role from headers
 
+    // Validate the propertyId
     if (!mongoose.Types.ObjectId.isValid(propertyId)) {
       return res.status(400).json({ message: 'Invalid property ID' });
     }
 
-    const student = await Student.findByIdAndDelete(id); // Delete the student
+    // If the admin is a property admin, update the `vacate` field to true
+    if (role === 'propertyAdmin') {
+      const student = await Student.findByIdAndUpdate(id, { vacate: true }, { new: true });
+      if (!student) {
+        return res.status(404).json({ message: 'Student not found' });
+      }
+      return res.status(200).json({ message: 'Student marked as vacated successfully' });
+    }
 
+    // For other roles, proceed with deletion
+    const student = await Student.findByIdAndDelete(id);
     if (!student) {
       return res.status(404).json({ message: 'Student not found' });
     }
-    // Find the property and update it by removing the student's ID from the array
+
     const property = await Property.findByIdAndUpdate(
       propertyId,
-      { $pull: { occupanets: id } }, // Remove the student ID from the students array
-      { new: true } // Return the updated document
+      { $pull: { occupanets: id } },
+      { new: true }
     );
-
     if (!property) {
       return res.status(404).json({ message: 'Property not found' });
     }
 
     res.status(200).json({ message: 'Student deleted successfully and removed from property' });
   } catch (error) {
-    console.error('Error deleting student:', error); // Log the error
+    console.error('Error deleting student:', error);
     res.status(500).json({ message: 'Error deleting student', error });
   }
 };
+
 
 const vacateStudent = async (req, res) => {
   try {
@@ -250,7 +306,50 @@ const getStudentByStudentId = async (req, res) => {
   }
 };
 
+const mongoose = require('mongoose');
+
+const updateWarningStatus = async (req, res) => {
+  try {
+    // Extract parameters and body
+    const { studentId } = req.params;
+    const { warningStatus } = req.body;
+
+    // Validate warningStatus (ensure it's a valid number)
+    const validStatuses = [0, 1, 2, 3];
+    if (!validStatuses.includes(Number(warningStatus))) {
+      return res.status(400).json({ message: 'Invalid warning status' });
+    }
+
+    // Ensure studentId format matches the database schema
+    const query = mongoose.Types.ObjectId.isValid(studentId)
+      ? { _id: studentId } // Match by MongoDB ObjectId if valid
+      : { studentId }; // Match by custom `studentId` if it's not an ObjectId
+
+    // Find the student in the database
+    const student = await Student.findOneAndUpdate(
+      query, // Query by `_id` or `studentId`
+      { warningStatus: Number(warningStatus) }, // Update warning status
+      { new: true } // Return the updated document
+    );
+
+    // Check if the student exists
+    if (!student) {
+      console.log(`No student found with ID: ${studentId}`);
+      return res.status(404).json({ message: 'Student not found' });
+    }
+    res.status(200).json({
+      message: 'Warning status updated successfully',
+      student,
+    });
+  } catch (error) {
+    console.error('Error updating warning status:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+
+
 
 // Export the functions for use in routes
-module.exports = { addStudent, getAllStudents, editStudent, deleteStudent, vacateStudent, getStudentById, calculateTotalFee, getStudentByStudentId};
+module.exports = { addStudent, getAllStudents, editStudent, updateWarningStatus, currentStatus, deleteStudent, vacateStudent, getStudentById, calculateTotalFee, getStudentByStudentId};
 

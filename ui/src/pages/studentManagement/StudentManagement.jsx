@@ -16,7 +16,6 @@ const storage = getStorage();
 const StudentManagement = () => {
   const admin = useSelector(store => store.auth.admin);
   const navigate = useNavigate();
-  const [isAddEntryModalOpen, setIsAddEntryModalOpen] = useState(false);
   const [students, setStudents] = useState([]);
   const [deleteStudentId, setDeleteStudentId] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -42,14 +41,14 @@ const StudentManagement = () => {
     student.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const totalStudents = students.length;
-  const paymentPending = students.filter(student => student.paymentStatus === 'Pending').length;
-  const paymentCompleted = students.filter(student => student.paymentStatus === 'Paid').length;
-  const checkedIn = students.filter(student => student.currentStatus === 'checkedIn').length;
-  const checkedOut = students.filter(student => student.currentStatus === 'vacated').length;
+  const totalStudents = students.filter(student => student.vacate == false).length;
+  const paymentPending = students.filter(student => student.paymentStatus === 'Pending' && student.vacate == false).length;
+  const paymentCompleted = students.filter(student => student.paymentStatus === 'Paid' && student.vacate == false).length;
+  const checkedIn = students.filter(student => student.currentStatus === 'checkedIn' && student.vacate == false).length;
+  const checkedOut = students.filter(student => student.currentStatus === 'checkedOut' && student.vacate == false).length;
 
   const handleRowClick = (studentId) => navigate(`/students/${studentId}`);
-
+  
   const handleDelete = (studentID) => {
     setDeleteStudentId(studentID);
     setIsModalOpen(true);
@@ -67,14 +66,15 @@ const StudentManagement = () => {
         await deleteObject(imageRef);
       }));
 
-      // Delete student record from the database
       await axios.delete(`${API_BASE_URL}/students/delete/${deleteStudentId}`, {
         params: { propertyId },
-        headers: { 'Authorization': `Bearer ${admin.token}` } 
+        headers: {
+           'Authorization': `Bearer ${admin.token}`,
+           'Role': admin.role 
+          } 
       });
       setStudents((prevStudents) => prevStudents.filter((student) => student._id !== deleteStudentId));
 
-      // Close modal
       setIsModalOpen(false);
       navigate('/students');
     } catch (error) {
@@ -85,8 +85,11 @@ const StudentManagement = () => {
   const sortingOptions = [
     { value: 'All', label: 'All' },
     { value: 'Pending', label: 'Pending' },
-    { value: 'Paid', label: 'Paid' }
+    { value: 'Paid', label: 'Paid' },
+    { value: 'CheckedOut', label: 'Checked Out' },  
+    { value: 'Vacated', label: 'Vacated' }          
   ];
+  
 
   const handleSortChange = (option) => {
     setSortOption(option);
@@ -98,21 +101,26 @@ const StudentManagement = () => {
 
   const sortedStudents = () => {
     let sorted = filteredStudents;
-
+  
     if (sortOption === 'Pending') {
-      sorted = filteredStudents.filter(student => student.paymentStatus === 'Pending');
+      sorted = filteredStudents.filter(student => student.paymentStatus === 'Pending' && student.vacate !== true); // Exclude vacated students
     } else if (sortOption === 'Paid') {
-      sorted = filteredStudents.filter(student => student.paymentStatus === 'Paid');
+      sorted = filteredStudents.filter(student => student.paymentStatus === 'Paid' && student.vacate !== true); // Exclude vacated students
+    } else if (sortOption === 'CheckedOut') {
+      sorted = filteredStudents.filter(student => student.currentStatus === 'checkedOut' && student.vacate !== true); // Only vacated students
+    } else if (sortOption === 'Vacated') {
+      sorted = filteredStudents.filter(student => student.vacate === true); // Only vacated students
+    }  else if (sortOption === 'All') {
+      sorted = filteredStudents.filter(student => student.vacate !== true); // Only vacated students
     }
 
-    // Sort by pgName if selected
     if (propertySort) {
       sorted = sorted.filter(student => student.pgName === propertySort);
     }
 
     return sorted;
   };
-
+  
   return (
     <div className="flex flex-col h-screen p-4 bg-gray-100">
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 mb-6">
@@ -148,7 +156,7 @@ const StudentManagement = () => {
       </div>
 
       <main className="flex-1 bg-white p-4 rounded-lg shadow overflow-x-auto">
-        <StudentTable students={sortedStudents()} onRowClick={handleRowClick} onDelete={handleDelete} />
+        <StudentTable students={sortedStudents()} onRowClick={handleRowClick} onDelete={handleDelete} admin={admin}/>
       </main>
 
       <ConfirmationModal

@@ -6,7 +6,6 @@ import API_BASE_URL from "../../config";
 
 const PaymentDashboard = () => {
   const admin = useSelector(store => store.auth.admin);
-  // const [transactions, setTransactions] = useState([]);
   const [totalReceived, setTotalReceived] = useState(0);
   const [totalReceivedMess, setTotalReceivedMess] = useState(0);
   const [totalMonthlyRent, setTotalMonthlyRent] = useState(0);
@@ -30,12 +29,17 @@ const PaymentDashboard = () => {
           0
         );
         const messPeopleTransactions = feeResponse.data.filter((transaction) => transaction.messPeople);
+        const dailyRentTransactions = feeResponse.data.filter((transaction) => transaction.dailyRent);
 
         const messPeopleTotal = messPeopleTransactions.reduce(
           (acc, transaction) => acc + (transaction.amountPaid || 0),
           0
         );
-        setTotalReceived(totalAmount-messPeopleTotal);
+        const dailyRentTotal = dailyRentTransactions.reduce(
+          (acc, transaction) => acc + (transaction.amountPaid || 0),
+          0
+        );
+        setTotalReceived(totalAmount - (messPeopleTotal+dailyRentTotal));
         setTotalReceivedMess(messPeopleTotal);
       } catch (error) {
         console.error("Error fetching fee totals:", error);
@@ -93,20 +97,18 @@ const PaymentDashboard = () => {
   const paymentPendingMess = totalMonthlyRentMess - totalReceivedMess;
   const paymentPendingDisplayMess = paymentPendingMess < 0 ? 0 : paymentPendingMess;
 
-  const handlePaymentOption = (option) => {
-    closeModal();
-    if (option === "Mess") navigate("/messPayment");
-    if (option === "StudentAndWorkers") navigate("/studentWorkerPayment");
-    if (option === "DailyRent") navigate("/dailyRentPayment");
-  };
-
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
       <div className="bg-white rounded-md shadow-md p-4 w-full h-full">
-        <div className="flex flex-col md:flex-row items-center justify-between border-b pb-3 mb-4">
-          <h1 className="text-2xl font-semibold text-gray-800 mb-4 md:mb-0">
-            Transactions Reports
-          </h1>
+        <div className="border-b pb-3 mb-4">
+          {/* Centered Heading */}
+          <div className="flex justify-center mb-4">
+            <h1 className="text-2xl font-semibold text-gray-800">
+              Transactions Reports
+            </h1>
+          </div>
+
+          {/* Centered Buttons in the Second Row */}
           <div className="flex flex-wrap justify-center gap-4">
             <button
               onClick={openModal}
@@ -154,8 +156,8 @@ const PaymentDashboard = () => {
             onClick={() => navigate("/expenses")}
           >
             <p className="text-lg font-semibold">₹{totalMonthlyRentMess}</p>
-             <p>Monthly Rent</p>
-             <span>(Mess Only)</span>
+            <p>Monthly Rent</p>
+            <span>(Mess Only)</span>
           </div>
           <div
             className="p-4 bg-green-100 text-green-500 rounded-md cursor-pointer"
@@ -167,28 +169,28 @@ const PaymentDashboard = () => {
           </div>
           <div
             className="p-4 bg-red-100 text-red-500 rounded-md cursor-pointer"
-            onClick={() => navigate("/waveoff")}
+            onClick={() => navigate("/paymentPending")}
           >
             <p className="text-lg font-semibold">₹{paymentPendingDisplayMess || 0}</p>
             <p>Payment Pending</p>
             <span>(Mess Only)</span>
           </div>
           <div
-            className="p-4 bg-violet-100 text-violet-500 rounded-md cursor-pointer"
+            className="p-4 bg-gray-100 text-gray-500 rounded-md cursor-pointer"
             onClick={() => navigate("/expenses")}
           >
             <p className="text-lg font-semibold">₹{totalExpense}</p>
             <p>Expense</p>
           </div>
           <div
-            className="p-4 bg-pink-100 text-pink-500 rounded-md cursor-pointer"
+            className="p-4 bg-gray-100 text-gray-500 rounded-md cursor-pointer"
             onClick={() => navigate("/commissions")}
           >
             <p className="text-lg font-semibold">₹{totalCommission || 0}</p>
             <p>Commission</p>
           </div>
           <div
-            className="p-4 bg-blue-100 text-blue-500 rounded-md cursor-pointer"
+            className="p-4 bg-gray-100 text-gray-500 rounded-md cursor-pointer"
             onClick={() => navigate("/waveoff")}
           >
             <p className="text-lg font-semibold">₹{"" || 0}</p>
@@ -221,13 +223,13 @@ const PaymentDashboard = () => {
                 Student & Workers
               </li>
               <li
-                onClick={() => navigate("/messOnlyPayment")}
+                onClick={() => navigate("/messOnlyPayment", { state: { paymentType: "Mess Only" } })}
                 className="cursor-pointer px-4 py-2 bg-green-100 text-green-600 rounded-md hover:bg-green-200"
               >
                 Mess Only
               </li>
               <li
-                onClick={() => navigate("/dailyRent/Payment")}
+                 onClick={() => navigate("/messOnlyPayment", { state: { paymentType: "Daily Rent" } })}
                 className="cursor-pointer px-4 py-2 bg-yellow-100 text-yellow-600 rounded-md hover:bg-yellow-200"
               >
                 Daily Rent

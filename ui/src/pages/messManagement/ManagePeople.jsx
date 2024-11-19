@@ -8,7 +8,7 @@ import { useSelector } from 'react-redux';
 
 function ManagePeople() {
   const admin = useSelector(store => store.auth.admin);
-  const navigate =useNavigate()
+  const navigate = useNavigate()
   const [people, setPeople] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [error, setError] = useState(null);
@@ -20,9 +20,9 @@ function ManagePeople() {
     const fetchPeople = async () => {
       try {
         const response = await axios.get(`${API_BASE_URL}/people/get-people`,
-          {headers: { 'Authorization': `Bearer ${admin.token}` }}
+          { headers: { 'Authorization': `Bearer ${admin.token}` } }
         );
-        
+
         setPeople(response.data.data || []);
       } catch (error) {
         console.error('Error fetching people:', error);
@@ -39,7 +39,7 @@ function ManagePeople() {
     setIsDeleting(true);
     try {
       await axios.delete(`${API_BASE_URL}/people/delete-person/${personToDelete._id}`,
-        {headers: { 'Authorization': `Bearer ${admin.token}` }}
+        { headers: { 'Authorization': `Bearer ${admin.token}` } }
       );
       setPeople(people.filter((person) => person._id !== personToDelete._id));
       setDeleteModal(false); // Close modal after successful deletion
@@ -67,7 +67,7 @@ function ManagePeople() {
   );
 
   return (
-    <div className="min-h-screen bg-gray-100 p-6">
+    <div className="h-screen bg-gray-100 p-6">
       {error && <div className="mb-4 text-red-600">{error}</div>}
 
       {/* Search input */}
@@ -87,12 +87,13 @@ function ManagePeople() {
             <tr className="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
               <th className="py-3 px-6 text-left">Name</th>
               <th className="py-3 px-6 text-left">Contact Number</th>
-              <th className="py-3 px-6 text-left">Email</th>
+              <th className="py-3 px-6 text-left">People ID</th>
               <th className="py-3 px-6 text-left">Meal Type</th>
               <th className="py-3 px-6 text-left">Monthly Amount</th>
               <th className="py-3 px-6 text-left">Time Period</th>
               <th className="py-3 px-6 text-left">Join Date</th>
               <th className="py-3 px-6 text-left">Days Left</th>
+              <th className="py-3 px-6 text-left">Payment Status</th>
               <th className="py-3 px-6 text-center">Actions</th>
             </tr>
           </thead>
@@ -108,7 +109,7 @@ function ManagePeople() {
                 <tr key={person._id} className="border-b border-gray-200 hover:bg-gray-100">
                   <td className="py-3 px-6 text-left whitespace-nowrap">{person.name}</td>
                   <td className="py-3 px-6 text-left">{person.contactNumber}</td>
-                  <td className="py-3 px-6 text-left">{person.email || 'N/A'}</td>
+                  <td className="py-3 px-6 text-left">{person.studentId || 'N/A'}</td>
                   <td className="py-3 px-6 text-left">{person.mealType}</td>
                   <td className="py-3 px-6 text-left">{person.monthlyRent}</td>
                   <td className="py-3 px-6 text-left">
@@ -116,10 +117,15 @@ function ManagePeople() {
                   </td>
                   <td className="py-3 px-6 text-left">{new Date(person.joinDate).toLocaleDateString()}</td>
                   <td className="py-3 px-6 text-left text-yellow-500">{person.daysLeft} </td>
+                  <td className="py-3 px-6 text-left">
+                    <span className={person.paymentStatus === 'Paid' ? 'text-green-500' : 'text-red-500'}>
+                      {person.paymentStatus}
+                    </span>
+                  </td>
                   <td className="py-3 px-6 flex justify-center items-center space-x-4">
                     <FaEdit
                       className="text-blue-500 cursor-pointer hover:text-blue-700"
-                      onClick={() => navigate(`/editPeople/${person._id}`)} 
+                      onClick={() => navigate(`/editPeople/${person._id}`)}
                     />
                     <FaTrashAlt
                       className="text-red-500 cursor-pointer hover:text-red-700"

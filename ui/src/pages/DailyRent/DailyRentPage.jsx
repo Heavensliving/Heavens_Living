@@ -107,9 +107,9 @@ const DailyRentPage = () => {
             <tr className="bg-gray-100 border-b">
               <th className="py-2 px-4">#</th>
               <th className="py-2 px-4">Name</th>
+              <th className="py-2 px-4">ID</th>
               <th className="py-2 px-4">Contact No</th>
-              <th className="py-2 px-4">Email</th>
-              <th className="py-2 px-4">Address</th>
+              <th className="py-2 px-4">Room No</th>
               <th className="py-2 px-4">Daily Rent</th>
               <th className="py-2 px-4">Actions</th>
             </tr>
@@ -126,9 +126,9 @@ const DailyRentPage = () => {
                 <tr key={dailyRent._id} className="border-b hover:bg-gray-50 cursor-pointer" onClick={() => handleRowClick(dailyRent._id)}>
                   <td className="py-2 px-4">{index + 1}</td>
                   <td className="py-2 px-4">{dailyRent.name}</td>
+                  <td className="py-2 px-4">{dailyRent.OccupantId}</td>
                   <td className="py-2 px-4">{dailyRent.contactNo}</td>
-                  <td className="py-2 px-4">{dailyRent.email}</td>
-                  <td className="py-2 px-4">{dailyRent.address}</td>
+                  <td className="py-2 px-4">{dailyRent.roomNo}</td>
                   <td className="py-2 px-4">{dailyRent.DailyRent}</td>
                   <td className="py-2 px-4 flex space-x-4">
                     <FaEdit

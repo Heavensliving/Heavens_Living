@@ -102,20 +102,20 @@ function EditStudent() {
 
     const fields = [
         { name: 'name', type: 'text', placeholder: 'Name', required: true, label: 'Name' },
-        { name: 'gender', type: 'text', placeholder: 'Gender', required: true, label: 'Gender' },
+        { name: 'gender', type: 'text', placeholder: 'Gender', required: false, label: 'Gender' },
         { name: 'email', type: 'email', placeholder: 'Email', required: true, label: 'Email' },
         { name: 'password', type: 'password', placeholder: 'Password', required: true, label: 'Password' },
-        { name: 'address', type: 'text', placeholder: 'Address', required: true, label: 'Address' },
-        { name: 'contactNo', type: 'text', placeholder: 'Contact Number', required: true, label: 'Contact Number' },
-        { name: 'dateOfBirth', type: 'date', required: true, label: 'DOB' },
-        { name: 'bloodGroup', type: 'text', placeholder: 'Blood Group', required: true, label: 'Blood Group' },
-        { name: 'parentName', type: 'text', placeholder: "Parent's Name", required: true, label: 'Parent Name' },
-        { name: 'parentNumber', type: 'text', placeholder: "Parent's Contact Number", required: true, label: 'Parent Contact' },
-        { name: 'parentOccupation', type: 'text', placeholder: "Parent's Occupation", label: `Parent's Occupation` },
-        { name: 'workingPlace', type: 'text', placeholder: 'Working Place', label: 'Working Place' },
-        { name: 'collegeName', type: 'text', placeholder: 'College Name', required: true, label: 'College Name' },
-        { name: 'course', type: 'text', placeholder: 'Course', label: 'Course of study' },
-        { name: 'year', type: 'text', placeholder: 'Year', required: true, label: 'Year of study' },
+        { name: 'address', type: 'text', placeholder: 'Address', required: false, label: 'Address' },
+        { name: 'contactNo', type: 'text', placeholder: 'Contact Number', required: false, label: 'Contact Number' },
+        { name: 'dateOfBirth', type: 'date', required: false, label: 'DOB' },
+        { name: 'bloodGroup', type: 'text', placeholder: 'Blood Group', required: false, label: 'Blood Group' },
+        { name: 'parentName', type: 'text', placeholder: "Parent's Name", required: false, label: 'Parent Name' },
+        { name: 'parentNumber', type: 'text', placeholder: "Parent's Contact Number", required: false, label: 'Parent Contact' },
+        { name: 'parentOccupation', type: 'text', placeholder: "Parent's Occupation", required: false, label: `Parent's Occupation` },
+        { name: 'workingPlace', type: 'text', placeholder: 'Working Place', required: false, label: 'Working Place' },
+        { name: 'collegeName', type: 'text', placeholder: 'College Name', required: false, label: 'College Name' },
+        { name: 'course', type: 'text', placeholder: 'Course', required: false, label: 'Course of study' },
+        { name: 'year', type: 'text', placeholder: 'Year', required: false, label: 'Year of study' },
         {
             name: 'pgName',
             type: 'select',
@@ -124,15 +124,15 @@ function EditStudent() {
             label: 'PG Name',
             required: true,
         },
-        { name: 'advanceFee', type: 'number', placeholder: 'Advance Fee', label: 'Advance Fee' },
-        { name: 'nonRefundableDeposit', type: 'number', placeholder: 'Non-Refundable Deposit', label: 'Deposit' },
-        { name: 'monthlyRent', type: 'number', placeholder: 'Monthly Rent', label: 'Rent' },
-        { name: 'roomType', type: 'select', options: ['Single', 'Shared', 'Deluxe'], placeholder: 'Room Type', required: true, label: 'Room' },
+        { name: 'refundableDeposit', type: 'number', placeholder: 'Refundable Deposit', label: 'Advance Fee', required: true, },
+        { name: 'nonRefundableDeposit', type: 'number', placeholder: 'Non-Refundable Deposit', label: 'Deposit', required: true, },
+        { name: 'monthlyRent', type: 'number', placeholder: 'Monthly Rent', label: 'Rent', required: false, },
+        { name: 'roomType', type: 'select', options: ['Single', 'Shared', 'Deluxe'], placeholder: 'Room Type', required: false, label: 'Room' },
         { name: 'roomNo', type: 'text', placeholder: 'Room Number', label: 'Room Number' },
-        { name: 'referredBy', type: 'text', placeholder: 'Referred By', required: true, label: 'Referred By' },
-        { name: 'typeOfStay', type: 'text', placeholder: 'Type of Stay', label: 'Type of Stay' },
+        { name: 'referredBy', type: 'text', placeholder: 'Referred By', required: false, label: 'Referred By' },
+        { name: 'typeOfStay', type: 'text', placeholder: 'Type of Stay', label: 'Type of Stay', required: false, },
         { name: 'paymentStatus', type: 'select', options: ['Paid', 'Pending'], placeholder: 'Payment Status', label: 'Payment Status' },
-        { name: 'joinDate', type: 'date', label: 'Join Date' },
+        { name: 'joinDate', type: 'date', label: 'Join Date', required: false, },
         { name: 'photo', type: 'file', accept: 'image/*', required: false, label: 'Profile Image' },
         { name: 'adharFrontImage', type: 'file', accept: 'image/*', required: false, label: 'Adhar-Front Image' },
         { name: 'adharBackImage', type: 'file', accept: 'image/*', required: false, label: 'Adhar-back Image' },
@@ -141,18 +141,38 @@ function EditStudent() {
     // Handle input changes
     const handleChange = (e) => {
         const { name, value, type, files } = e.target;
+      
         if (type === 'file') {
-            setStudentData({
-                ...studentData,
-                [name]: files[0],
-            });
+          setStudentData({
+            ...studentData,
+            [name]: files[0],
+          });
+        } else if (name === 'pgName') {
+          // Log the selected value to debug if necessary
+          console.log("Selected PG Name:", value);
+      
+          // Find the selected property based on propertyName (or ID) from properties list
+          const selectedProperty = properties.find(property => property.propertyName === value);
+      
+          // Debug: Log the selected property to verify its structure
+          console.log("Selected Property:", selectedProperty);
+      
+          // Update the state with the property name, ID, and other details
+          setStudentData((prevData) => ({
+            ...prevData,
+            pgName: value, // Store the name of the selected property
+            property: selectedProperty ? selectedProperty._id : '', // Store the property ID
+            branch: selectedProperty ? selectedProperty.branch : '', // Update other relevant details
+            phase: selectedProperty ? selectedProperty.phase : '', // Update other relevant details
+          }));
         } else {
-            setStudentData({
-                ...studentData,
-                [name]: value,
-            });
+          setStudentData({
+            ...studentData,
+            [name]: value || '',
+          });
         }
-    };
+      };
+      
 
     // Upload file to Firebase
     const uploadFile = (file) => {
@@ -217,7 +237,7 @@ function EditStudent() {
             const response = await axios.put(`${API_BASE_URL}/students/edit/${studentId}`, studentData, {
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${admin.token}` 
+                    'Authorization': `Bearer ${admin.token}`
                 },
             });
 
@@ -241,7 +261,23 @@ function EditStudent() {
                                 <label htmlFor={field.name} className="font-medium text-gray-700 mb-2">
                                     {field.label}
                                 </label>
-                                {field.type === 'file' ? (
+                                {field.type === 'select' ? (
+                                    <select
+                                        id={field.name}
+                                        name={field.name}
+                                        className="p-3 border border-gray-300 rounded-lg w-full"
+                                        value={studentData[field.name] || ""}  // Set the value to the student data
+                                        onChange={handleChange}  // Ensure handleChange is invoked
+                                        required={field.required}
+                                    >
+                                        <option value="">Select {field.label}</option>
+                                        {field.options.map((option, index) => (
+                                            <option key={index} value={option}>
+                                                {option}
+                                            </option>
+                                        ))}
+                                    </select>
+                                ) : field.type === 'file' ? (
                                     <>
                                         <input
                                             id={field.name}
@@ -250,6 +286,7 @@ function EditStudent() {
                                             accept={field.accept}
                                             className="p-3 border border-gray-300 rounded-lg w-full"
                                             onChange={handleChange}
+                                            required={field.required}
                                         />
                                         {oldFiles[field.name] && (
                                             <img

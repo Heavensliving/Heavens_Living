@@ -22,6 +22,7 @@ const DailyRentSchema = new mongoose.Schema({
   gender: { type: String, required: true },
   branch: { type: String, required: true },
   phase: { type: String, required: true },
+  payments: [{ type: mongoose.Schema.Types.ObjectId, ref: 'FeePayment' }],  
   property: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Property'

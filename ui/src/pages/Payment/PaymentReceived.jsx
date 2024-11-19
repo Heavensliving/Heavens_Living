@@ -19,7 +19,7 @@ const PaymentReceived = () => {
           { headers: { 'Authorization': `Bearer ${admin.token}` } }
         );
         setTransactions(response.data.reverse());
-        console.log(response.data)
+        console.log(response.data);
       } catch (error) {
         console.error("Error fetching transactions:", error);
       }
@@ -29,9 +29,9 @@ const PaymentReceived = () => {
   }, []);
 
   const filteredTransactions = transactions.filter(transaction =>
-    transaction.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    transaction.studentId?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    transaction.transactionId?.toLowerCase().includes(searchTerm.toLowerCase())
+    transaction.name?.toLowerCase().includes(searchTerm.trim().toLowerCase()) ||
+    transaction.studentId?.toLowerCase().includes(searchTerm.trim().toLowerCase()) ||
+    transaction.transactionId?.toLowerCase().includes(searchTerm.trim().toLowerCase())
   );
 
   const furtherFilteredTransactions = filteredTransactions.filter(transaction => {
@@ -46,15 +46,26 @@ const PaymentReceived = () => {
     (acc, transaction) => acc + (transaction.amountPaid || 0),
     0
   );
-  
-  // Filter messPeople transactions
-  const messPeopleTransactions = transactions.filter((transaction) => transaction.messPeople);
 
-  // Calculate total amount paid by messPeople
-  const messPeopleTotal = messPeopleTransactions.reduce(
+  // const messPeopleTransactions = transactions.filter((transaction) => transaction.messPeople);
+  // const messPeopleTotal = messPeopleTransactions.reduce(
+  //   (acc, transaction) => acc + (transaction.amountPaid || 0),
+  //   0
+  // );
+
+  // Totals for selected month and year
+  const filteredTotalAmount = furtherFilteredTransactions.reduce(
     (acc, transaction) => acc + (transaction.amountPaid || 0),
     0
   );
+
+  const filteredMessPeopleTotal = furtherFilteredTransactions
+    .filter(transaction => transaction.messPeople)
+    .reduce((acc, transaction) => acc + (transaction.amountPaid || 0), 0);
+
+    const filteredDailyRentTotal = furtherFilteredTransactions
+    .filter(transaction => transaction.dailyRent)
+    .reduce((acc, transaction) => acc + (transaction.amountPaid || 0), 0);
 
   const months = Array.from({ length: 12 }, (_, i) => ({
     value: i + 1,
@@ -70,13 +81,11 @@ const PaymentReceived = () => {
   const downloadPDF = () => {
     const doc = new jsPDF();
 
-    // Header Section
     doc.setFontSize(18);
     doc.text('Payment Report', 14, 20);
     doc.setFontSize(10);
     doc.text('Date: ' + new Date().toLocaleDateString(), 14, 30);
 
-    // Add the table
     doc.autoTable({
       startY: 35,
       head: [['#', 'Name', 'Occupant ID', 'Transaction ID', 'Date', 'Monthly Rent', 'Amount Paid']],
@@ -85,26 +94,22 @@ const PaymentReceived = () => {
         transaction.name || 'N/A',
         transaction.studentId || 'N/A',
         transaction.transactionId || 'N/A',
-        transaction.paidDate ? new Date(transaction.paidDate).toLocaleDateString() : 'N/A',
+        transaction.paymentDate ? new Date(transaction.paymentDate).toLocaleDateString() : 'N/A',
         transaction.monthlyRent || 'N/A',
         transaction.amountPaid || 'N/A',
       ]),
     });
 
-    // Calculate the Total Amount
-    const totalAmount = furtherFilteredTransactions.reduce((sum, transaction) => {
-      return sum + (transaction.amountPaid || 0); // Default to 0 if amountPaid is undefined
-    }, 0);
+    // const totalAmount = furtherFilteredTransactions.reduce((sum, transaction) => {
+    //   return sum + (transaction.amountPaid || 0);
+    // }, 0);
 
-    // Add Total Amount Below Table
-    const finalY = doc.lastAutoTable.finalY || 0; // Get the Y position after the table
+    const finalY = doc.lastAutoTable.finalY || 0;
     doc.setFontSize(12);
     doc.text(`Total Amount: Rs.${totalAmount.toFixed(2)}`, 14, finalY + 10);
 
-    // Save the PDF
     doc.save('transactions.pdf');
   };
-
 
   return (
     <div className="container mx-auto p-6 bg-gray-100 rounded-lg shadow-lg min-h-screen">
@@ -121,7 +126,6 @@ const PaymentReceived = () => {
         onChange={(e) => setSearchTerm(e.target.value)}
         className="mb-4 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-400 w-full"
       />
-
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
         <div>
           <label className="block text-lg mb-1">Select Month:</label>
@@ -155,16 +159,38 @@ const PaymentReceived = () => {
         </div>
       </div>
 
-      <div className="flex flex-col items-end mb-4">
-        <div className="text-lg font-semibold">
-          Total Received: <span className="text-gray-700">₹{totalAmount}</span>
-        </div>
-        <div className="text-lg font-semibold mt-2">
-          Mess Only: <span className="text-gray-700">₹{messPeopleTotal}</span>
+      <div className="flex flex-col mb-4">
+        <div className="flex justify-between w-full items-start">
+          {/* Left-aligned totals */}
+          <div>
+            <div className="text-sm text-gray-500">
+              For Selected Month & Year
+            </div>
+            <div className="text-lg font-semibold">
+              Total Received:<span className="text-gray-700"> ₹{filteredTotalAmount}</span>
+            </div>
+            <div className="text-lg font-semibold">
+              Daily Rent: <span className="text-gray-700">₹{filteredDailyRentTotal}</span>
+            </div>
+            <div className="text-lg font-semibold">
+              Mess Only: <span className="text-gray-700">₹{filteredMessPeopleTotal}</span>
+            </div>
+          </div>
+
+          {/* Right-aligned totals */}
+          {/* <div className="text-right">
+            <div className="text-lg font-semibold">
+              Total Received: <span className="text-gray-700">₹{totalAmount}</span>
+            </div>
+            <div className="text-lg font-semibold">
+              Daily Rent: <span className="text-gray-700">₹{totalAmount}</span>
+            </div>
+            <div className="text-lg font-semibold">
+              Mess Only: <span className="text-gray-700">₹{messPeopleTotal}</span>
+            </div>
+          </div> */}
         </div>
       </div>
-
-
       <table className="min-w-full bg-white border border-gray-300 rounded-lg shadow-md">
         <thead className="bg-gray-300 text-black">
           <tr>
@@ -200,4 +226,5 @@ const PaymentReceived = () => {
     </div>
   );
 };
+
 export default PaymentReceived;

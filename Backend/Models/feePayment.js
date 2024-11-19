@@ -18,6 +18,11 @@ const FeePaymentSchema = new mongoose.Schema({
     enum: ['Cash', 'Net Banking', 'UPI'],
     required: true 
   },
+  dailyRent: { 
+    type: mongoose.Schema.Types.ObjectId, 
+    ref: 'DailyRent', 
+    required: false 
+  },
   messPeople: { 
     type: mongoose.Schema.Types.ObjectId, 
     ref: 'peopleModel', 

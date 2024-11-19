@@ -22,7 +22,8 @@ const peopleSchema = new mongoose.Schema({
   monthlyRent: {
     type: Number,
     required:true
-  },  
+  },
+  paymentStatus: { type: String, default: 'Paid', enum: ['Pending', 'Paid'], },   
   timePeriod: {  
     months: {  
       type: Number,  
@@ -58,6 +59,7 @@ const peopleSchema = new mongoose.Schema({
     ref: 'Property'
 },
 payments: [{ type: mongoose.Schema.Types.ObjectId, ref: 'FeePayment' }],  
+messOrders: [{ type: mongoose.Schema.Types.ObjectId, ref: 'MessOrder' }],
 }); 
 
 const peopleModel = mongoose.model('peopleModel', peopleSchema);

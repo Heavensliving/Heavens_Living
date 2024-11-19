@@ -27,6 +27,10 @@ const MessOrderSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Student'
   },
+  messPeople: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'peopleModel'
+  },
   property: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Property'
