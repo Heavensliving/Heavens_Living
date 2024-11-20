@@ -365,6 +365,7 @@ const getTotalMonthlyRent = async (req, res) => {
   }
 };
 
+
 const feePaymentController = {
   addFeePayment,
   getAllFeePayments,

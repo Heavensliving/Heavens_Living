@@ -10,7 +10,7 @@ router.post('/add', verifyToken, feePaymentController.addFeePayment);
 // Route to get all fee payments
 router.get('/', verifyToken, feePaymentController.getAllFeePayments);
 
-router.get('/totalMonthlyRent', verifyToken, feePaymentController.getTotalMonthlyRent);
+router.get('/totalMonthlyRent',verifyToken, feePaymentController.getTotalMonthlyRent);
 
 router.get('/payments/pendingPayments', verifyToken, feePaymentController.getPendingPayments);
 
