@@ -20,4 +20,6 @@ router.get('/code/:code', verifyToken, cafeItemController.getCafeItemByCode)
 
 router.get('/cafe/lowstock', verifyToken, cafeItemController.getLowStockItems);
 
+router.get('/cafe/search', verifyToken, cafeItemController.searchCafeItemsByName);
+
 module.exports = router;

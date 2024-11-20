@@ -165,7 +165,33 @@ const getLowStockItems = async (req, res) => {
     res.status(500).json({ message: 'Failed to retrieve low stock items', error: error.message });
   }
 };
+// Search food items by name
+const searchCafeItemsByName = async (req, res) => {
+  try {
+    const { name } = req.query;  // Extract the 'name' query parameter
 
+    // If no 'name' query parameter is provided
+    if (!name) {
+      return res.status(400).json({ message: 'Search term is required' });
+    }
+
+    // Use a regular expression to search for items whose name contains the search term (case insensitive)
+    const foodItems = await CafeItemSchema.find({
+      itemname: { $regex: name, $options: 'i' }  // Case-insensitive search
+    });
+
+    // If no items are found, return a 404 response
+    if (foodItems.length === 0) {
+      return res.status(404).json({ message: 'No food items found' });
+    }
+
+    // If items are found, return them
+    res.status(200).json(foodItems);
+  } catch (error) {
+    console.error('Error searching food items:', error);
+    res.status(500).json({ message: 'Failed to retrieve food items', error: error.message });
+  }
+};
 
 module.exports = {
   addCafeItem,
@@ -176,4 +202,5 @@ module.exports = {
   deleteCafeItem,
   toggleCafeItemStatus,
   getCafeItemByCode,
+  searchCafeItemsByName,
 };
