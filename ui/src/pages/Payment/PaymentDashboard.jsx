@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
@@ -12,6 +13,8 @@ const PaymentDashboard = () => {
   const [totalMonthlyRentMess, setTotalMonthlyRentMess] = useState(0);
   const [totalExpense, setTotalExpense] = useState(0);
   const [totalCommission, setTotalCommission] = useState(0);
+  const [totalDeposit, setTotalDeposit] = useState(0); // Total deposit state
+  const [totalWaveOff, setTotalWaveOff] = useState(0);
   const [showModal, setShowModal] = useState(false);
   const navigate = useNavigate();
 
@@ -39,7 +42,7 @@ const PaymentDashboard = () => {
           (acc, transaction) => acc + (transaction.amountPaid || 0),
           0
         );
-        setTotalReceived(totalAmount - (messPeopleTotal+dailyRentTotal));
+        setTotalReceived(totalAmount - (messPeopleTotal + dailyRentTotal));
         setTotalReceivedMess(messPeopleTotal);
       } catch (error) {
         console.error("Error fetching fee totals:", error);
@@ -86,10 +89,51 @@ const PaymentDashboard = () => {
       }
     };
 
+    const fetchTotalDeposit = async () => {
+      try {
+        const studentResponse = await axios.get(`${API_BASE_URL}/students`, {
+          headers: { Authorization: `Bearer ${admin.token}` },
+        });
+
+        console.log(studentResponse);
+
+        // Calculate total refundable and non-refundable deposit
+        const totalRefundable = studentResponse.data.reduce(
+          (acc, student) => acc + (student.refundableDeposit || 0),
+          0
+        );
+        const totalNonRefundable = studentResponse.data.reduce(
+          (acc, student) => acc + (student.nonRefundableDeposit || 0),
+          0
+        );
+
+        setTotalDeposit(totalRefundable + totalNonRefundable); // Combined total
+      } catch (error) {
+        console.error("Error fetching student deposits:", error);
+      }
+    };
+    const fetchTotalWaveOff = async () => {
+      try {
+        const waveOffResponse = await axios.get(`${API_BASE_URL}/fee/payments/waveoffpayments`, {
+          headers: { Authorization: `Bearer ${admin.token}` },
+        });
+      console.log(waveOffResponse);
+        const totalWaveOffAmount = waveOffResponse.data.reduce(
+          (acc, waveOff) => acc + (waveOff.waveOff || 0),
+          0
+        );
+        setTotalWaveOff(totalWaveOffAmount);
+      } catch (error) {
+        console.error("Error fetching wave-off data:", error);
+      }
+    };
+
     fetchTotals();
     fetchTotalMonthlyRent();
     fetchTotalExpense();
     fetchTotalCommission();
+    fetchTotalDeposit();
+    fetchTotalWaveOff(); 
   }, [admin.token]);
 
   const paymentPending = totalMonthlyRent - totalReceived;
@@ -193,13 +237,18 @@ const PaymentDashboard = () => {
             className="p-4 bg-gray-100 text-gray-500 rounded-md cursor-pointer"
             onClick={() => navigate("/waveoff")}
           >
-            <p className="text-lg font-semibold">₹{"" || 0}</p>
+            <p className="text-lg font-semibold">₹{totalWaveOff || 0}</p>
             <p>Total Waveoff</p>
+          </div>
+          {/* Total Deposit Card */}
+          <div
+            className="p-4 bg-gray-100 text-gray-500 rounded-md "
+          >
+            <p className="text-lg font-semibold">₹{totalDeposit || 0}</p> {/* Total Deposit */}
+            <p>Total Deposit</p>
           </div>
         </div>
       </div>
-
-      {/* Modal */}
       {showModal && (
         <div className="fixed inset-0 ml-60 z-50 bg-black bg-opacity-50 flex items-center justify-center">
           <div className="bg-white rounded-lg shadow-lg w-96 p-6 relative">
