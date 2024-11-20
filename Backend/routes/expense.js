@@ -20,4 +20,6 @@ router.get('/total-expense/by-filter', verifyToken, expenseController.getTotalEx
 // Route to get expenses by property name
 router.get('/expenses/by-property', verifyToken, expenseController.getExpensesByProperty);
 
+router.get('/monthlyExpense', verifyToken, expenseController.getMonthlyTotalExpense);
+
 module.exports = router;
