@@ -45,25 +45,36 @@ const FinanceChart = () => {
     };
 
     // Fetch monthly expenses
-    const fetchExpenseData = async () => {
-      try {
-        const expenseResponse = await axios.get(`${API_BASE_URL}/expense/monthlyExpense`, {
-          headers: { Authorization: `Bearer ${admin.token}` },
-        });
-console.log(expenseResponse.data)
-        const expenseData = expenseResponse.data.totalExpense; // Backend response structure
-        const monthlyExpenseData = expenseData.reduce((acc, expense) => {
-          const month = expense._id.month - 1; // Adjusting for zero-based months
-          acc[month] = (acc[month] || 0) + (expense.totalAmount || 0);
-          return acc;
-        }, {});
+const fetchExpenseData = async () => {
+  try {
+    const expenseResponse = await axios.get(`${API_BASE_URL}/expense/monthlyExpense`, {
+      headers: { Authorization: `Bearer ${admin.token}` },
+    });
 
-        const sortedMonths = Object.keys(monthlyExpenseData).sort((a, b) => a - b);
-        setTotalExpense(sortedMonths.map((month) => monthlyExpenseData[month] || 0));
-      } catch (error) {
-        console.error('Error fetching expense data:', error);
-      }
-    };
+
+    // Check if the response contains the expected data
+    const expenseData = expenseResponse.data;
+   
+
+    if (!expenseData || expenseData.length === 0) {
+      console.error('No expense data available');
+      return;
+    }
+
+    // Process the expense data to get the total expense by month
+    const monthlyExpenseData = expenseData.reduce((acc, expense) => {
+      const month = expense.month - 1; // Adjusting for zero-based months
+      acc[month] = (acc[month] || 0) + (expense.totalExpense || 0);
+      return acc;
+    }, {});
+
+    const sortedMonths = Object.keys(monthlyExpenseData).sort((a, b) => a - b);
+    setTotalExpense(sortedMonths.map((month) => monthlyExpenseData[month] || 0));
+  } catch (error) {
+    console.error('Error fetching expense data:', error);
+  }
+};
+
 
     fetchFeeData();
     fetchExpenseData();
@@ -113,12 +124,16 @@ console.log(expenseResponse.data)
   };
 
   return (
-    <div className="p-4">
-      <div className="flex-1 bg-white p-4 rounded-lg shadow">
-        <h2 className="text-lg font-semibold mb-4 text-center sm:text-left">Finance Overview</h2>
+    <div>
+      <div>
+        <h2 className="text-lg font-semibold mb-8 text-center sm:text-left">Finance Overview</h2>
 
-        {/* Bar chart */}
-        <Bar data={data} options={options} />
+        {/* Bar chart with adjusted size */}
+        <Bar
+          data={data}
+          options={options}
+          style={{ marginTop: '-40px', maxHeight: '350px', maxWidth: '100%' }} // Adjusted size
+        />
       </div>
     </div>
   );

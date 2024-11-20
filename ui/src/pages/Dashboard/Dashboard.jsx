@@ -29,7 +29,7 @@ const Dashboard = () => {
         {/* Flex container for Calendar and Finance graph */}
         <div className="flex flex-row gap-6 mt-6">
           {/* Calendar Section */}
-          <div className="flex-1 bg-white p-4 rounded-lg shadow">
+          <div className="flex-1 bg-white p-4 rounded-lg shadow" style={{ height: '400px' }}>
             <h2 className="text-lg font-semibold mb-4 text-center sm:text-left">Calendar - {monthName}</h2>
             <div className="grid grid-cols-7 gap-2">
               {daysOfWeek.map((day, index) => (
@@ -54,15 +54,12 @@ const Dashboard = () => {
           </div>
 
           {/* Finance Graph Section */}
-          <div className="w-full sm:max-w-lg">
-            <h2 className="text-lg font-semibold mb-4 text-center sm:text-left">Finance Overview</h2>
-            <div >
-              {/* Increase the width and height of the chart to match calendar */}
-              <div style={{ width: '100%', height: '400px' }}>
-                <FinanceChart financeData={financeData} />
+              <div className="flex-1 bg-white p-4 rounded-lg shadow" style={{ height: '400px' }}>
+                <div >
+                  <FinanceChart financeData={financeData} />
+                </div>
               </div>
-            </div>
-          </div>
+
         </div>
       </main>
     </div>
