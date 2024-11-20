@@ -112,6 +112,20 @@ const getRoomsByProperty = async (req, res) => {
   }
 };
 
+const getOccupants = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const room = await Rooms.findOne({ _id: id }).populate('occupanets', 'name contactNo roomNo');
+    if (!room) {
+      return res.status(404).json({ message: 'Room not found' });
+    }
+    res.json({ occupants: room.occupanets || [] });
+  } catch (error) {
+    console.error('Error fetching occupants:', error);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
+};
+
 module.exports = {
   addRoom,
   updateRoom,
@@ -119,4 +133,5 @@ module.exports = {
   getAllRooms,
   getRoomById,
   getRoomsByProperty,
+  getOccupants,
 };

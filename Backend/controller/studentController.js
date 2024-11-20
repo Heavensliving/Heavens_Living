@@ -15,39 +15,45 @@ const generateStudentId = () => {
 // Add student function
 const addStudent = async (req, res) => {
   const propertyId = req.body.property;
+  const roomNumber = req.body.roomNo; // Get the room number from the request
   console.log(req.body);
 
   try {
-    // Generate a unique student ID
     const studentId = generateStudentId();
-
-    // Check if property exists
     const property = await Property.findById(propertyId);
     if (!property) {
       return res.status(404).json({ message: 'Property not found' });
     }
-
     const { phaseName, branchName } = property;
-
-    // Create a new student document, relying on default values for fields like paymentStatus
+    const room = await Rooms.findOne({ roomNumber, property: propertyId });
+    if (!room) {
+      return res.status(404).json({ message: 'Room not found' });
+    }
+    if (room.vacantSlot <= 0) {
+      return res.status(400).json({ message: 'No vacant slots available in the selected room' });
+    }
     const student = new Student({
       ...req.body,
       studentId,
       phase: phaseName,
       branch: branchName,
-      property: propertyId
+      property: propertyId,
     });
-
     await student.save();
+    room.occupanets.push(student._id);
+    room.occupant += 1;
+    room.vacantSlot -= 1;
 
-    // Update the property to include the new student
+    await room.save();
     await Property.findByIdAndUpdate(propertyId, { $push: { occupanets: student._id } });
+
     res.status(201).json({ message: 'Student added successfully', student });
   } catch (error) {
     console.error('Error adding student:', error);
     res.status(500).json({ message: 'Error adding student', error: error.message || error });
   }
 };
+
 
 
 

@@ -50,8 +50,8 @@ const FinanceChart = () => {
         const expenseResponse = await axios.get(`${API_BASE_URL}/expense/monthlyExpense`, {
           headers: { Authorization: `Bearer ${admin.token}` },
         });
-
-        const expenseData = expenseResponse.data.monthlyExpense; // Backend response structure
+console.log(expenseResponse.data)
+        const expenseData = expenseResponse.data.totalExpense; // Backend response structure
         const monthlyExpenseData = expenseData.reduce((acc, expense) => {
           const month = expense._id.month - 1; // Adjusting for zero-based months
           acc[month] = (acc[month] || 0) + (expense.totalAmount || 0);

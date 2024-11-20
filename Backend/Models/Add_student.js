@@ -36,6 +36,7 @@ const studentSchema = new mongoose.Schema({
   branch: { type: String, required: true },
   phase: { type: String, required: true },
   profileCompletionPercentage: { type: String, required: true, default: '10' },
+  room: { type: mongoose.Schema.Types.ObjectId, ref: 'Rooms' },
   maintenance: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Maintanance' }],
   messOrders: [{ type: mongoose.Schema.Types.ObjectId, ref: 'MessOrder' }],
   addOnOrders: [{ type: mongoose.Schema.Types.ObjectId, ref: 'adonOrderSchema' }],

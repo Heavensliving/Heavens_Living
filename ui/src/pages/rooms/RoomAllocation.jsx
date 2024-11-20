@@ -8,6 +8,9 @@ function RoomAllocation() {
   const navigate = useNavigate();
   const admin = useSelector(store => store.auth.admin);
   const [properties, setProperties] = useState([]);
+  const [selectedRoom, setSelectedRoom] = useState(null); // To store the selected room data
+  const [occupants, setOccupants] = useState([]); // To store occupant details
+  const [isModalOpen, setIsModalOpen] = useState(false); // To control modal visibility
 
   useEffect(() => {
     const fetchRooms = async () => {
@@ -43,9 +46,25 @@ function RoomAllocation() {
     fetchRooms();
   }, []);
 
-  const handleCardClick = (roomNumber) => {
-    // Navigate to a room detail page or perform any other action
-    navigate(`/room/${roomNumber}`);
+  const handleCardClick = async (roomId, roomNumber) => {
+    try {
+      const response = await axios.get(`${API_BASE_URL}/room/occupants/${roomId}`, {
+        headers: {
+          Authorization: `Bearer ${admin.token}`,
+        },
+      });
+      setOccupants(response.data.occupants);
+      setSelectedRoom(roomNumber);
+      setIsModalOpen(true);
+    } catch (error) {
+      console.error('Error fetching occupants:', error);
+    }
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setSelectedRoom(null);
+    setOccupants([]);
   };
 
   return (
@@ -69,15 +88,14 @@ function RoomAllocation() {
                 <div
                   key={room.roomNumber}
                   className="bg-white border border-gray-300 rounded-xl shadow-lg overflow-hidden cursor-pointer"
-                  onClick={() => handleCardClick(room.roomNumber)} 
+                  onClick={() => handleCardClick(room._id, room.roomNumber)}
                 >
                   <div className="p-6">
                     <div className="flex justify-between items-center mb-4">
                       <h3 className="text-xl font-semibold text-gray-800">{room.roomNumber}</h3>
                       <span
-                        className={`px-3 py-1 text-sm font-medium rounded-full ${
-                          vacant > 0 ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'
-                        }`}
+                        className={`px-3 py-1 text-sm font-medium rounded-full ${vacant > 0 ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'
+                          }`}
                       >
                         {vacant > 0 ? 'Vacant' : 'Occupied'}
                       </span>
@@ -109,6 +127,44 @@ function RoomAllocation() {
           </div>
         </div>
       ))}
+
+      {/* Modal Component */}
+      {isModalOpen && (
+        <div className="fixed ml-60 inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-lg p-6 max-w">
+            <h2 className="text-2xl font-bold mb-4">Occupants in Room {selectedRoom}</h2>
+            {occupants.length > 0 ? (
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-2 p-2 bg-gray-100 rounded-lg">
+                  {occupants.map((occupant, index) => (
+                    <div key={index} className='p-4'>
+                      <p className="text-lg font-medium">{occupant.name}</p>
+                      <p className="text-gray-600">{occupant.contactNo}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <p>No occupants found.</p>
+            )}
+            <div className="flex justify-between mt-6">
+              <button
+                onClick={closeModal}
+                className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition"
+              >
+                Close
+              </button>
+              <button
+                onClick={() => navigate(`/edit-room/${selectedRoom}`)}
+                className="bg-indigo-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition"
+              >
+                Edit Room
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }

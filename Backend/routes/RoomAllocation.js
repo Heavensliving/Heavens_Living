@@ -12,6 +12,8 @@ router.get('/', roomController.getAllRooms);
 
 router.get('/:pgName', roomController.getRoomsByProperty);
 
+router.get('/occupants/:id', roomController.getOccupants);
+
 router.get('/:id', roomController.getRoomById);
 
 module.exports = router;
