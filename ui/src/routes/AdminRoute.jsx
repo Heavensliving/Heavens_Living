@@ -51,6 +51,8 @@ import PendingPaymentsPage from '../pages/Payment/PendingPaymentsPage.jsx'
 import WaveOffPaymentsPage from '../pages/Payment/WaveOffPaymentsPage.jsx'
 import AddonPage from '../pages/messManagement/AddonPage.jsx'
 import MessOnlyPayment from '../pages/Payment/messOnlyPayment.jsx'
+import RoomAllocation from '../pages/rooms/RoomAllocation.jsx'
+import AddRoom from '../pages/rooms/AddRoom.jsx'
 
 const AdminRoute = () => {
     return (
@@ -81,6 +83,8 @@ const AdminRoute = () => {
                     <Route path="/maintanance" element={<Maintanence />} />
                     <Route path="/add-student" element={<AddStudent />} />
                     <Route path="/add-property" element={<AddProperty />} />
+                    <Route path="/rooms" element={<RoomAllocation />} />
+                    <Route path="/add-room" element={<AddRoom />} />
                     <Route path="/add-staff" element={<AddStaff />} />
                     <Route path="/add-people" element={<AddPeople />} />
                     <Route path='/editproperty/:propertyId' element={<EditProperty/>} />

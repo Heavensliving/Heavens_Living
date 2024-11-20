@@ -26,9 +26,10 @@ const Dashboard = () => {
       <main className="flex-1 bg-gray-100 p-4 md:p-6">
         <StatsSection />
 
-        <div className="flex flex-wrap gap-6 mt-6">
+        {/* Flex container for Calendar and Finance graph */}
+        <div className="flex flex-row gap-6 mt-6">
           {/* Calendar Section */}
-          <div className="w-full sm:max-w-md">
+          <div className="flex-1 bg-white p-4 rounded-lg shadow">
             <h2 className="text-lg font-semibold mb-4 text-center sm:text-left">Calendar - {monthName}</h2>
             <div className="grid grid-cols-7 gap-2">
               {daysOfWeek.map((day, index) => (

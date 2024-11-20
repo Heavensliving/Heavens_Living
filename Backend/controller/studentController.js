@@ -42,7 +42,6 @@ const addStudent = async (req, res) => {
 
     // Update the property to include the new student
     await Property.findByIdAndUpdate(propertyId, { $push: { occupanets: student._id } });
-    
     res.status(201).json({ message: 'Student added successfully', student });
   } catch (error) {
     console.error('Error adding student:', error);
@@ -307,6 +306,7 @@ const getStudentByStudentId = async (req, res) => {
 };
 
 const mongoose = require('mongoose');
+const Rooms = require('../Models/RoomAllocationModel');
 
 const updateWarningStatus = async (req, res) => {
   try {

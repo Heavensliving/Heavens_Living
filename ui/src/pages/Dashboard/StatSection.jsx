@@ -9,6 +9,7 @@ const StatsSection = () => {
   const admin = useSelector(store => store.auth.admin);
   const [totalStudents, setTotalStudents] = useState();
   const [totalStaffs, setTotalStaffs] = useState(); 
+  const [totalDailyRent, setTotalDailyRent] = useState(); 
   const [totalProperties, setTotalProperties] = useState(); 
 
   useEffect(() => {
@@ -17,7 +18,8 @@ const StatsSection = () => {
         const response = await axios.get(`${API_BASE_URL}/students`,
           { headers: { 'Authorization': `Bearer ${admin.token}` } }
         ); 
-        setTotalStudents(response.data.length); 
+        const nonVacatedStudents = response.data.filter(student => student.vacate == false);
+        setTotalStudents(nonVacatedStudents.length); 
       } catch (error) {
         console.error('Error fetching total students:', error);
       }
@@ -42,6 +44,21 @@ const StatsSection = () => {
   }, []);
 
   useEffect(() => {
+    const fetchTotalDailyRent = async () => {
+      try {
+        const response = await axios.get(`${API_BASE_URL}/dailyRent`,
+          { headers: { 'Authorization': `Bearer ${admin.token}` } }
+        ); 
+        setTotalDailyRent(response.data.length); 
+      } catch (error) {
+        console.error('Error fetching total staff:', error);
+      }
+    };
+
+    fetchTotalDailyRent();
+  }, []);
+
+  useEffect(() => {
     const fetchTotalProperties = async () => {
       try {
         const response = await axios.get(`${API_BASE_URL}/property`,
@@ -58,7 +75,7 @@ const StatsSection = () => {
 
   return (
     <div className="p-4 sm:p-6 rounded-lg mb-6">
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4">
         <Link to={'/students'}>
           <div className="flex items-center p-4 rounded-lg bg-blue-100">
             <div className="flex items-center justify-center w-12 h-12 rounded-full bg-blue-500 mr-4">
@@ -102,7 +119,7 @@ const StatsSection = () => {
             </div>
             <div className="flex flex-col justify-center">
               <h2 className="text-md sm:text-lg font-semibold">Daily Rent</h2>
-              <p className="text-xl sm:text-2xl font-bold">3</p>
+              <p className="text-xl sm:text-2xl font-bold">{totalDailyRent}</p>
             </div>
           </div>
         </Link>
