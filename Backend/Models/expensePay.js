@@ -35,15 +35,16 @@ const expenseSchema = new mongoose.Schema({
   },
   propertyName: {
     type: String,
-    required: true,
+    required: false,
   },
   propertyId: {
     type: String,
-    required: true, // Ensure propertyId is required
+    required: false, // Ensure propertyId is required
   },
   staff: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Staff'
+    ref: 'Staff',
+    required:false,
 }
 }, { timestamps: true });
 

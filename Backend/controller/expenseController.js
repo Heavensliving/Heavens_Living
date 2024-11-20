@@ -121,6 +121,41 @@ const getExpensesByStaff = async (req, res) => {
     res.status(500).json({ error: "Error fetching expenses by staff ID" });
   }
 };
+const getMonthlyTotalExpense = async (req, res) => {
+  try {
+    const monthlyExpense = await Expense.aggregate([
+      {
+        $project: {
+          month: { $month: "$createdAt" }, // Extract the month
+          year: { $year: "$createdAt" },  // Extract the year
+          amount: 1,                      // Include the amount field
+        },
+      },
+      {
+        $group: {
+          _id: { year: "$year", month: "$month" }, // Group by year and month
+          totalAmount: { $sum: "$amount" },       // Sum up the amounts
+        },
+      },
+      {
+        $sort: { "_id.year": 1, "_id.month": 1 }, // Sort by year and month
+      },
+    ]);
+
+    const formattedResponse = monthlyExpense.map((item) => ({
+      month: item._id.month,
+      year: item._id.year,
+      totalExpense: item.totalAmount, // Return only total expense
+    }));
+    console.log(formattedResponse);
+
+    res.json(formattedResponse); // Return formatted data
+  } catch (error) {
+    console.error("Error fetching monthly total expense:", error);
+    res.status(500).json({ error: "Error fetching monthly total expense" });
+  }
+};
+
 
 // Exporting the functions using const
 const expenseController = {
@@ -130,6 +165,7 @@ const expenseController = {
   getExpensesByProperty,
   getAllExpenses,
   getExpensesByStaff,
+  getMonthlyTotalExpense,
 
 };
 

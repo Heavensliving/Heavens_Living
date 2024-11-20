@@ -2,42 +2,21 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import API_BASE_URL from '../../config';
 import { useSelector } from 'react-redux';
-import { Bar } from 'react-chartjs-2';  // Importing the Bar chart component from Chart.js
+import { Bar } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
 
-// Register necessary Chart.js components
+// Register Chart.js components
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 const FinanceChart = () => {
-  const admin = useSelector(store => store.auth.admin);
-  const [financeData, setFinanceData] = useState([]);
+  const admin = useSelector((store) => store.auth.admin);
   const [totalReceived, setTotalReceived] = useState([]);
   const [totalExpense, setTotalExpense] = useState([]);
   const [months, setMonths] = useState([]);
 
   useEffect(() => {
-    // Fetch finance data from the backend
-    const fetchFinanceData = async () => {
-      try {
-        const response = await axios.get(`${API_BASE_URL}/fee/totalMonthlyRent`, {
-          headers: { 'Authorization': `Bearer ${admin.token}` }
-        });
-
-        const { totalMonthlyRentStudents } = response.data;
-
-        // Assuming response data is structured by month
-        if (Array.isArray(totalMonthlyRentStudents)) {
-          setFinanceData(totalMonthlyRentStudents);  // If it's an array, use it directly
-        } else {
-          setFinanceData([totalMonthlyRentStudents]);  // If it's a single value, wrap it in an array
-        }
-      } catch (err) {
-        console.error('Error fetching finance data:', err);
-      }
-    };
-
-    // Fetch total received and total expense data
-    const fetchTotals = async () => {
+    // Fetch fee transactions for 'Total Received'
+    const fetchFeeData = async () => {
       try {
         const feeResponse = await axios.get(`${API_BASE_URL}/fee`, {
           headers: { Authorization: `Bearer ${admin.token}` },
@@ -45,48 +24,69 @@ const FinanceChart = () => {
 
         const feeTransactions = feeResponse.data;
 
-        const monthlyData = feeTransactions.reduce((acc, transaction) => {
-          const month = new Date(transaction.createdAt).getMonth();  // Get the month of the transaction
-          if (!acc[month]) {
-            acc[month] = { totalReceived: 0, expense: 0 };
-          }
-
-          acc[month].totalReceived += transaction.amountPaid || 0;
-          acc[month].expense += transaction.expenseAmount || 0;  // Assuming there's an 'expenseAmount' field in your data
-
+        const monthlyReceivedData = feeTransactions.reduce((acc, transaction) => {
+          const month = new Date(transaction.createdAt).getMonth();
+          acc[month] = (acc[month] || 0) + (transaction.amountPaid || 0);
           return acc;
         }, {});
 
-        // Extracting the month names dynamically and setting the data arrays
-        const sortedMonths = Object.keys(monthlyData).sort((a, b) => a - b); // Sort months
-        setMonths(sortedMonths.map(monthIndex => new Date(0, monthIndex).toLocaleString('default', { month: 'long' })));
-        
-        setTotalReceived(sortedMonths.map(month => monthlyData[month].totalReceived));
-        setTotalExpense(sortedMonths.map(month => monthlyData[month].expense));
+        const sortedMonths = Object.keys(monthlyReceivedData).sort((a, b) => a - b);
+        setMonths(
+          sortedMonths.map((monthIndex) =>
+            new Date(0, monthIndex).toLocaleString('default', { month: 'long' })
+          )
+        );
+        setTotalReceived(
+          sortedMonths.map((month) => monthlyReceivedData[month] || 0)
+        );
       } catch (error) {
-        console.error('Error fetching fee totals:', error);
+        console.error('Error fetching fee data:', error);
       }
     };
 
-    fetchFinanceData();
-    fetchTotals();
+    // Fetch monthly expenses
+    const fetchExpenseData = async () => {
+      try {
+        const expenseResponse = await axios.get(`${API_BASE_URL}/expense/monthlyExpense`, {
+          headers: { Authorization: `Bearer ${admin.token}` },
+        });
+
+        const expenseData = expenseResponse.data.monthlyExpense; // Backend response structure
+        const monthlyExpenseData = expenseData.reduce((acc, expense) => {
+          const month = expense._id.month - 1; // Adjusting for zero-based months
+          acc[month] = (acc[month] || 0) + (expense.totalAmount || 0);
+          return acc;
+        }, {});
+
+        const sortedMonths = Object.keys(monthlyExpenseData).sort((a, b) => a - b);
+        setTotalExpense(sortedMonths.map((month) => monthlyExpenseData[month] || 0));
+      } catch (error) {
+        console.error('Error fetching expense data:', error);
+      }
+    };
+
+    fetchFeeData();
+    fetchExpenseData();
   }, [admin.token]);
 
+  // Align months for both datasets
+  const alignedMonths = months.length ? months : totalReceived.map((_, idx) => new Date(0, idx).toLocaleString('default', { month: 'long' }));
+
   const data = {
-    labels: months,  // Dynamically set month labels
+    labels: alignedMonths,
     datasets: [
       {
         label: 'Total Received',
         data: totalReceived,
-        backgroundColor: 'rgba(75, 192, 192, 0.6)',  // Light green color for Total Received bars
-        borderColor: 'rgba(75, 192, 192, 1)',  // Light green border for bars
+        backgroundColor: 'rgba(75, 192, 192, 0.6)',
+        borderColor: 'rgba(75, 192, 192, 1)',
         borderWidth: 1,
       },
       {
         label: 'Total Expenses',
         data: totalExpense,
-        backgroundColor: 'rgba(255, 99, 132, 0.6)',  // Red color for Total Expenses bars
-        borderColor: 'rgba(255, 99, 132, 1)',  // Red border for bars
+        backgroundColor: 'rgba(255, 99, 132, 0.6)',
+        borderColor: 'rgba(255, 99, 132, 1)',
         borderWidth: 1,
       },
     ],
@@ -96,7 +96,7 @@ const FinanceChart = () => {
     responsive: true,
     scales: {
       x: {
-        stacked: false,  // No stacking, to show bars clearly
+        stacked: false,
       },
       y: {
         beginAtZero: true,
