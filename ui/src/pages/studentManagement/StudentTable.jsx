@@ -4,7 +4,7 @@ import axios from 'axios';
 import API_BASE_URL from '../../config';
 import ConfirmationModal from '../../components/reUsableComponet/ConfirmationModal';
 
-const StudentTable = ({ students, onRowClick, onDelete, admin }) => {
+const StudentTable = ({ students, onRowClick, onDelete, onStatusChange, admin }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState(null);
 
@@ -30,7 +30,7 @@ const StudentTable = ({ students, onRowClick, onDelete, admin }) => {
       console.log(`Student ${newStatus} successfully:`, response.data);
 
       selectedStudent.currentStatus = newStatus;
-
+      onStatusChange(selectedStudent._id, newStatus);
       closeModal(); // Close modal after successful action
     } catch (error) {
       console.error("Error updating student status:", error);

@@ -48,7 +48,13 @@ const StudentManagement = () => {
   const checkedOut = students.filter(student => student.currentStatus === 'checkedOut' && student.vacate == false).length;
 
   const handleRowClick = (studentId) => navigate(`/students/${studentId}`);
-  
+  const handleStatusChange = (studentId, newStatus) => {
+    setStudents((prevStudents) =>
+      prevStudents.map((student) =>
+        student._id === studentId ? { ...student, currentStatus: newStatus } : student
+      )
+    );
+  };
   const handleDelete = (studentID) => {
     setDeleteStudentId(studentID);
     setIsModalOpen(true);
@@ -156,16 +162,28 @@ const StudentManagement = () => {
       </div>
 
       <main className="flex-1 bg-white p-4 rounded-lg shadow overflow-x-auto">
-        <StudentTable students={sortedStudents()} onRowClick={handleRowClick} onDelete={handleDelete} admin={admin}/>
+        <StudentTable students={sortedStudents()} onRowClick={handleRowClick}  onStatusChange={handleStatusChange} onDelete={handleDelete} admin={admin}/>
       </main>
 
       <ConfirmationModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onConfirm={confirmDelete}
-        title="Confirm Delete"
-        message={`Are you sure you want to delete this student?`}
-        confirmLabel="Delete"
+        title={
+          admin.role === "propertyAdmin"
+            ? "Confirm Vacate"
+            : "Confirm Delete"
+        }
+        message={
+          admin.role === "propertyAdmin"
+            ? `Are you sure you want to vacate this student?`
+            : `Are you sure you want to delete this student?`
+        }
+        confirmLabel={
+          admin.role === "propertyAdmin"
+            ? "Vacate"
+            : "Delete"
+        }
       />
     </div>
   );

@@ -47,6 +47,9 @@ function AddStudent() {
 
   const [studentData, setStudentData] = useState(initialData);
   const [properties, setProperties] = useState([]);
+  const [rooms, setRooms] = useState([]);
+  const [roomType, setRoomType] = useState("");
+  const [roomNo, setRoomNo] = useState([]);
   const [uploadProgress, setUploadProgress] = useState({});
 
   useEffect(() => {
@@ -54,7 +57,7 @@ function AddStudent() {
     const fetchProperties = async () => {
       try {
         const response = await axios.get(`${API_BASE_URL}/property`,
-          {headers: { 'Authorization': `Bearer ${admin.token}` }}
+          { headers: { 'Authorization': `Bearer ${admin.token}` } }
         );  // Update with actual API endpoint
         setProperties(response.data);  // Assuming the API returns an array of properties
       } catch (error) {
@@ -64,6 +67,39 @@ function AddStudent() {
 
     fetchProperties();
   }, []);
+
+  useEffect(() => {
+    // Fetch rooms when a property is selected
+    if (studentData.pgName) {
+      const fetchRooms = async () => {
+        try {
+          const response = await axios.get(`${API_BASE_URL}/room/${studentData.pgName}`, {
+            headers: { 'Authorization': `Bearer ${admin.token}` },
+          });
+
+          console.log(response.data)
+          // Filter rooms with vacantSlot > 0
+          const availableRooms = response.data.filter(room => room.vacantSlot > 0);
+          setRooms(availableRooms); // Set the rooms to state
+        } catch (error) {
+          console.error('Error fetching rooms:', error);
+        }
+      };
+
+      fetchRooms();
+    }
+  }, [studentData.pgName, admin.token]);
+
+  useEffect(() => {
+    if (roomType) {
+      console.log(roomType)
+      const matchingRooms = rooms.filter((room) => room.roomType === roomType);
+      setRoomNo(matchingRooms);
+      console.log(matchingRooms)
+    } else {
+      setRoomNo(rooms); 
+    }
+  }, [roomType, rooms]);
 
 
   const fields = [
@@ -93,11 +129,31 @@ function AddStudent() {
       label: 'Property Name',
       required: true,
     },
+    {
+      name: 'roomType',
+      type: 'select',
+      options: rooms.map((room) => ({
+        id: room.id,
+        name: room.roomType
+      })),
+      placeholder: 'Room Type',
+      label: 'Room Type',
+      required: true,
+    },
+    {
+      name: 'roomNo',
+      type: 'select',
+      options: roomNo.map((room) => ({
+        id: room.id,
+        name: room.roomNumber
+      })),
+      placeholder: 'Select Room',
+      label: 'Select Room',
+      required: true,
+    },
     { name: 'refundableDeposit', type: 'number', placeholder: 'Refundable Deposit', label: 'Refundable Deposit', required: true, },
     { name: 'nonRefundableDeposit', type: 'number', placeholder: 'Non-Refundable Deposit', label: 'Non-Refundable Deposit', required: true, },
     { name: 'monthlyRent', type: 'number', placeholder: 'Monthly Rent', label: 'Rent', required: true, },
-    { name: 'roomType', type: 'select', options: ['Single', 'Shared', 'Deluxe'], placeholder: 'Room Type', required: true, label: 'Room' },
-    { name: 'roomNo', type: 'text', placeholder: 'Room Number', label: 'Room Number' },
     { name: 'referredBy', type: 'text', placeholder: 'Referred By', required: false, label: 'Referred By' },
     { name: 'typeOfStay', type: 'text', placeholder: 'Type of Stay', label: 'Type of Stay', required: true, },
     { name: 'paymentStatus', type: 'select', options: ['Paid', 'Pending'], placeholder: 'Payment Status', label: 'Payment Status' },
@@ -132,7 +188,13 @@ function AddStudent() {
         branch: selectedProperty ? selectedProperty.branch : '',
         phase: selectedProperty ? selectedProperty.phase : '',
       }));
-    } else {
+    } else if (name === 'roomType') {
+      setRoomType(value);
+      setStudentData((preData) => {
+        return { ...preData, roomType: value }
+      })
+    }
+    else {
       setStudentData({
         ...studentData,
         [name]: value || '',
@@ -206,7 +268,7 @@ function AddStudent() {
       const response = await axios.post(`${API_BASE_URL}/students/add`, studentData, {
         headers: {
           'Content-Type': 'multipart/form-data',
-          'Authorization': `Bearer ${admin.token}` 
+          'Authorization': `Bearer ${admin.token}`
         },
       });
 
@@ -223,49 +285,49 @@ function AddStudent() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="bg-white shadow-lg rounded-lg p-8 max-w-4xl w-full">
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {fields.map((field, index) => (
-              <div key={index} className="flex flex-col">
-                <label htmlFor={field.name} className="font-medium text-gray-700 mb-2">
-                  {field.label}
-                </label>
-                {field.type === 'select' ? (
-                  <select className="p-3 border border-gray-300 rounded-lg w-full" name={field.name} value={studentData[field.name]} onChange={handleChange} required={field.required}>
-                    <option value='' disabled>{field.placeholder}</option>
-                    {field.options.map((option, index) => (
-                      <option key={index} value={typeof option === 'object' ? option.name : option}>
-                        {typeof option === 'object' ? option.name : option}
-                      </option>
-                    ))}
-                  </select>
-                ) : (
-                  <input
-                  required={field.required}
-                  type={field.type}
-                  name={field.name}
-                  placeholder={field.placeholder}
-                  onChange={handleChange}
-                  accept={field.accept}
-                  className="p-3 border border-gray-300 rounded-lg w-full"
-                  min={'0'}
-                />
-                
-                )}
-              </div>
-            ))}
+    <div className="bg-white shadow-lg rounded-lg p-8 max-w-4xl w-full">
+      <form onSubmit={handleSubmit} className="space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {fields.map((field, index) => (
+            <div key={index} className="flex flex-col">
+              <label htmlFor={field.name} className="font-medium text-gray-700 mb-2">
+                {field.label}
+              </label>
+              {field.type === 'select' ? (
+                <select className="p-3 border border-gray-300 rounded-lg w-full" name={field.name} value={studentData[field.name]} onChange={handleChange} required={field.required}>
+                  <option value='' disabled>{field.placeholder}</option>
+                  {field.options.map((option, index) => (
+                    <option key={index} value={typeof option === 'object' ? option.name : option}>
+                      {typeof option === 'object' ? option.name : option}
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <input
+                required={field.required}
+                type={field.type}
+                name={field.name}
+                placeholder={field.placeholder}
+                onChange={handleChange}
+                accept={field.accept}
+                className="p-3 border border-gray-300 rounded-lg w-full"
+                min={'0'}
+              />
+              
+              )}
+            </div>
+          ))}
 
-          </div>
-          <button
-            type="submit"
-            className="w-full bg-blue-600 text-white font-bold py-3 rounded-lg hover:bg-blue-700 transition duration-300"
-          >
-            Register Student
-          </button>
-        </form>
-      </div>
+        </div>
+        <button
+          type="submit"
+          className="w-full bg-blue-600 text-white font-bold py-3 rounded-lg hover:bg-blue-700 transition duration-300"
+        >
+          Register Student
+        </button>
+      </form>
     </div>
+  </div>
   );
 }
 

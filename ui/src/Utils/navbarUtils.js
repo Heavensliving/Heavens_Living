@@ -23,6 +23,12 @@ const pageConfig = {
     '/properties': {
       title: 'Property Management',
     },
+    '/rooms': {
+      title: 'Rooms',
+    },
+    '/add-room': {
+      title: 'Add Room',
+    },
     '/property/:propertyId': {
       title: 'Propety Details',
     },

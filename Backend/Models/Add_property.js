@@ -19,6 +19,7 @@ const PropertySchema = new mongoose.Schema(
     branchName: { type: String, required: true },
     phaseName: { type: String, required: true },
     propertyOwnerName: { type: String, required: true },
+    rooms: [{ type: mongoose.Schema.Types.ObjectId, ref: "Rooms" }],
     occupanets: [{ type: mongoose.Schema.Types.ObjectId, ref: "Student" }],
     staffs: [{ type: mongoose.Schema.Types.ObjectId, ref: "Staff" }],
     maintenance: [{ type: mongoose.Schema.Types.ObjectId, ref: "Maintanance" }],
