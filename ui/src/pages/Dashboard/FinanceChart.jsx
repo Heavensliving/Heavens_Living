@@ -13,89 +13,101 @@ const FinanceChart = () => {
   const [totalReceived, setTotalReceived] = useState([]);
   const [totalExpense, setTotalExpense] = useState([]);
   const [months, setMonths] = useState([]);
+  const [selectedMonth, setSelectedMonth] = useState(''); // For filtering data by month
 
   useEffect(() => {
-    // Fetch fee transactions for 'Total Received'
     const fetchFeeData = async () => {
       try {
         const feeResponse = await axios.get(`${API_BASE_URL}/fee`, {
           headers: { Authorization: `Bearer ${admin.token}` },
         });
-
+    
         const feeTransactions = feeResponse.data;
-
-        const monthlyReceivedData = feeTransactions.reduce((acc, transaction) => {
-          const month = new Date(transaction.createdAt).getMonth();
-          acc[month] = (acc[month] || 0) + (transaction.amountPaid || 0);
-          return acc;
-        }, {});
-
-        const sortedMonths = Object.keys(monthlyReceivedData).sort((a, b) => a - b);
-        setMonths(
-          sortedMonths.map((monthIndex) =>
-            new Date(0, monthIndex).toLocaleString('default', { month: 'long' })
-          )
+    
+        // Debugging: Log fetched data
+        console.log('Fee Transactions:', feeTransactions);
+    
+        // Initialize all months with zero
+        const allMonths = Array.from({ length: 12 }, (_, i) =>
+          new Date(0, i).toLocaleString('default', { month: 'long' })
         );
-        setTotalReceived(
-          sortedMonths.map((month) => monthlyReceivedData[month] || 0)
-        );
+        setMonths(allMonths);
+    
+        // Create an array to hold total received for each month
+        const monthlyReceivedData = Array(12).fill(0);
+    
+        // Process each transaction
+        feeTransactions.forEach((transaction) => {
+          const transactionDate = new Date(transaction.paymentDate); // Parse the date
+          const monthIndex = transactionDate.getMonth(); // Get month index (0-11)
+    
+          // Debugging: Log the month index and amount
+          console.log(
+            `Transaction Date: ${transactionDate}, Month Index: ${monthIndex}, Amount: ${transaction.amountPaid}`
+          );
+    
+          // Aggregate total for the corresponding month
+          monthlyReceivedData[monthIndex] += transaction.amountPaid || 0;
+        });
+    
+        // Debugging: Log the aggregated data
+        console.log('Monthly Received Data:', monthlyReceivedData);
+    
+        // Update state with the aggregated data
+        setTotalReceived(monthlyReceivedData);
       } catch (error) {
         console.error('Error fetching fee data:', error);
       }
     };
-
-    // Fetch monthly expenses
-const fetchExpenseData = async () => {
-  try {
-    const expenseResponse = await axios.get(`${API_BASE_URL}/expense/monthlyExpense`, {
-      headers: { Authorization: `Bearer ${admin.token}` },
-    });
-
-
-    // Check if the response contains the expected data
-    const expenseData = expenseResponse.data;
-   
-
-    if (!expenseData || expenseData.length === 0) {
-      console.error('No expense data available');
-      return;
-    }
-
-    // Process the expense data to get the total expense by month
-    const monthlyExpenseData = expenseData.reduce((acc, expense) => {
-      const month = expense.month - 1; // Adjusting for zero-based months
-      acc[month] = (acc[month] || 0) + (expense.totalExpense || 0);
-      return acc;
-    }, {});
-
-    const sortedMonths = Object.keys(monthlyExpenseData).sort((a, b) => a - b);
-    setTotalExpense(sortedMonths.map((month) => monthlyExpenseData[month] || 0));
-  } catch (error) {
-    console.error('Error fetching expense data:', error);
-  }
-};
-
-
+    
+    
+    
+  
+    const fetchExpenseData = async () => {
+      try {
+        const expenseResponse = await axios.get(`${API_BASE_URL}/expense/monthlyExpense`, {
+          headers: { Authorization: `Bearer ${admin.token}` },
+        });
+  
+        const expenseData = expenseResponse.data;
+  
+        // Initialize all months with zero
+        const monthlyExpenseData = Array(12).fill(0);
+  
+        expenseData.forEach((expense) => {
+          const month = expense.month - 1; // Convert to zero-based index
+          monthlyExpenseData[month] += expense.totalExpense || 0; // Add to respective month
+        });
+  
+        setTotalExpense(monthlyExpenseData);
+      } catch (error) {
+        console.error('Error fetching expense data:', error);
+      }
+    };
+  
     fetchFeeData();
     fetchExpenseData();
   }, [admin.token]);
+  
 
-  // Align months for both datasets
-  const alignedMonths = months.length ? months : totalReceived.map((_, idx) => new Date(0, idx).toLocaleString('default', { month: 'long' }));
-
-  const data = {
-    labels: alignedMonths,
+  // Filter data based on the selected month
+  const filteredData = {
+    labels: months,
     datasets: [
       {
         label: 'Total Received',
-        data: totalReceived,
+        data: selectedMonth
+          ? [totalReceived[months.indexOf(selectedMonth)] || 0]
+          : totalReceived,
         backgroundColor: 'rgba(75, 192, 192, 0.6)',
         borderColor: 'rgba(75, 192, 192, 1)',
         borderWidth: 1,
       },
       {
         label: 'Total Expenses',
-        data: totalExpense,
+        data: selectedMonth
+          ? [totalExpense[months.indexOf(selectedMonth)] || 0]
+          : totalExpense,
         backgroundColor: 'rgba(255, 99, 132, 0.6)',
         borderColor: 'rgba(255, 99, 132, 1)',
         borderWidth: 1,
@@ -124,15 +136,18 @@ const fetchExpenseData = async () => {
   };
 
   return (
-    <div>
+    <div className="relative">
+      {/* Month filter dropdown aligned to top-right */}
+     
+
       <div>
         <h2 className="text-lg font-semibold mb-8 text-center sm:text-left">Finance Overview</h2>
 
-        {/* Bar chart with adjusted size */}
+        {/* Bar chart */}
         <Bar
-          data={data}
+          data={filteredData}
           options={options}
-          style={{ marginTop: '-40px', maxHeight: '350px', maxWidth: '100%' }} // Adjusted size
+          style={{ marginTop: '-40px', maxHeight: '350px', maxWidth: '100%' }}
         />
       </div>
     </div>
