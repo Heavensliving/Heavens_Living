@@ -53,6 +53,8 @@ import AddonPage from '../pages/messManagement/AddonPage.jsx'
 import MessOnlyPayment from '../pages/Payment/messOnlyPayment.jsx'
 import RoomAllocation from '../pages/rooms/RoomAllocation.jsx'
 import AddRoom from '../pages/rooms/AddRoom.jsx'
+import EditRoom from '../pages/rooms/EditRoom.jsx'
+import ResetPassword from '../pages/resetPassword/ResetPassword.jsx'
 
 const AdminRoute = () => {
     return (
@@ -64,6 +66,7 @@ const AdminRoute = () => {
                 <Route path="/signup" element={<UserSignUpPage />} /> */}
                 <Route path="/signup" element={<Signup />} />
                 <Route path="/login" element={<Login />} />
+                <Route path="/reset-password/:token" element={<ResetPassword />} />
                 <Route element={<AdminLayout />}>
                     <Route path="/" element={<Dashboard />} />
                     <Route path="/students" element={<StudentManagement />} />
@@ -85,6 +88,7 @@ const AdminRoute = () => {
                     <Route path="/add-property" element={<AddProperty />} />
                     <Route path="/rooms" element={<RoomAllocation />} />
                     <Route path="/add-room" element={<AddRoom />} />
+                    <Route path="/edit-room/:id" element={<EditRoom />} />
                     <Route path="/add-staff" element={<AddStaff />} />
                     <Route path="/add-people" element={<AddPeople />} />
                     <Route path='/editproperty/:propertyId' element={<EditProperty/>} />

@@ -38,6 +38,7 @@ const addStudent = async (req, res) => {
       phase: phaseName,
       branch: branchName,
       property: propertyId,
+      room: room._id,
     });
     await student.save();
     room.occupanets.push(student._id);
@@ -54,9 +55,6 @@ const addStudent = async (req, res) => {
   }
 };
 
-
-
-
 // Function to get all students
 const getAllStudents = async (req, res) => {
   try {
@@ -70,7 +68,6 @@ const getAllStudents = async (req, res) => {
 
 // Function to get a students
  const getStudentById = async (req, res, next) => {
-
   const studentId = req.params.id;
   let result;
   try {
@@ -89,7 +86,8 @@ const editStudent = async (req, res) => {
   try {
     const { id } = req.params; // Get student ID from the request parameters
     const updatedData = req.body; // Get the updated student data from the request body
-    console.log(updatedData)
+
+    console.log("Updated Data:", updatedData); // Debugging log
 
     // Find the current student
     const student = await Student.findById(id);
@@ -97,32 +95,57 @@ const editStudent = async (req, res) => {
       return res.status(404).json({ message: 'Student not found' });
     }
 
-    // If the property is changing, update the reference
+    // Handle property changes
     if (updatedData.property && updatedData.property !== student.property.toString()) {
       const oldPropertyId = student.property;
       const newPropertyId = updatedData.property;
-      console.log(oldPropertyId,newPropertyId)
 
-      // Remove the student from the old property (if property is changing)
+      // Remove the student from the old property's occupants
       await Property.findByIdAndUpdate(oldPropertyId, { $pull: { occupanets: student._id } });
 
-      // Add the student to the new property
       await Property.findByIdAndUpdate(newPropertyId, { $push: { occupanets: student._id } });
     }
 
-    // Update the student data (with new property reference)
-    const updatedStudent = await Student.findByIdAndUpdate(id, updatedData, { new: true });
+    // Debug the roomNumber and property fields
+    console.log("Room Number:", updatedData.roomNo);
+    console.log("Property ID:", updatedData.property);
 
+    if (updatedData.roomNo && updatedData.property) {
+      const { roomNo, property } = updatedData;
+      console.log("Room Number and Property:", roomNo, property);
+      const newRoom = await Rooms.findOne({ roomNumber: roomNo, property });
+      console.log("New Room:", newRoom);
+
+      if (!newRoom) {
+        return res.status(404).json({ message: 'Room not found for the given property and room number' });
+      }
+
+      if (student.room && student.room.toString() !== newRoom._id.toString()) {
+        await Rooms.findByIdAndUpdate(student.room, {
+          $pull: { occupanets: student._id },
+          $inc: { occupant: -1, vacantSlot: 1 },
+        });
+
+        await Rooms.findByIdAndUpdate(newRoom._id, {
+          $push: { occupanets: student._id },
+          $inc: { occupant: 1, vacantSlot: -1 },
+        });
+        updatedData.room = newRoom._id;
+      }
+    }
+    const updatedStudent = await Student.findByIdAndUpdate(id, updatedData, { new: true });
     if (!updatedStudent) {
       return res.status(404).json({ message: 'Student not found' });
     }
-
     res.status(200).json({ message: 'Student updated successfully', student: updatedStudent });
   } catch (error) {
     console.error('Error updating student:', error); // Log the error
     res.status(500).json({ message: 'Error updating student', error });
   }
 };
+
+
+
 
 const currentStatus = async (req, res) => {
   try {

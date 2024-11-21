@@ -8,6 +8,7 @@ function RoomAllocation() {
   const navigate = useNavigate();
   const admin = useSelector(store => store.auth.admin);
   const [properties, setProperties] = useState([]);
+  const [roomId, setRoomId] = useState('');
   const [selectedRoom, setSelectedRoom] = useState(null); // To store the selected room data
   const [occupants, setOccupants] = useState([]); // To store occupant details
   const [isModalOpen, setIsModalOpen] = useState(false); // To control modal visibility
@@ -54,6 +55,7 @@ function RoomAllocation() {
         },
       });
       setOccupants(response.data.occupants);
+      setRoomId(roomId)
       setSelectedRoom(roomNumber);
       setIsModalOpen(true);
     } catch (error) {
@@ -155,7 +157,7 @@ function RoomAllocation() {
                 Close
               </button>
               <button
-                onClick={() => navigate(`/edit-room/${selectedRoom}`)}
+                onClick={() => navigate(`/edit-room/${roomId}`)}
                 className="bg-indigo-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition"
               >
                 Edit Room

@@ -18,7 +18,7 @@ const RoomAllocationSchema = new mongoose.Schema({
     required: true,
   },
   roomCapacity: {
-    type: String,
+    type: Number,
     required: true,
   },
   occupant: {

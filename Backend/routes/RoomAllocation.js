@@ -4,7 +4,7 @@ const router = express.Router();
 
 router.post('/add', roomController.addRoom);
 
-router.put('/updateRooms/:id', roomController.updateRoom);
+router.put('/editRoom/:id', roomController.updateRoom);
 
 router.delete('/deleteRooms/:id', roomController.deleteRoom);
 
@@ -14,6 +14,6 @@ router.get('/:pgName', roomController.getRoomsByProperty);
 
 router.get('/occupants/:id', roomController.getOccupants);
 
-router.get('/:id', roomController.getRoomById);
+router.get('/get/:id', roomController.getRoomById);
 
 module.exports = router;

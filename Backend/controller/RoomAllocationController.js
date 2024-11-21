@@ -42,16 +42,27 @@ const updateRoom = async (req, res) => {
     const { id } = req.params;
     const updatedData = req.body;
 
+    // Check if there is an occupant and calculate vacantSlot if necessary
+    if (updatedData.occupant && updatedData.roomCapacity) {
+      updatedData.vacantSlot = updatedData.roomCapacity - updatedData.occupant;
+    }
+
+    // Update the room in the database
     const updatedRoom = await Rooms.findByIdAndUpdate(id, updatedData, { new: true });
+
+    // If the room wasn't found
     if (!updatedRoom) {
       return res.status(404).json({ success: false, message: 'Room not found' });
     }
 
+    // Return success response with the updated room data
     res.status(200).json({ success: true, message: 'Room updated successfully', room: updatedRoom });
   } catch (error) {
+    // Handle any errors that occur
     res.status(500).json({ success: false, error: error.message });
   }
 };
+
 
 const deleteRoom = async (req, res) => {
   try {
@@ -80,7 +91,6 @@ const getAllRooms = async (req, res) => {
 const getRoomById = async (req, res) => {
   try {
     const { id } = req.params;
-
     const room = await Rooms.findById(id);
     if (!room) {
       return res.status(404).json({ success: false, message: 'Room not found' });
@@ -94,12 +104,12 @@ const getRoomById = async (req, res) => {
 
 const getRoomsByProperty = async (req, res) => {
   const { pgName } = req.params;
-  console.log(pgName)
+  // console.log(pgName)
 
   try {
     // Fetch the rooms that belong to the selected property
     const rooms = await Rooms.find({ propertyName: pgName, vacantSlot: { $gt: 0 } }); // Only rooms with vacant slots
-    console.log(rooms)
+    // console.log(rooms)
 
     if (rooms.length === 0) {
       return res.status(404).json({ message: 'No available rooms found.' });
@@ -115,7 +125,7 @@ const getRoomsByProperty = async (req, res) => {
 const getOccupants = async (req, res) => {
   try {
     const { id } = req.params;
-    const room = await Rooms.findOne({ _id: id }).populate('occupanets', 'name contactNo roomNo');
+    const room = await Rooms.findOne({ _id: id }).populate('occupanets', 'name contactNo roomNo room');
     if (!room) {
       return res.status(404).json({ message: 'Room not found' });
     }
