@@ -35,6 +35,7 @@ const studentSchema = new mongoose.Schema({
   workingPlace: { type: String,required: false },
   branch: { type: String, required: true },
   phase: { type: String, required: true },
+  isVerified: { type: Boolean, default: false },
   profileCompletionPercentage: { type: String, required: true, default: '10' },
   room: { type: mongoose.Schema.Types.ObjectId, ref: 'Rooms' },
   maintenance: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Maintanance' }],

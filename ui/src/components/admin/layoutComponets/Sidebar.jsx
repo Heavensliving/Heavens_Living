@@ -1,6 +1,8 @@
 import React from 'react';
 import { FaHome, FaUserGraduate, FaUsers, FaBuilding, FaUtensils, FaMoneyBill, FaTools } from 'react-icons/fa';
 import { NavLink } from 'react-router-dom';
+import logo1 from '../../../assets/hAsset 4.png';
+import logo2 from '../../../assets/h-whiteAsset 2.png';
 
 const links = [
     { path: '/', label: 'Dashboard', icon: <FaHome /> },
@@ -9,7 +11,7 @@ const links = [
     { path: '/properties', label: 'Property Management', icon: <FaBuilding /> },
     { path: '/mess', label: 'Mess Management', icon: <FaUtensils /> },
     { path: '/payments', label: 'Payments', icon: <FaMoneyBill /> },
-    { path: '/maintanance', label: 'Maintanance', icon: <FaTools /> },
+    { path: '/maintanance', label: 'Maintenance', icon: <FaTools /> },
 ];
 
 const Sidebar = () => {
@@ -20,9 +22,10 @@ const Sidebar = () => {
                             w-16 md:w-60 lg:w-60`} // Always 16 on small screens, 60 on md and lg
             >
                 {/* Logo and Name Section */}
-                <div className="md:p-6 px-2 py-6 flex items-center justify-center ">
-                    <img src="https://cdn-icons-png.freepik.com/256/12452/12452420.png?ga=GA1.1.1459516267.1711715282&semt=ais_hybrid" alt="Logo" className="w-12 h-12" />
-                    <h1 className="text-3xl font-semibold ml-3 hidden md:block">Heavens</h1> {/* Show only on md and larger screens */}
+                <div className="flex justify-center mt-1">
+                    {/* Show logo2 on small screens, logo1 on md and larger screens */}
+                    <img src={logo2} alt="Logo" className="w-26 h-16 block md:hidden" />
+                    <img src={logo1} alt="Logo" className="w-26 h-16 hidden md:block" />
                 </div>
 
                 {/* Links Section */}

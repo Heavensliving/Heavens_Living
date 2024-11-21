@@ -4,7 +4,7 @@ const nodemailer = require('nodemailer');
 const Student = require('../Models/Add_student'); 
 const PasswordReset = require('../Models/PasswordRest');
 const { passwordResetTemplate } = require('../utils/emailTemplates');
-
+const FRONTEND_BASE_URL = process.env.FRONTEND_BASE_URL;
 // Transporter for sending emails
 const transporter = nodemailer.createTransport({
   service: 'gmail',
@@ -13,6 +13,29 @@ const transporter = nodemailer.createTransport({
     pass: 'pcuk cpfn ygav twjd'
   },
 });
+
+const verifyEmail = async (req, res) => {
+  const userId = req.params.userId;
+console.log("here", userId)
+  try {
+    const user = await Student.findOne({ _id: userId });
+    if (!user) {
+      return res.status(404).json({ message: "student not found." });
+    }
+     await Student.findByIdAndUpdate(
+      {_id: userId},
+      { isVerified: true }, 
+      { new: true } 
+    );
+     res.redirect(`${FRONTEND_BASE_URL}/email-verification-success`);
+  } catch (error) {
+    console.error("Error verifying email:", error);
+    res
+      .status(500)
+      .json({ message: "Error verifying email. Please try again later." });
+  }
+};
+
 
 // Function to handle user login
 const login = async (req, res) => {
@@ -47,10 +70,9 @@ const login = async (req, res) => {
 const forgotPassword = async (req, res) => {
   try {
     const { email } = req.body;
-
     const user = await Student.findOne({ email });
     if (!user) {
-      return res.status(404).json({ message: 'User not found' });
+      return res.status(404).json({ message: 'This email is not registered' });
     }
 
     const userId = user._id
@@ -94,7 +116,7 @@ const resetPassword = async (req, res) => {
     const resetEntry = await PasswordReset.findOne({ userId: id });
     if (!resetEntry || resetEntry.token !== token) {
       // return res.redirect(`http://192.168.1.79:3002/reset-password`);
-      return res.status(400).json({ message: "Invalid or expired token." });
+      return res.status(400).json({ message: "Reset link expired." });
     }
 
     res.redirect(`http://192.168.1.79:3002/reset-password/${token}`);
@@ -104,7 +126,7 @@ const resetPassword = async (req, res) => {
 
     if (error.name === 'TokenExpiredError') {
       // return res.redirect(`http://localhost:5173/reset_password`);
-      return res.status(400).json({ message: "Reset token has expired. Please request a new password reset." });
+      return res.status(400).json({ message: "Reset link has expired. Please request a new password reset." });
     }
 
     res.status(500).json({ message: "An error occurred. Please try again later." });
@@ -121,7 +143,7 @@ const verify_reset_password = async (req, res) => {
 
     if (!resetEntry || resetEntry.token !== token) {
       // return res.redirect(`http://localhost:5173/reset_password`);
-      return res.status(400).json({ message: "Invalid or expired token." });
+      return res.status(400).json({ message: "Reset link has expired. Please request a new password reset." });
     }
     const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -149,4 +171,4 @@ const verify_reset_password = async (req, res) => {
   }
 };
 
-module.exports = { forgotPassword, resetPassword, verify_reset_password ,login};
+module.exports = { forgotPassword, resetPassword, verify_reset_password ,login, verifyEmail};

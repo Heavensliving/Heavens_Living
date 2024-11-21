@@ -1,10 +1,21 @@
-
 const Property = require('../Models/Add_property');
 const Student = require('../Models/Add_student');
 const crypto = require('crypto');
+const bcrypt = require('bcrypt');
+const nodemailer = require('nodemailer');
 const FeePayment = require('../Models/feePayment');
 const Maintanance = require('../Models/MaintanenceModel')
+require('dotenv').config();
+BACKEND_BASE_URL=process.env.BACKEND_BASE_URL;
 
+// Transporter for sending emails
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: 'heavensliving@gmail.com',
+    pass: 'pcuk cpfn ygav twjd'
+  },
+});
 
 // Function to generate a unique student ID
 const generateStudentId = () => {
@@ -16,6 +27,8 @@ const generateStudentId = () => {
 const addStudent = async (req, res) => {
   const propertyId = req.body.property;
   const roomNumber = req.body.roomNo; // Get the room number from the request
+  const password = req.body.password;
+  const hashedPassword = await bcrypt.hash(password, 10);
   console.log(req.body);
 
   try {
@@ -39,6 +52,7 @@ const addStudent = async (req, res) => {
       branch: branchName,
       property: propertyId,
       room: room._id,
+      password: hashedPassword
     });
     await student.save();
     room.occupanets.push(student._id);
@@ -47,7 +61,16 @@ const addStudent = async (req, res) => {
 
     await room.save();
     await Property.findByIdAndUpdate(propertyId, { $push: { occupanets: student._id } });
+    const link = 'http://192.168.1.79:3000/api/user/verifyemail'
+    const emailHtml = emailVerificationTemplate(link,student._id)
+    const mailOptions = {
+      from: 'www.heavensliving@gmail.com',
+      to: student.email,
+      subject: 'Password Reset Request',
+      html: emailHtml,
+    };
 
+    await transporter.sendMail(mailOptions);
     res.status(201).json({ message: 'Student added successfully', student });
   } catch (error) {
     console.error('Error adding student:', error);
@@ -174,67 +197,116 @@ const currentStatus = async (req, res) => {
 // Function to delete a student
 const deleteStudent = async (req, res) => {
   try {
-    const { id } = req.params; 
-    const propertyId = req.query.propertyId; 
-    const role = req.headers.role; // Get role from headers
+    const { id } = req.params; // Student ID from request parameters
+    const propertyId = req.query.propertyId; // Property ID from query parameters
+    const role = req.headers.role; // Role from headers
 
     // Validate the propertyId
     if (!mongoose.Types.ObjectId.isValid(propertyId)) {
       return res.status(400).json({ message: 'Invalid property ID' });
     }
 
-    // If the admin is a property admin, update the `vacate` field to true
     if (role === 'propertyAdmin') {
-      const student = await Student.findByIdAndUpdate(id, { vacate: true }, { new: true });
+      const student = await Student.findByIdAndUpdate(
+        id,
+        { vacate: true }, // Mark as vacated
+        { new: true }
+      );
       if (!student) {
         return res.status(404).json({ message: 'Student not found' });
       }
-      return res.status(200).json({ message: 'Student marked as vacated successfully' });
+      return res.status(200).json({ message: 'Student marked as vacated successfully', student });
     }
 
-    // For other roles, proceed with deletion
-    const student = await Student.findByIdAndDelete(id);
+    const student = await Student.findById(id);
     if (!student) {
       return res.status(404).json({ message: 'Student not found' });
     }
 
+    if (student.room) {
+      const room = await Rooms.findById(student.room); // Assuming Room is the room model
+
+      if (room) {
+
+        room.occupanets = room.occupanets.filter(occupantId => occupantId.toString() !== id);
+
+        if (room.occupant > 0) {
+          room.occupant -= 1; 
+        }
+        if (room.vacantSlot < room.roomCapacity) {
+          room.vacantSlot += 1; 
+        }
+
+        await room.save();
+      }
+    }
+    await Student.findByIdAndDelete(id);
     const property = await Property.findByIdAndUpdate(
       propertyId,
-      { $pull: { occupanets: id } },
+      { $pull: { occupants: id } },
       { new: true }
     );
+
     if (!property) {
       return res.status(404).json({ message: 'Property not found' });
     }
 
-    res.status(200).json({ message: 'Student deleted successfully and removed from property' });
+    res.status(200).json({ 
+      message: 'Student deleted successfully and removed from property and room', 
+      updatedRoom: student.room ? await Rooms.findById(student.room) : null 
+    });
   } catch (error) {
     console.error('Error deleting student:', error);
     res.status(500).json({ message: 'Error deleting student', error });
   }
 };
 
-
 const vacateStudent = async (req, res) => {
   try {
     const { id } = req.params; // Get student ID from the request parameters
 
-    // Find the student and update their status to 'vacated'
-    const student = await Student.findByIdAndUpdate(
-      id,
-      { currentStatus: 'vacated' }, // Update the status field to 'vacated'
-      { new: true } // Return the updated document
-    );
+    // Find the student by ID
+    const student = await Student.findById(id);
 
     if (!student) {
       return res.status(404).json({ message: 'Student not found' });
     }
 
-    res.status(200).json({ message: 'Student status updated to vacated successfully', student });
+    // Remove the student from their assigned room
+    if (student.room) {
+      const room = await Rooms.findById(student.room); // Assuming Room is a model representing rooms in the database
+
+      if (room) {
+        // Remove the student ID from the room's occupants array
+        room.occupanets = room.occupanets.filter(occupantId => occupantId.toString() !== id);
+
+        // Update occupant count and vacant slots
+        if (room.occupant > 0) {
+          room.occupant -= 1; // Decrement the occupant count
+        }
+        if (room.vacantSlot < room.roomCapacity) {
+          room.vacantSlot += 1; // Increment the vacantSlot count
+        }
+
+        // Save the updated room
+        await room.save();
+      }
+    }
+    student.currentStatus = 'vacated';
+    student.room = null; // Remove the room assignment
+    await student.save();
+
+    res.status(200).json({ 
+      message: 'Student vacated successfully', 
+      student, 
+      updatedRoom: student.room ? await Rooms.findById(student.room) : null // Include updated room details if applicable
+    });
   } catch (error) {
-    res.status(500).json({ message: 'Error updating student status', error });
+    res.status(500).json({ message: 'Error vacating student', error });
   }
 };
+
+
 const calculateTotalFee = async (req, res) => {
   try {
     // Fetch all students and select only the 'fee' field
@@ -336,6 +408,7 @@ const getStudentByStudentId = async (req, res) => {
 
 const mongoose = require('mongoose');
 const Rooms = require('../Models/RoomAllocationModel');
+const { emailVerificationTemplate } = require('../utils/emailTemplates');
 
 const updateWarningStatus = async (req, res) => {
   try {

@@ -4,6 +4,7 @@ const userLoginController = require('../controller/userLoginController')
 const router = express.Router();
 
 
+router.get('/verifyemail/:userId', userLoginController.verifyEmail);
 router.post('/userLogin', userLoginController.login);
 router.post('/forgot-password', userLoginController.forgotPassword);
 router.get('/reset-password/:token',userLoginController.resetPassword);

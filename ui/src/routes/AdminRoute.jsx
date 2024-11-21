@@ -55,6 +55,8 @@ import RoomAllocation from '../pages/rooms/RoomAllocation.jsx'
 import AddRoom from '../pages/rooms/AddRoom.jsx'
 import EditRoom from '../pages/rooms/EditRoom.jsx'
 import ResetPassword from '../pages/resetPassword/ResetPassword.jsx'
+import ResetSuccess from '../pages/resetPassword/ResetSuccess.jsx'
+import EmailVerificationSuccess from '../pages/auth/EmailVerificationSuccess.jsx'
 
 const AdminRoute = () => {
     return (
@@ -67,6 +69,8 @@ const AdminRoute = () => {
                 <Route path="/signup" element={<Signup />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/reset-password/:token" element={<ResetPassword />} />
+                <Route path="/resetSuccess" element={<ResetSuccess />} />
+                <Route path="/email-verification-success" element={<EmailVerificationSuccess />} />
                 <Route element={<AdminLayout />}>
                     <Route path="/" element={<Dashboard />} />
                     <Route path="/students" element={<StudentManagement />} />
