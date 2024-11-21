@@ -59,7 +59,6 @@ function PropertyManagement() {
   const filteredProperties = properties.filter(property =>
     property.propertyName.toLowerCase().includes(searchQuery.toLowerCase())
   );
- 
 
   if (loading) return <p>Loading properties...</p>;
 
@@ -94,7 +93,6 @@ function PropertyManagement() {
           <MdMeetingRoom className="text-blue-600 text-2xl mr-2" />
           <div>
             <p className="text-gray-500 text-sm">Rooms</p>
-            <p className="font-bold text-lg">{phases.length}</p>
           </div>
         </div>
       </div>

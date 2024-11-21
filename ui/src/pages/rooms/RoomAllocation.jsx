@@ -21,7 +21,7 @@ function RoomAllocation() {
             Authorization: `Bearer ${admin.token}`,
           },
         });
-
+  
         // Group rooms by property
         const roomsByProperty = response.data.rooms.reduce((acc, room) => {
           if (!acc[room.propertyName]) {
@@ -30,22 +30,34 @@ function RoomAllocation() {
           acc[room.propertyName].push(room);
           return acc;
         }, {});
-
-        // Convert the object into an array format
+  
+        // Sort rooms within each property
         const formattedProperties = Object.keys(roomsByProperty).map((propertyName) => ({
           propertyName,
-          rooms: roomsByProperty[propertyName],
+          rooms: roomsByProperty[propertyName].sort((a, b) => {
+            const [numA, suffixA] = a.roomNumber.split(' ');
+            const [numB, suffixB] = b.roomNumber.split(' ');
+  
+            // Compare numeric parts as numbers (descending)
+            const numComparison = parseInt(numB) - parseInt(numA);
+            if (numComparison !== 0) return numComparison;
+  
+            // Compare suffix parts lexicographically (ascending)
+            return suffixA.localeCompare(suffixB);
+          }),
         }));
-
+  
         setProperties(formattedProperties);
-
+        console.log(formattedProperties);
+  
       } catch (error) {
         console.error('Error fetching rooms:', error);
       }
     };
-
+  
     fetchRooms();
   }, []);
+  
 
   const handleCardClick = async (roomId, roomNumber) => {
     try {

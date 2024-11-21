@@ -47,10 +47,13 @@ const login = async (req, res) => {
     if (!user) {
       return res.status(400).json({ message: 'Invalid email or password' });
     }
-
-    if (password !== user.password) {
-      return res.status(400).json({ message: 'Invalid password' });
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      return res.status(401).json({ message: "Invalid credentials." });
     }
+    // if (password !== user.password) {
+    //   return res.status(400).json({ message: 'Invalid password' });
+    // }
 
     // Generate JWT token
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '15d' });

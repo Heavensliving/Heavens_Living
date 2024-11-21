@@ -24,7 +24,7 @@ const EmailVerificationSuccess = () => {
     <div
       className="flex flex-col justify-center items-center min-h-screen p-6"
       style={{
-        background: 'linear-gradient(to bottom, #0a1f44, #1769e8, #1c2834)',
+        background: '#98264A',
       }}
     >
       {/* Logo */}
@@ -64,7 +64,7 @@ const EmailVerificationSuccess = () => {
       {/* Store Link */}
       <a
         href={getStoreLink()}
-        className="w-full max-w-sm text-center py-3 px-6 bg-blue-500 hover:bg-blue-600 text-white rounded-lg text-lg font-semibold shadow-lg transform transition-transform duration-300 ease-out hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-50"
+        className="w-full max-w-sm text-center py-3 px-6 bg-rose-950 hover:bg-blue-600 text-white rounded-lg text-lg font-semibold shadow-lg transform transition-transform duration-300 ease-out hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-50"
         target="_blank"
         rel="noopener noreferrer"
       >
