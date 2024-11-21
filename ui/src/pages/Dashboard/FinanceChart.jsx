@@ -13,7 +13,7 @@ const FinanceChart = () => {
   const [totalReceived, setTotalReceived] = useState([]);
   const [totalExpense, setTotalExpense] = useState([]);
   const [months, setMonths] = useState([]);
-  const [selectedMonth, setSelectedMonth] = useState(''); // For filtering data by month
+  const [selectedMonth, setSelectedMonth] = useState(''); 
 
   useEffect(() => {
     const fetchFeeData = async () => {
@@ -25,7 +25,7 @@ const FinanceChart = () => {
         const feeTransactions = feeResponse.data;
     
         // Debugging: Log fetched data
-        console.log('Fee Transactions:', feeTransactions);
+        // console.log('Fee Transactions:', feeTransactions);
     
         // Initialize all months with zero
         const allMonths = Array.from({ length: 12 }, (_, i) =>
@@ -42,9 +42,9 @@ const FinanceChart = () => {
           const monthIndex = transactionDate.getMonth(); // Get month index (0-11)
     
           // Debugging: Log the month index and amount
-          console.log(
-            `Transaction Date: ${transactionDate}, Month Index: ${monthIndex}, Amount: ${transaction.amountPaid}`
-          );
+          // console.log(
+          //   `Transaction Date: ${transactionDate}, Month Index: ${monthIndex}, Amount: ${transaction.amountPaid}`
+          // );
     
           // Aggregate total for the corresponding month
           monthlyReceivedData[monthIndex] += transaction.amountPaid || 0;

@@ -33,7 +33,7 @@ const ResolvedIssues = () => {
   return (
     <div className="bg-white shadow-md rounded-lg p-4 w-1/2 mt-4 flex flex-col">
       <h2 className="text-lg font-bold text-gray-800 mb-2">Latest Resolved Issues</h2>
-      <div className="flex-grow"> {/* Allow scrolling if too many records */}
+      <div className="flex-grow max-h-80 overflow-y-auto"> {/* Allow scrolling if too many records */}
         <table className="min-w-full text-left">
           <thead>
             <tr>

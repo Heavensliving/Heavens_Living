@@ -75,7 +75,7 @@ function PropertyManagement() {
           </div>
         </div>
         {/* Total branches Card */}
-        <div onClick={()=> navigate('/branch-management')} className="bg-white p-2 rounded-lg mb-4 flex items-center w-1/4">
+        <div onClick={()=> navigate('/branch-management')} className="bg-white p-2 rounded-lg mb-4 flex items-center w-1/4 cursor-pointer">
           <FaCodeBranch className="text-blue-600 text-2xl mr-2" />
           <div>
             <p className="text-gray-500 text-sm">Branches</p>
@@ -83,14 +83,14 @@ function PropertyManagement() {
           </div>
         </div>
         {/* Total phases Card*/}
-        <div className="bg-white p-2 rounded-lg mb-4 flex items-center w-1/4">
+        <div className="bg-white p-2 rounded-lg mb-4 flex items-center w-1/4 cursor-pointer">
           <FaLayerGroup className="text-blue-600 text-2xl mr-2" />
           <div>
             <p className="text-gray-500 text-sm">Phases</p>
             <p className="font-bold text-lg">{phases.length}</p>
           </div>
         </div>
-        <div onClick={()=> navigate('/rooms')} className="bg-white p-2 rounded-lg mb-4 flex items-center w-1/4">
+        <div onClick={()=> navigate('/rooms')} className="bg-white p-2 rounded-lg mb-4 flex items-center w-1/4 cursor-pointer">
           <MdMeetingRoom className="text-blue-600 text-2xl mr-2" />
           <div>
             <p className="text-gray-500 text-sm">Rooms</p>
