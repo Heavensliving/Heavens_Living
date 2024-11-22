@@ -60,7 +60,7 @@ const peopleSchema = new mongoose.Schema({
 },
 payments: [{ type: mongoose.Schema.Types.ObjectId, ref: 'FeePayment' }],  
 messOrders: [{ type: mongoose.Schema.Types.ObjectId, ref: 'MessOrder' }],
-}); 
+},{ timestamps: true }); 
 
 const peopleModel = mongoose.model('peopleModel', peopleSchema);
 

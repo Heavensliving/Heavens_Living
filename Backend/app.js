@@ -27,6 +27,7 @@ const CategoryRoutes = require('./routes/Category');
 const CafeLoginRoutes = require('./routes/CafeLogin.js')
 const userRoutes = require('./routes/user.js')
 const roomAllocationRoutes = require('./routes/RoomAllocation.js')
+const carousalRoutes = require('./routes/carousal.js')
 
 
 
@@ -85,6 +86,7 @@ app.use('/api/Category' ,CategoryRoutes);
 app.use('/api/CafeAuth',CafeLoginRoutes);
 app.use('/api/user/',userRoutes);
 app.use('/api/room/',roomAllocationRoutes)
+app.use('/api/carousal/',carousalRoutes)
 
 
 

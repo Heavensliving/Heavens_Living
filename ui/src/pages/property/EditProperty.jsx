@@ -78,9 +78,9 @@ function EditProperty() {
     }
   };
 
-  if (loading) {
-    return <div>Loading...</div>;
-  }
+  // if (loading) {
+  //   return <div>Loading...</div>;
+  // }
 
   if (error) {
     return <div>{error}</div>;
@@ -292,7 +292,7 @@ function EditProperty() {
             {loading ? (
               <div className="spinner border-t-2 border-white border-solid rounded-full w-6 h-6 animate-spin"></div>
             ) : (
-              'Update Property Property'
+              'Update Property'
             )}
           </button>
         </form>

@@ -37,7 +37,7 @@ const MessOrderSchema = new mongoose.Schema({
   },
   expiryDate: { type:String,required:false}
 
-});
+},{ timestamps: true });
 
 const MessOrder = mongoose.model('MessOrder', MessOrderSchema);
 

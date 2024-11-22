@@ -8,15 +8,12 @@ const commissionEntrySchema = new mongoose.Schema({
   note: String,
   paymentType: { type: String, required: true },
   transactionId: { type: String },
-  propertyId: {
-    type: String,  
-    required: true
-  },
   propertyName: {
     type: String,  
     required: true
   },
-});
+},{ timestamps: true }
+);
 const Commission = mongoose.model('Commission', commissionEntrySchema);
 
 module.exports = Commission;

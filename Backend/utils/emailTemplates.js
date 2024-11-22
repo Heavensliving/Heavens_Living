@@ -32,7 +32,7 @@ const passwordResetTemplate = (resetLink) => `
           padding: 10px 20px;
           font-size: 16px;
           color: #ffffff;
-          background-color: #007BFF;
+          background-color: #631930;
           text-decoration: none;
           border-radius: 4px;
         }
@@ -53,7 +53,7 @@ const passwordResetTemplate = (resetLink) => `
   </html>
 `;
 
-const emailVerificationTemplate = (link,userId) => `
+const emailVerificationTemplate = (link) => `
   <!DOCTYPE html>
   <html>
     <head>
@@ -87,7 +87,7 @@ const emailVerificationTemplate = (link,userId) => `
           padding: 10px 20px;
           font-size: 16px;
           color: #ffffff;
-          background-color: #28a745;
+          background-color: ##631930;
           text-decoration: none;
           border-radius: 4px;
         }
@@ -99,7 +99,7 @@ const emailVerificationTemplate = (link,userId) => `
         <div class="email-body">
           <p>Hello,</p>
           <p>Thank you for registering with us! To complete your registration, please verify your email address by clicking the link below:</p>
-          <a class="verify-link" href="${link}/${userId}">Verify Email Address</a>
+          <a class="verify-link" href="${link}">Verify Email Address</a>
           <p>Thank you,<br>Heavens</p>
         </div>
         <p style="color: #777; font-size: 12px;">This link will expire in 24 hours.</p>

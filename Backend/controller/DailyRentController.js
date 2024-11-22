@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const Property = require('../Models/Add_property');
 const DailyRent = require('../Models/DailyRentModel'); // Adjust the path as necessary
 const crypto = require('crypto');
+const Rooms = require('../Models/RoomAllocationModel');
 
 // Helper function to generate OccupantId
 const generateOccupantId = () => {
@@ -12,6 +13,7 @@ const generateOccupantId = () => {
 // Add a new DailyRent entry
 const addDailyRent = async (req, res) => {
   try {
+    console.log(req.body)
     const propertyId = req.body.propertyId;
     // Validate propertyId
     if (!propertyId || !mongoose.Types.ObjectId.isValid(propertyId)) {
@@ -30,7 +32,13 @@ const addDailyRent = async (req, res) => {
     // Extract phase and branch names
     const phaseName = property.phaseName;
     const branchName = property.branchName;
-
+    const room = await Rooms.findOne({ roomNumber: req.body.roomNo, property: propertyId });
+    if (!room) {
+      return res.status(404).json({ message: 'Room not found' });
+    }
+    if (room.vacantSlot <= 0) {
+      return res.status(400).json({ message: 'No vacant slots available in the selected room' });
+    }
     // Create a new DailyRent instance with request data and additional fields
     const newDailyRent = new DailyRent({
       ...req.body,
@@ -39,15 +47,16 @@ const addDailyRent = async (req, res) => {
       phase: phaseName,
       branch: branchName,
       property: propertyId,
+      room: room._id,
     });
-
-    // Save new DailyRent document to the database
     const savedDailyRent = await newDailyRent.save();
+    room.dailyRent.push(newDailyRent._id);
+    room.occupant += 1;
+    room.vacantSlot -= 1;
+    await room.save();
 
     // Update property document by adding the new DailyRent's ID
-    await Property.findByIdAndUpdate(propertyId, { $push: { occupanets: savedDailyRent._id } });
-
-    // Respond with the saved document
+    await Property.findByIdAndUpdate(propertyId, { $push: { dailyRent: savedDailyRent._id } });
     res.status(201).json(savedDailyRent);
   } catch (err) {
     console.error('Error saving DailyRent:', err); // Log the error
@@ -101,13 +110,29 @@ const deleteDailyRent = async (req, res) => {
     const { id } = req.params;
     const dailyRent = await DailyRent.findById(id);
     const propertyId = dailyRent.property
+    if (dailyRent.room) {
+      const room = await Rooms.findById(dailyRent.room); // Assuming Room is the room model
+      console.log(room)
+      if (room) {
+
+        room.dailyRent = room.dailyRent.filter(dailyRentId => dailyRentId.toString() !== id);
+
+        if (room.occupant > 0) {
+          room.occupant -= 1;
+        }
+        if (room.vacantSlot < room.roomCapacity) {
+          room.vacantSlot += 1;
+        }
+        await room.save();
+      }
+    }
     const deletedDailyRent = await DailyRent.findByIdAndDelete(id);
     if (!deletedDailyRent) {
       return res.status(404).json({ message: 'DailyRent entry not found' });
     }
     const property = await Property.findByIdAndUpdate(
       propertyId,
-      { $pull: { occupanets: deletedDailyRent._id } },
+      { $pull: { dailyRent: deletedDailyRent._id } },
       { new: true }
     );
 

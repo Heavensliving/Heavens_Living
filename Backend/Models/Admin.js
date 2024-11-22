@@ -11,7 +11,7 @@ const adminSchema = new mongoose.Schema(
       enum: ['mainAdmin', 'branchAdmin', 'propertyAdmin'], 
       required: true 
     },
-  }
+  },{ timestamps: true }
 );
 
 const Admin = mongoose.model('Admin', adminSchema);

@@ -6,6 +6,8 @@ import { useNavigate, useParams } from 'react-router-dom';
 import API_BASE_URL from '../../config';
 import { useSelector } from 'react-redux';
 import CheckAuth from '../auth/CheckAuth';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const storage = getStorage();
 
@@ -48,6 +50,7 @@ function EditStudent() {
     };
 
     const [studentData, setStudentData] = useState(initialData);
+    const [loading, setLoading] = useState(false);
     const [properties, setProperties] = useState([]);
     const [uploadProgress, setUploadProgress] = useState({});
     const [oldFiles, setOldFiles] = useState({
@@ -122,7 +125,7 @@ function EditStudent() {
         {
             name: 'pgName',
             type: 'select',
-            options: properties.map((property) => property.propertyName), 
+            options: properties.map((property) => property.propertyName),
             placeholder: 'PG Name',
             label: 'PG Name',
             required: true,
@@ -144,38 +147,38 @@ function EditStudent() {
     // Handle input changes
     const handleChange = (e) => {
         const { name, value, type, files } = e.target;
-      
+
         if (type === 'file') {
-          setStudentData({
-            ...studentData,
-            [name]: files[0],
-          });
+            setStudentData({
+                ...studentData,
+                [name]: files[0],
+            });
         } else if (name === 'pgName') {
-          // Log the selected value to debug if necessary
-          console.log("Selected PG Name:", value);
-      
-          // Find the selected property based on propertyName (or ID) from properties list
-          const selectedProperty = properties.find(property => property.propertyName === value);
-      
-          // Debug: Log the selected property to verify its structure
-          console.log("Selected Property:", selectedProperty);
-      
-          // Update the state with the property name, ID, and other details
-          setStudentData((prevData) => ({
-            ...prevData,
-            pgName: value, // Store the name of the selected property
-            property: selectedProperty ? selectedProperty._id : '', // Store the property ID
-            branch: selectedProperty ? selectedProperty.branch : '', // Update other relevant details
-            phase: selectedProperty ? selectedProperty.phase : '', // Update other relevant details
-          }));
+            // Log the selected value to debug if necessary
+            console.log("Selected PG Name:", value);
+
+            // Find the selected property based on propertyName (or ID) from properties list
+            const selectedProperty = properties.find(property => property.propertyName === value);
+
+            // Debug: Log the selected property to verify its structure
+            console.log("Selected Property:", selectedProperty);
+
+            // Update the state with the property name, ID, and other details
+            setStudentData((prevData) => ({
+                ...prevData,
+                pgName: value, // Store the name of the selected property
+                property: selectedProperty ? selectedProperty._id : '', // Store the property ID
+                branch: selectedProperty ? selectedProperty.branch : '', // Update other relevant details
+                phase: selectedProperty ? selectedProperty.phase : '', // Update other relevant details
+            }));
         } else {
-          setStudentData({
-            ...studentData,
-            [name]: value || '',
-          });
+            setStudentData({
+                ...studentData,
+                [name]: value || '',
+            });
         }
-      };
-      
+    };
+
 
     // Upload file to Firebase
     const uploadFile = (file) => {
@@ -213,7 +216,7 @@ function EditStudent() {
     // Handle form submission
     const handleSubmit = async (e) => {
         e.preventDefault();
-
+        setLoading(true);
         const filesToUpload = ['adharFrontImage', 'adharBackImage', 'photo'];
         const uploadPromises = filesToUpload.map(async (fileField) => {
             // Check if a new file has been selected for upload
@@ -245,12 +248,20 @@ function EditStudent() {
             });
 
             if (response.status === 200) {
-                navigate('/students');
+                toast.success('Successfully updated!', { autoClose: 500 });
+                setTimeout(() => {
+                    navigate('/students');
+                    setLoading(false);
+                }, 1000);
             } else {
                 console.error('Error:', response.statusText);
+                setLoading(false);
+                toast.error(error.response.data.message, { autoClose: 2000 });
             }
         } catch (error) {
             console.error('Error updating student:', error);
+            setLoading(false);
+            toast.error('Something went wrong. Please try again later.');
         }
     };
 
@@ -314,11 +325,17 @@ function EditStudent() {
                             </div>
                         ))}
                     </div>
+                    <ToastContainer />
                     <button
                         type="submit"
-                        className="w-full bg-side-bar text-white font-bold py-3 rounded-lg hover:bg-gray-700 transition duration-300"
+                        className={`w-full bg-side-bar text-white font-bold py-3 rounded-lg hover:bg-gray-700 transition duration-300 flex items-center justify-center ${loading ? ' cursor-not-allowed' : ''}`}
+                        disabled={loading}
                     >
-                        Update Student
+                        {loading ? (
+                            <div className="spinner border-t-2 border-white border-solid rounded-full w-6 h-6 animate-spin"></div>
+                        ) : (
+                            'Update'
+                        )}
                     </button>
                 </form>
             </div>

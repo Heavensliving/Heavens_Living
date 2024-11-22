@@ -79,13 +79,14 @@ function AddStudent() {
     if (!admin) return;
     // Fetch rooms when a property is selected
     if (studentData.pgName) {
+      console.log(studentData.pgName)
       const fetchRooms = async () => {
         try {
           const response = await axios.get(`${API_BASE_URL}/room/${studentData.pgName}`, {
             headers: { 'Authorization': `Bearer ${admin.token}` },
           });
 
-          console.log(response.data)
+          console.log("here",response.data)
           // Filter rooms with vacantSlot > 0
           const availableRooms = response.data.filter(room => room.vacantSlot > 0);
           setRooms(availableRooms); // Set the rooms to state
@@ -293,10 +294,12 @@ function AddStudent() {
         }, 1000);
       } else {
         console.error('Error:', response.statusText);
+        setLoading(false);
         toast.error(error.response.data.message, { autoClose: 2000 });
       }
     } catch (error) {
       console.error('Error:', error);
+      setLoading(false);
       toast.error('Something went wrong. Please try again later.');
     }
   };
@@ -362,10 +365,14 @@ function AddStudent() {
           <ToastContainer />
           <button
             type="submit"
-            className={`w-full bg-side-bar text-white font-bold py-3 rounded-lg hover:bg-gray-700 transition duration-300 ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+            className={`w-full bg-side-bar text-white font-bold py-3 rounded-lg hover:bg-gray-700 transition duration-300 flex items-center justify-center ${loading ? ' cursor-not-allowed' : ''}`}
             disabled={loading}
           >
-            {loading ? <div className='spinner text-center'></div> : 'Register Student'} {/* Show loading text */}
+            {loading ? (
+              <div className="spinner border-t-2 border-white border-solid rounded-full w-6 h-6 animate-spin"></div>
+            ) : (
+              'Register'
+            )}
           </button>
         </form>
       </div>

@@ -8,7 +8,7 @@ import { useSelector } from 'react-redux';
 
 const storage = getStorage(app);
 
-const Input = ({ label, type = 'text', name, value, onChange, required = false, accept }) => (
+const Input = ({ label, type = 'text', name, value, onChange, required = false, accept, placeholder }) => (
   <div className="w-full md:w-1/2 px-2 mb-4">
     <label className="block font-medium">{label}</label>
     <input
@@ -19,6 +19,7 @@ const Input = ({ label, type = 'text', name, value, onChange, required = false, 
       className="w-full p-2 border border-gray-300 rounded"
       required={required}
       accept={accept}
+      placeholder={placeholder}
     />
   </div>
 );
@@ -67,16 +68,19 @@ const AddDailyRent = () => {
     gender: '',
     branch: '',
     phase: '',
-    property: ''
   });
 
   const [properties, setProperties] = useState([]);
+  const [rooms, setRooms] = useState([]);
+  const [pgName, setPgName] = useState([]);
+  const [roomType, setRoomType] = useState("");
+  const [roomNo, setRoomNo] = useState([]);
 
   useEffect(() => {
     const fetchProperties = async () => {
       try {
         const response = await axios.get(`${API_BASE_URL}/property`,
-          {headers: { 'Authorization': `Bearer ${admin.token}` }}
+          { headers: { 'Authorization': `Bearer ${admin.token}` } }
         );
         setProperties(response.data);
       } catch (error) {
@@ -86,8 +90,62 @@ const AddDailyRent = () => {
     fetchProperties();
   }, []);
 
+  useEffect(() => {
+    if (!admin) return;
+    if (pgName) {
+      console.log(pgName)
+      const fetchRooms = async () => {
+        try {
+          const response = await axios.get(`${API_BASE_URL}/room/${pgName}`, {
+            headers: { 'Authorization': `Bearer ${admin.token}` },
+          });
+          const roomsData = Array.isArray(response.data)
+          ? response.data // If response.data is already an array
+          : response.data.rooms || []; 
+          console.log("here",response.data)
+          // Filter rooms with vacantSlot > 0
+          const availableRooms = roomsData.filter(room => room.vacantSlot > 0);
+          console.log(availableRooms)
+          setRooms(availableRooms); // Set the rooms to state
+        } catch (error) {
+          console.error('Error fetching rooms:', error);
+        }
+      };
+      fetchRooms();
+    } 
+  }, [pgName, admin]);
+
+  useEffect(() => {
+    if (roomType) {
+      console.log(roomType)
+      const matchingRooms = rooms.filter((room) => room.roomType === roomType);
+      console.log(matchingRooms)
+      setRoomNo(matchingRooms);
+      console.log(matchingRooms)
+    } else {
+      setRoomNo(rooms);
+    }
+  }, [roomType, rooms]);
+
   const handleChange = (e) => {
     const { name, type, files, value } = e.target;
+    if (name === 'roomType') {
+      console.log('hreer')
+      setRoomType(value);
+      setFormData((preData) => {
+        return { ...preData, roomType: value }
+      })
+    } else if (name === 'propertyId') {
+      // Debug: Log the selected value to see if it's correct
+      console.log("Selected PG Name:", value);
+      const selectedProperty = properties.find(property => property._id === value);
+      console.log("Selected Property:", selectedProperty);
+      setPgName(selectedProperty.propertyName)
+      setFormData((prevData) => ({
+        ...prevData,
+        pgName: value,
+      }));
+    }
     if (type === 'file') {
       setFormData({ ...formData, [name]: files[0] });
     } else {
@@ -116,7 +174,7 @@ const AddDailyRent = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+    console.log(formData)
     const filesToUpload = ['photo', 'adharFrontImage', 'adharBackImage'];
     const uploadPromises = filesToUpload.map(async (fileField) => {
       if (formData[fileField]) {
@@ -132,11 +190,9 @@ const AddDailyRent = () => {
     uploadedFiles.forEach((result) => {
       if (result) {
         const key = Object.keys(result)[0];
-        formData[key] = result[key]; // Update formData with the URL of the uploaded file
+        formData[key] = result[key];
       }
     });
-
-    // Create FormData for submission
     const Data = new FormData();
     for (const key in formData) {
       Data.append(key, formData[key]);
@@ -144,7 +200,7 @@ const AddDailyRent = () => {
 
     try {
       const response = await axios.post(`${API_BASE_URL}/DailyRent/Add`, formData,
-        {headers: { 'Authorization': `Bearer ${admin.token}` }}
+        { headers: { 'Authorization': `Bearer ${admin.token}` } }
       );
       navigate('/dailyRent');
     } catch (error) {
@@ -156,30 +212,7 @@ const AddDailyRent = () => {
     <div className="max-w-3xl mx-auto mt-10 p-6 bg-white rounded-md shadow-md">
       <form onSubmit={handleSubmit} className="flex flex-wrap -mx-2 space-y-4">
         <Input label="Name" name="name" value={formData.name} onChange={handleChange} required />
-        <Input label="Address" name="address" value={formData.address} onChange={handleChange} required />
-        <Input label="Contact No" name="contactNo" value={formData.contactNo} onChange={handleChange} required />
-        <Input label="Email" type="email" name="email" value={formData.email} onChange={handleChange} required />
-        <Input label="Blood Group" name="bloodGroup" value={formData.bloodGroup} onChange={handleChange} required />
-        <Input label="Daily Rent" type="number" name="DailyRent" value={formData.DailyRent} onChange={handleChange} />
-
-        <Select
-          label="Pg Name"
-          name="propertyId"
-          value={formData.propertyId}
-          onChange={handleChange}
-          options={properties.map(property => ({ _id: property._id, propertyName: property.propertyName }))}
-          required
-        />
-
-        <Input label="Photo" type="file" name="photo" onChange={handleChange} accept="image/*" />
-        <Input label="Aadhar Front Image" type="file" name="adharFrontImage" onChange={handleChange} accept="image/*" />
-        <Input label="Aadhar Back Image" type="file" name="adharBackImage" onChange={handleChange} accept="image/*" />
-
-        <Select
-          label="Gender"
-          name="gender"
-          value={formData.gender}
-          onChange={handleChange}
+        <Select label="Gender" name="gender" value={formData.gender} onChange={handleChange}
           options={[
             { value: 'Male', label: 'Male' },
             { value: 'Female', label: 'Female' },
@@ -187,7 +220,39 @@ const AddDailyRent = () => {
           ]}
           required
         />
-
+        <Input label="Address" name="address" value={formData.address} onChange={handleChange} required />
+        <Input label="Date of Birth" type="date" name="dateOfBirth" value={formData.dateOfBirth} onChange={handleChange} required />
+        <Input label="Contact No" name="contactNo" value={formData.contactNo} onChange={handleChange} required />
+        <Input label="Email" type="email" name="email" value={formData.email} onChange={handleChange} required />
+        <Input label="Blood Group" name="bloodGroup" value={formData.bloodGroup} onChange={handleChange} />
+        <Input label="Daily Rent" type="number" name="DailyRent" value={formData.DailyRent} onChange={handleChange} />
+        <Select
+          label="Pg Name"
+          name="propertyId"
+          value={formData.propertyName}
+          onChange={handleChange}
+          options={properties.map(property => ({ _id: property._id, propertyName: property.propertyName }))}
+          required
+        />
+        <Select
+          label="Room Type"
+          name="roomType"
+          onChange={handleChange}
+          options={rooms.map(room => ({ _id: room.id, propertyName: room.roomType }))}
+          required
+        />
+        <Select
+          label="Room No"
+          name="roomNo"
+          onChange={handleChange}
+          options={roomNo.map(room => ({ _id: room.id, propertyName: room.roomNumber }))}
+          required
+        />
+        <Input label="Type of Stay" name="typeOfStay" value={formData.typeOfStay} onChange={handleChange} />
+        <Input label="Photo" type="file" name="photo" onChange={handleChange} accept="image/*" />
+        <Input label="Aadhar Front Image" type="file" name="adharFrontImage" onChange={handleChange} accept="image/*" />
+        <Input label="Aadhar Back Image" type="file" name="adharBackImage" onChange={handleChange} accept="image/*" />
+        <Input label="Join Date" type="date" name="joinDate" value={formData.joinDate} onChange={handleChange} />
         <Select
           label="Payment Status"
           name="paymentStatus"
@@ -199,14 +264,6 @@ const AddDailyRent = () => {
           ]}
           required
         />
-
-        <Input label="Join Date" type="date" name="joinDate" value={formData.joinDate} onChange={handleChange} />
-        <Input label="Date of Birth" type="date" name="dateOfBirth" value={formData.dateOfBirth} onChange={handleChange} />
-
-        <Input label="Room Type" name="roomType" value={formData.roomType} onChange={handleChange} />
-        <Input label="Room No" name="roomNo" value={formData.roomNo} onChange={handleChange} />
-        <Input label="Type of Stay" name="typeOfStay" value={formData.typeOfStay} onChange={handleChange} />
-
         <button type="submit" className="w-full bg-blue-500 text-white py-2 px-4 rounded mt-4">Submit</button>
       </form>
     </div>

@@ -4,6 +4,8 @@ const nodemailer = require('nodemailer');
 const Student = require('../Models/Add_student'); 
 const PasswordReset = require('../Models/PasswordRest');
 const { passwordResetTemplate } = require('../utils/emailTemplates');
+require('dotenv').config();
+const SECRET_KEY = process.env.JWT_SECRET
 const FRONTEND_BASE_URL = process.env.FRONTEND_BASE_URL;
 // Transporter for sending emails
 const transporter = nodemailer.createTransport({
@@ -15,8 +17,14 @@ const transporter = nodemailer.createTransport({
 });
 
 const verifyEmail = async (req, res) => {
-  const userId = req.params.userId;
-console.log("here", userId)
+  const { token } = req.query;
+  if (!token) {
+    console.error('Token is missing');
+    res.redirect(`${FRONTEND_BASE_URL}/link-expired`);
+    return;
+  }
+  const decoded = jwt.verify(token, SECRET_KEY);
+  const userId = decoded.userId;
   try {
     const user = await Student.findOne({ _id: userId });
     if (!user) {
@@ -29,10 +37,11 @@ console.log("here", userId)
     );
      res.redirect(`${FRONTEND_BASE_URL}/email-verification-success`);
   } catch (error) {
-    console.error("Error verifying email:", error);
-    res
-      .status(500)
-      .json({ message: "Error verifying email. Please try again later." });
+    console.error('Token verification failed:', error);
+    if (error.name === 'TokenExpiredError') {
+      return res.status(400).json({ message: 'Verification link has expired' });
+    }
+    res.status(400).json({ message: 'Invalid verification link' });
   }
 };
 

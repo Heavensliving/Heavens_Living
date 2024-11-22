@@ -57,6 +57,7 @@ import EditRoom from '../pages/rooms/EditRoom.jsx'
 import ResetPassword from '../pages/resetPassword/ResetPassword.jsx'
 import ResetSuccess from '../pages/resetPassword/ResetSuccess.jsx'
 import EmailVerificationSuccess from '../pages/auth/EmailVerificationSuccess.jsx'
+import LinkExpired from '../pages/auth/LinkExpired.jsx'
 
 const AdminRoute = () => {
     return (
@@ -71,6 +72,7 @@ const AdminRoute = () => {
                 <Route path="/reset-password/:token" element={<ResetPassword />} />
                 <Route path="/resetSuccess" element={<ResetSuccess />} />
                 <Route path="/email-verification-success" element={<EmailVerificationSuccess />} />
+                <Route path="/link-expired" element={<LinkExpired />} />
                 <Route element={<AdminLayout />}>
                     <Route path="/" element={<Dashboard />} />
                     <Route path="/students" element={<StudentManagement />} />

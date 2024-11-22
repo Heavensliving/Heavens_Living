@@ -13,8 +13,11 @@ const MaintananceSchema = new mongoose.Schema({
   ResolutionDate: { type: Date, required: false },
   Remarks:{type:String,required:false},
   Status:{ type:String,required:false,default:"Pending"},
-  propertyId:{type:String,required:false},
-  student: {
+  propertyId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Property'
+  },
+  studentId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Student'
   }

@@ -21,7 +21,7 @@ const messManagementSchema = new mongoose.Schema({
     required: true,  // Make it required
     default: [],
   },
-});
+},{ timestamps: true });
 
 const MessManagement = mongoose.model('MessManagement', messManagementSchema);
 

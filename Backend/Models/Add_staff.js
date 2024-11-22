@@ -24,7 +24,7 @@ const staffSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Property'
 }
-});
+},{ timestamps: true });
 
 const Staff = mongoose.model("Staff", staffSchema);
 

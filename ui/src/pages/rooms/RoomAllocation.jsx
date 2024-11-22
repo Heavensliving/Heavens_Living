@@ -69,7 +69,12 @@ function RoomAllocation() {
           Authorization: `Bearer ${admin.token}`,
         },
       });
-      setOccupants(response.data.occupants);
+      const combinedData = {
+        dailyRent: response.data.dailyRent,
+        occupants: response.data.occupants,
+      };
+      console.log(combinedData)
+      setOccupants(combinedData);
       setRoomId(roomId)
       setSelectedRoom(roomNumber);
       setIsModalOpen(true);
@@ -150,42 +155,63 @@ function RoomAllocation() {
 
       {/* Modal Component */}
       {isModalOpen && (
-        <div className="fixed ml-60 inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg shadow-lg p-6 max-w">
-            <h2 className="text-2xl font-bold mb-4">Occupants in Room {selectedRoom}</h2>
-            {occupants.length > 0 ? (
-              <div className="space-y-4">
-                <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-2 p-2 bg-gray-100 rounded-lg">
-                  {occupants.map((occupant, index) => (
-                    <div key={index} className='p-4'>
-                      <p className="text-lg font-medium">{occupant.name}</p>
-                      <p className="text-gray-600">{occupant.contactNo}</p>
-                    </div>
-                  ))}
-                </div>
+  <div className="fixed ml-60 inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div className="bg-white rounded-lg shadow-lg p-6 max-w">
+      <h2 className="text-2xl font-bold mb-4">Occupants in Room {selectedRoom}</h2>
+      
+      {/* Daily Rent Section */}
+      {occupants.dailyRent && occupants.dailyRent.length > 0 ? (
+        <div className="mb-6">
+          <h3 className="text-xl font-semibold mb-2">Daily Rent Details</h3>
+          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-2 p-2 bg-gray-100 rounded-lg">
+            {occupants.dailyRent.map((rent, index) => (
+              <div key={index} className="p-4">
+                <p className="text-lg font-medium">{rent.name}</p>
+                <p className="text-gray-600">{rent.contactNo}</p>
+                <p className="text-gray-600">Room No: {rent.roomNo}</p>
               </div>
-            ) : (
-              <p>No occupants found.</p>
-            )}
-            <div className="flex justify-between mt-6">
-              <button
-                onClick={closeModal}
-                className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition"
-              >
-                Close
-              </button>
-              <button
-                onClick={() => navigate(`/edit-room/${roomId}`)}
-                className="bg-side-bar hover:bg-indigo-700 text-white px-4 py-2 rounded-lg transition"
-              >
-                Edit Room
-              </button>
-            </div>
+            ))}
           </div>
         </div>
+      ) : (
+        <p className="mb-4">No daily rent details found.</p>
       )}
 
+      {/* Occupants Section */}
+      {occupants.occupants && occupants.occupants.length > 0 ? (
+        <div>
+          <h3 className="text-xl font-semibold mb-2">Occupants Details</h3>
+          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-2 p-2 bg-gray-100 rounded-lg">
+            {occupants.occupants.map((occupant, index) => (
+              <div key={index} className="p-4">
+                <p className="text-lg font-medium">{occupant.name}</p>
+                <p className="text-gray-600">{occupant.contactNo}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      ) : (
+        <p>No occupants found.</p>
+      )}
+
+      {/* Modal Buttons */}
+      <div className="flex justify-between mt-6">
+        <button
+          onClick={closeModal}
+          className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition"
+        >
+          Close
+        </button>
+        <button
+          onClick={() => navigate(`/edit-room/${roomId}`)}
+          className="bg-side-bar hover:bg-indigo-700 text-white px-4 py-2 rounded-lg transition"
+        >
+          Edit Room
+        </button>
+      </div>
     </div>
+  </div>
+)}    </div>
   );
 }
 

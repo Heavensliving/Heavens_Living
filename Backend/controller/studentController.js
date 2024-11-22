@@ -5,8 +5,10 @@ const bcrypt = require('bcrypt');
 const nodemailer = require('nodemailer');
 const FeePayment = require('../Models/feePayment');
 const Maintanance = require('../Models/MaintanenceModel')
+const jwt = require('jsonwebtoken');
 require('dotenv').config();
-BACKEND_BASE_URL=process.env.BACKEND_BASE_URL;
+const SECRET_KEY = process.env.JWT_SECRET
+const BACKEND_BASE_URL = process.env.BACKEND_BASE_URL;
 
 // Transporter for sending emails
 const transporter = nodemailer.createTransport({
@@ -22,7 +24,9 @@ const generateStudentId = () => {
   const randomNumber = crypto.randomInt(1000, 100000);
   return `HVNS${randomNumber}`;
 };
-
+const generateVerificationToken = (userId) => {
+  return jwt.sign({ userId }, SECRET_KEY, { expiresIn: '24h' }); // Token expires in 24 hours
+};
 // Add student function
 const addStudent = async (req, res) => {
   const propertyId = req.body.property;
@@ -61,12 +65,13 @@ const addStudent = async (req, res) => {
 
     await room.save();
     await Property.findByIdAndUpdate(propertyId, { $push: { occupanets: student._id } });
-    const link = 'http://192.168.1.79:3000/api/user/verifyemail'
-    const emailHtml = emailVerificationTemplate(link,student._id)
+    const token = generateVerificationToken(student._id);
+    const link = `${BACKEND_BASE_URL}/user/verifyemail?token=${token}`
+    const emailHtml = emailVerificationTemplate(link)
     const mailOptions = {
       from: 'www.heavensliving@gmail.com',
       to: student.email,
-      subject: 'Password Reset Request',
+      subject: 'Email Verification',
       html: emailHtml,
     };
 
@@ -90,16 +95,16 @@ const getAllStudents = async (req, res) => {
 };
 
 // Function to get a students
- const getStudentById = async (req, res, next) => {
+const getStudentById = async (req, res, next) => {
   const studentId = req.params.id;
   let result;
   try {
-      result = await Student.findById(studentId);
-      if (!result)
-          return res.status(404).json({ message: 'Student with the given ID does not exist.' });
+    result = await Student.findById(studentId);
+    if (!result)
+      return res.status(404).json({ message: 'Student with the given ID does not exist.' });
 
   } catch (err) {
-      return res.status(500).json({ message: "Error occured in fetching the student" })
+    return res.status(500).json({ message: "Error occured in fetching the student" })
   }
   return res.status(200).json({ result });
 };
@@ -109,8 +114,9 @@ const editStudent = async (req, res) => {
   try {
     const { id } = req.params; // Get student ID from the request parameters
     const updatedData = req.body; // Get the updated student data from the request body
-    const password = updatedData.password
-    updatedData.password = await bcrypt.hash(password, 10); 
+    if (updatedData.password) {
+      updatedData.password = await bcrypt.hash(updatedData.password, 10);
+    }
 
     console.log("Updated Data:", updatedData); // Debugging log
 
@@ -170,8 +176,9 @@ const editStudent = async (req, res) => {
 
     // Send email verification if email has changed
     if (emailChanged) {
-      const link = 'http://192.168.1.79:3000/api/user/verifyemail';
-      const emailHtml = emailVerificationTemplate(link, updatedStudent._id);
+      const token = generateVerificationToken(updatedStudent._id);
+      const link = `${BACKEND_BASE_URL}/user/verifyemail?token=${token}`
+      const emailHtml = emailVerificationTemplate(link);
       const mailOptions = {
         from: 'www.heavensliving@gmail.com',
         to: updatedData.email,
@@ -184,9 +191,9 @@ const editStudent = async (req, res) => {
         console.log("Email sent to updated address:", updatedData.email);
       } catch (emailError) {
         console.error("Error sending email:", emailError);
-        return res.status(500).json({ 
-          message: 'Student updated but failed to send verification email', 
-          error: emailError.message || emailError 
+        return res.status(500).json({
+          message: 'Student updated but failed to send verification email',
+          error: emailError.message || emailError
         });
       }
     }
@@ -216,9 +223,9 @@ const currentStatus = async (req, res) => {
 
     await student.save();
 
-    res.status(200).json({ 
-      message: `Student status updated to ${newStatus} successfully`, 
-      student 
+    res.status(200).json({
+      message: `Student status updated to ${newStatus} successfully`,
+      student
     });
   } catch (error) {
     console.error('Error updating student status:', error); // Log the error
@@ -263,10 +270,10 @@ const deleteStudent = async (req, res) => {
         room.occupanets = room.occupanets.filter(occupantId => occupantId.toString() !== id);
 
         if (room.occupant > 0) {
-          room.occupant -= 1; 
+          room.occupant -= 1;
         }
         if (room.vacantSlot < room.roomCapacity) {
-          room.vacantSlot += 1; 
+          room.vacantSlot += 1;
         }
 
         await room.save();
@@ -283,9 +290,9 @@ const deleteStudent = async (req, res) => {
       return res.status(404).json({ message: 'Property not found' });
     }
 
-    res.status(200).json({ 
-      message: 'Student deleted successfully and removed from property and room', 
-      updatedRoom: student.room ? await Rooms.findById(student.room) : null 
+    res.status(200).json({
+      message: 'Student deleted successfully and removed from property and room',
+      updatedRoom: student.room ? await Rooms.findById(student.room) : null
     });
   } catch (error) {
     console.error('Error deleting student:', error);
@@ -328,9 +335,9 @@ const vacateStudent = async (req, res) => {
     student.room = null; // Remove the room assignment
     await student.save();
 
-    res.status(200).json({ 
-      message: 'Student vacated successfully', 
-      student, 
+    res.status(200).json({
+      message: 'Student vacated successfully',
+      student,
       updatedRoom: student.room ? await Rooms.findById(student.room) : null // Include updated room details if applicable
     });
   } catch (error) {
@@ -485,5 +492,5 @@ const updateWarningStatus = async (req, res) => {
 
 
 // Export the functions for use in routes
-module.exports = { addStudent, getAllStudents, editStudent, updateWarningStatus, currentStatus, deleteStudent, vacateStudent, getStudentById, calculateTotalFee, getStudentByStudentId};
+module.exports = { addStudent, getAllStudents, editStudent, updateWarningStatus, currentStatus, deleteStudent, vacateStudent, getStudentById, calculateTotalFee, getStudentByStudentId };
 
