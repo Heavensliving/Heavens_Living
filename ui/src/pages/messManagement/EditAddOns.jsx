@@ -1,11 +1,14 @@
+
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate, useParams } from 'react-router-dom';
 import API_BASE_URL from '../../config';
 import { useSelector } from 'react-redux';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function EditAddOns() {
-    const admin = useSelector(store => store.auth.admin);
+    const admin = useSelector((store) => store.auth.admin);
     const navigate = useNavigate();
     const { id } = useParams(); // Assuming you're passing the ID in the URL
     const [inputs, setInputs] = useState({
@@ -15,16 +18,16 @@ function EditAddOns() {
         image: '',
         status: 'unavailable',
     });
-
+    const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState('');
 
     // Fetch the existing add-on data when the component mounts
     useEffect(() => {
         const fetchAddOnData = async () => {
             try {
-                const response = await axios.get(`${API_BASE_URL}/adOn/getAddOn/${id}`,
-                    {headers: { 'Authorization': `Bearer ${admin.token}` }}
-                );
+                const response = await axios.get(`${API_BASE_URL}/adOn/getAddOn/${id}`, {
+                    headers: { Authorization: `Bearer ${admin.token}` },
+                });
                 setInputs(response.data); // Assuming the response data matches the inputs structure
             } catch (error) {
                 console.error('Error fetching add-on data:', error);
@@ -33,7 +36,7 @@ function EditAddOns() {
         };
 
         fetchAddOnData();
-    }, [id]);
+    }, [id, admin.token]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -42,17 +45,30 @@ function EditAddOns() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setLoading(true);
 
         try {
-            await axios.put(`${API_BASE_URL}/adOn/update-addOn/${id}`, inputs,
-                {headers: { 'Authorization': `Bearer ${admin.token}` }}
-            ); // Change to PUT request for editing
-            setMessage('Add-on item updated successfully!');
-            resetForm();
-            navigate('/add-ons');
+            const response = await axios.put(
+                `${API_BASE_URL}/adOn/update-addOn/${id}`,
+                inputs,
+                {
+                    headers: { Authorization: `Bearer ${admin.token}` },
+                }
+            );
+
+            if (response.status === 200) {
+                toast.success('Add-on Item updated Successfully!', { autoClose: 500 });
+                setTimeout(() => {
+                    navigate('/add-ons');
+                }, 1000);
+            } else {
+                toast.error('Failed to update Add-on Item.', { autoClose: 500 });
+            }
         } catch (error) {
             console.error('There was an error updating the item:', error);
-            setMessage('Failed to update add-on item.');
+            toast.error('Failed to update Add-on Item.', { autoClose: 500 });
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -105,11 +121,19 @@ function EditAddOns() {
                 {renderInputField('Description', 'Description', 'text', 'Description')}
                 {renderInputField('image', 'image', 'text', 'Image URL')}
 
+                <ToastContainer />
                 <button
                     type="submit"
-                    className="w-full py-3 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-600 transition-all duration-300"
+                    className={`w-full bg-side-bar text-white font-bold py-3 rounded-lg hover:bg-gray-700 transition duration-300 flex items-center justify-center ${
+                        loading ? 'cursor-not-allowed' : ''
+                    }`}
+                    disabled={loading}
                 >
-                    Update Item
+                    {loading ? (
+                        <div className="spinner border-t-2 border-white border-solid rounded-full w-6 h-6 animate-spin"></div>
+                    ) : (
+                        'Update Item'
+                    )}
                 </button>
             </form>
         </div>

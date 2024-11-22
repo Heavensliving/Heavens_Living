@@ -3,10 +3,14 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import API_BASE_URL from '../../config';
 import { useSelector } from 'react-redux';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 
 function AddPeople() {
   const admin = useSelector(store => store.auth.admin);
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     contactNumber: '',
@@ -85,6 +89,7 @@ function AddPeople() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true)
 
     if (!validateForm()) {
       return;
@@ -102,6 +107,15 @@ function AddPeople() {
       }, {
         headers: { 'Authorization': `Bearer ${admin.token}` }
       });
+      if (response.status === 201) {
+
+
+        toast.success('People Added Successfully!', { autoClose: 500 });
+        setTimeout(() => {
+          navigate('/mess');
+          setLoading(false);
+        }, 1000);
+      }
 
       setFormData({
         name: '',
@@ -117,7 +131,7 @@ function AddPeople() {
         propertyId: '',
         paymentStatus: 'Pending', // Reset payment status to default
       });
-      navigate('/mess');
+      // navigate('/mess');
     } catch (error) {
       console.error('Error:', error.response ? error.response.data : error.message);
       setApiError('An error occurred while submitting the form. Please try again.');
@@ -321,12 +335,18 @@ function AddPeople() {
           {apiError && <p className="text-red-500 text-center">{apiError}</p>}
 
           <div className="mt-4">
-            <button
-              type="submit"
-              className="bg-blue-600 text-white py-3 px-8 rounded-full w-full"
-            >
-              Add Person
-            </button>
+          <ToastContainer />
+          <button
+            type="submit"
+            className={`w-full bg-side-bar text-white font-bold py-3 rounded-lg hover:bg-gray-700 transition duration-300 flex items-center justify-center ${loading ? ' cursor-not-allowed' : ''}`}
+            disabled={loading}
+          >
+            {loading ? (
+              <div className="spinner border-t-2 border-white border-solid rounded-full w-6 h-6 animate-spin"></div>
+            ) : (
+              'Add Person'
+            )}
+          </button>
           </div>
         </form>
       </div>

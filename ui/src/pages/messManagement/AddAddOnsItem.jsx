@@ -3,10 +3,13 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import API_BASE_URL from '../../config';
 import { useSelector } from 'react-redux';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function AddAddOnsItem() {
     const admin = useSelector(store => store.auth.admin);
     const navigate = useNavigate();
+    const [loading, setLoading] = useState(false);
     const [inputs, setInputs] = useState({
         Itemname: '',
         prize: '',
@@ -22,26 +25,31 @@ function AddAddOnsItem() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setLoading(true);
         try {
-            await axios.post(`${API_BASE_URL}/adOn/add-adOn`, inputs,
-                {headers: { 'Authorization': `Bearer ${admin.token}` }}
+            const response = await axios.post(
+                `${API_BASE_URL}/adOn/add-adOn`,
+                inputs,
+                { headers: { 'Authorization': `Bearer ${admin.token}` } }
             );
-            setMessage('Add-on item added successfully!');
-            setInputs({ Itemname: '', prize: '', Description: '', image: '', status: 'unavailable' });
-            navigate('/add-ons');
+            
+            if (response.status === 201) {
+                toast.success('Add-on Item Added Successfully!', { autoClose: 500 });
+                setInputs({ Itemname: '', prize: '', Description: '', image: '', status: 'unavailable' });
+                setTimeout(() => {
+                    navigate('/add-ons');
+                }, 1000);
+            }
         } catch (error) {
             console.error('There was an error adding the item:', error);
-            setMessage('Failed to add add-on item.');
+            toast.error('Failed to Add Add-on Item.', { autoClose: 500 });
+        } finally {
+            setLoading(false);
         }
     };
 
     return (
         <div className="max-w-lg mx-auto bg-white rounded-lg shadow-md p-8 mt-10">
-            {message && (
-                <div className={`p-3 mb-4 text-center rounded-lg transition-all duration-300 ${message.includes('success') ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'}`}>
-                    {message}
-                </div>
-            )}
             <form onSubmit={handleSubmit} className="space-y-6">
                 {['Itemname', 'prize', 'Description', 'image'].map((field, index) => (
                     <div className="relative" key={index}>
@@ -64,11 +72,17 @@ function AddAddOnsItem() {
                         </label>
                     </div>
                 ))}
+                <ToastContainer />
                 <button
                     type="submit"
-                    className="w-full py-3 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-600 transition-all duration-300"
+                    className={`w-full bg-side-bar text-white font-bold py-3 rounded-lg hover:bg-gray-700 transition duration-300 flex items-center justify-center ${loading ? ' cursor-not-allowed' : ''}`}
+                    disabled={loading}
                 >
-                    Add Item
+                    {loading ? (
+                        <div className="spinner border-t-2 border-white border-solid rounded-full w-6 h-6 animate-spin"></div>
+                    ) : (
+                        'Add Item'
+                    )}
                 </button>
             </form>
         </div>
