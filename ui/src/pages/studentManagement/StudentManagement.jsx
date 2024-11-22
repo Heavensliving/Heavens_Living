@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ConfirmationModal from '../../components/reUsableComponet/ConfirmationModal';
 import MetricCard from './MetricCard';
@@ -6,11 +6,12 @@ import StudentTable from './StudentTable';
 import SearchAndSort from '../../components/reUsableComponet/SearchAndSort';
 import { FaUser, FaDollarSign, FaCheckCircle, FaSignInAlt, FaSignOutAlt } from 'react-icons/fa';
 import axios from 'axios';
-import app from '../../firebase';
 import { ref, deleteObject, getStorage } from 'firebase/storage';
 import API_BASE_URL from '../../config';
 import { useSelector } from 'react-redux';
 import CheckAuth from '../auth/CheckAuth';
+// eslint-disable-next-line no-unused-vars
+import app from '../../firebase';
 
 const storage = getStorage();
 
@@ -37,10 +38,12 @@ const StudentManagement = () => {
       }
     };
     fetchStudents();
-  }, []);
+  }, [admin]);
 
+  // Updated filtering logic to include both name and student ID
   const filteredStudents = students.filter(student =>
-    student.name.toLowerCase().includes(searchQuery.toLowerCase())
+    student.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    student.studentId.toLowerCase().includes(searchQuery.toLowerCase()) // Add this line
   );
 
   const totalStudents = students.filter(student => student.vacate == false).length;

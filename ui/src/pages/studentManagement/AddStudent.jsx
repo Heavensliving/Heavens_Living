@@ -1,6 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import axios from 'axios';
-import app from '../../firebase';
 import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { useNavigate } from 'react-router-dom';
 import API_BASE_URL from '../../config';
@@ -9,6 +8,8 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import CheckAuth from '../auth/CheckAuth';
 import { FaEye, FaEyeSlash } from 'react-icons/fa'; 
+// eslint-disable-next-line no-unused-vars
+import app from '../../firebase';
 
 const storage = getStorage();
 
@@ -48,13 +49,11 @@ function AddStudent() {
     workingPlace: '',
   };
 
-
   const [studentData, setStudentData] = useState(initialData);
   const [properties, setProperties] = useState([]);
   const [rooms, setRooms] = useState([]);
   const [roomType, setRoomType] = useState("");
   const [roomNo, setRoomNo] = useState([]);
-  const [uploadProgress, setUploadProgress] = useState({});
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
@@ -85,7 +84,7 @@ function AddStudent() {
             headers: { 'Authorization': `Bearer ${admin.token}` },
           });
 
-          console.log(response.data)
+          // console.log(response.data) //debug statement
           // Filter rooms with vacantSlot > 0
           const availableRooms = response.data.filter(room => room.vacantSlot > 0);
           setRooms(availableRooms); // Set the rooms to state
@@ -100,19 +99,18 @@ function AddStudent() {
 
   useEffect(() => {
     if (roomType) {
-      console.log(roomType)
+      // console.log(roomType) //debug statement
       const matchingRooms = rooms.filter((room) => room.roomType === roomType);
       setRoomNo(matchingRooms);
-      console.log(matchingRooms)
+      // console.log(matchingRooms) //debug statement
     } else {
       setRoomNo(rooms);
     }
   }, [roomType, rooms]);
 
-
   const fields = [
     { name: 'name', type: 'text', placeholder: 'Name', required: true, label: 'Name' },
-    { name: 'gender', type: 'text', placeholder: 'Gender', required: false, label: 'Gender' },
+    { name: 'gender', type: 'select', options: ['Male', 'Female', 'Others'], placeholder: 'Gender', required: true, label: 'Gender' }, // Updated gender field
     { name: 'email', type: 'email', placeholder: 'Email', required: true, label: 'Email' },
     { name: 'password', type: 'password', placeholder: 'Password', required: true, label: 'Password' },
     { name: 'address', type: 'text', placeholder: 'Address', required: false, label: 'Address' },
@@ -181,13 +179,13 @@ function AddStudent() {
       });
     } else if (name === 'pgName') {
       // Debug: Log the selected value to see if it's correct
-      console.log("Selected PG Name:", value);
+      //console.log("Selected PG Name:", value);
 
       // Find the selected property using the correct key
       const selectedProperty = properties.find(property => property.propertyName === value);
 
       // Debug: Log the selected property to verify its structure
-      console.log("Selected Property:", selectedProperty);
+      //console.log("Selected Property:", selectedProperty);
 
       setStudentData((prevData) => ({
         ...prevData,
@@ -218,13 +216,13 @@ function AddStudent() {
       uploadTask.on('state_changed',
         (snapshot) => {
           const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-          console.log('Upload is ' + progress + '% done');
+          // console.log('Upload is ' + progress + '% done'); //debug statement
           switch (snapshot.state) {
             case 'paused':
-              console.log('Upload is paused');
+              console.log('Upload is paused'); //debug statement
               break;
             case 'running':
-              console.log('Upload is running');
+              console.log('Upload is running'); //debug statement
               break;
           }
         },
@@ -274,7 +272,7 @@ function AddStudent() {
       formData.append(key, studentData[key]);
     }
 
-    console.log("studentData", studentData)
+    // console.log("studentData", studentData) //debug statement
 
     try {
       const response = await axios.post(`${API_BASE_URL}/students/add`, studentData, {
@@ -285,7 +283,7 @@ function AddStudent() {
       });
 
       if (response.status === 201) {
-        console.log('Success:', response.data);
+        // console.log('Success:', response.data); //debug statement
         toast.success('Successfully registered!', { autoClose: 500 });
         setTimeout(() => {
           navigate('/students');
