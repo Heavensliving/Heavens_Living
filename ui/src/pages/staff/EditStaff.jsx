@@ -5,6 +5,8 @@ import { getStorage, ref, uploadBytesResumable, getDownloadURL, deleteObject } f
 import { useNavigate, useParams } from 'react-router-dom';
 import API_BASE_URL from '../../config';
 import { useSelector } from 'react-redux';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const storage = getStorage();
 
@@ -32,6 +34,7 @@ function EditStaff() {
     });
     const [properties, setProperties] = useState([]);
     const [uploadProgress, setUploadProgress] = useState({});
+    const [loading, setLoading] = useState(false);
     const [oldFiles, setOldFiles] = useState({
         adharFrontImage: '',
         adharBackImage: '',
@@ -134,6 +137,7 @@ function EditStaff() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setLoading(true);
         console.log(staffData)
         const filesToUpload = ['Adharfrontside', 'Adharbackside', 'Photo'];
         const uploadPromises = filesToUpload.map(async (fileField) => {
@@ -171,8 +175,11 @@ function EditStaff() {
             });
 
             if (response.status === 200) {
-                console.log('Success:', response.data);
-                navigate('/staffs');
+                toast.success('Successfully Updated!', { autoClose: 500 });
+                setTimeout(() => {
+                    navigate('/staffs');
+                    setLoading(false);
+                }, 1000);
             } else {
                 console.error('Error:', response.statusText);
             }
@@ -260,11 +267,17 @@ function EditStaff() {
                             </div>
                         ))}
                     </div>
+                    <ToastContainer />
                     <button
                         type="submit"
-                        className="w-full bg-side-bar text-white font-bold py-3 rounded-lg hover:bg-gray-700 transition duration-300"
+                        className={`w-full bg-side-bar text-white font-bold py-3 rounded-lg hover:bg-gray-700 transition duration-300 flex items-center justify-center ${loading ? ' cursor-not-allowed' : ''}`}
+                        disabled={loading}
                     >
-                        Update Staff
+                        {loading ? (
+                            <div className="spinner border-t-2 border-white border-solid rounded-full w-6 h-6 animate-spin"></div>
+                        ) : (
+                            'Update Staff'
+                        )}
                     </button>
                 </form>
             </div>

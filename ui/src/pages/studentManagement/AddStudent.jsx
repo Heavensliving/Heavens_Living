@@ -105,7 +105,7 @@ function AddStudent() {
       setRoomNo(matchingRooms);
       console.log(matchingRooms)
     } else {
-      setRoomNo(rooms); 
+      setRoomNo(rooms);
     }
   }, [roomType, rooms]);
 
@@ -287,10 +287,10 @@ function AddStudent() {
       if (response.status === 201) {
         console.log('Success:', response.data);
         toast.success('Successfully registered!', { autoClose: 500 });
-                setTimeout(() => {
-                    navigate('/students');
-                    setLoading(false); 
-                }, 1000);
+        setTimeout(() => {
+          navigate('/students');
+          setLoading(false);
+        }, 1000);
       } else {
         console.error('Error:', response.statusText);
         toast.error(error.response.data.message, { autoClose: 2000 });
