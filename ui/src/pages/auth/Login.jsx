@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch } from "react-redux";
 import axios from 'axios';
 import { setAdmin } from '../../store/AuthSlice';
 import API_BASE_URL from '../../config';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
+import heavenslogo from '../../assets/hAsset 4.png'
 
 const Login = () => {
     const dispatch = useDispatch();
@@ -66,29 +67,28 @@ const Login = () => {
             <div className="flex flex-col md:flex-row border rounded-lg shadow-lg bg-white overflow-hidden w-full max-w-4xl p-4 md:p-0">
 
                 {/* Left Box */}
-                <div className="flex flex-col justify-center items-center bg-gray-800 text-white p-6 w-full md:w-1/2">
+                <div className="flex flex-col justify-center items-center bg-side-bar text-white p-6 w-full md:w-1/2">
                     <div className="mb-4">
                         <img
-                            src='https://img.freepik.com/free-vector/hand-drawn-people-relaxing-home_23-2148117090.jpg?ga=GA1.1.1459516267.1711715282&semt=ais_hybrid'
-                            className="w-32"
+                            src={heavenslogo}
                             alt="Featured"
                         />
                     </div>
-                    <h2 className="text-2xl font-semibold">Be Verified</h2>
-                    <p className="text-center mt-2">Lorem ipsum dolor sit amet consectetur, adipisicing elit.</p>
+                    <h2 className="text-2xl font-semibold">Living</h2>
+                    <p className="text-center mt-2">Home, Away from Home</p>
                 </div>
 
                 {/* Right Box */}
                 <div className="flex flex-col justify-center p-6 w-full md:w-1/2">
-                    <h2 className="text-2xl font-semibold mb-2">Hello, Again</h2>
-                    <p className="mb-4">We are happy to have you back in login</p>
+                    <h2 className="text-2xl font-semibold mb-2">Hello.</h2>
+                    <p className="mb-4">We are happy to have you back &nbsp;:)</p>
 
                     <form onSubmit={handleSubmit}>
                         {errors.email && (<div className="text-red-500 mt-1">{errors.email}</div>)}
                         <div className="mb-4">
                             <input
                                 type="email"
-                                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500"
+                                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-side-bar"
                                 placeholder="Email address"
                                 value={email}
                                 onChange={(e) => {
@@ -103,7 +103,7 @@ const Login = () => {
                         <div className="relative w-full mb-2">
                             <input
                                 type={showPassword ? "text" : "password"}
-                                className="block w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500"
+                                className="block w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-side-bar"
                                 placeholder="Password"
                                 value={password}
                                 onChange={(e) => {
@@ -121,7 +121,7 @@ const Login = () => {
                         </div>
                         <div>
                             <button
-                                className="w-full p-3 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition duration-200"
+                                className="w-full p-3 mt-4 bg-side-bar text-white rounded-lg hover:bg-[#373082] transition duration-200"
                                 type='submit'
                             >
                                 Login
