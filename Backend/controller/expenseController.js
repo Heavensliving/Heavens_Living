@@ -4,9 +4,12 @@ const Staff = require('../Models/Add_staff');
 
 // Add new expense
 const addExpense = async (req, res) => {
-  console.log(req.body)
+  console.log(req.body);
   try {
     const { propertyId, transactionId, category, staff } = req.body;
+
+    console.log(req.body);
+
 
     // Ensure the propertyId exists
     const property = await Property.findOne({ propertyId });
@@ -26,23 +29,25 @@ const addExpense = async (req, res) => {
     const expense = new Expense(req.body);
     await expense.save();
 
-    // If category is "salary", update staff's salaryPayments array
-    if (category.toLowerCase() === 'salary') {    
-      const staffData = await Staff.findByIdAndUpdate(staff, { $push: { salaryPayments: expense._id } });
+    // Handle salary category-specific logic
+    if (category.toLowerCase() === 'salary') {
       if (!staff) {
-        return res.status(400).json({ error: 'Invalid Staff ID' });
-      }
-      
-      if (!staffData) {
         return res.status(400).json({ error: 'Staff ID is required for salary payments' });
       }
+
+      const staffData = await Staff.findByIdAndUpdate(staff, { $push: { salaryPayments: expense._id } });
+      if (!staffData) {
+        return res.status(400).json({ error: 'Invalid Staff ID' });
+      }
     }
+
     res.status(201).json({ expense, id: expense._id });
   } catch (error) {
     console.error(error);
     res.status(400).json({ error: 'Error adding expense' });
   }
 };
+
 
 
 // Get total expense
