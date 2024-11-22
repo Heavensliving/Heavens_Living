@@ -1,15 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { FaUsers } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import ConfirmationModal from '../../components/reUsableComponet/ConfirmationModal';
 import { ref, deleteObject, getStorage } from 'firebase/storage';
-import app from '../../firebase';
 import StaffTable from './StaffTable';
 import API_BASE_URL from '../../config';
 import SearchAndSort from '../../components/reUsableComponet/SearchAndSort';
 import { useSelector } from 'react-redux';
 import CheckAuth from '../auth/CheckAuth';
+
+// eslint-disable-next-line no-unused-vars
+import app from '../../firebase'; 
 
 const storage = getStorage();
 

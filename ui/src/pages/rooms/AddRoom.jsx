@@ -12,6 +12,7 @@ function AddRoom() {
     const navigate = useNavigate();
     const admin = useSelector(store => store.auth.admin);
     const [properties, setProperties] = useState([]);
+    const [loading, setLoading] = useState(false);
     const [formData, setFormData] = useState({
         propertyName: '',
         roomNo: '',
@@ -88,6 +89,7 @@ function AddRoom() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setLoading(true)
         if (!admin) return;
         try {
             const response = await axios.post(`${API_BASE_URL}/room/add`, formData, {
@@ -97,6 +99,7 @@ function AddRoom() {
                 toast.success('Room added successfully!', { autoClose: 500 });
                 setTimeout(() => {
                     navigate('/rooms');
+                    setLoading(false)
                 }, 1000);
             }
         } catch (error) {
@@ -129,11 +132,16 @@ function AddRoom() {
                     />
                 </div>
                 <button
-                    type="submit"
-                    className="w-full bg-side-bar text-white py-2 rounded-lg hover:bg-gray-700 transition mt-4"
-                >
-                    Add Room
-                </button>
+            type="submit"
+            className={`w-full bg-side-bar text-white font-bold py-3 rounded-lg hover:bg-gray-700 transition duration-300 flex items-center justify-center ${loading ? ' cursor-not-allowed' : ''}`}
+            disabled={loading}
+          >
+            {loading ? (
+              <div className="spinner border-t-2 border-white border-solid rounded-full w-6 h-6 animate-spin"></div>
+            ) : (
+              'Add Room'
+            )}
+          </button>
             </form>
             <ToastContainer className="mt-20" />
         </>

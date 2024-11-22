@@ -1,4 +1,5 @@
-import React, { useMemo } from 'react';
+/* eslint-disable react/prop-types */
+import { useMemo } from 'react';
 import { FaEdit, FaTrash } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 
@@ -8,7 +9,8 @@ const StaffTable = ({ staffs, onRowClick, onDeleteClick, searchTerm }) => {
   const filteredData = useMemo(
     () =>
       staffs.filter((staff) =>
-        staff.Name.toLowerCase().includes(searchTerm.toLowerCase())
+        staff.Name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+        staff.StaffId.toLowerCase().includes(searchTerm.toLowerCase())
       ),
     [staffs, searchTerm]
   );

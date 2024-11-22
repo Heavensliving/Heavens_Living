@@ -210,7 +210,7 @@ const ExpenseTable = () => {
                 <td className="py-2 px-4 border">{expense.category}</td>
                 <td className="py-2 px-4 border">{expense.paymentMethod}</td>
                 <td className="py-2 px-4 border">{expense.amount}</td>
-                <td className="py-2 px-4 border">{new Date(expense.date).toLocaleDateString()}</td>
+                <td className="py-2 px-4 border">{new Date(expense.date).toLocaleDateString('en-GB')}</td>
                 <td className="py-2 px-4 border">{expense.propertyName}</td>
                 <td className="py-2 px-4 border">{expense.transactionId}</td>
               </tr>

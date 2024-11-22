@@ -115,7 +115,8 @@ function ManagePeople() {
                   <td className="py-3 px-6 text-left">
                     {person.timePeriod.months} Months / {person.timePeriod.days} Days
                   </td>
-                  <td className="py-3 px-6 text-left">{new Date(person.joinDate).toLocaleDateString()}</td>
+                  <td className="py-3 px-6 text-left">{new Date(person.joinDate).toLocaleDateString('en-GB')}</td>
+
                   <td className="py-3 px-6 text-left text-yellow-500">{person.daysLeft} </td>
                   <td className="py-3 px-6 text-left">
                     <span className={person.paymentStatus === 'Paid' ? 'text-green-500' : 'text-red-500'}>

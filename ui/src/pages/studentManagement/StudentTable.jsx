@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+/* eslint-disable react/prop-types */
+import { useState } from 'react';
 import { FaTrash, FaSignOutAlt, FaSignInAlt } from 'react-icons/fa';
 import axios from 'axios';
 import API_BASE_URL from '../../config';
@@ -96,7 +97,8 @@ const StudentTable = ({ students, onRowClick, onDelete, onStatusChange, admin })
                   {student.studentId}
                 </td>
                 <td className="py-4 px-4 text-center text-gray-700 font-medium text-xs md:text-sm">
-                  {new Date(student.joinDate).toLocaleDateString()}
+                {new Date(student.joinDate).toLocaleDateString('en-GB')}
+
                 </td>
                 <td className="py-4 px-4 text-center text-gray-700 font-medium text-xs md:text-sm">
                   {student.contactNo}

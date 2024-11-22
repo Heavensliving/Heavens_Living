@@ -3,11 +3,14 @@ import axios from 'axios';
 import { useParams, useNavigate } from 'react-router-dom';
 import API_BASE_URL from '../../config';
 import { useSelector } from 'react-redux';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function EditPeople() {
   const admin = useSelector(store => store.auth.admin);
   const { id } = useParams(); // Get the ID from the URL
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
 
   const [formData, setFormData] = useState({
     name: '',
@@ -104,6 +107,7 @@ function EditPeople() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true)
 
     if (!validateForm()) {
       return;
@@ -122,6 +126,7 @@ function EditPeople() {
       }, {
         headers: { 'Authorization': `Bearer ${admin.token}` }
       });
+   
       
       setFormData({
         name: '',
@@ -136,7 +141,14 @@ function EditPeople() {
         propertyId: '',
         joinDate: '' // Reset joinDate as well
       });
-      navigate('/mess'); // Navigate after successful submission
+      if (response.status === 201) {
+        toast.success('People Updated Successfully!', { autoClose: 500 });
+        setTimeout(() => {
+      
+          setLoading(false);
+        }, 1000);
+      }
+      navigate('/manage-people'); 
     } catch (error) {
       console.error('Error:', error.response ? error.response.data : error.message);
       setApiError('An error occurred while submitting the form. Please try again.'); // Set API error message
@@ -284,8 +296,17 @@ function EditPeople() {
             <p className="text-red-500 mt-2">{apiError}</p>
           )}
 
-          <button type="submit" className="w-full bg-green-500 text-white py-3 rounded-lg">
-            Submit
+<ToastContainer />
+          <button
+            type="submit"
+            className={`w-full bg-side-bar text-white font-bold py-3 rounded-lg hover:bg-gray-700 transition duration-300 flex items-center justify-center ${loading ? ' cursor-not-allowed' : ''}`}
+            disabled={loading}
+          >
+            {loading ? (
+              <div className="spinner border-t-2 border-white border-solid rounded-full w-6 h-6 animate-spin"></div>
+            ) : (
+              'Update Person'
+            )}
           </button>
         </form>
       </div>

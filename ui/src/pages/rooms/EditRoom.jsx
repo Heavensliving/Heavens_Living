@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useSelector } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -11,6 +11,7 @@ function EditRoom() {
     const navigate = useNavigate();
     const { id } = useParams(); // Getting room id from URL
     const admin = useSelector(store => store.auth.admin);
+    const [loading, setLoading] = useState(false);
     const [roomDetails, setRoomDetails] = useState({
         propertyName: '',
         roomNumber: '',
@@ -29,7 +30,7 @@ function EditRoom() {
                     headers: { Authorization: `Bearer ${admin.token}` },
                 });
                 const room = response.data.room;
-                console.log(room);
+                // console.log(room); //debug statement
                 setRoomDetails({
                     propertyName: room.propertyName, // Display the property name
                     roomNumber: room.roomNumber,
@@ -86,6 +87,7 @@ function EditRoom() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setLoading(true)
         try {
             const response = await axios.put(`${API_BASE_URL}/room/editRoom/${id}`, roomDetails, {
                 headers: { 'Authorization': `Bearer ${admin.token}` },
@@ -94,6 +96,7 @@ function EditRoom() {
                 toast.success('Room updated successfully!', { autoClose: 500 });
                 setTimeout(() => {
                     navigate('/rooms');
+                setLoading(false)
                 }, 1000);
             }
         } catch (error) {
@@ -173,12 +176,17 @@ function EditRoom() {
                         ]}
                     />
                     <div className="w-full px-2 mb-4">
-                        <button
-                            type="submit"
-                            className="w-full bg-side-bar text-white py-2 hover:bg-gray-700 px-4 rounded-lg"
-                        >
-                            Update Room
-                        </button>
+                    <button
+            type="submit"
+            className={`w-full bg-side-bar text-white font-bold py-3 rounded-lg hover:bg-gray-700 transition duration-300 flex items-center justify-center ${loading ? ' cursor-not-allowed' : ''}`}
+            disabled={loading}
+          >
+            {loading ? (
+              <div className="spinner border-t-2 border-white border-solid rounded-full w-6 h-6 animate-spin"></div>
+            ) : (
+              'Update Room'
+            )}
+          </button>
                     </div>
                 </div>
             </form>

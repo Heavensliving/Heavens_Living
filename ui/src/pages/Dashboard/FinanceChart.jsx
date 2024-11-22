@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import axios from 'axios';
 import API_BASE_URL from '../../config';
 import { useSelector } from 'react-redux';
@@ -14,6 +14,7 @@ const FinanceChart = () => {
   const [totalReceived, setTotalReceived] = useState([]);
   const [totalExpense, setTotalExpense] = useState([]);
   const [months, setMonths] = useState([]);
+  // eslint-disable-next-line no-unused-vars
   const [selectedMonth, setSelectedMonth] = useState(''); 
 
   useEffect(() => {
