@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { FaPhone, FaEnvelope, FaMapMarkerAlt, FaCalendarAlt, FaHeartbeat, FaBook, FaUser, FaBed, FaDoorOpen, FaGraduationCap, FaHome, FaBriefcase, FaEllipsisH } from 'react-icons/fa';
+import { FaPhone, FaEnvelope, FaMapMarkerAlt, FaCalendarAlt, FaHeartbeat, FaBook, FaUser, FaBed, FaDoorOpen, FaGraduationCap, FaHome, FaBriefcase, FaEllipsisH, FaBroom, FaRestroom, FaPiggyBank, FaRupeeSign } from 'react-icons/fa';
 import { useSelector } from 'react-redux';
 import axios from 'axios';
 import API_BASE_URL from '../../config';
@@ -76,6 +76,7 @@ const StudentDetails = () => {
     course: student.course,
     advanceFee: student.advanceFee,
     nonRefundableDeposit: student.nonRefundableDeposit,
+    refundableDeposit:student.refundableDeposit,
     monthlyRent: student.monthlyRent,
     adharFrontImage: student.adharFrontImage,
     adharBackImage: student.adharBackImage,
@@ -263,6 +264,9 @@ const StudentDetails = () => {
                 <InfoItem icon={FaBed} label="Stay Type" value={studentData.typeOfStay} />
                 <InfoItem icon={FaDoorOpen} label="Room Type" value={studentData.roomType} />
                 <InfoItem icon={FaCalendarAlt} label="Join Date" value={studentData.joinDate} />
+                <InfoItem icon={FaBed} label="Room No. " value={studentData.roomNo} />
+                <InfoItem icon={FaPiggyBank} label="Non Refundable Deposit " value={studentData.nonRefundableDeposit} />
+                <InfoItem icon={FaRupeeSign} label="Refundable Deposit " value={studentData.refundableDeposit} />
               </div>
             </div>
           </div>

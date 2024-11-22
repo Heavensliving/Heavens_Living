@@ -33,13 +33,6 @@ const CommissionTable = () => {
     commission.agentName.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // if (loading) {
-  //   return <div>Loading...</div>;
-  // }
-
-  // if (error) {
-  //   return <div>{error}</div>;
-  // }
 
   return (
     <div className="p-6 bg-gray-100 min-h-screen flex flex-col items-center">
@@ -74,7 +67,7 @@ const CommissionTable = () => {
                 <td className="py-2 px-4 border">{commission.paymentType}</td>
                 <td className="py-2 px-4 border">{commission.transactionId || 'N/A'}</td>
                 <td className="py-2 px-4 border">
-                  {new Date(commission.createdAt).toLocaleDateString() || 'N/A'}
+                  {new Date(commission.createdAt).toLocaleDateString('en-GB') || 'N/A'}
                 </td>
                 <td className="py-2 px-4 border">{commission.propertyName}</td>
               </tr>

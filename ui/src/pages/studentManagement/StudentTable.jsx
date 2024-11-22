@@ -96,7 +96,8 @@ const StudentTable = ({ students, onRowClick, onDelete, onStatusChange, admin })
                   {student.studentId}
                 </td>
                 <td className="py-4 px-4 text-center text-gray-700 font-medium text-xs md:text-sm">
-                  {new Date(student.joinDate).toLocaleDateString()}
+                {new Date(student.joinDate).toLocaleDateString('en-GB')}
+
                 </td>
                 <td className="py-4 px-4 text-center text-gray-700 font-medium text-xs md:text-sm">
                   {student.contactNo}
