@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useSelector } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -30,7 +30,7 @@ function EditRoom() {
                     headers: { Authorization: `Bearer ${admin.token}` },
                 });
                 const room = response.data.room;
-                console.log(room);
+                // console.log(room); //debug statement
                 setRoomDetails({
                     propertyName: room.propertyName, // Display the property name
                     roomNumber: room.roomNumber,
