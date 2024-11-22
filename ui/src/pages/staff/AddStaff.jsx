@@ -247,6 +247,7 @@ import API_BASE_URL from '../../config';
 import { useSelector } from 'react-redux';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import CheckAuth from '../auth/CheckAuth';
 
 const storage = getStorage();
 
@@ -274,6 +275,7 @@ function AddStaff() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    if (!admin) return;
     // Fetch property names from the backend
     const fetchProperties = async () => {
       try {
@@ -471,5 +473,4 @@ function AddStaff() {
   );
 }
 
-export default AddStaff;
-
+export default CheckAuth(AddStaff);

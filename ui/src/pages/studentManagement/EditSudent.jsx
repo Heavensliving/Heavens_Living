@@ -5,6 +5,7 @@ import { getStorage, ref, uploadBytesResumable, getDownloadURL, deleteObject } f
 import { useNavigate, useParams } from 'react-router-dom';
 import API_BASE_URL from '../../config';
 import { useSelector } from 'react-redux';
+import CheckAuth from '../auth/CheckAuth';
 
 const storage = getStorage();
 
@@ -57,6 +58,7 @@ function EditStudent() {
 
     // Fetch the current student data
     useEffect(() => {
+        if (!admin) return;
         const fetchStudentData = async () => {
             try {
                 const response = await axios.get(`${API_BASE_URL}/students/${studentId}`,
@@ -86,6 +88,7 @@ function EditStudent() {
     }, [studentId]);
 
     useEffect(() => {
+        if (!admin) return;
         // Fetch property names from the backend
         const fetchProperties = async () => {
             try {
@@ -323,4 +326,4 @@ function EditStudent() {
     );
 }
 
-export default EditStudent;
+export default CheckAuth(EditStudent);

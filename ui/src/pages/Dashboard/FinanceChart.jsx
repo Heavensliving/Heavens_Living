@@ -17,6 +17,7 @@ const FinanceChart = () => {
   const [selectedMonth, setSelectedMonth] = useState(''); 
 
   useEffect(() => {
+    if (!admin) return;
     const fetchFeeData = async () => {
       try {
         const feeResponse = await axios.get(`${API_BASE_URL}/fee`, {
@@ -85,7 +86,7 @@ const FinanceChart = () => {
   
     fetchFeeData();
     fetchExpenseData();
-  }, [admin.token]);
+  }, [admin]);
   
 
   // Filter data based on the selected month
@@ -152,4 +153,4 @@ const FinanceChart = () => {
   );
 };
 
-export default FinanceChart;
+export default CheckAuth(FinanceChart);

@@ -25,6 +25,7 @@ const StudentManagement = () => {
   const [propertySort, setPropertySort] = useState(''); 
 
   useEffect(() => {
+    if (!admin) return;
     const fetchStudents = async () => {
       try {
         const res = await axios.get(`${API_BASE_URL}/students`,
@@ -171,17 +172,17 @@ const StudentManagement = () => {
         onClose={() => setIsModalOpen(false)}
         onConfirm={confirmDelete}
         title={
-          admin.role === "propertyAdmin"
+          admin?.role === "propertyAdmin"
             ? "Confirm Vacate"
             : "Confirm Delete"
         }
         message={
-          admin.role === "propertyAdmin"
+          admin?.role === "propertyAdmin"
             ? `Are you sure you want to vacate this student?`
             : `Are you sure you want to delete this student?`
         }
         confirmLabel={
-          admin.role === "propertyAdmin"
+          admin?.role === "propertyAdmin"
             ? "Vacate"
             : "Delete"
         }

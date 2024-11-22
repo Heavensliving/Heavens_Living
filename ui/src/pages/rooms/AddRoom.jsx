@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import FormField from './FormField';
+import CheckAuth from '../auth/CheckAuth';
 
 function AddRoom() {
     const navigate = useNavigate();
@@ -23,6 +24,7 @@ function AddRoom() {
     });
 
     useEffect(() => {
+        if (!admin) return;
         const fetchProperties = async () => {
             try {
                 const response = await axios.get(`${API_BASE_URL}/property`, {
@@ -38,7 +40,7 @@ function AddRoom() {
             }
         };
         fetchProperties();
-    }, [admin.token]);
+    }, [admin]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -86,6 +88,7 @@ function AddRoom() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        if (!admin) return;
         try {
             const response = await axios.post(`${API_BASE_URL}/room/add`, formData, {
                 headers: { 'Authorization': `Bearer ${admin.token}` },
@@ -137,4 +140,4 @@ function AddRoom() {
     );
 }
 
-export default AddRoom;
+export default CheckAuth(AddRoom);
