@@ -3,12 +3,19 @@ import axios from 'axios';
 import { Link, useNavigate } from 'react-router-dom';
 import API_BASE_URL from '../../config';
 import { useSelector } from 'react-redux';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
+
+
 function AddBranch() {
   const admin = useSelector(store => store.auth.admin);
   const [name, setName] = useState('');
   const [location, setLocation] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
+  const [loading, setLoading] = useState(false);
+
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -23,16 +30,21 @@ function AddBranch() {
     );
       if (response.status === 201) {
        
-        navigate('/branch-management');
+        // navigate('/branch-management');
+        toast.success('Branch Added Successfully!', { autoClose: 500 });
+        setTimeout(() => {
+          navigate('/branch-management');
+          setLoading(false);
+        }, 1000);
       }
 
-      // On success, show a success message and reset the form
-      setSuccessMessage('Branch added successfully!');
+     
       setName('');
       setLocation('');
     } catch (error) {
       // Show error message if something goes wrong
       setErrorMessage('Failed to add branch. Please try again.');
+      toast.error(error.response.data.message, { autoClose: 2000 });
     }
   };
 
@@ -70,12 +82,18 @@ function AddBranch() {
           />
         </div> 
         {/* Submit Button */}
-        <button
-          type="submit"
-          className="w-full bg-side-bar text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition duration-200"
-        >
-          Add Branch
-        </button>
+        <ToastContainer />
+          <button
+            type="submit"
+            className={`w-full bg-side-bar text-white font-bold py-3 rounded-lg hover:bg-gray-700 transition duration-300 flex items-center justify-center ${loading ? ' cursor-not-allowed' : ''}`}
+            disabled={loading}
+          >
+            {loading ? (
+              <div className="spinner border-t-2 border-white border-solid rounded-full w-6 h-6 animate-spin"></div>
+            ) : (
+              'Add Branch'
+            )}
+          </button>
       </form>
     </div>
   );

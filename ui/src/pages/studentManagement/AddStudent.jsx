@@ -100,7 +100,7 @@ function AddStudent() {
       setRoomNo(matchingRooms);
       console.log(matchingRooms)
     } else {
-      setRoomNo(rooms); 
+      setRoomNo(rooms);
     }
   }, [roomType, rooms]);
 
@@ -278,10 +278,10 @@ function AddStudent() {
       if (response.status === 201) {
         console.log('Success:', response.data);
         toast.success('Successfully registered!', { autoClose: 500 });
-                setTimeout(() => {
-                    navigate('/students');
-                    setLoading(false); 
-                }, 1000);
+        setTimeout(() => {
+          navigate('/students');
+          setLoading(false);
+        }, 1000);
       } else {
         console.error('Error:', response.statusText);
         toast.error(error.response.data.message, { autoClose: 2000 });
@@ -294,51 +294,56 @@ function AddStudent() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
-    <div className="bg-white shadow-lg rounded-lg p-8 max-w-4xl w-full">
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {fields.map((field, index) => (
-            <div key={index} className="flex flex-col">
-              <label htmlFor={field.name} className="font-medium text-gray-700 mb-2">
-                {field.label}
-              </label>
-              {field.type === 'select' ? (
-                <select className="p-3 border border-gray-300 rounded-lg w-full" name={field.name} value={studentData[field.name]} onChange={handleChange} required={field.required}>
-                  <option value='' disabled>{field.placeholder}</option>
-                  {field.options.map((option, index) => (
-                    <option key={index} value={typeof option === 'object' ? option.name : option}>
-                      {typeof option === 'object' ? option.name : option}
-                    </option>
-                  ))}
-                </select>
-              ) : (
-                <input
-                required={field.required}
-                type={field.type}
-                name={field.name}
-                placeholder={field.placeholder}
-                onChange={handleChange}
-                accept={field.accept}
-                className="p-3 border border-gray-300 rounded-lg w-full"
-                min={'0'}
-              />
-              
-              )}
-            </div>
-          ))}
+      <div className="bg-white shadow-lg rounded-lg p-8 max-w-4xl w-full">
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {fields.map((field, index) => (
+              <div key={index} className="flex flex-col">
+                <label htmlFor={field.name} className="font-medium text-gray-700 mb-2">
+                  {field.label}
+                </label>
+                {field.type === 'select' ? (
+                  <select className="p-3 border border-gray-300 rounded-lg w-full" name={field.name} value={studentData[field.name]} onChange={handleChange} required={field.required}>
+                    <option value='' disabled>{field.placeholder}</option>
+                    {field.options.map((option, index) => (
+                      <option key={index} value={typeof option === 'object' ? option.name : option}>
+                        {typeof option === 'object' ? option.name : option}
+                      </option>
+                    ))}
+                  </select>
+                ) : (
+                  <input
+                    required={field.required}
+                    type={field.type}
+                    name={field.name}
+                    placeholder={field.placeholder}
+                    onChange={handleChange}
+                    accept={field.accept}
+                    className="p-3 border border-gray-300 rounded-lg w-full"
+                    min={'0'}
+                  />
 
-        </div>
-        <ToastContainer/>
-        <button
-          type="submit"
-          className={`w-full bg-side-bar text-white font-bold py-3 rounded-lg hover:bg-gray-700 transition duration-300 ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
-          disabled={loading}
-        >
-          {loading ? 'Processing...' : 'Register Student'} {/* Show loading text */}
-        </button>
-      </form>
+                )}
+              </div>
+            ))}
+
+          </div>
+          <ToastContainer />
+          <button
+            type="submit"
+            className={`w-full bg-side-bar text-white font-bold py-3 rounded-lg hover:bg-gray-700 transition duration-300 flex items-center justify-center ${loading ? ' cursor-not-allowed' : ''}`}
+            disabled={loading}
+          >
+            {loading ? (
+              <div className="spinner border-t-2 border-white border-solid rounded-full w-6 h-6 animate-spin"></div>
+            ) : (
+              'Register Student'
+            )}
+          </button>
+
+        </form>
+      </div>
     </div>
-  </div>
   );
 }
 
