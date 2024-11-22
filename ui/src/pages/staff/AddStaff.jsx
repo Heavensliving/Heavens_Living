@@ -473,6 +473,4 @@ function AddStaff() {
   );
 }
 
-export default AddStaff;
-
 export default CheckAuth(AddStaff);
