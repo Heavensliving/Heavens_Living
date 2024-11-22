@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import API_BASE_URL from '../../config';
@@ -17,7 +17,7 @@ function AddAddOnsItem() {
         image: '',
         status: 'unavailable',
     });
-    const [message, setMessage] = useState('');
+    //const [message, setMessage] = useState('');
 
     const handleChange = ({ target: { name, value } }) => {
         setInputs(prevInputs => ({ ...prevInputs, [name]: value }));

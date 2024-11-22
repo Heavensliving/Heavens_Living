@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { FaSearch } from 'react-icons/fa';
 import API_BASE_URL from '../../config';
 import { useSelector } from 'react-redux';
 
+// eslint-disable-next-line react/prop-types
 const InputField = ({ label, name, type = 'text', value, onChange, required = false, disabled = false }) => (
   <div className="w-full md:w-1/2 px-2 mb-4">
     <label className="block text-gray-700 mb-2">{label}</label>
@@ -125,7 +126,7 @@ const FeePayment = () => {
     };
 
     try {
-      console.log(comprehensiveFormData); // Log to verify all data is present
+      // console.log(comprehensiveFormData); // debug statement Log to verify all data is present
       await axios.post(`${API_BASE_URL}/fee/add`, comprehensiveFormData,
         { headers: { 'Authorization': `Bearer ${admin.token}` } }
       );
@@ -201,7 +202,7 @@ const FeePayment = () => {
                 <h1 className="w-full text-lg font-semibold mt-4 text-center mb-4">Make Payment</h1>
                 <InputField label="Wave-Off Amount" name="waveOffAmount" type="number" value={waveOffAmount} onChange={(e) => setWaveOffAmount(e.target.value)} />
                 <InputField label="Wave-Off Reason" name="waveOffReason" value={waveOffReason} onChange={(e) => setWaveOffReason(e.target.value)} />
-                <InputField label="Total Amount to Pay" name="totalAmount" type="number" value={totalAmountToPay} onChange={(e) => setTotalAmountToPay(e.target.value)} />
+                <InputField label="Total Amount to Pay" name="totalAmount" type="number" value={totalAmountToPay} onChange={(e) => setTotalAmountToPay(e.target.value)} disabled />
                 <InputField label="Amount Paying" name="payingAmount" type="number" value={payingAmount} onChange={(e) => setPayingAmount(e.target.value)} />
                 <div className="w-full md:w-1/2 px-2 mb-4">
                   <label className="block text-gray-700 mb-2">Payment Mode</label>

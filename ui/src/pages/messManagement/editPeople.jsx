@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useParams, useNavigate } from 'react-router-dom';
 import API_BASE_URL from '../../config';
@@ -81,7 +81,7 @@ function EditPeople() {
         { headers: { 'Authorization': `Bearer ${admin.token}` } }
       );
       const personData = response.data.data; // Access the nested data object
-      console.log(response.data.data)
+      // console.log(response.data.data) // debug statement
 
       if (personData) {
         const updatedFormData = {

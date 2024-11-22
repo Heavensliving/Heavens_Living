@@ -1,5 +1,4 @@
-
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
@@ -95,7 +94,7 @@ const PaymentDashboard = () => {
           headers: { Authorization: `Bearer ${admin.token}` },
         });
 
-        console.log(studentResponse);
+        // console.log(studentResponse); //debug statement
 
         // Calculate total refundable and non-refundable deposit
         const totalRefundable = studentResponse.data.reduce(
@@ -117,7 +116,7 @@ const PaymentDashboard = () => {
         const waveOffResponse = await axios.get(`${API_BASE_URL}/fee/payments/waveoffpayments`, {
           headers: { Authorization: `Bearer ${admin.token}` },
         });
-      console.log(waveOffResponse);
+        // console.log(waveOffResponse); // debug statement
         const totalWaveOffAmount = waveOffResponse.data.reduce(
           (acc, waveOff) => acc + (waveOff.waveOff || 0),
           0
