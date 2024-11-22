@@ -3,6 +3,10 @@ import axios from 'axios';
 import { useNavigate, useParams } from 'react-router-dom';
 import API_BASE_URL from '../../config';
 import { useSelector } from 'react-redux';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
+
 
 
 function EditProperty() {
@@ -55,15 +59,22 @@ function EditProperty() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true)
     try {
       const response = await axios.put(`${API_BASE_URL}/property/edit/${propertyId}`, propertyData,
         {headers: { 'Authorization': `Bearer ${admin.token}` }}
       );
       if (response.status === 200) {
-        navigate(`/property/${propertyId}`); 
+  
+        toast.success('Property Updated Successfully!', { autoClose: 500 });
+        setTimeout(() => {
+          navigate(`/property/${propertyId}`); 
+          setLoading(false);
+        }, 1000);
       }
     } catch (error) {
       console.error('Error:', error.response?.data || error.message);
+       toast.error(error.response.data.message, { autoClose: 2000 });
     }
   };
 
@@ -272,11 +283,17 @@ function EditProperty() {
               />
             </div>
           </div>
+          <ToastContainer />
           <button
             type="submit"
-            className="w-full bg-blue-600 text-white font-bold py-3 rounded-lg hover:bg-blue-700 transition duration-300"
+            className={`w-full bg-side-bar text-white font-bold py-3 rounded-lg hover:bg-gray-700 transition duration-300 flex items-center justify-center ${loading ? ' cursor-not-allowed' : ''}`}
+            disabled={loading}
           >
-            Update Property
+            {loading ? (
+              <div className="spinner border-t-2 border-white border-solid rounded-full w-6 h-6 animate-spin"></div>
+            ) : (
+              'Update Property Property'
+            )}
           </button>
         </form>
       </div>

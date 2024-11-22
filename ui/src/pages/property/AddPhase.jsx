@@ -3,6 +3,9 @@ import axios from 'axios';
 import { useNavigate, useParams } from 'react-router-dom';
 import API_BASE_URL from '../../config';
 import { useSelector } from 'react-redux';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 
 function AddPhase() {
   const admin = useSelector(store => store.auth.admin);
@@ -11,9 +14,11 @@ function AddPhase() {
   const [location, setLocation] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
+    setLoading(true);
     e.preventDefault();
     try {
       // Send POST request to backend API
@@ -26,14 +31,19 @@ function AddPhase() {
     );
       if (response.status === 201) {
         // On success, show a success message and reset the form
-        setSuccessMessage('Phase added successfully!');
+        toast.success('Phase Added Successfully!', { autoClose: 500 });
+        setTimeout(() => {
+          navigate(`/phase-management/${id}`);
+          setLoading(false);
+        }, 1000);
         setName('');
         setLocation('');
-        navigate(`/phase-management/${id}`); // Redirect to phase management page
+        
       }
     } catch (error) {
       // Show error message if something goes wrong
       setErrorMessage('Failed to add phase. Please try again.');
+      toast.error(error.response.data.message, { autoClose: 2000 });
     }
   };
 
@@ -72,12 +82,18 @@ function AddPhase() {
         </div> 
         
         {/* Submit Button */}
-        <button
-          type="submit"
-          className="w-full bg-side-bar text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition duration-200"
-        >
-          Add Phase
-        </button>
+        <ToastContainer />
+          <button
+            type="submit"
+            className={`w-full bg-side-bar text-white font-bold py-3 rounded-lg hover:bg-gray-700 transition duration-300 flex items-center justify-center ${loading ? ' cursor-not-allowed' : ''}`}
+            disabled={loading}
+          >
+            {loading ? (
+              <div className="spinner border-t-2 border-white border-solid rounded-full w-6 h-6 animate-spin"></div>
+            ) : (
+              'Add Phase'
+            )}
+          </button>
       </form>
     </div>
   );

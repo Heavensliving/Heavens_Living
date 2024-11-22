@@ -3,6 +3,8 @@ import axios from 'axios';
 import { useNavigate, useParams } from 'react-router-dom';
 import API_BASE_URL from '../../config';
 import { useSelector } from 'react-redux';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function EditPhase() {
   const admin = useSelector(store => store.auth.admin);
@@ -13,6 +15,7 @@ function EditPhase() {
     Location: '',
     // Add other phase-related fields as necessary
   });
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     // Fetch the existing phase data
@@ -40,16 +43,22 @@ function EditPhase() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
 
     try {
       const response = await axios.put(`${API_BASE_URL}/phase/update/${id}`, phaseData,
         {headers: { 'Authorization': `Bearer ${admin.token}` }}
       );
       if (response.status === 200) {
-        navigate('/phase-management'); // Redirect to the phase management page after updating
+        toast.success('Phase Updated Successfully!', { autoClose: 500 });
+        setTimeout(() => {
+          navigate(`/phase-management/${id}`);
+          setLoading(false);
+        }, 1000);// Redirect to the phase management page after updating
       }
     } catch (error) {
       console.error('Error updating phase:', error.response?.data || error.message);
+      toast.error(error.response.data.message, { autoClose: 2000 });
     }
   };
 
@@ -91,11 +100,17 @@ function EditPhase() {
 
           {/* Add more fields as necessary for the phase data */}
 
+          <ToastContainer />
           <button
             type="submit"
-            className="w-full bg-blue-600 text-white font-bold py-3 rounded-lg hover:bg-blue-700 transition duration-300"
+            className={`w-full bg-side-bar text-white font-bold py-3 rounded-lg hover:bg-gray-700 transition duration-300 flex items-center justify-center ${loading ? ' cursor-not-allowed' : ''}`}
+            disabled={loading}
           >
-            Update Phase
+            {loading ? (
+              <div className="spinner border-t-2 border-white border-solid rounded-full w-6 h-6 animate-spin"></div>
+            ) : (
+              'Update Phase'
+            )}
           </button>
         </form>
       </div>

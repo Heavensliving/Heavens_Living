@@ -3,6 +3,8 @@ import axios from 'axios';
 import { useNavigate, useParams } from 'react-router-dom';
 import API_BASE_URL from '../../config';
 import { useSelector } from 'react-redux';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 // Reusable Input Component
 const InputField = ({ label, name, type = 'text', value, handleChange, required = false }) => (
@@ -27,6 +29,7 @@ function AddPropertyToPhase() {
     const admin = useSelector(store => store.auth.admin);
     const { id } = useParams();
     const navigate = useNavigate();
+    const [loading, setLoading] = useState(false);
 
     const [propertyData, setPropertyData] = useState({
         propertyName: '',
@@ -57,16 +60,23 @@ function AddPropertyToPhase() {
     // Submit handler function wrapped in useCallback
     const handleSubmit = useCallback(async (e) => {
         e.preventDefault();
+        setLoading(true)
 
         try {
-            const response = await axios.post(`${API_BASE_URL}/property/add`, propertyData, 
-                {headers: { 'Authorization': `Bearer ${admin.token}` }}
+            const response = await axios.post(`${API_BASE_URL}/property/add`, propertyData,
+                { headers: { 'Authorization': `Bearer ${admin.token}` } }
             );
             if (response.status === 201) {
-                navigate(`/properties/${id}`);
+
+                toast.success('Property Added Successfully!', { autoClose: 500 });
+                setTimeout(() => {
+                    navigate(`/properties/${id}`);
+                    setLoading(false);
+                }, 1000);
             }
         } catch (error) {
             console.error('Error:', error.response?.data || error.message);
+            toast.error(error.response.data.message, { autoClose: 2000 });
         }
     }, [propertyData, navigate]);
 
@@ -104,11 +114,17 @@ function AddPropertyToPhase() {
                             />
                         ))}
                     </div>
+                    <ToastContainer />
                     <button
                         type="submit"
-                        className="w-full bg-side-bar text-white font-bold py-3 rounded-lg hover:bg-gray-700 transition duration-300"
+                        className={`w-full bg-side-bar text-white font-bold py-3 rounded-lg hover:bg-gray-700 transition duration-300 flex items-center justify-center ${loading ? ' cursor-not-allowed' : ''}`}
+                        disabled={loading}
                     >
-                        Register Property
+                        {loading ? (
+                            <div className="spinner border-t-2 border-white border-solid rounded-full w-6 h-6 animate-spin"></div>
+                        ) : (
+                            'Register Property'
+                        )}
                     </button>
                 </form>
             </div>

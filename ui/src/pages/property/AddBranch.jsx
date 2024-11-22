@@ -19,6 +19,7 @@ function AddBranch() {
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
+    setLoading(true);
     e.preventDefault();
     try {
       // Send POST request to backend API
