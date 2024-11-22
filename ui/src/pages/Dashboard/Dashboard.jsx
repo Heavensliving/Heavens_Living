@@ -1,4 +1,4 @@
-import React from 'react';
+
 import StatsSection from './StatSection';
 import FinanceChart from './FinanceChart';
 import CheckAuth from '../auth/CheckAuth';
