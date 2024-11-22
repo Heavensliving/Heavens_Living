@@ -10,6 +10,7 @@ import app from '../../firebase';
 import { ref, deleteObject, getStorage } from 'firebase/storage';
 import API_BASE_URL from '../../config';
 import { useSelector } from 'react-redux';
+import CheckAuth from '../auth/CheckAuth';
 
 const storage = getStorage();
 
@@ -189,4 +190,4 @@ const StudentManagement = () => {
   );
 };
 
-export default StudentManagement;
+export default CheckAuth(StudentManagement);

@@ -4,47 +4,64 @@ const Staff = require('../Models/Add_staff');
 
 // Add new expense
 const addExpense = async (req, res) => {
-  console.log(req.body);
   try {
-    const { propertyId, transactionId, category, staff } = req.body;
+    const {
+      title,
+      type,
+      category,
+      otherReason,
+      paymentMethod,
+      amount,
+      date,
+      propertyId,
+      propertyName,
+      staff,
+      transactionId,
+    } = req.body;
 
-    console.log(req.body);
+    // Validate required fields
+    if (!title || !type || !category || !amount || !date || !propertyId || !transactionId) {
+      return res.status(400).json({ error: "Missing required fields." });
+    }
 
-
-    // Ensure the propertyId exists
+    // Validate propertyId exists in Property collection
     const property = await Property.findOne({ propertyId });
     if (!property) {
-      return res.status(400).json({ error: 'Invalid property ID' });
+      return res.status(400).json({ error: "Invalid property ID." });
     }
 
-    // Check if transactionId already exists
-    if (transactionId) {
-      const existingExpense = await Expense.findOne({ transactionId });
-      if (existingExpense) {
-        return res.status(400).json({ error: 'Transaction ID already exists' });
-      }
+    // Check for duplicate transactionId
+    const existingExpense = await Expense.findOne({ transactionId });
+    if (existingExpense) {
+      return res.status(400).json({ error: "Transaction ID already exists." });
     }
 
-    // Create the new expense
-    const expense = new Expense(req.body);
-    await expense.save();
-
-    // Handle salary category-specific logic
-    if (category.toLowerCase() === 'salary') {
-      if (!staff) {
-        return res.status(400).json({ error: 'Staff ID is required for salary payments' });
-      }
-
-      const staffData = await Staff.findByIdAndUpdate(staff, { $push: { salaryPayments: expense._id } });
-      if (!staffData) {
-        return res.status(400).json({ error: 'Invalid Staff ID' });
-      }
+    // Ensure staff is required for "Salary" type
+    if (category.toLowerCase() === "salary" && !staff) {
+      return res.status(400).json({ error: "Staff ID is required for salary payments." });
     }
 
-    res.status(201).json({ expense, id: expense._id });
+    // Create new expense
+    const newExpense = new Expense({
+      title,
+      type,
+      category,
+      otherReason: otherReason || undefined, // Optional field
+      paymentMethod,
+      amount,
+      date,
+      propertyId,
+      propertyName,
+      staff: staff || undefined, // Optional field
+      transactionId,
+    });
+
+    await newExpense.save();
+
+    res.status(201).json({ message: "Expense added successfully.", expense: newExpense });
   } catch (error) {
-    console.error(error);
-    res.status(400).json({ error: 'Error adding expense' });
+    console.error("Error adding expense:", error.message || error);
+    res.status(500).json({ error: "Internal server error." });
   }
 };
 
@@ -152,8 +169,6 @@ const getMonthlyTotalExpense = async (req, res) => {
       year: item._id.year,
       totalExpense: item.totalAmount, // Return only total expense
     }));
-    console.log(formattedResponse);
-
     res.json(formattedResponse); // Return formatted data
   } catch (error) {
     console.error("Error fetching monthly total expense:", error);

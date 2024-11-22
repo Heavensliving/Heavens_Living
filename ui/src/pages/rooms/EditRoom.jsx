@@ -175,7 +175,7 @@ function EditRoom() {
                     <div className="w-full px-2 mb-4">
                         <button
                             type="submit"
-                            className="w-full bg-blue-500 text-white py-2 px-4 rounded-lg"
+                            className="w-full bg-side-bar text-white py-2 hover:bg-gray-700 px-4 rounded-lg"
                         >
                             Update Room
                         </button>

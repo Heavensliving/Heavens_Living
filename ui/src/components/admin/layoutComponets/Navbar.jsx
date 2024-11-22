@@ -111,7 +111,7 @@
 // export default Navbar;
 import React, { useState, useEffect, useRef } from 'react';
 import { FaBell, FaCog, FaSearch, FaArrowLeft } from 'react-icons/fa';  // Import back arrow
-import pageConfig from '../../../Utils/NavbarUtils';
+import pageConfig from '../../../Utils/navbarUtils';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { adminLogout } from '../../../store/AuthSlice';

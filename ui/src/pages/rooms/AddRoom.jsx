@@ -127,7 +127,7 @@ function AddRoom() {
                 </div>
                 <button
                     type="submit"
-                    className="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition mt-4"
+                    className="w-full bg-side-bar text-white py-2 rounded-lg hover:bg-gray-700 transition mt-4"
                 >
                     Add Room
                 </button>

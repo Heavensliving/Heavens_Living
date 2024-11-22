@@ -11,6 +11,12 @@ const pageConfig = {
     '/students/edit/:studentId': {
       title: 'Edit Student',
     },
+    '/edit-room/:Id': {
+      title: 'Edit Room',
+    },
+    '/add-property/:Id': {
+      title: 'Add Property To Phase',
+    },
     '/staffs': {
       title: 'Staffs Management',
     },

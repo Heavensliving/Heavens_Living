@@ -21,7 +21,7 @@ function RoomAllocation() {
             Authorization: `Bearer ${admin.token}`,
           },
         });
-
+  
         // Group rooms by property
         const roomsByProperty = response.data.rooms.reduce((acc, room) => {
           if (!acc[room.propertyName]) {
@@ -30,22 +30,35 @@ function RoomAllocation() {
           acc[room.propertyName].push(room);
           return acc;
         }, {});
-
-        // Convert the object into an array format
+  
+        // Sort rooms within each property
         const formattedProperties = Object.keys(roomsByProperty).map((propertyName) => ({
           propertyName,
-          rooms: roomsByProperty[propertyName],
+          totalRooms: roomsByProperty[propertyName].length,
+          rooms: roomsByProperty[propertyName].sort((a, b) => {
+            const [numA, suffixA] = a.roomNumber.split(' ');
+            const [numB, suffixB] = b.roomNumber.split(' ');
+  
+            // Compare numeric parts as numbers (descending)
+            const numComparison = parseInt(numB) - parseInt(numA);
+            if (numComparison !== 0) return numComparison;
+  
+            // Compare suffix parts lexicographically (ascending)
+            return suffixA.localeCompare(suffixB);
+          }),
         }));
-
+  
         setProperties(formattedProperties);
-
+        console.log(formattedProperties);
+  
       } catch (error) {
         console.error('Error fetching rooms:', error);
       }
     };
-
+  
     fetchRooms();
   }, []);
+  
 
   const handleCardClick = async (roomId, roomNumber) => {
     try {
@@ -74,7 +87,7 @@ function RoomAllocation() {
       {/* Header Section */}
       <div className="flex flex-wrap justify-between items-center mb-6">
         <h2 className="text-3xl font-semibold">Room Allocation Overview</h2>
-        <button onClick={() => navigate('/add-room')} className="bg-indigo-500 text-white px-6 py-3 rounded-lg hover:bg-indigo-600 transition">
+        <button onClick={() => navigate('/add-room')} className="bg-side-bar text-white px-6 py-3 rounded-lg hover:bg-gray-700 transition">
           Add Rooms
         </button>
       </div>
@@ -82,7 +95,10 @@ function RoomAllocation() {
       {/* Display Properties and Rooms */}
       {properties.map((property, index) => (
         <div key={index} className="mb-12">
-          <h2 className="text-2xl font-bold mb-6">{property.propertyName}</h2>
+          <h2 className="text-2xl font-bold mb-6 flex justify-between items-center">
+      <span>{property.propertyName}</span>
+      <span className="text-xl font-medium text-gray-600">Total Rooms: {property.totalRooms}</span>
+    </h2>
           <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-8">
             {property.rooms.map((room) => {
               const vacant = room.roomCapacity - room.occupant;
@@ -158,7 +174,7 @@ function RoomAllocation() {
               </button>
               <button
                 onClick={() => navigate(`/edit-room/${roomId}`)}
-                className="bg-indigo-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition"
+                className="bg-side-bar hover:bg-indigo-700 text-white px-4 py-2 rounded-lg transition"
               >
                 Edit Room
               </button>

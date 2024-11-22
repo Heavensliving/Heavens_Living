@@ -109,6 +109,8 @@ const editStudent = async (req, res) => {
   try {
     const { id } = req.params; // Get student ID from the request parameters
     const updatedData = req.body; // Get the updated student data from the request body
+    const password = updatedData.password
+    updatedData.password = await bcrypt.hash(password, 10); 
 
     console.log("Updated Data:", updatedData); // Debugging log
 
@@ -117,6 +119,9 @@ const editStudent = async (req, res) => {
     if (!student) {
       return res.status(404).json({ message: 'Student not found' });
     }
+
+    // Check if the email has changed
+    const emailChanged = updatedData.email && updatedData.email !== student.email;
 
     // Handle property changes
     if (updatedData.property && updatedData.property !== student.property.toString()) {
@@ -156,16 +161,43 @@ const editStudent = async (req, res) => {
         updatedData.room = newRoom._id;
       }
     }
+
+    // Update the student's data
     const updatedStudent = await Student.findByIdAndUpdate(id, updatedData, { new: true });
     if (!updatedStudent) {
       return res.status(404).json({ message: 'Student not found' });
     }
+
+    // Send email verification if email has changed
+    if (emailChanged) {
+      const link = 'http://192.168.1.79:3000/api/user/verifyemail';
+      const emailHtml = emailVerificationTemplate(link, updatedStudent._id);
+      const mailOptions = {
+        from: 'www.heavensliving@gmail.com',
+        to: updatedData.email,
+        subject: 'Email Update Verification',
+        html: emailHtml,
+      };
+
+      try {
+        await transporter.sendMail(mailOptions);
+        console.log("Email sent to updated address:", updatedData.email);
+      } catch (emailError) {
+        console.error("Error sending email:", emailError);
+        return res.status(500).json({ 
+          message: 'Student updated but failed to send verification email', 
+          error: emailError.message || emailError 
+        });
+      }
+    }
+
     res.status(200).json({ message: 'Student updated successfully', student: updatedStudent });
   } catch (error) {
     console.error('Error updating student:', error); // Log the error
     res.status(500).json({ message: 'Error updating student', error });
   }
 };
+
 
 
 
@@ -243,7 +275,7 @@ const deleteStudent = async (req, res) => {
     await Student.findByIdAndDelete(id);
     const property = await Property.findByIdAndUpdate(
       propertyId,
-      { $pull: { occupants: id } },
+      { $pull: { occupanets: id } },
       { new: true }
     );
 

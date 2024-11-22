@@ -24,7 +24,7 @@ function Property() {
     const fetchProperties = async () => {
         try {
             const response = await axios.get(`http://localhost:3000/api/property/properties/${id}`,
-                {headers: { 'Authorization': `Bearer ${admin.token}` }}
+                { headers: { 'Authorization': `Bearer ${admin.token}` } }
             );
             setProperties(response.data.Properties || []);
             setPhaseId(response.data._id)
@@ -37,7 +37,7 @@ function Property() {
     const fetchPhase = async () => {
         try {
             const response = await axios.get(`http://localhost:3000/api/phase/${id}`,
-                {headers: { 'Authorization': `Bearer ${admin.token}` }}
+                { headers: { 'Authorization': `Bearer ${admin.token}` } }
             );
             setPhase(response.data)
             setLoading(false);
@@ -85,7 +85,7 @@ function Property() {
                     {/* Add Property Button */}
                     <button
                         onClick={() => navigate(`/add-property/${id}`)}
-                        className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="flex items-center px-4 py-2 bg-side-bar text-white rounded-full hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
                     >
                         <FaPlus className="mr-2" />
                         Add Property
@@ -96,48 +96,51 @@ function Property() {
             {/* Properties Section */}
             <div className="bg-white p-4 rounded-lg flex-grow overflow-y-auto">
                 {filteredProperties.length > 0 ? (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-4">
                         {filteredProperties.map(property => (
-                            <div key={property._id}
+                            <div
+                                key={property._id}
                                 onClick={() => navigate(`/property/${property._id}`)}
-                                className="bg-white p-4 rounded-lg border border-gray-300 cursor-pointer transform transition-transform duration-300 hover:scale-105 hover:shadow-lg">
+                                className="bg-white p-4 rounded-lg border border-gray-300 cursor-pointer transform transition-transform duration-300 hover:scale-105 hover:shadow-lg"
+                            >
                                 {/* Row 1: Name and Location */}
-                                <div className="flex justify-between mb-2">
-                                    <div>
-                                        <h3 className="text-lg font-semibold">{property.propertyName}</h3>
-                                        <p className="text-gray-600">{property.location}</p>
+                                <div className="flex justify-between items-start mb-2">
+                                    <div className="min-w-0">
+                                        <h3 className="text-lg font-semibold truncate">{property.propertyName}</h3>
+                                        <p className="text-gray-600 text-sm truncate">{property.location}</p>
                                     </div>
                                     {/* Starting From Text */}
-                                    <div className="text-right">
-                                        <p className="text-gray-500">Starting From</p>
-                                        <p className="text-gray-500 font-bold">{property.startingPrice}</p>
+                                    <div className="text-right min-w-0">
+                                        <p className="text-gray-500 text-xs">Starting From</p>
+                                        <p className="text-gray-500 font-bold text-sm">{property.startingPrice}</p>
                                     </div>
                                 </div>
 
-                                <div className="grid grid-cols-3 gap-2 mt-4">
+                                {/* Details Section */}
+                                <div className="grid grid-cols-1 gap-2 mt-4">
                                     {/* Total Occupancy Box */}
                                     <div className="border border-gray-300 p-2 rounded-md flex items-center justify-between">
-                                        <div>
-                                            <p className="text-gray-500 text-xs">Total Occupancy</p>
-                                            <p className="font-bold">{property.totalBeds}</p>
+                                        <div className="min-w-0">
+                                            <p className="text-gray-500 text-xs truncate">Total Occupancy</p>
+                                            <p className="font-bold text-sm truncate">{property.totalBeds}</p>
                                         </div>
                                         <FaUsers className="text-green-600 text-xl" />
                                     </div>
 
                                     {/* Total Occupied Box */}
                                     <div className="border border-gray-300 p-2 rounded-md flex items-center justify-between">
-                                        <div>
-                                            <p className="text-gray-500 text-xs">Total Occupied</p>
-                                            <p className="font-bold">{property.occupied}</p>
+                                        <div className="min-w-0">
+                                            <p className="text-gray-500 text-xs truncate">Total Occupied</p>
+                                            <p className="font-bold text-sm truncate">{property.occupanets.length}</p>
                                         </div>
                                         <FaCheck className="text-orange-600 text-xl" />
                                     </div>
 
                                     {/* Vacant Box */}
                                     <div className="border border-gray-300 p-2 rounded-md flex items-center justify-between">
-                                        <div>
-                                            <p className="text-gray-500 text-xs">Vacant</p>
-                                            <p className="font-bold">{property.vacant}</p>
+                                        <div className="min-w-0">
+                                            <p className="text-gray-500 text-xs truncate">Vacant</p>
+                                            <p className="font-bold text-sm truncate">{property.totalBeds - property.occupanets.length}</p>
                                         </div>
                                         <FaRegCircle className="text-red-600 text-xl" />
                                     </div>
@@ -146,7 +149,7 @@ function Property() {
                         ))}
                     </div>
                 ) : (
-                    <p className="text-center text-gray-500">No properties found</p> // No properties found message
+                    <p className="text-center text-gray-500">No properties found</p>
                 )}
             </div>
         </div>

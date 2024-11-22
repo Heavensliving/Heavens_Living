@@ -1,8 +1,14 @@
 import React from 'react';
 import StatsSection from './StatSection';
 import FinanceChart from './FinanceChart';
+import CheckAuth from '../auth/CheckAuth';
+import { useSelector } from 'react-redux';
 
 const Dashboard = () => {
+  const admin = useSelector((store) => store.auth.admin);
+  if(!admin){
+    return <CheckAuth/>
+  }
   const today = new Date();
   const currentDate = today.getDate();
   const currentMonth = today.getMonth();
@@ -66,4 +72,4 @@ const Dashboard = () => {
   );
 };
 
-export default Dashboard;
+export default CheckAuth(Dashboard);

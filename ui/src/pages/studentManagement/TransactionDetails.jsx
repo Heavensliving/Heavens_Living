@@ -78,7 +78,7 @@ const TransactionDetails = ({ onClose, slideIn }) => {
 
                 <button
                     onClick={onClose}
-                    className="self-center mt-4 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-medium py-2 px-4 rounded-lg shadow-lg transition duration-200 transform hover:scale-105"
+                    className="self-center mt-4 bg-side-bar hover:from-blue-600 hover:bg-gray-700 text-white font-medium py-2 px-4 rounded-lg shadow-lg"
                 >
                     Close
                 </button>

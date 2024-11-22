@@ -72,7 +72,7 @@ function AddBranch() {
         {/* Submit Button */}
         <button
           type="submit"
-          className="w-full bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition duration-200"
+          className="w-full bg-side-bar text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition duration-200"
         >
           Add Branch
         </button>
