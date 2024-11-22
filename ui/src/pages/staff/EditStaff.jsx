@@ -29,7 +29,7 @@ function EditStaff() {
         joinDate: '',
         PaySchedule: '',
         propertyName: '',
-        Status: 'Active',
+        Status: 'Active', // Initialize status
         property: '',
     });
     const [properties, setProperties] = useState([]);
@@ -212,10 +212,19 @@ function EditStaff() {
             label: 'Property Name',
             required: true,
         },
+        {
+            name: 'Status',
+            label: 'Status',
+            type: 'select',
+            options: ['Active', 'Inactive'], // Added status options
+            placeholder: 'Select Status',
+            required: true
+        },
         { name: 'joinDate', label: 'Join Date', type: 'date', placeholder: 'Join Date', required: true },
         { name: 'Photo', label: 'Photo', type: 'file', placeholder: 'Upload Photo', accept: 'image/*' },
         { name: 'Adharfrontside', label: 'Aadhar Front', type: 'file', placeholder: 'Upload Aadhar Front', accept: 'image/*' },
         { name: 'Adharbackside', label: 'Aadhar Back', type: 'file', placeholder: 'Upload Aadhar Back', accept: 'image/*' },
+        
     ];
 
     return (
