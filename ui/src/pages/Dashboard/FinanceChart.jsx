@@ -4,6 +4,7 @@ import API_BASE_URL from '../../config';
 import { useSelector } from 'react-redux';
 import { Bar } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
+import CheckAuth from '../auth/CheckAuth';
 
 // Register Chart.js components
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
@@ -49,9 +50,6 @@ const FinanceChart = () => {
           // Aggregate total for the corresponding month
           monthlyReceivedData[monthIndex] += transaction.amountPaid || 0;
         });
-    
-        // Debugging: Log the aggregated data
-        console.log('Monthly Received Data:', monthlyReceivedData);
     
         // Update state with the aggregated data
         setTotalReceived(monthlyReceivedData);

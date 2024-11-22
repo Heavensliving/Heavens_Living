@@ -5,6 +5,8 @@ import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "firebase/
 import { useNavigate } from 'react-router-dom';
 import API_BASE_URL from '../../config';
 import { useSelector } from 'react-redux';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const storage = getStorage();
 
@@ -51,6 +53,7 @@ function AddStudent() {
   const [roomType, setRoomType] = useState("");
   const [roomNo, setRoomNo] = useState([]);
   const [uploadProgress, setUploadProgress] = useState({});
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     // Fetch property names from the backend
@@ -235,7 +238,7 @@ function AddStudent() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+    setLoading(true);
     // Prepare the student data for upload
     const filesToUpload = ['adharFrontImage', 'adharBackImage', 'photo'];
     const uploadPromises = filesToUpload.map(async (fileField) => {
@@ -274,13 +277,19 @@ function AddStudent() {
 
       if (response.status === 201) {
         console.log('Success:', response.data);
+        toast.success('Successfully registered!', { autoClose: 500 });
+                setTimeout(() => {
+                    navigate('/students');
+                    setLoading(false); 
+                }, 1000);
       } else {
         console.error('Error:', response.statusText);
+        toast.error(error.response.data.message, { autoClose: 2000 });
       }
     } catch (error) {
       console.error('Error:', error);
+      toast.error('Something went wrong. Please try again later.');
     }
-    navigate('/students')
   };
 
   return (
@@ -319,11 +328,13 @@ function AddStudent() {
           ))}
 
         </div>
+        <ToastContainer/>
         <button
           type="submit"
-          className="w-full bg-blue-600 text-white font-bold py-3 rounded-lg hover:bg-blue-700 transition duration-300"
+          className={`w-full bg-side-bar text-white font-bold py-3 rounded-lg hover:bg-gray-700 transition duration-300 ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+          disabled={loading}
         >
-          Register Student
+          {loading ? 'Processing...' : 'Register Student'} {/* Show loading text */}
         </button>
       </form>
     </div>

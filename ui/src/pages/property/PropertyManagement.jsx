@@ -25,7 +25,7 @@ function PropertyManagement() {
   const fetchProperties = async () => {
     try {
       const response = await axios.get(`${API_BASE_URL}/property`,
-        {headers: { 'Authorization': `Bearer ${admin.token}` }}
+        { headers: { 'Authorization': `Bearer ${admin.token}` } }
       );
       setProperties(response.data);
       setLoading(false);
@@ -37,8 +37,8 @@ function PropertyManagement() {
   const fetchBranches = async () => {
     try {
       const response = await axios.get(`${API_BASE_URL}/branch`,
-        {headers: { 'Authorization': `Bearer ${admin.token}` }}
-      ); 
+        { headers: { 'Authorization': `Bearer ${admin.token}` } }
+      );
       setBranches(response.data);
     } catch (error) {
       setErrorMessage('Failed to fetch branches.');
@@ -48,7 +48,7 @@ function PropertyManagement() {
   const fetchPhases = async () => {
     try {
       const response = await axios.get(`${API_BASE_URL}/phase`,
-        {headers: { 'Authorization': `Bearer ${admin.token}` }}
+        { headers: { 'Authorization': `Bearer ${admin.token}` } }
       );
       setPhases(response.data);
     } catch (error) {
@@ -74,7 +74,7 @@ function PropertyManagement() {
           </div>
         </div>
         {/* Total branches Card */}
-        <div onClick={()=> navigate('/branch-management')} className="bg-white p-2 rounded-lg mb-4 flex items-center w-1/4 cursor-pointer">
+        <div onClick={() => navigate('/branch-management')} className="bg-white p-2 rounded-lg mb-4 flex items-center w-1/4 cursor-pointer">
           <FaCodeBranch className="text-blue-600 text-2xl mr-2" />
           <div>
             <p className="text-gray-500 text-sm">Branches</p>
@@ -82,14 +82,14 @@ function PropertyManagement() {
           </div>
         </div>
         {/* Total phases Card*/}
-        <div className="bg-white p-2 rounded-lg mb-4 flex items-center w-1/4 cursor-pointer">
+        <div className="bg-white p-2 rounded-lg mb-4 flex items-center w-1/4">
           <FaLayerGroup className="text-blue-600 text-2xl mr-2" />
           <div>
             <p className="text-gray-500 text-sm">Phases</p>
             <p className="font-bold text-lg">{phases.length}</p>
           </div>
         </div>
-        <div onClick={()=> navigate('/rooms')} className="bg-white p-2 rounded-lg mb-4 flex items-center w-1/4 cursor-pointer">
+        <div onClick={() => navigate('/rooms')} className="bg-white p-2 rounded-lg mb-4 flex items-center w-1/4 cursor-pointer">
           <MdMeetingRoom className="text-blue-600 text-2xl mr-2" />
           <div>
             <p className="text-gray-500 text-sm">Rooms</p>
@@ -128,48 +128,51 @@ function PropertyManagement() {
       {/* Properties Section */}
       <div className="bg-white p-4 rounded-lg flex-grow overflow-y-auto">
         {filteredProperties.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-4">
             {filteredProperties.map(property => (
-              <div key={property._id}
+              <div
+                key={property._id}
                 onClick={() => navigate(`/property/${property._id}`)}
-                className="bg-white p-4 rounded-lg border border-gray-300 cursor-pointer transform transition-transform duration-300 hover:scale-105 hover:shadow-lg">
+                className="bg-white p-4 rounded-lg border border-gray-300 cursor-pointer transform transition-transform duration-300 hover:scale-105 hover:shadow-lg"
+              >
                 {/* Row 1: Name and Location */}
-                <div className="flex justify-between mb-2">
-                  <div>
-                    <h3 className="text-lg font-semibold">{property.propertyName}</h3>
-                    <p className="text-gray-600">{property.location}</p>
+                <div className="flex justify-between items-start mb-2">
+                  <div className="min-w-0">
+                    <h3 className="text-lg font-semibold truncate">{property.propertyName}</h3>
+                    <p className="text-gray-600 text-sm truncate">{property.location}</p>
                   </div>
                   {/* Starting From Text */}
-                  <div className="text-right">
-                    <p className="text-gray-500">Starting From</p>
-                    <p className="text-gray-500 font-bold">{property.startingPrice}</p>
+                  <div className="text-right min-w-0">
+                    <p className="text-gray-500 text-xs">Starting From</p>
+                    <p className="text-gray-500 font-bold text-sm">{property.startingPrice}</p>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-3 gap-2 mt-4">
+                {/* Details Section */}
+                <div className="grid grid-cols-1 gap-2 mt-4">
                   {/* Total Occupancy Box */}
                   <div className="border border-gray-300 p-2 rounded-md flex items-center justify-between">
-                    <div>
-                      <p className="text-gray-500 text-xs">Total Occupancy</p>
-                      <p className="font-bold">{property.totalBeds}</p>
+                    <div className="min-w-0">
+                      <p className="text-gray-500 text-xs truncate">Total Occupancy</p>
+                      <p className="font-bold text-sm truncate">{property.totalBeds}</p>
                     </div>
-                    <FaUsers className="text-green-600 text-xl" />
+                    <FaUsers className="text-green-600 text-2xl" />
                   </div>
 
                   {/* Total Occupied Box */}
                   <div className="border border-gray-300 p-2 rounded-md flex items-center justify-between">
-                    <div>
-                      <p className="text-gray-500 text-xs">Total Occupied</p>
-                      <p className="font-bold">{property.occupanets.length}</p>
+                    <div className="min-w-0">
+                      <p className="text-gray-500 text-xs truncate">Total Occupied</p>
+                      <p className="font-bold text-sm truncate">{property.occupanets.length}</p>
                     </div>
-                    <FaCheck className="text-orange-600 text-xl" />
+                    <FaCheck className="text-orange-600 text-2xl" />
                   </div>
 
                   {/* Vacant Box */}
                   <div className="border border-gray-300 p-2 rounded-md flex items-center justify-between">
-                  <div>
-                      <p className="text-gray-500 text-xs">Vacant</p>
-                      <p className="font-bold">{property.totalBeds - property.occupanets.length}</p>
+                    <div className="min-w-0">
+                      <p className="text-gray-500 text-xs truncate">Vacant</p>
+                      <p className="font-bold text-sm truncate">{property.totalBeds - property.occupanets.length}</p>
                     </div>
                     <FaRegCircle className="text-red-600 text-xl" />
                   </div>
@@ -178,7 +181,7 @@ function PropertyManagement() {
             ))}
           </div>
         ) : (
-          <p className="text-center text-gray-500">No properties found</p> // No properties found message
+          <p className="text-center text-gray-500">No properties found</p>
         )}
       </div>
     </div>

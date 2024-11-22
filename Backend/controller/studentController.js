@@ -109,6 +109,8 @@ const editStudent = async (req, res) => {
   try {
     const { id } = req.params; // Get student ID from the request parameters
     const updatedData = req.body; // Get the updated student data from the request body
+    const password = updatedData.password
+    updatedData.password = await bcrypt.hash(password, 10); 
 
     console.log("Updated Data:", updatedData); // Debugging log
 
@@ -273,7 +275,7 @@ const deleteStudent = async (req, res) => {
     await Student.findByIdAndDelete(id);
     const property = await Property.findByIdAndUpdate(
       propertyId,
-      { $pull: { occupants: id } },
+      { $pull: { occupanets: id } },
       { new: true }
     );
 
