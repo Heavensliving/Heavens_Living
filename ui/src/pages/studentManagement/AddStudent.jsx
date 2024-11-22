@@ -7,6 +7,8 @@ import API_BASE_URL from '../../config';
 import { useSelector } from 'react-redux';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import CheckAuth from '../auth/CheckAuth';
+import { FaEye, FaEyeSlash } from 'react-icons/fa'; 
 
 const storage = getStorage();
 
@@ -54,8 +56,10 @@ function AddStudent() {
   const [roomNo, setRoomNo] = useState([]);
   const [uploadProgress, setUploadProgress] = useState({});
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
+    if (!admin) return;
     // Fetch property names from the backend
     const fetchProperties = async () => {
       try {
@@ -72,6 +76,7 @@ function AddStudent() {
   }, []);
 
   useEffect(() => {
+    if (!admin) return;
     // Fetch rooms when a property is selected
     if (studentData.pgName) {
       const fetchRooms = async () => {
@@ -91,7 +96,7 @@ function AddStudent() {
 
       fetchRooms();
     }
-  }, [studentData.pgName, admin.token]);
+  }, [studentData.pgName, admin]);
 
   useEffect(() => {
     if (roomType) {
@@ -236,6 +241,10 @@ function AddStudent() {
     });
   };
 
+  const togglePasswordVisibility = () => {
+      setShowPassword(!showPassword); // Toggle the visibility state
+    };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -294,52 +303,74 @@ function AddStudent() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
-    <div className="bg-white shadow-lg rounded-lg p-8 max-w-4xl w-full">
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {fields.map((field, index) => (
-            <div key={index} className="flex flex-col">
-              <label htmlFor={field.name} className="font-medium text-gray-700 mb-2">
-                {field.label}
-              </label>
-              {field.type === 'select' ? (
-                <select className="p-3 border border-gray-300 rounded-lg w-full" name={field.name} value={studentData[field.name]} onChange={handleChange} required={field.required}>
-                  <option value='' disabled>{field.placeholder}</option>
-                  {field.options.map((option, index) => (
-                    <option key={index} value={typeof option === 'object' ? option.name : option}>
-                      {typeof option === 'object' ? option.name : option}
-                    </option>
-                  ))}
-                </select>
-              ) : (
-                <input
-                required={field.required}
-                type={field.type}
-                name={field.name}
-                placeholder={field.placeholder}
-                onChange={handleChange}
-                accept={field.accept}
-                className="p-3 border border-gray-300 rounded-lg w-full"
-                min={'0'}
-              />
-              
-              )}
-            </div>
-          ))}
-
-        </div>
-        <ToastContainer/>
-        <button
-          type="submit"
-          className={`w-full bg-side-bar text-white font-bold py-3 rounded-lg hover:bg-gray-700 transition duration-300 ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
-          disabled={loading}
-        >
-          {loading ? 'Processing...' : 'Register Student'} {/* Show loading text */}
-        </button>
-      </form>
+      <div className="bg-white shadow-lg rounded-lg p-8 max-w-4xl w-full">
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {fields.map((field, index) => (
+              <div key={index} className="flex flex-col">
+                <label htmlFor={field.name} className="font-medium text-gray-700 mb-2">
+                  {field.label}
+                </label>
+                {field.name === 'password' ? ( // Check if the field is password
+                  <div className="relative">
+                    <input
+                      required={field.required}
+                      type={showPassword ? 'text' : 'password'} // Toggle input type
+                      name={field.name}
+                      placeholder={field.placeholder}
+                      onChange={handleChange}
+                      className="p-3 border border-gray-300 rounded-lg w-full"
+                    />
+                    <button
+                      type="button"
+                      onClick={togglePasswordVisibility}
+                      className="absolute right-3 top-3 text-gray-500"
+                    >
+                      {showPassword ? <FaEyeSlash size={20} className='mt-1'/> : <FaEye size={20} className='mt-1'/>} {/* Eye icon toggle */}
+                    </button>
+                  </div>
+                ) : field.type === 'select' ? (
+                  <select
+                    className="p-3 border border-gray-300 rounded-lg w-full"
+                    name={field.name}
+                    value={studentData[field.name]}
+                    onChange={handleChange}
+                    required={field.required}
+                  >
+                    <option value='' disabled>{field.placeholder}</option>
+                    {field.options.map((option, index) => (
+                      <option key={index} value={typeof option === 'object' ? option.name : option}>
+                        {typeof option === 'object' ? option.name : option}
+                      </option>
+                    ))}
+                  </select>
+                ) : (
+                  <input
+                    required={field.required}
+                    type={field.type}
+                    name={field.name}
+                    placeholder={field.placeholder}
+                    onChange={handleChange}
+                    accept={field.accept}
+                    className="p-3 border border-gray-300 rounded-lg w-full"
+                    min={'0'}
+                  />
+                )}
+              </div>
+            ))}
+          </div>
+          <ToastContainer />
+          <button
+            type="submit"
+            className={`w-full bg-side-bar text-white font-bold py-3 rounded-lg hover:bg-gray-700 transition duration-300 ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+            disabled={loading}
+          >
+            {loading ? <div className='spinner text-center'></div> : 'Register Student'} {/* Show loading text */}
+          </button>
+        </form>
+      </div>
     </div>
-  </div>
   );
 }
 
-export default AddStudent;
+export default CheckAuth(AddStudent);

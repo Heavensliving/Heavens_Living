@@ -9,6 +9,7 @@ import IdProof from '../../components/reUsableComponet/IdProof';
 import ImageModal from '../../components/reUsableComponet/ImageModal';
 import TransactionDetails from './TransactionDetails';
 import ConfirmationModal from '../../components/reUsableComponet/ConfirmationModal';
+import CheckAuth from '../auth/CheckAuth';
 
 // Reusable component for displaying information
 const InfoItem = ({ icon: Icon, label, value, className = '' }) => (
@@ -302,4 +303,4 @@ const StudentDetails = () => {
   );
 };
 
-export default StudentDetails;
+export default CheckAuth(StudentDetails);

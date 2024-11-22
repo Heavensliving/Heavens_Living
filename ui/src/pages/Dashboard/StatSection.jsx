@@ -13,6 +13,7 @@ const StatsSection = () => {
   const [totalProperties, setTotalProperties] = useState(); 
 
   useEffect(() => {
+    if (!admin) return;
     const fetchTotalStudents = async () => {
       try {
         const response = await axios.get(`${API_BASE_URL}/students`,
@@ -29,6 +30,7 @@ const StatsSection = () => {
   }, []);
 
   useEffect(() => {
+    if (!admin) return;
     const fetchTotalStaffs = async () => {
       try {
         const response = await axios.get(`${API_BASE_URL}/staff`,
@@ -44,6 +46,7 @@ const StatsSection = () => {
   }, []);
 
   useEffect(() => {
+    if (!admin) return;
     const fetchTotalDailyRent = async () => {
       try {
         const response = await axios.get(`${API_BASE_URL}/dailyRent`,
@@ -59,6 +62,7 @@ const StatsSection = () => {
   }, []);
 
   useEffect(() => {
+    if (!admin) return;
     const fetchTotalProperties = async () => {
       try {
         const response = await axios.get(`${API_BASE_URL}/property`,

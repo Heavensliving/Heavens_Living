@@ -9,6 +9,7 @@ import StaffTable from './StaffTable';
 import API_BASE_URL from '../../config';
 import SearchAndSort from '../../components/reUsableComponet/SearchAndSort';
 import { useSelector } from 'react-redux';
+import CheckAuth from '../auth/CheckAuth';
 
 const storage = getStorage();
 
@@ -20,6 +21,7 @@ const useStaffData = () => {
   const [error, setError] = useState(null);
   let admin = useSelector(store => store.auth.admin);
   useEffect(() => {
+    if (!admin) return;
     const fetchData = async () => {
       try {
         const res = await axios.get(`${API_BASE_URL}/staff`,
@@ -200,4 +202,4 @@ const StaffManagement = () => {
   );
 };
 
-export default StaffManagement;
+export default CheckAuth(StaffManagement);

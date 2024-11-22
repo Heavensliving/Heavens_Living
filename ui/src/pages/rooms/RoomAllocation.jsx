@@ -3,6 +3,7 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import API_BASE_URL from '../../config';
 import { useSelector } from 'react-redux';
+import CheckAuth from '../auth/CheckAuth';
 
 function RoomAllocation() {
   const navigate = useNavigate();
@@ -14,6 +15,7 @@ function RoomAllocation() {
   const [isModalOpen, setIsModalOpen] = useState(false); // To control modal visibility
 
   useEffect(() => {
+    if (!admin) return;
     const fetchRooms = async () => {
       try {
         const response = await axios.get(`${API_BASE_URL}/room`, {
@@ -187,4 +189,4 @@ function RoomAllocation() {
   );
 }
 
-export default RoomAllocation;
+export default CheckAuth(RoomAllocation);

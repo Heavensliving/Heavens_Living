@@ -5,6 +5,7 @@ import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "firebase/
 import { useNavigate } from 'react-router-dom';
 import API_BASE_URL from '../../config';
 import { useSelector } from 'react-redux';
+import CheckAuth from '../auth/CheckAuth';
 
 const storage = getStorage();
 
@@ -31,6 +32,7 @@ function AddStaff() {
   const [properties, setProperties] = useState([]);
 
   useEffect(() => {
+    if (!admin) return;
     // Fetch property names from the backend
     const fetchProperties = async () => {
       try {
@@ -236,4 +238,4 @@ function AddStaff() {
   );
 }
 
-export default AddStaff;
+export default CheckAuth(AddStaff);
