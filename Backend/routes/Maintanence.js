@@ -45,6 +45,8 @@ router.put('/updateStatus/:id', verifyToken, MaintenanceController.updateMainten
 
 router.get('/getlatest', verifyToken, MaintenanceController.getLatestResolvedIssues)
 
+router.get('/student/:studentId', MaintenanceController.getMaintenanceByStudentId);
+
 
 
 module.exports = { router, setMaintenanceSocketIO };

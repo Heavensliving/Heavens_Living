@@ -4,6 +4,7 @@ import axios from 'axios';
 import { FaSearch } from 'react-icons/fa';
 import API_BASE_URL from '../../config';
 import { useSelector } from 'react-redux';
+import CheckAuth from '../auth/CheckAuth';
 
 // eslint-disable-next-line react/prop-types
 const InputField = ({ label, name, type = 'text', value, onChange, required = false, disabled = false }) => (
@@ -72,6 +73,7 @@ const FeePayment = () => {
   };
 
   const fetchStudentData = async () => {
+    if (!admin) return;
     if (!formData.studentId) {
       setErrorMessage("Please enter a valid student ID.");
       setTimeout(() => {
@@ -251,4 +253,4 @@ const FeePayment = () => {
   );
 };
 
-export default FeePayment;
+export default CheckAuth(FeePayment);

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import API_BASE_URL from '../../config';
 import { useSelector } from 'react-redux';
+import CheckAuth from '../auth/CheckAuth';
 
 const MessOrderHistory = () => {
   const admin = useSelector(store => store.auth.admin);
@@ -10,6 +11,7 @@ const MessOrderHistory = () => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    if (!admin) return;
     const fetchOrders = async () => {
       try {
         const response = await axios.get(`${API_BASE_URL}/messOrder/`,
@@ -76,4 +78,4 @@ const MessOrderHistory = () => {
   );
 };
 
-export default MessOrderHistory;
+export default CheckAuth(MessOrderHistory);

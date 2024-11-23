@@ -4,6 +4,7 @@ import { jsPDF } from 'jspdf';
 import 'jspdf-autotable'; // Make sure to import the autoTable plugin
 import API_BASE_URL from '../../config';
 import { useSelector } from 'react-redux';
+import CheckAuth from '../auth/CheckAuth';
 
 const ExpenseTable = () => {
   const admin = useSelector(store => store.auth.admin);
@@ -16,6 +17,7 @@ const ExpenseTable = () => {
   const [selectedYear, setSelectedYear] = useState('');
 
   useEffect(() => {
+    if (!admin) return;
     const fetchExpenses = async () => {
       try {
         const response = await axios.get(`${API_BASE_URL}/expense/`, {
@@ -226,4 +228,4 @@ const ExpenseTable = () => {
   );
 };
 
-export default ExpenseTable;
+export default CheckAuth(ExpenseTable);

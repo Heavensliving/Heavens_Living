@@ -4,6 +4,7 @@ import { useSelector } from "react-redux";
 import API_BASE_URL from "../../config";
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
+import CheckAuth from "../auth/CheckAuth";
 
 
 const PendingPaymentsPage = () => {
@@ -16,6 +17,7 @@ const PendingPaymentsPage = () => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    if (!admin) return;
     const fetchPendingPayments = async () => {
       try {
         const response = await axios.get(
@@ -204,4 +206,4 @@ const PendingPaymentsPage = () => {
   );
 };
 
-export default PendingPaymentsPage;
+export default CheckAuth(PendingPaymentsPage);

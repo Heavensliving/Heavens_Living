@@ -5,6 +5,9 @@ import { useNavigate } from 'react-router-dom';
 import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import app from '../../firebase';
 import { useSelector } from 'react-redux';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import CheckAuth from '../auth/CheckAuth';
 
 const storage = getStorage(app);
 
@@ -75,8 +78,10 @@ const AddDailyRent = () => {
   const [pgName, setPgName] = useState([]);
   const [roomType, setRoomType] = useState("");
   const [roomNo, setRoomNo] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    if (!admin) return;
     const fetchProperties = async () => {
       try {
         const response = await axios.get(`${API_BASE_URL}/property`,
@@ -100,9 +105,9 @@ const AddDailyRent = () => {
             headers: { 'Authorization': `Bearer ${admin.token}` },
           });
           const roomsData = Array.isArray(response.data)
-          ? response.data // If response.data is already an array
-          : response.data.rooms || []; 
-          console.log("here",response.data)
+            ? response.data // If response.data is already an array
+            : response.data.rooms || [];
+          console.log("here", response.data)
           // Filter rooms with vacantSlot > 0
           const availableRooms = roomsData.filter(room => room.vacantSlot > 0);
           console.log(availableRooms)
@@ -112,7 +117,7 @@ const AddDailyRent = () => {
         }
       };
       fetchRooms();
-    } 
+    }
   }, [pgName, admin]);
 
   useEffect(() => {
@@ -173,6 +178,7 @@ const AddDailyRent = () => {
   };
 
   const handleSubmit = async (e) => {
+    setLoading(true)
     e.preventDefault();
     console.log(formData)
     const filesToUpload = ['photo', 'adharFrontImage', 'adharBackImage'];
@@ -202,9 +208,22 @@ const AddDailyRent = () => {
       const response = await axios.post(`${API_BASE_URL}/DailyRent/Add`, formData,
         { headers: { 'Authorization': `Bearer ${admin.token}` } }
       );
-      navigate('/dailyRent');
+      if (response.status === 201) {
+        // console.log('Success:', response.data); //debug statement
+        toast.success('Successfully registered!', { autoClose: 500 });
+        setTimeout(() => {
+          navigate('/dailyRent');
+          setLoading(false);
+        }, 1000);
+      } else {
+        console.error('Error:', response.statusText);
+        setLoading(false);
+        toast.error(error.response.data.message, { autoClose: 2000 });
+      }
     } catch (error) {
-      console.error('Error adding daily rent person:', error);
+      console.error('Error:', error);
+      setLoading(false);
+      toast.error('Something went wrong. Please try again later.');
     }
   };
 
@@ -264,10 +283,21 @@ const AddDailyRent = () => {
           ]}
           required
         />
-        <button type="submit" className="w-full bg-blue-500 text-white py-2 px-4 rounded mt-4">Submit</button>
+        <ToastContainer />
+          <button
+            type="submit"
+            className={`w-full bg-side-bar text-white font-bold py-3 rounded-lg hover:bg-[#373082] transition duration-300 flex items-center justify-center ${loading ? ' cursor-not-allowed' : ''}`}
+            disabled={loading}
+          >
+            {loading ? (
+              <div className="spinner border-t-2 border-white border-solid rounded-full w-6 h-6 animate-spin"></div>
+            ) : (
+              'Register'
+            )}
+          </button>
       </form>
     </div>
   );
 };
 
-export default AddDailyRent;
+export default CheckAuth(AddDailyRent);

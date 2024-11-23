@@ -6,6 +6,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { adminLogout } from '../../../store/AuthSlice';
 import API_BASE_URL from '../../../config';
 import axios from 'axios';
+import CarousalModal from '../../carousal/CarousalModal'; // Import the CarousalModal
 
 const Navbar = () => {
     const location = useLocation();
@@ -15,6 +16,7 @@ const Navbar = () => {
 
     const [showDropdown, setShowDropdown] = useState(false); // State for dropdown
     const dropdownRef = useRef(null); // Ref for dropdown container
+    const [isCarousalModalOpen, setCarousalModalOpen] = useState(false); // State for carousal modal
 
     useEffect(() => {
         const handleClickOutside = (event) => {
@@ -92,9 +94,8 @@ const Navbar = () => {
                             </span>
                         </div>
                     )}
-                    <button className="relative p-2 bg-white rounded-full shadow" disabled>
+                    <button className="relative p-2 bg-white rounded-full shadow" onClick={() => setCarousalModalOpen(true)}>
                         <FaBell className="h-6 w-6 text-gray-400" />
-                        {/* <span className="absolute top-0 right-0 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">3</span> */}
                     </button>
 
                     {/* Settings Button with Dropdown */}
@@ -121,7 +122,7 @@ const Navbar = () => {
                     <div className="flex items-end">
                         <div className="flex flex-col items-end ml-2 lg:flex">
                             <span className="text-gray-700">{admin?.adminName}</span>
-                            <span className="text-gray-500 text-sm">Admin</span>
+                            <span className="text-gray-500 text-sm">{admin?.role}</span>
                         </div>
                         <div className="ml-2 h-10 w-10 rounded-full overflow-hidden">
                             <img src="https://cdn-icons-png.freepik.com/256/9449/9449192.png?ga=GA1.1.1459516267.1711715282&semt=ais_hybrid" alt="Profile" className="h-full w-full object-cover" />
@@ -129,6 +130,9 @@ const Navbar = () => {
                     </div>
                 </div>
             </div>
+
+            {/* Carousal Modal */}
+            <CarousalModal isOpen={isCarousalModalOpen} onClose={() => setCarousalModalOpen(false)} />
         </nav>
     );
 };

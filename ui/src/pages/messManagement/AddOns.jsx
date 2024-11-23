@@ -92,11 +92,6 @@ function AddOns() {
       <div className="flex justify-between">
 
         <div className="flex items-center mb-4">
-          <button
-            onClick={() => navigate('/mess')}
-            className="text-gray-500 hover:text-gray-600 rounded-full">
-            <FaArrowLeft size={16} />
-          </button>
           <h2 className="text-2xl font-semibold ml-4">Available Menu</h2>
         </div>
 

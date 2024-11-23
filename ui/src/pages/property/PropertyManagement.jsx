@@ -163,7 +163,7 @@ function PropertyManagement() {
                   <div className="border border-gray-300 p-2 rounded-md flex items-center justify-between">
                     <div className="min-w-0">
                       <p className="text-gray-500 text-xs truncate">Total Occupied</p>
-                      <p className="font-bold text-sm truncate">{property.occupanets.length}</p>
+                      <p className="font-bold text-sm truncate">{property.occupanets.length + property.dailyRent.length}</p>
                     </div>
                     <FaCheck className="text-orange-600 text-2xl" />
                   </div>
@@ -172,7 +172,7 @@ function PropertyManagement() {
                   <div className="border border-gray-300 p-2 rounded-md flex items-center justify-between">
                     <div className="min-w-0">
                       <p className="text-gray-500 text-xs truncate">Vacant</p>
-                      <p className="font-bold text-sm truncate">{property.totalBeds - property.occupanets.length}</p>
+                      <p className="font-bold text-sm truncate">{property.totalBeds - (property.occupanets.length+property.dailyRent.length)}</p>
                     </div>
                     <FaRegCircle className="text-red-600 text-xl" />
                   </div>

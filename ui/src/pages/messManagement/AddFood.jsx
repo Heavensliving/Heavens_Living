@@ -317,7 +317,7 @@ function AddFood() {
                 />
                 <button
                   onClick={handleMenuAdd}
-                  className="bg-yellow-500 hover:bg-yellow-600 text-white p-2 rounded ml-2"
+                  className="bg-side-bar hover:bg-[#373082] text-white p-2 rounded ml-2"
                 >
                   Add
                 </button>

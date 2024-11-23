@@ -5,6 +5,8 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import app from '../../firebase';
 import { useSelector } from 'react-redux';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const storage = getStorage(app);
 
@@ -72,6 +74,7 @@ const EditDailyRentPerson = () => {
   });
 
   const [properties, setProperties] = useState([]);
+  const [loading, setLoading] = useState(false);
   const [oldFiles, setOldFiles] = useState({
     Adharfrontside: '',
     Adharbackside: '',
@@ -80,6 +83,7 @@ const EditDailyRentPerson = () => {
 
   useEffect(() => {
     const fetchProperties = async () => {
+      if (!admin) return;
       try {
         const response = await axios.get(`${API_BASE_URL}/property`,
           { headers: { 'Authorization': `Bearer ${admin.token}` } }
@@ -91,6 +95,7 @@ const EditDailyRentPerson = () => {
     };
 
     const fetchDailyRentData = async () => {
+      if (!admin) return;
       try {
         const response = await axios.get(`${API_BASE_URL}/DailyRent/${id}`,
           { headers: { 'Authorization': `Bearer ${admin.token}` } }
@@ -177,8 +182,8 @@ const EditDailyRentPerson = () => {
   };
 
   const handleSubmit = async (e) => {
+    setLoading(true);
     e.preventDefault();
-
     const filesToUpload = ['photo', 'adharFrontImage', 'adharBackImage'];
     const uploadPromises = filesToUpload.map(async (fileField) => {
       if (formData[fileField] && typeof formData[fileField] === 'object') {
@@ -205,15 +210,22 @@ const EditDailyRentPerson = () => {
         },
 
       });
-
       if (response.status === 200) {
-        console.log('Daily rent member updated successfully:', response.data);
-        navigate('/dailyRent');
+        // console.log('Success:', response.data); //debug statement
+        toast.success('Successfully Updated!', { autoClose: 500 });
+        setTimeout(() => {
+          navigate('/dailyRent');
+          setLoading(false);
+        }, 1000);
       } else {
         console.error('Error:', response.statusText);
+        setLoading(false);
+        toast.error(error.response.data.message, { autoClose: 2000 });
       }
     } catch (error) {
-      console.error('Error updating daily rent member:', error.response?.data || error.message);
+      console.error('Error:', error);
+      setLoading(false);
+      toast.error('Something went wrong. Please try again later.');
     }
   };
 
@@ -270,7 +282,18 @@ const EditDailyRentPerson = () => {
         <Input label="Join Date" type="date" name="joinDate" value={formData.joinDate} onChange={handleChange} />
 
 
-        <button type="submit" className="w-full bg-blue-500 text-white py-2 px-4 rounded mt-4">Update</button>
+        <ToastContainer />
+          <button
+            type="submit"
+            className={`w-full bg-side-bar text-white font-bold py-3 rounded-lg hover:bg-[#373082] transition duration-300 flex items-center justify-center ${loading ? ' cursor-not-allowed' : ''}`}
+            disabled={loading}
+          >
+            {loading ? (
+              <div className="spinner border-t-2 border-white border-solid rounded-full w-6 h-6 animate-spin"></div>
+            ) : (
+              'Update'
+            )}
+          </button>
       </form>
     </div>
   );

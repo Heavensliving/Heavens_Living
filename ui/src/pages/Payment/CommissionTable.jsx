@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useSelector } from 'react-redux';
 import API_BASE_URL from '../../config';
+import CheckAuth from '../auth/CheckAuth';
 
 const CommissionTable = () => {
   const admin = useSelector(store => store.auth.admin);
@@ -11,6 +12,7 @@ const CommissionTable = () => {
   const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
+    if (!admin) return;
     const fetchCommissions = async () => {
       try {
         const response = await axios.get(`${API_BASE_URL}/commission/`, {
@@ -85,4 +87,4 @@ const CommissionTable = () => {
   );
 };
 
-export default CommissionTable;
+export default CheckAuth(CommissionTable);

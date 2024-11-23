@@ -14,8 +14,10 @@ const Login = () => {
     const [password, setPassword] = useState("");
     const [errors, setErrors] = useState({ email: "", password: "" });
     const [showPassword, setShowPassword] = useState(false);
+    const [loading, setLoading] = useState(false);
 
     const handleSubmit = (e) => {
+        setLoading(true)
         e.preventDefault();
 
         // Reset errors
@@ -27,40 +29,50 @@ const Login = () => {
         if (!password) validationErrors.password = 'Password is required.';
 
         if (Object.keys(validationErrors).length > 0) {
+            setLoading(false)
             setErrors(validationErrors);
             return;
         }
 
         axios.post(`${API_BASE_URL}/admin/login`, { email, password })
             .then((res) => {
+                // Clear errors on successful login
                 setErrors({ email: "", password: "" });
+
+                // Save admin details
                 const admin = {
                     adminName: res.data.adminName,
                     token: res.data.token,
                     role: res.data.role
                 };
                 dispatch(setAdmin(admin));
+
+                // Navigate to the dashboard
                 navigate('/');
             })
             .catch(error => {
-                console.error(error);
+                setLoading(false)
+                console.error("Error during login:", error);
+
+                // Handle API errors
                 if (error.response && error.response.data && error.response.data.errors) {
                     const apiErrors = {};
                     error.response.data.errors.forEach(err => {
-                        if (err.field === 'email') {
-                            apiErrors.email = err.message;
-                        } else if (err.field === 'password') {
-                            apiErrors.password = err.message;
-                        }
+                        apiErrors[err.field] = err.message;
                     });
+                    setLoading(false)
                     setErrors(apiErrors);
-                } else if (error.response && error.response.data && error.response.data.msg) {
-                    setErrors({ password: error.response.data.msg });
+                } else if (error.response && error.response.data && error.response.data.message) {
+                    // Handle generic backend message
+                    setLoading(false)
+                    setErrors({ password: error.response.data.message });
                 } else {
-                    setErrors({ password: 'Failed to connect to API' });
+                    setLoading(false)
+                    setErrors({ password: "An unexpected error occurred. Please try again." });
                 }
             });
     };
+
 
     return (
         <div className="flex items-center justify-center min-h-screen bg-gray-100 p-4">
@@ -121,10 +133,15 @@ const Login = () => {
                         </div>
                         <div>
                             <button
-                                className="w-full p-3 mt-4 bg-side-bar text-white rounded-lg hover:bg-[#373082] transition duration-200"
-                                type='submit'
+                                type="submit"
+                                className={`w-full bg-side-bar text-white font-bold py-3 rounded-lg hover:bg-[#373082] transition duration-300 flex items-center justify-center ${loading ? ' cursor-not-allowed' : ''}`}
+                                disabled={loading}
                             >
-                                Login
+                                {loading ? (
+                                    <div className="spinner border-t-2 border-white border-solid rounded-full w-6 h-6 animate-spin"></div>
+                                ) : (
+                                    'Login'
+                                )}
                             </button>
                         </div>
                     </form>

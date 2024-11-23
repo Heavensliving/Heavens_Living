@@ -8,6 +8,7 @@ import MetricCard from './MetricCard';
 import ActionButton from './ActionButton';
 import ListItem from './ListItem';
 import { useSelector } from 'react-redux';
+import CheckAuth from '../auth/CheckAuth';
 
 function MessManagement() {
   const admin = useSelector(store => store.auth.admin);
@@ -48,6 +49,7 @@ function MessManagement() {
 
     // Fetch tomorrow's orders if it's after 11 pm
     const fetchOrders = async () => {
+      if (!admin) return;
       try {
         if (isAfter11PM) {
           const response = await axios.get(`${API_BASE_URL}/messOrder/`, {
@@ -231,7 +233,7 @@ function MessManagement() {
   );
 }
 
-export default MessManagement;
+export default CheckAuth(MessManagement);
 
 
 

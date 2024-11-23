@@ -4,6 +4,7 @@ import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import { useSelector } from 'react-redux';
 import API_BASE_URL from '../../config';
+import CheckAuth from '../auth/CheckAuth';
 
 const PaymentReceived = () => {
   const admin = useSelector(store => store.auth.admin);
@@ -14,6 +15,7 @@ const PaymentReceived = () => {
 
   useEffect(() => {
     const fetchTransactions = async () => {
+      if (!admin) return;
       try {
         const response = await axios.get(`${API_BASE_URL}/fee`,
           { headers: { 'Authorization': `Bearer ${admin.token}` } }
@@ -46,12 +48,6 @@ const PaymentReceived = () => {
     (acc, transaction) => acc + (transaction.amountPaid || 0),
     0
   );
-
-  // const messPeopleTransactions = transactions.filter((transaction) => transaction.messPeople);
-  // const messPeopleTotal = messPeopleTransactions.reduce(
-  //   (acc, transaction) => acc + (transaction.amountPaid || 0),
-  //   0
-  // );
 
   // Totals for selected month and year
   const filteredTotalAmount = furtherFilteredTransactions.reduce(
@@ -99,11 +95,7 @@ const PaymentReceived = () => {
         transaction.amountPaid || 'N/A',
       ]),
     });
-
-    // const totalAmount = furtherFilteredTransactions.reduce((sum, transaction) => {
-    //   return sum + (transaction.amountPaid || 0);
-    // }, 0);
-
+    
     const finalY = doc.lastAutoTable.finalY || 0;
     doc.setFontSize(12);
     doc.text(`Total Amount: Rs.${totalAmount.toFixed(2)}`, 14, finalY + 10);
@@ -227,4 +219,4 @@ const PaymentReceived = () => {
   );
 };
 
-export default PaymentReceived;
+export default CheckAuth(PaymentReceived);

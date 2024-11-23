@@ -19,6 +19,7 @@ const DailyRentPage = () => {
   const navigate = useNavigate();
 
   const fetchDailyRents = async () => {
+    if (!admin) return;
     try {
       const response = await axios.get(`${API_BASE_URL}/DailyRent`,
         {headers: { 'Authorization': `Bearer ${admin.token}` }}
@@ -27,10 +28,6 @@ const DailyRentPage = () => {
     } catch (error) {
       console.error("Error fetching daily rents:", error);
     }
-  };
-
-  const handleEdit = (id) => {
-    alert(`Edit DailyRent with ID: ${id}`);
   };
 
   const handleDelete = (id) => {
@@ -94,7 +91,7 @@ const DailyRentPage = () => {
           onChange={(e) => setSearchTerm(e.target.value)}
         />
         <button
-          className="bg-green-500 text-white py-2 px-4 rounded hover:bg-green-600"
+          className="bg-side-bar text-white py-2 px-4 rounded hover:bg-[#373082]"
           onClick={() => navigate("/AddDailyRent")}
         >
           Add People
