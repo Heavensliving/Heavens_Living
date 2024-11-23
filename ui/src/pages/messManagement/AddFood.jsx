@@ -192,11 +192,6 @@ function AddFood() {
     <div className="flex flex-col md:flex-row">
       <div className="w-full md:w-1/4 p-4">
         <div className="flex items-center mb-4">
-          <button
-            onClick={() => navigate('/mess')}
-            className="text-gray-500 hover:text-gray-600 rounded-full">
-            <FaArrowLeft size={16} />
-          </button>
           <h2 className="text-lg font-semibold ml-4">Select Day</h2>
         </div>
         <div className="flex flex-col space-y-2 mt-4">

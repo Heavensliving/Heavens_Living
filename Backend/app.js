@@ -4,7 +4,6 @@ const dotenv = require('dotenv');
 const cors = require('cors');
 const fileUpload = require('express-fileupload');
 const http = require('http');
-const { Server } = require('socket.io');
 
 const adminRoutes = require('./routes/admin');
 const studentRoutes = require('./routes/student');
@@ -16,8 +15,8 @@ const messRoute = require('./routes/Mess');
 const adOnRoute = require('./routes/adOn');
 const commissionRoutes = require('./routes/Commission');
 const peopleRoutes = require('./routes/people');
-const { router: maintenaceRoutes, setMaintenanceSocketIO} = require('./routes/Maintanence');
-const { router: messOrderRoutes, setSocketIO } = require('./routes/MessOrder'); 
+const maintenaceRoutes= require('./routes/Maintanence');
+const messOrderRoutes = require('./routes/MessOrder'); 
 const branchRoutes = require('./routes/Branch');
 const phaseRoutes = require('./routes/Phase');
 const DailyRentRoutes = require('./routes/DailyRent');
@@ -29,25 +28,11 @@ const userRoutes = require('./routes/user.js')
 const roomAllocationRoutes = require('./routes/RoomAllocation.js')
 const carousalRoutes = require('./routes/carousal.js')
 
-
-
 dotenv.config();
 
 const app = express();
+
 const server = http.createServer(app);
-const io = new Server(server, {
-  cors: {
-    origin: '*', // replace with your frontend URL
-    methods: ["GET", "POST"],
-    allowedHeaders: ["Content-Type"],
-    credentials: true
-  }
-});
-
-
-setSocketIO(io);
-
-setMaintenanceSocketIO(io);
 
 // Middleware
 app.use(cors());

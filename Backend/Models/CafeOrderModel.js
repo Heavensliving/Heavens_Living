@@ -22,7 +22,7 @@ const CafeOrder = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ["pending", "completed"],
+      enum: ["pending", "received", "delivered"],
       default: "pending",
     },
     creditorName: { type: String, required: false },

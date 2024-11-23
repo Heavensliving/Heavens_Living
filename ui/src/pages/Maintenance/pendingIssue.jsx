@@ -3,7 +3,6 @@ import axios from 'axios';
 import AssignStaffModal from './AssignStaffModal'; 
 import DetailModal from './DetailModal'; 
 import API_BASE_URL from '../../config';
-import { io } from 'socket.io-client';
 import { useSelector } from 'react-redux';
 
 const PendingIssues = () => {
@@ -16,32 +15,7 @@ const PendingIssues = () => {
   const [selectedRecord, setSelectedRecord] = useState(null); 
   const [staffMembers, setStaffMembers] = useState([]); 
   useEffect(() => {
-    const socket = io('http://localhost:3000'); // Initialize socket.io client
 
-    // Listen for maintenance record updates
-    socket.on('maintenanceUpdated', (updatedRecord) => {
-      if (updatedRecord && updatedRecord._id) {
-        setRecords((prevRecords) => {
-          const existingRecordIndex = prevRecords.findIndex(record => record._id === updatedRecord._id);
-          if (existingRecordIndex > -1) {
-            const updatedRecords = [...prevRecords];
-            updatedRecords[existingRecordIndex] = updatedRecord;
-            return updatedRecords;
-          } else {
-            return [...prevRecords, updatedRecord]; // If not found, add the new record
-          }
-        });
-      } else {
-        console.error('Received invalid maintenance data:', updatedRecord);
-      }
-    });
-
-    // Listen for maintenance record deletions
-    socket.on('maintenanceDeleted', (deletedRecord) => {
-      setRecords((prevRecords) => prevRecords.filter(record => record._id !== deletedRecord._id));
-    });
-
-    // Fetch maintenance records when component mounts
     const fetchMaintenanceRecords = async () => {
       try {
         const response = await axios.get(`${API_BASE_URL}/maintenance/get`,
@@ -71,10 +45,6 @@ const PendingIssues = () => {
     fetchMaintenanceRecords();
     fetchStaffMembers();
 
-    // Clean up the socket connection on component unmount
-    return () => {
-      socket.disconnect();
-    };
   }, []);
 
   const handleAssignClick = (record) => {

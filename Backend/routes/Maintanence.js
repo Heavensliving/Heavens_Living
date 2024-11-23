@@ -1,31 +1,10 @@
 const express = require('express');
-
 const router = express.Router();
 const MaintenanceController = require('../controller/MaintanenceController');
 const { verifyToken } = require('../middleware/tokenVerify');
 
-
-let io;
-// Function to set the Socket.IO instance
-const setMaintenanceSocketIO = (socketIo) => {
-  io = socketIo;
-};
-
 // Add maintenance request
-router.post('/add', verifyToken, async (req, res) => {
-  try {
-    const newMaintenance = await MaintenanceController.addMaintenance(req, res);
-
-    if (newMaintenance) {
-      io.emit('maintenanceUpdated', newMaintenance); // Emit the new maintenance request
-    } else {
-      console.error('Failed to get the new maintenance request from the controller');
-    }
-  } catch (error) {
-    console.error('Error adding maintenance:', error);
-    res.status(500).json({ error: 'Failed to add maintenance' });
-  }
-});
+router.post('/add', verifyToken, MaintenanceController.addMaintenance)
 
 router.get("/total", verifyToken, MaintenanceController.getTotalMaintenance );
 
@@ -49,4 +28,4 @@ router.get('/student/:studentId', MaintenanceController.getMaintenanceByStudentI
 
 
 
-module.exports = { router, setMaintenanceSocketIO };
+module.exports = router;

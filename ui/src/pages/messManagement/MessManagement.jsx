@@ -3,7 +3,6 @@ import { FaUtensils, FaConciergeBell, FaCoffee, FaHamburger, FaPizzaSlice, FaApp
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import API_BASE_URL from '../../config';
-import { io } from 'socket.io-client';
 import MetricCard from './MetricCard';
 import ActionButton from './ActionButton';
 import ListItem from './ListItem';
@@ -17,67 +16,41 @@ function MessManagement() {
   const [expandedAddon, setExpandedAddon] = useState(null);
   const [todayOrders, setTodayOrders] = useState([]);
 
-  useEffect(() => {
-    const socket = io('http://localhost:3000'); // Initialize socket.io client
-
-    // Listen for order updates
-    socket.on('orderUpdated', (newOrder) => {
-      if (newOrder && newOrder._id) {
-        setTodayOrders((prevOrders) => {
-          const existingOrderIndex = prevOrders.findIndex(order => order._id === newOrder._id);
-          if (existingOrderIndex > -1) {
-            const updatedOrders = [...prevOrders];
-            updatedOrders[existingOrderIndex] = newOrder;
-            return updatedOrders;
-          } else {
-            return [...prevOrders, newOrder];
-          }
-        });
-      } else {
-        console.error('Received invalid order data:', newOrder);
-      }
-    });
-
-    // Listen for order deletions
-    socket.on('orderDeleted', (deletedOrder) => {
-      setTodayOrders((prevOrders) => prevOrders.filter(order => order._id !== deletedOrder._id));
-    });
-
+  
     // Check current time to determine if orders should be displayed
-    const now = new Date();
-    const isAfter11PM = now.getHours() >= 16;
-
-    // Fetch tomorrow's orders if it's after 11 pm
-    const fetchOrders = async () => {
-      if (!admin) return;
-      try {
-        if (isAfter11PM) {
-          const response = await axios.get(`${API_BASE_URL}/messOrder/`, {
-            headers: { 'Authorization': `Bearer ${admin.token}` }
-          });
-          const allOrders = response.data;
-          const tomorrow = new Date(now);
-          tomorrow.setDate(now.getDate() + 1);
-          const tomorrowDate = tomorrow.toISOString().split('T')[0];
-          const filteredTomorrowOrders = allOrders.filter(order => {
-            if (!order.deliverDate) return false;
-            const orderDate = new Date(order.deliverDate);
-            return orderDate.toISOString().split('T')[0] === tomorrowDate;
-          });
-          setTodayOrders(filteredTomorrowOrders);
+    useEffect(() => {
+      // Check current time to determine if orders should be displayed
+      const now = new Date();
+      const isAfter11PM = now.getHours() >= 16;
+    
+      // Fetch tomorrow's orders if it's after 11 pm
+      const fetchOrders = async () => {
+        if (!admin) return;
+        try {
+          if (isAfter11PM) {
+            const response = await axios.get(`${API_BASE_URL}/messOrder/`, {
+              headers: { 'Authorization': `Bearer ${admin.token}` }
+            });
+            console.log(response.data);
+            const allOrders = response.data;
+            const tomorrow = new Date(now);
+            tomorrow.setDate(now.getDate() + 1);
+            const tomorrowDate = tomorrow.toISOString().split('T')[0];
+            const filteredTomorrowOrders = allOrders.filter(order => {
+              if (!order.deliverDate) return false;
+              const orderDate = new Date(order.deliverDate);
+              return orderDate.toISOString().split('T')[0] === tomorrowDate;
+            });
+            console.log(filteredTomorrowOrders)
+            setTodayOrders(filteredTomorrowOrders);
+          }
+        } catch (error) {
+          console.error('Error fetching orders:', error);
         }
-      } catch (error) {
-        console.error('Error fetching orders:', error);
-      }
-    };
-
-    fetchOrders();
-
-    // Clean up the socket connection on component unmount
-    return () => {
-      socket.disconnect();
-    };
-  }, []);
+      };
+    
+      fetchOrders();
+    }, [admin]);
 
 
   const toggleExpandOrder = (orderId) => {

@@ -97,7 +97,7 @@ const AssignStaffModal = ({ isOpen, onClose, onAssign, staffMembers }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+    <div className="fixed inset-0 z-20 ml-60 bg-black bg-opacity-50 flex items-center justify-center">
       <div className="bg-white rounded-lg p-6 w-1/3 shadow-lg relative">
         <h2 className="text-lg font-bold mb-4">Assign Staff</h2>
         
