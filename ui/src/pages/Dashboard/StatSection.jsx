@@ -52,6 +52,7 @@ const StatsSection = () => {
         const response = await axios.get(`${API_BASE_URL}/dailyRent`,
           { headers: { 'Authorization': `Bearer ${admin.token}` } }
         ); 
+        console.log(response.data)
         setTotalDailyRent(response.data.length); 
       } catch (error) {
         console.error('Error fetching total staff:', error);

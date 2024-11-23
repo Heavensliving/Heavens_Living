@@ -14,6 +14,7 @@ const Signup = () => {
     const [role, setRole] = useState('');
     const [phone, setPhone] = useState('');
     const [errors, setErrors] = useState({});
+    const [loading, setLoading] = useState(false);
 
     const validateEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.toLowerCase());
     const validatePassword = (password) => {
@@ -26,6 +27,7 @@ const Signup = () => {
     const validatePhone = (phone) => /^\d{10}$/.test(phone);
 
     const handleSubmit = (e) => {
+        setLoading(true)
         e.preventDefault();
         const newErrors = {};
 
@@ -37,6 +39,9 @@ const Signup = () => {
         if (!phone) newErrors.phone = "Phone number is required";
         else if (!validatePhone(phone)) newErrors.phone = "Phone number must be a 10-digit number";
         if (!role) newErrors.role = "Role selection is required";
+        if (Object.keys(newErrors).length > 0) {
+            setLoading(false);
+        }
 
         setErrors(newErrors);
 
@@ -47,6 +52,7 @@ const Signup = () => {
                     navigate('/login');
                 })
                 .catch(error => {
+                    setLoading(false)
                     if (error.response && error.response.data && error.response.data.message) {
                         setErrors({ form: error.response.data.message });
                     } else {
@@ -146,11 +152,16 @@ const Signup = () => {
                             <option value="propertyAdmin">Property Admin</option>
                         </select>
                         <button
-                            className="w-full py-2 mt-3 bg-side-bar text-white rounded-lg hover:bg-[#373082] transition duration-200"
-                            type="submit"
-                        >
-                            Signup
-                        </button>
+                                type="submit"
+                                className={`w-full bg-side-bar text-white font-bold py-3 rounded-lg hover:bg-[#373082] transition duration-300 flex items-center justify-center ${loading ? ' cursor-not-allowed' : ''}`}
+                                disabled={loading}
+                            >
+                                {loading ? (
+                                    <div className="spinner border-t-2 border-white border-solid rounded-full w-6 h-6 animate-spin"></div>
+                                ) : (
+                                    'Signup'
+                                )}
+                            </button>
                     </form>
 
                     <div className="mt-4">

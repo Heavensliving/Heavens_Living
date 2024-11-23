@@ -63,7 +63,8 @@ const EditDailyRentPerson = () => {
     roomNo: '',
     paymentStatus: '',
     propertyId: '',
-    joinDate: '',
+    checkIn: '',
+    checkOut: '',
     currentStatus: '',
     dateOfBirth: '',
     gender: '',
@@ -107,9 +108,10 @@ const EditDailyRentPerson = () => {
           Photo: fetchedData.photo,
         });
 
-        if (fetchedData.dateOfBirth && fetchedData.joinDate) {
+        if (fetchedData.dateOfBirth && fetchedData.checkIn && fetchedData.checkOut) {
           fetchedData.dateOfBirth = new Date(fetchedData.dateOfBirth).toISOString().split('T')[0];
-          fetchedData.joinDate = new Date(fetchedData.joinDate).toISOString().split('T')[0];
+          fetchedData.checkIn = new Date(fetchedData.checkIn).toISOString().split('T')[0];
+          fetchedData.checkOut = new Date(fetchedData.checkOut).toISOString().split('T')[0];
         }
         setFormData({
           name: fetchedData.name || '',
@@ -125,7 +127,8 @@ const EditDailyRentPerson = () => {
           roomNo: fetchedData.roomNo || '',
           paymentStatus: fetchedData.paymentStatus || '',
           propertyId: fetchedData.property || '',
-          joinDate: fetchedData.joinDate || '',
+          checkIn: fetchedData.checkIn || '',
+          checkOut: fetchedData.checkOut || '',
           currentStatus: fetchedData.currentStatus || '',
           dateOfBirth: fetchedData.dateOfBirth || '',
           gender: fetchedData.gender || '',
@@ -260,13 +263,10 @@ const EditDailyRentPerson = () => {
         />
         <Input label="Room Type" name="roomType" value={formData.roomType} onChange={handleChange} />
         <Input label="Room No" name="roomNo" value={formData.roomNo} onChange={handleChange} />
+          <Input label="Check In Date" type="date" name="checkIn" value={formData.checkIn} onChange={handleChange} />
+          <Input label="Check Out Date" type="date" name="checkOut" value={formData.checkOut} onChange={handleChange} />
         <Input label="Type of Stay" name="typeOfStay" value={formData.typeOfStay} onChange={handleChange} />
-        <Input label="Daily Rent" type="number" name="DailyRent" value={formData.DailyRent} onChange={handleChange} />
-        <Input label="Photo" type="file" name="Photo" onChange={handleChange} accept="image/*" />
-        <Input label="Aadhar Front Image" type="file" name="adharFrontImage" onChange={handleChange} accept="image/*" />
-        <Input label="Aadhar Back Image" type="file" name="adharBackImage" onChange={handleChange} accept="image/*" />
-
-
+        <Input label="Rent" type="number" name="DailyRent" value={formData.DailyRent} onChange={handleChange} />
         <Select
           label="Payment Status"
           name="paymentStatus"
@@ -278,10 +278,9 @@ const EditDailyRentPerson = () => {
           ]}
           required
         />
-
-        <Input label="Join Date" type="date" name="joinDate" value={formData.joinDate} onChange={handleChange} />
-
-
+        <Input label="Photo" type="file" name="Photo" onChange={handleChange} accept="image/*" />
+        <Input label="Aadhar Front Image" type="file" name="adharFrontImage" onChange={handleChange} accept="image/*" />
+        <Input label="Aadhar Back Image" type="file" name="adharBackImage" onChange={handleChange} accept="image/*" />
         <ToastContainer />
           <button
             type="submit"

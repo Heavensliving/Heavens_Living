@@ -8,20 +8,20 @@ const crypto = require('crypto');
 const generateStaffId = () => {
     const randomNumber = crypto.randomInt(1000, 100000); // Generate a random number between 1000 and 9999
     return `HVNS${randomNumber}`;
-  };
+};
 
 // Create a new staff member
 const createStaff = async (req, res) => {
     const propertyId = req.body.property
     try {
-    const StaffId = generateStaffId();
-    const property = await Property.findById(propertyId);
-    const phaseName = property.phaseName;
-    const branchName = property.branchName;
-    if (!property) {
-      return res.status(404).json({ message: 'property not found' });
-    }
-        const staff = new Staff({ ...req.body, StaffId, property: propertyId,  phase:phaseName, branch: branchName });
+        const StaffId = generateStaffId();
+        const property = await Property.findById(propertyId);
+        const phaseName = property.phaseName;
+        const branchName = property.branchName;
+        if (!property) {
+            return res.status(404).json({ message: 'property not found' });
+        }
+        const staff = new Staff({ ...req.body, StaffId, property: propertyId, phase: phaseName, branch: branchName });
         await staff.save();
         await Property.findByIdAndUpdate(propertyId, { $push: { staffs: staff._id } });
         res.status(201).json({ message: 'Staff member created successfully', staff });
@@ -113,24 +113,49 @@ const deleteStaff = async (req, res) => {
         const propertyId = req.query.propertyId;
         if (!mongoose.Types.ObjectId.isValid(propertyId)) {
             return res.status(400).json({ message: 'Invalid property ID' });
-          }
+        }
         if (!staff) {
             return res.status(404).json({ message: 'Staff member not found' });
         }
         // Find the property and update it by removing the student's ID from the array
-    const property = await Property.findByIdAndUpdate(
-        propertyId,
-        { $pull: { staffs: req.params.id } }, // Remove the student ID from the students array
-        { new: true } // Return the updated document
-      );
-  
-      if (!property) {
-        return res.status(404).json({ message: 'Property not found' });
-      }
-  
-      res.status(200).json({ message: 'Student deleted successfully and removed from property' });
+        const property = await Property.findByIdAndUpdate(
+            propertyId,
+            { $pull: { staffs: req.params.id } }, // Remove the student ID from the students array
+            { new: true } // Return the updated document
+        );
+
+        if (!property) {
+            return res.status(404).json({ message: 'Property not found' });
+        }
+
+        res.status(200).json({ message: 'Student deleted successfully and removed from property' });
     } catch (error) {
         res.status(500).json({ error: error.message });
+    }
+};
+
+
+const status = async (req, res) => {
+    try {
+        const { staffId } = req.params;
+
+        const staff = await Staff.findById(staffId);
+        if (!staff) {
+            return res.status(404).json({ message: 'Staff not found' });
+        }
+
+        const newStatus = staff.Status === 'On Duty' ? 'Off Duty' : 'On Duty';
+        staff.Status = newStatus;
+
+        await staff.save();
+
+        res.status(200).json({
+            message: `Staff status updated to ${newStatus} successfully`,
+            staff
+        });
+    } catch (error) {
+        console.error('Error updating Staff status:', error); // Log the error
+        res.status(500).json({ message: 'Error updating staff status', error });
     }
 };
 
@@ -141,6 +166,7 @@ const staffController = {
     getStaffById,
     updateStaff,
     deleteStaff,
+    status
 };
 
 module.exports = staffController;

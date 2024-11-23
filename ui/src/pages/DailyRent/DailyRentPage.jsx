@@ -1,17 +1,18 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { FaEdit, FaTrash } from "react-icons/fa";
-import API_BASE_URL from "../../config";
-import ConfirmationModal from "../../components/reUsableComponet/ConfirmationModal";
 import { useNavigate } from "react-router-dom";
-import { ref, deleteObject, getStorage } from 'firebase/storage';
-import app from '../../firebase';
+import { ref, deleteObject, getStorage } from "firebase/storage";
+import app from "../../firebase";
 import { useSelector } from "react-redux";
+import DailyRentTable from "./DailyRentTable"; // Import the new table component
+import ConfirmationModal from "../../components/reUsableComponet/ConfirmationModal";
+import API_BASE_URL from "../../config";
+import CheckAuth from "../auth/CheckAuth";
 
 const storage = getStorage();
 
 const DailyRentPage = () => {
-  const admin = useSelector(store => store.auth.admin);
+  const admin = useSelector((store) => store.auth.admin);
   const [dailyRents, setDailyRents] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -21,9 +22,9 @@ const DailyRentPage = () => {
   const fetchDailyRents = async () => {
     if (!admin) return;
     try {
-      const response = await axios.get(`${API_BASE_URL}/DailyRent`,
-        {headers: { 'Authorization': `Bearer ${admin.token}` }}
-      );
+      const response = await axios.get(`${API_BASE_URL}/DailyRent`, {
+        headers: { Authorization: `Bearer ${admin.token}` },
+      });
       setDailyRents(response.data);
     } catch (error) {
       console.error("Error fetching daily rents:", error);
@@ -56,9 +57,12 @@ const DailyRentPage = () => {
         }
       }
 
-      await axios.delete(`${API_BASE_URL}/DailyRent/delete/${selectedRentId}`,
-        {headers: { 'Authorization': `Bearer ${admin.token}` }}
-      );
+      await axios.delete(`${API_BASE_URL}/DailyRent/delete/${selectedRentId}`, {
+        headers: {
+          'Authorization': `Bearer ${admin.token}`,
+          'Role': admin.role 
+         } 
+      });
       fetchDailyRents();
       setIsModalOpen(false);
     } catch (error) {
@@ -70,13 +74,17 @@ const DailyRentPage = () => {
     dailyRent.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  useEffect(() => {
-    fetchDailyRents();
-  }, []);
-
   const handleRowClick = (id) => {
     navigate(`/dailyRent/${id}`);
   };
+
+  const handleEdit = (id) => {
+    navigate(`/dailyRent/edit/${id}`);
+  };
+
+  useEffect(() => {
+    fetchDailyRents();
+  }, []);
 
   return (
     <div className="container mx-auto px-4">
@@ -98,68 +106,35 @@ const DailyRentPage = () => {
         </button>
       </div>
 
-      <div className="overflow-x-auto">
-        <table className="table-auto w-full text-left bg-white shadow-md rounded-lg">
-          <thead>
-            <tr className="bg-gray-100 border-b">
-              <th className="py-2 px-4">#</th>
-              <th className="py-2 px-4">Name</th>
-              <th className="py-2 px-4">ID</th>
-              <th className="py-2 px-4">Contact No</th>
-              <th className="py-2 px-4">Room No</th>
-              <th className="py-2 px-4">Daily Rent</th>
-              <th className="py-2 px-4">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredDailyRents.length === 0 ? (
-              <tr>
-                <td colSpan="7" className="text-center text-gray-500 py-4">
-                  No items found
-                </td>
-              </tr>
-            ) : (
-              filteredDailyRents.map((dailyRent, index) => (
-                <tr key={dailyRent._id} className="border-b hover:bg-gray-50 cursor-pointer" onClick={() => handleRowClick(dailyRent._id)}>
-                  <td className="py-2 px-4">{index + 1}</td>
-                  <td className="py-2 px-4">{dailyRent.name}</td>
-                  <td className="py-2 px-4">{dailyRent.OccupantId}</td>
-                  <td className="py-2 px-4">{dailyRent.contactNo}</td>
-                  <td className="py-2 px-4">{dailyRent.roomNo}</td>
-                  <td className="py-2 px-4">{dailyRent.DailyRent}</td>
-                  <td className="py-2 px-4 flex space-x-4">
-                    <FaEdit
-                      className="text-blue-500 cursor-pointer hover:text-blue-700"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        navigate(`/dailyRent/edit/${dailyRent._id}`);
-                      }}
-                    />
-                    <FaTrash
-                      className="text-red-500 cursor-pointer hover:text-red-700"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleDelete(dailyRent._id);
-                      }}
-                    />
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
-
-      <ConfirmationModal
+      <DailyRentTable
+        dailyRents={filteredDailyRents}
+        onRowClick={handleRowClick}
+        onEdit={handleEdit}
+        onDelete={handleDelete}
+        admin={admin}
+      />
+<ConfirmationModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onConfirm={ConfirmDeleteDailyRent}
-        title="Confirm Delete"
-        message={`Are you sure you want to delete this branch?`}
-        confirmLabel="Delete"
+        title={
+          admin?.role === "propertyAdmin"
+            ? "Confirm Vacate"
+            : "Confirm Delete"
+        }
+        message={
+          admin?.role === "propertyAdmin"
+            ? `Are you sure you want to vacate this student?`
+            : `Are you sure you want to delete this student?`
+        }
+        confirmLabel={
+          admin?.role === "propertyAdmin"
+            ? "Vacate"
+            : "Delete"
+        }
       />
     </div>
   );
 };
 
-export default DailyRentPage;
+export default CheckAuth(DailyRentPage);

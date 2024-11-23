@@ -218,7 +218,7 @@ function EditStaff() {
             name: 'Status',
             label: 'Status',
             type: 'select',
-            options: ['Active', 'Inactive'], // Added status options
+            options: ['On Duty', 'Off Duty'], // Added status options
             placeholder: 'Select Status',
             required: true
         },

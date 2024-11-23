@@ -5,7 +5,7 @@ const CategorySchema = require('../Models/CategoryModel');
 // Add a new cafe item
 const addCafeItem = async (req, res) => {
     try {
-        const { itemname, categoryName, prize, value, itemCode, description, image, quantity, category, lowStock } = req.body;
+        const { itemname, status, categoryName, prize, value, itemCode, description, image, quantity, category, lowStock } = req.body;
 
         const itemId = 'HVNSCI' + crypto.randomInt(100000, 999999);
 
@@ -20,9 +20,9 @@ const addCafeItem = async (req, res) => {
             image,
             quantity,
             category,
-            lowStock
+            lowStock,
+            status
         });
-        
         const savedItem = await newItem.save();
         await CategorySchema.findByIdAndUpdate(category, { $push: { items: savedItem._id } });
         res.status(201).json(savedItem);
@@ -47,16 +47,52 @@ const getCafeItemById = async (req, res) => {
 };
 
 
-// Get all food items
+// Get all food items with pagination
 const getAllCafeItem = async (req, res) => {
+  const { after, limit = 12, searchTerm } = req.query; // Add searchTerm
+
   try {
-    const foodItems = await CafeItemSchema.find();
-    res.status(200).json(foodItems);
+    // Initialize query object
+    let query = {};
+
+    // If there’s a search term, add text-matching conditions to the query
+    if (searchTerm) {
+      query.$or = [
+        { itemname: { $regex: searchTerm, $options: 'i' } }, // Case-insensitive search
+        { itemCode: { $regex: searchTerm, $options: 'i' } }
+      ];
+    }
+
+    // If there's a cursor, only fetch items after the specified `_id`
+    if (after) {
+      query._id = { ...query._id, $gt: after };
+    }
+
+    // Fetch items from database with applied query, sort, and limit
+    const foodItems = await CafeItemSchema.find(query)
+      .sort({ _id: 1 })
+      .limit(Number(limit));
+
+    // Determine the next cursor for pagination
+    const lastItem = foodItems[foodItems.length - 1];
+    const nextCursor = lastItem ? lastItem._id : null;
+
+    // Respond with items and next cursor
+    res.status(200).json({
+      foodItems,
+      nextCursor, // Cursor for the next page
+    });
   } catch (error) {
     console.error('Error retrieving food items:', error);
     res.status(500).json({ message: 'Failed to retrieve food items', error: error.message });
   }
 };
+
+
+
+
+
+
 
 // Update a food item by ItemId
 const updateCafeItem = async (req, res) => {
@@ -165,7 +201,6 @@ const getLowStockItems = async (req, res) => {
     res.status(500).json({ message: 'Failed to retrieve low stock items', error: error.message });
   }
 };
-// Search food items by name
 const searchCafeItemsByName = async (req, res) => {
   try {
     const { name } = req.query;  // Extract the 'name' query parameter
@@ -192,6 +227,8 @@ const searchCafeItemsByName = async (req, res) => {
     res.status(500).json({ message: 'Failed to retrieve food items', error: error.message });
   }
 };
+
+
 
 module.exports = {
   addCafeItem,

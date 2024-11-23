@@ -23,6 +23,7 @@ const Input = ({ label, type = 'text', name, value, onChange, required = false, 
       required={required}
       accept={accept}
       placeholder={placeholder}
+      min='1'
     />
   </div>
 );
@@ -65,7 +66,8 @@ const AddDailyRent = () => {
     typeOfStay: '',
     paymentStatus: '',
     pgName: '',
-    joinDate: '',
+    checkIn: '',
+    checkOut: '',
     currentStatus: '',
     dateOfBirth: '',
     gender: '',
@@ -268,10 +270,8 @@ const AddDailyRent = () => {
           required
         />
         <Input label="Type of Stay" name="typeOfStay" value={formData.typeOfStay} onChange={handleChange} />
-        <Input label="Photo" type="file" name="photo" onChange={handleChange} accept="image/*" />
-        <Input label="Aadhar Front Image" type="file" name="adharFrontImage" onChange={handleChange} accept="image/*" />
-        <Input label="Aadhar Back Image" type="file" name="adharBackImage" onChange={handleChange} accept="image/*" />
-        <Input label="Join Date" type="date" name="joinDate" value={formData.joinDate} onChange={handleChange} />
+        <Input label="Check In Date" type="date" name="checkIn" value={formData.checkIn} onChange={handleChange} />
+        <Input label="Check Out Date" type="date" name="checkOut" value={formData.checkOut} onChange={handleChange} />
         <Select
           label="Payment Status"
           name="paymentStatus"
@@ -283,6 +283,9 @@ const AddDailyRent = () => {
           ]}
           required
         />
+        <Input label="Photo" type="file" name="photo" onChange={handleChange} accept="image/*" />
+        <Input label="Aadhar Front Image" type="file" name="adharFrontImage" onChange={handleChange} accept="image/*" />
+        <Input label="Aadhar Back Image" type="file" name="adharBackImage" onChange={handleChange} accept="image/*" />
         <ToastContainer />
           <button
             type="submit"

@@ -12,9 +12,9 @@ const CafeOrder = new mongoose.Schema(
       }
     ],
     orderId: { type: String, required: true, unique: true },
-    discount: { type: Number, required: false },
+    discount: { type: Number, required: false, default: 0 },
     total: { type: Number, required: true },
-    amountPayable: { type: Number, required: true },
+    amountPayable: { type: Number, required: true , default:0},
     paymentMethod: {
       type: String,
       required: true,
@@ -28,6 +28,11 @@ const CafeOrder = new mongoose.Schema(
     creditorName: { type: String, required: false },
     creditorPhoneNumber: { type: String, required: false },
     date: { type: Date, default: Date.now, required: true },
+    student: { 
+      type: mongoose.Schema.Types.ObjectId, 
+      ref: 'Student', 
+      required: false 
+    },
   },
   { timestamps: true }
 );

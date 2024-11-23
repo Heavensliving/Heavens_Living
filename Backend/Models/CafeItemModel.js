@@ -8,13 +8,12 @@ const Cafe = new mongoose.Schema({
   prize: { type: Number, required: true },
   value: { type: Number, required: true },
   description: { type: String, required: false },
-  image: { type: String, required: true },
+  image: { type: String, required: false },
   quantity: { type: Number, required: true },
   lowStock: { type: Number, required: true },
   status: {
     type: String,
     enum: ['available', 'unavailable'],
-    default: 'available',
   },
   category: {
     type: mongoose.Schema.Types.ObjectId,

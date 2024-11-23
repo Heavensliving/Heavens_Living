@@ -1,3 +1,4 @@
+const { mongoose } = require('mongoose');
 const CafeItemSchema = require('../Models/CafeItemModel');
 const Category = require('../Models/CategoryModel');
 
@@ -40,22 +41,29 @@ const getCategoryById = async (req, res) => {
 const getItemsByCategory = async (req, res) => {
   const { categoryId } = req.params;
   try {
-    // First, find the category by its ID
-    const category = await Category.findById(categoryId).select('items'); // Fetch only the items array
-    
+    const category = await Category.findById(categoryId).select('items');
     if (!category) {
       return res.status(404).json({ message: 'Category not found' });
     }
+    // Ensure all category items are ObjectId types using new keyword
+    const itemIds = category.items.map(id => new mongoose.Types.ObjectId(id));
 
-    // Then, fetch the items using the IDs in the category's items array
-    const foodItems = await CafeItemSchema.find({ _id: { $in: category.items } });
+    const query = { _id: { $in: itemIds } };
 
-    res.status(200).json(foodItems);
+    // Fetch all food items for the category without pagination
+    const foodItems = await CafeItemSchema.find(query)
+      .sort({ _id: 1 });
+    res.status(200).json({
+      foodItems,
+    });
   } catch (error) {
     console.error('Error retrieving food items:', error);
     res.status(500).json({ message: 'Failed to retrieve food items', error: error.message });
   }
 };
+
+
+
 
 
 // Update a category by ID

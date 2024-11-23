@@ -269,7 +269,7 @@ function AddStaff() {
     JoinDate: '',
     PaySchedule: '',
     propertyName: '',
-    Status: 'Active'
+    Status: 'On Duty'
   });
   const [properties, setProperties] = useState([]);
   const [loading, setLoading] = useState(false);

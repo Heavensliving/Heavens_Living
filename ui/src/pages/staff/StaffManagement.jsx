@@ -101,8 +101,8 @@ const StaffManagement = () => {
   // Sorting options for the dropdown
   const sortingOptions = [
     { value: 'All', label: 'All' },
-    { value: 'Active', label: 'Active' },
-    { value: 'Inactive', label: 'Inactive' },
+    { value: 'On Duty', label: 'On Duty' },
+    { value: 'Off Duty', label: 'Off Duty' },
   ];
 
   // Handle search term change

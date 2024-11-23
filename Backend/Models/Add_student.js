@@ -16,7 +16,7 @@ const studentSchema = new mongoose.Schema({
   adharFrontImage: { type: String, required: false },  // Store Firebase URL
   adharBackImage: { type: String, required: false },   // Store Firebase URL
   photo: { type: String, required: false },            // Store Firebase URL
-  roomType: { type: String, required: true},
+  roomType: { type: String, required: false},
   roomNo: { type: String, required: false },
   referredBy: { type: String, required: false},
   typeOfStay: { type: String, required: true},
@@ -40,6 +40,7 @@ const studentSchema = new mongoose.Schema({
   room: { type: mongoose.Schema.Types.ObjectId, ref: 'Rooms' },
   maintenance: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Maintanance' }],
   messOrders: [{ type: mongoose.Schema.Types.ObjectId, ref: 'MessOrder' }],
+  cafeOrders: [{ type: mongoose.Schema.Types.ObjectId, ref: 'OrderByOccupant' }],
   addOnOrders: [{ type: mongoose.Schema.Types.ObjectId, ref: 'adonOrderSchema' }],
   payments: [{ type: mongoose.Schema.Types.ObjectId, ref: 'FeePayment' }],  // Tracks individual payment records
   property: { type: mongoose.Schema.Types.ObjectId, ref: 'Property' }

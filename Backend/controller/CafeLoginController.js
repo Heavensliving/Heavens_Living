@@ -2,8 +2,8 @@ const jwt = require('jsonwebtoken');
 const LoginDetailSchema = require("../Models/LoginDetail");
 
 const predefinedCredentials = {
-  email: 'hevenscafe@gmail.com', 
-  password: 'Hevens@123',
+  email: 'heavens@gmail.com', 
+  password: 'Heavens@123',
 };
 
 // Login a user

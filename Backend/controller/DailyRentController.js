@@ -144,11 +144,53 @@ const updateDailyRent = async (req, res) => {
 const deleteDailyRent = async (req, res) => {
   try {
     const { id } = req.params;
-    const dailyRent = await DailyRent.findById(id);
-    const propertyId = dailyRent.property
-    if (dailyRent.room) {
-      const room = await Rooms.findById(dailyRent.room); // Assuming Room is the room model
-      console.log(room)
+    const role = req.headers.role;
+    const dailyRentProperty = await DailyRent.findById(id);
+    const propertyId = dailyRentProperty.property
+
+    if (role === 'propertyAdmin') {
+      const dailyrent = await DailyRent.findByIdAndUpdate(
+        id,
+        { vacate: true },
+        { new: true }
+      );
+      if (!dailyrent) {
+        return res.status(404).json({ message: 'Daily rent not found' });
+      }
+    
+      if (dailyrent.room) {
+        const room = await Rooms.findById(dailyrent.room);
+        if (room) {
+          room.dailyRent = room.dailyRent.filter(dailyRentId => dailyRentId.toString() !== id);
+    
+          if (room.occupant > 0) {
+            room.occupant -= 1;
+          }
+          if (room.vacantSlot < room.roomCapacity) {
+            room.vacantSlot += 1;
+          }
+    
+          await room.save();
+
+          await Property.findByIdAndUpdate(
+            propertyId,
+            { $pull: { dailyRent: id } },
+            { new: true }
+          );
+        }
+      }
+    
+      return res.status(200).json({ message: 'Daily rent marked as vacated and room updated successfully', dailyrent });
+    }    
+
+    const dailyrent = await DailyRent.findById(id);
+    if (!dailyrent) {
+      return res.status(404).json({ message: 'Daily rent not found' });
+    }
+
+    if (dailyrent.room) {
+      const room = await Rooms.findById(dailyrent.room); // Assuming Room is the room model
+
       if (room) {
 
         room.dailyRent = room.dailyRent.filter(dailyRentId => dailyRentId.toString() !== id);
@@ -159,16 +201,14 @@ const deleteDailyRent = async (req, res) => {
         if (room.vacantSlot < room.roomCapacity) {
           room.vacantSlot += 1;
         }
+
         await room.save();
       }
     }
-    const deletedDailyRent = await DailyRent.findByIdAndDelete(id);
-    if (!deletedDailyRent) {
-      return res.status(404).json({ message: 'DailyRent entry not found' });
-    }
+    await DailyRent.findByIdAndDelete(id);
     const property = await Property.findByIdAndUpdate(
       propertyId,
-      { $pull: { dailyRent: deletedDailyRent._id } },
+      { $pull: { dailyRent: id } },
       { new: true }
     );
 
@@ -176,9 +216,13 @@ const deleteDailyRent = async (req, res) => {
       return res.status(404).json({ message: 'Property not found' });
     }
 
-    res.status(200).json({ message: 'Student deleted successfully and removed from property' });
-  } catch (err) {
-    res.status(500).json({ message: err.message });
+    res.status(200).json({
+      message: 'Daily rent deleted successfully and removed from property and room',
+      updatedRoom: dailyrent.room ? await Rooms.findById(dailyrent.room) : null
+    });
+  } catch (error) {
+    console.error('Error deleting daily rent:', error);
+    res.status(500).json({ message: 'Error deleting daily rent', error });
   }
 };
 

@@ -9,6 +9,7 @@ router.post('/add', verifyToken, staffController.createStaff);
 router.get('/', verifyToken, staffController.getStaffMembers);
 router.get('/:id', verifyToken, staffController.getStaffById);
 router.put('/edit/:id', verifyToken, staffController.updateStaff);
+router.patch('/:staffId/Status', verifyToken, staffController.status);
 router.delete('/delete/:id', verifyToken, staffController.deleteStaff);
 
 module.exports = router;

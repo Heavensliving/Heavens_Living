@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const nodemailer = require('nodemailer');
-const Student = require('../Models/Add_student'); 
+const Student = require('../Models/Add_student');
 const PasswordReset = require('../Models/PasswordRest');
 const { passwordResetTemplate } = require('../utils/emailTemplates');
 require('dotenv').config();
@@ -30,12 +30,12 @@ const verifyEmail = async (req, res) => {
     if (!user) {
       return res.status(404).json({ message: "student not found." });
     }
-     await Student.findByIdAndUpdate(
-      {_id: userId},
-      { isVerified: true }, 
-      { new: true } 
+    await Student.findByIdAndUpdate(
+      { _id: userId },
+      { isVerified: true },
+      { new: true }
     );
-     res.redirect(`${FRONTEND_BASE_URL}/email-verification-success`);
+    res.redirect(`${FRONTEND_BASE_URL}/email-verification-success`);
   } catch (error) {
     console.error('Token verification failed:', error);
     if (error.name === 'TokenExpiredError') {
@@ -56,13 +56,19 @@ const login = async (req, res) => {
     if (!user) {
       return res.status(400).json({ message: 'Invalid email or password' });
     }
+
+    // Check if email is verified
+    if (!user.isVerified) {
+      return res.status(403).json({
+        message: 'This email is not verified. Please check your email to verify your account before logging in.',
+      });
+    }
+
+    // Check if password is valid
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
-      return res.status(401).json({ message: "Invalid credentials." });
+      return res.status(401).json({ message: 'Invalid credentials.' });
     }
-    // if (password !== user.password) {
-    //   return res.status(400).json({ message: 'Invalid password' });
-    // }
 
     // Generate JWT token
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '15d' });
@@ -70,13 +76,14 @@ const login = async (req, res) => {
     res.status(200).json({
       message: 'Login successful',
       token,
-      user: { name: user.name, email: user.email, Id: user._id, studentId:user.studentId }
+      user: { name: user.name, email: user.email, Id: user._id, studentId: user.studentId },
     });
   } catch (error) {
     console.error('Error during login:', error);
     res.status(500).json({ message: 'Error during login', error });
   }
 };
+
 
 // Function to handle forgot password
 const forgotPassword = async (req, res) => {
@@ -150,7 +157,7 @@ const verify_reset_password = async (req, res) => {
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     const { id } = decoded;
- console.log(id)
+    console.log(id)
     const resetEntry = await PasswordReset.findOne({ userId: id });
 
     if (!resetEntry || resetEntry.token !== token) {
@@ -160,10 +167,10 @@ const verify_reset_password = async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     await Student.findOneAndUpdate(
-      { _id: id }, 
-      { password: hashedPassword } 
+      { _id: id },
+      { password: hashedPassword }
     );
-   
+
     const reset = await PasswordReset.findOneAndUpdate(
       { userId: id }, // Match by userId in the PasswordReset schema
       { token: '' } // Clear the token
@@ -183,4 +190,4 @@ const verify_reset_password = async (req, res) => {
   }
 };
 
-module.exports = { forgotPassword, resetPassword, verify_reset_password ,login, verifyEmail};
+module.exports = { forgotPassword, resetPassword, verify_reset_password, login, verifyEmail };

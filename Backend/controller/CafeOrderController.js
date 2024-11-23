@@ -1,9 +1,11 @@
 const CafeOrder = require("../Models/CafeOrderModel");
 const Item = require("../Models/CafeItemModel");
 const crypto = require('crypto');
+const Student = require("../Models/Add_student");
+const OrderByOccupant = require("../Models/cafeOrderByOccupant");
 
 const generateOrderId = () => {
-  const randomNumber = crypto.randomInt(100000, 999999); 
+  const randomNumber = crypto.randomInt(100000, 999999);
   return `HVNSCO${randomNumber}`;
 };
 
@@ -31,9 +33,8 @@ const addCafeOrder = async (req, res, next) => {
     let totalOrderAmount = 0;
 
     for (const item of items) {
-      const { itemName, quantity } = item;
-
-      const inventoryItem = await Item.findOne({ itemname: itemName });
+      const { id, itemName, quantity } = item;
+      const inventoryItem = await Item.findOne({ _id: id });
       if (!inventoryItem) {
         return res.status(404).json({ message: `Item ${itemName} not found` });
       }
@@ -46,24 +47,24 @@ const addCafeOrder = async (req, res, next) => {
 
       await inventoryItem.save();
 
-      const itemTotal = inventoryItem.prize * quantity; 
+      const itemTotal = inventoryItem.prize * quantity;
       totalOrderAmount += itemTotal;
-      amountPayable = totalOrderAmount-discount
+      amountPayable = totalOrderAmount - discount
 
-      item.rate = inventoryItem.prize; 
-      item.total = itemTotal; 
+      item.rate = inventoryItem.prize;
+      item.total = itemTotal;
     }
 
     const status = (paymentMethod === "cash" || paymentMethod === "account") ? "completed" : "pending";
 
     const newOrder = new CafeOrder({
-      items: items, 
+      items: items,
       orderId,
-      total: totalOrderAmount, 
-      amountPayable: amountPayable, 
+      total: totalOrderAmount,
+      amountPayable: amountPayable,
       discount,
       paymentMethod,
-      status, 
+      status,
       creditorName,
       creditorPhoneNumber
     });
@@ -159,8 +160,70 @@ const completeCafeOrder = async (req, res) => {
   }
 };
 
+const CafeOrderByOccupant = async (req, res, next) => {
+  try {
+    const { items, paymentMethod, occupant } = req.body;
+    if (!items || !Array.isArray(items) || items.length === 0) {
+      return res.status(400).json({ message: "Items array is required and must not be empty" });
+    }
 
+    const orderId = generateOrderId();
 
+    let totalOrderAmount = 0;
+
+    for (const item of items) {
+      const { id, itemName, quantity } = item;
+      const inventoryItem = await Item.findOne({ _id: id });
+      if (!inventoryItem) {
+        return res.status(404).json({ message: `Item ${itemName} not found` });
+      }
+
+      if (inventoryItem.quantity < quantity) {
+        return res.status(400).json({ message: `Not enough quantity available for ${itemName}` });
+      }
+
+      inventoryItem.quantity -= quantity;
+
+      await inventoryItem.save();
+
+      const itemTotal = inventoryItem.prize * quantity;
+      totalOrderAmount += itemTotal;
+      item.rate = inventoryItem.prize;
+      item.total = itemTotal;
+    }
+
+    const status = (paymentMethod === "cash" || paymentMethod === "account") ? "completed" : "pending";
+
+    const newOrder = new OrderByOccupant({
+      items: items,
+      orderId,
+      total: totalOrderAmount,
+      paymentMethod,
+      status,
+      occupant,
+    });
+    await newOrder.save();
+    await Student.findByIdAndUpdate(occupant, { $push: { cafeOrders: newOrder._id } });
+    res.status(201).json({ message: "Order added successfully", order: newOrder });
+  } catch (error) {
+    console.error("Error details:", error); // Log the error details
+    res.status(400).json({ message: "Error adding order", error });
+  }
+};
+
+const getOrderHistory = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const occupant = await Student.findById({ _id: id }).populate('cafeOrders', 'orderId items total paymentMethod status date')
+    if (!occupant) {
+      return res.status(404).json({ message: "occupant not found" });
+    }
+    res.json({ cafeOrders: occupant.cafeOrders || [] });
+  } catch (error) {
+    console.error('Error fetching cafe orders:', error);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
+};
 
 module.exports = {
   addCafeOrder,
@@ -169,5 +232,7 @@ module.exports = {
   updateCafeOrder,
   deleteCafeOrder,
   getAllCompletedCafeOrders,
-  completeCafeOrder
+  completeCafeOrder,
+  CafeOrderByOccupant,
+  getOrderHistory,
 };

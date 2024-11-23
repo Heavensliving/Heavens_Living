@@ -1,4 +1,6 @@
 const Property = require("../Models/Add_property");
+const Student = require("../Models/Add_student");
+const DailyRent = require("../Models/DailyRentModel");
 const Rooms = require("../Models/RoomAllocationModel");
 
 
@@ -39,29 +41,54 @@ const addRoom = async (req, res) => {
 
 const updateRoom = async (req, res) => {
   try {
-    const { id } = req.params;
-    const updatedData = req.body;
+    const { id } = req.params; // Room ID
+    const updatedData = req.body; // Data to update
 
-    // Check if there is an occupant and calculate vacantSlot if necessary
+    // Check if occupant and roomCapacity are provided and update vacantSlot if necessary
     if (updatedData.occupant && updatedData.roomCapacity) {
       updatedData.vacantSlot = updatedData.roomCapacity - updatedData.occupant;
     }
 
-    // Update the room in the database
-    const updatedRoom = await Rooms.findByIdAndUpdate(id, updatedData, { new: true });
-
-    // If the room wasn't found
-    if (!updatedRoom) {
+    // Find the room to ensure it exists before updating
+    const existingRoom = await Rooms.findById(id);
+    if (!existingRoom) {
       return res.status(404).json({ success: false, message: 'Room not found' });
     }
 
+    // Update the room in the database
+    const updatedRoom = await Rooms.findByIdAndUpdate(id, updatedData, { new: true });
+    
+    if (updatedRoom) {
+      const updates = {};
+
+      if (updatedData.roomType) {
+        updates.roomType = updatedData.roomType;
+      }
+      if (updatedData.roomNumber) {
+        updates.roomNo = updatedData.roomNumber;
+      }
+      if (Object.keys(updates).length > 0) {
+        // Update occupants
+        await Student.updateMany({ room: id }, { $set: updates });
+
+        // Update daily rents
+        await DailyRent.updateMany({ room: id }, { $set: updates });
+      }
+    }
+
     // Return success response with the updated room data
-    res.status(200).json({ success: true, message: 'Room updated successfully', room: updatedRoom });
+    res.status(200).json({
+      success: true,
+      message: 'Room and related entities updated successfully',
+      room: updatedRoom,
+    });
   } catch (error) {
-    // Handle any errors that occur
+    // Handle errors
+    console.error('Error updating room:', error);
     res.status(500).json({ success: false, error: error.message });
   }
 };
+
 
 
 const deleteRoom = async (req, res) => {
@@ -131,7 +158,7 @@ const getOccupants = async (req, res) => {
     if (!room) {
       return res.status(404).json({ message: 'Room not found' });
     }
-    res.json({ occupants: room.occupanets , dailyRent: room.dailyRent || [] });
+    res.json({ occupants: room.occupanets, dailyRent: room.dailyRent || [] });
   } catch (error) {
     console.error('Error fetching occupants:', error);
     res.status(500).json({ message: 'Internal Server Error' });
