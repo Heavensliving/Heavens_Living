@@ -4,7 +4,7 @@ const carousalController = require('../controller/carousalController')
 
 const router = express.Router();
 
-router.get('/',carousalController.getAllCarousals);
+router.get('/', carousalController.getAllCarousals);
 
 router.post('/addCarousal', carousalController.addCarousal);
 
