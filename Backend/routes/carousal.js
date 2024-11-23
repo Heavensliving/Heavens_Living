@@ -14,6 +14,8 @@ router.get('/:id', carousalController.getCarousalById);
 
 router.delete('/deleteCarousal/:id', carousalController.deleteCarousal)
 
+router.delete('/deleteImage/:id', dcarousalController.eleteCarousalImage)
+
 
 
 
