@@ -4,6 +4,7 @@ import { FaEdit, FaTrashAlt } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import API_BASE_URL from '../../config';
 import { useSelector } from 'react-redux';
+import CheckAuth from '../auth/CheckAuth';
 
 
 function ManagePeople() {
@@ -17,6 +18,7 @@ function ManagePeople() {
   const [isDeleting, setIsDeleting] = useState(false); // To show a loader during deletion
 
   useEffect(() => {
+    if (!admin) return;
     const fetchPeople = async () => {
       try {
         const response = await axios.get(`${API_BASE_URL}/people/get-people`,
@@ -171,4 +173,4 @@ function ManagePeople() {
   );
 }
 
-export default ManagePeople;
+export default CheckAuth(ManagePeople);

@@ -94,7 +94,7 @@ function RoomAllocation() {
       {/* Header Section */}
       <div className="flex flex-wrap justify-between items-center mb-6">
         <h2 className="text-3xl font-semibold">Room Allocation Overview</h2>
-        <button onClick={() => navigate('/add-room')} className="bg-side-bar text-white px-6 py-3 rounded-lg hover:bg-gray-700 transition">
+        <button onClick={() => navigate('/add-room')} className="bg-side-bar text-white px-6 py-3 rounded-lg hover:bg-[#373082] transition">
           Add Rooms
         </button>
       </div>
@@ -168,7 +168,6 @@ function RoomAllocation() {
               <div key={index} className="p-4">
                 <p className="text-lg font-medium">{rent.name}</p>
                 <p className="text-gray-600">{rent.contactNo}</p>
-                <p className="text-gray-600">Room No: {rent.roomNo}</p>
               </div>
             ))}
           </div>
@@ -204,7 +203,7 @@ function RoomAllocation() {
         </button>
         <button
           onClick={() => navigate(`/edit-room/${roomId}`)}
-          className="bg-side-bar hover:bg-indigo-700 text-white px-4 py-2 rounded-lg transition"
+          className="bg-side-bar hover:bg-[#373082] text-white px-4 py-2 rounded-lg transition"
         >
           Edit Room
         </button>

@@ -8,6 +8,7 @@ import { FaCheckCircle, FaPauseCircle, FaTools } from 'react-icons/fa';
 import { MdAssignment } from 'react-icons/md';
 import API_BASE_URL from '../../config';
 import { useSelector } from 'react-redux';
+import CheckAuth from '../auth/CheckAuth';
 
 
 const MaintenanceComponent = () => {
@@ -22,6 +23,7 @@ const MaintenanceComponent = () => {
   };
 
   useEffect(() => {
+    if (!admin) return;
     const fetchMaintenanceComponent = async () => {
       try {
         const response = await axios.get(`${API_BASE_URL}/maintenance/get`,
@@ -95,4 +97,4 @@ const MaintenanceComponent = () => {
   );
 };
 
-export default MaintenanceComponent;
+export default CheckAuth(MaintenanceComponent);

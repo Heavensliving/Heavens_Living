@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useSelector } from 'react-redux';
 import API_BASE_URL from '../../config';
+import CheckAuth from '../auth/CheckAuth';
 
 const WaveOffPaymentsPage = () => {
   const admin = useSelector(store => store.auth.admin);
@@ -13,6 +14,7 @@ const WaveOffPaymentsPage = () => {
 
   useEffect(() => {
     const fetchWaveOffPayments = async () => {
+      if (!admin) return;
       try {
         // Fetch data from the API endpoint
         const response = await axios.get(`${API_BASE_URL}/fee/payments/waveoffpayments`,
@@ -107,4 +109,4 @@ const WaveOffPaymentsPage = () => {
       </div>
     );
   }    
-export default WaveOffPaymentsPage;
+export default CheckAuth(WaveOffPaymentsPage);

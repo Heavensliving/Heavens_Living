@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { FaSearch } from 'react-icons/fa';
 import API_BASE_URL from '../../config';
 import { useSelector } from 'react-redux';
+import CheckAuth from '../auth/CheckAuth';
 
 const InputField = ({ label, name, type = 'text', value, onChange, required = false, disabled = false }) => (
     <div className="w-full md:w-1/2 px-2 mb-4">
@@ -145,4 +145,4 @@ const MessOnlyPayment = () => {
     );
 };
 
-export default MessOnlyPayment;
+export default CheckAuth(MessOnlyPayment);

@@ -56,7 +56,7 @@ const SearchAndSort = ({
 
         <button
           onClick={() => navigate(addNewEntryPath)}
-          className="bg-side-bar text-white rounded-full py-2 px-6 hover:bg-gray-700"
+          className="bg-side-bar text-white rounded-full py-2 px-6 hover:bg-[#373082]"
         >
           {addButtonLabel}
         </button>

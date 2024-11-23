@@ -121,7 +121,7 @@ const Navbar = () => {
                     <div className="flex items-end">
                         <div className="flex flex-col items-end ml-2 lg:flex">
                             <span className="text-gray-700">{admin?.adminName}</span>
-                            <span className="text-gray-500 text-sm">Admin</span>
+                            <span className="text-gray-500 text-sm">{admin?.role}</span>
                         </div>
                         <div className="ml-2 h-10 w-10 rounded-full overflow-hidden">
                             <img src="https://cdn-icons-png.freepik.com/256/9449/9449192.png?ga=GA1.1.1459516267.1711715282&semt=ais_hybrid" alt="Profile" className="h-full w-full object-cover" />

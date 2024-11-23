@@ -3,6 +3,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import API_BASE_URL from "../../config";
+import CheckAuth from "../auth/CheckAuth";
 
 const ExpenseForm = () => {
   const admin = useSelector((store) => store.auth.admin);
@@ -24,6 +25,7 @@ const ExpenseForm = () => {
   const [staffMembers, setStaffMembers] = useState([]);
 
   useEffect(() => {
+    if (!admin) return;
     const fetchProperties = async () => {
       try {
         const response = await axios.get(`${API_BASE_URL}/property`, {
@@ -36,6 +38,7 @@ const ExpenseForm = () => {
     };
 
     const fetchStaffMembers = async () => {
+      if (!admin) return;
       try {
         const response = await axios.get(`${API_BASE_URL}/staff`, {
           headers: { Authorization: `Bearer ${admin.token}` },
@@ -48,7 +51,7 @@ const ExpenseForm = () => {
 
     fetchProperties();
     fetchStaffMembers();
-  }, [admin.token]);
+  }, [admin]);
 
   const navigate = useNavigate();
 
@@ -235,4 +238,4 @@ const ExpenseForm = () => {
   );
 };
 
-export default ExpenseForm;
+export default CheckAuth(ExpenseForm);

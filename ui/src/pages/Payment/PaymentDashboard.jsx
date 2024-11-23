@@ -4,6 +4,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import API_BASE_URL from "../../config";
+import CheckAuth from "../auth/CheckAuth";
 
 const PaymentDashboard = () => {
   const admin = useSelector(store => store.auth.admin);
@@ -22,6 +23,7 @@ const PaymentDashboard = () => {
   const closeModal = () => setShowModal(false);
 
   useEffect(() => {
+    if (!admin) return;
     const fetchTotals = async () => {
       try {
         const feeResponse = await axios.get(`${API_BASE_URL}/fee`, {
@@ -50,6 +52,7 @@ const PaymentDashboard = () => {
     };
 
     const fetchTotalExpense = async () => {
+      if (!admin) return;
       try {
         const expenseResponse = await axios.get(
           `${API_BASE_URL}/expense/totalexpense`,
@@ -62,6 +65,7 @@ const PaymentDashboard = () => {
     };
 
     const fetchTotalCommission = async () => {
+      if (!admin) return;
       try {
         const commissionResponse = await axios.get(
           `${API_BASE_URL}/commission`,
@@ -78,6 +82,7 @@ const PaymentDashboard = () => {
     };
 
     const fetchTotalMonthlyRent = async () => {
+      if (!admin) return;
       try {
         const rentResponse = await axios.get(`${API_BASE_URL}/fee/totalMonthlyRent`, {
           headers: { Authorization: `Bearer ${admin.token}` },
@@ -90,6 +95,7 @@ const PaymentDashboard = () => {
     };
 
     const fetchTotalDeposit = async () => {
+      if (!admin) return;
       try {
         const studentResponse = await axios.get(`${API_BASE_URL}/students`, {
           headers: { Authorization: `Bearer ${admin.token}` },
@@ -113,6 +119,7 @@ const PaymentDashboard = () => {
       }
     };
     const fetchTotalWaveOff = async () => {
+      if (!admin) return;
       try {
         const waveOffResponse = await axios.get(`${API_BASE_URL}/fee/payments/waveoffpayments`, {
           headers: { Authorization: `Bearer ${admin.token}` },
@@ -291,4 +298,4 @@ const PaymentDashboard = () => {
   );
 };
 
-export default PaymentDashboard;
+export default CheckAuth(PaymentDashboard);

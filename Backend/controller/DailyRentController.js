@@ -92,11 +92,47 @@ const getDailyRentById = async (req, res) => {
 // Update a DailyRent entry by ID
 const updateDailyRent = async (req, res) => {
   console.log('Request body:', req.body); // Log the request body
+  const id = req.params.id
+  const updatedData = req.body;
   try {
-    const updatedDailyRent = await DailyRent.findByIdAndUpdate(req.params.id, req.body, { new: true }); // Add { new: true } to return the updated document
+    console.log("id",id)
+    const dailyRentEntry = await DailyRent.findById(id);
+    console.log(dailyRentEntry)
+    if (!dailyRentEntry) {
+      return res.status(404).json({ message: 'dailyrent not found' });
+    }
+    console.log("Room Number:", updatedData.roomNo);
+    console.log("Property ID:", updatedData.property);
+
+    if (updatedData.roomNo && updatedData.property) {
+      const { roomNo, property } = updatedData;
+      console.log("Room Number and Property:", roomNo, property);
+      const newRoom = await Rooms.findOne({ roomNumber: roomNo, property });
+      console.log("New Room:", newRoom);
+
+      if (!newRoom) {
+        return res.status(404).json({ message: 'Room not found for the given property and room number' });
+      }
+
+      if (dailyRentEntry.room && dailyRentEntry.room.toString() !== newRoom._id.toString()) {
+        await Rooms.findByIdAndUpdate(dailyRentEntry.room, {
+          $pull: { dailyRent: dailyRentEntry._id },
+          $inc: { occupant: -1, vacantSlot: 1 },
+        });
+
+        await Rooms.findByIdAndUpdate(newRoom._id, {
+          $push: { dailyRent: dailyRentEntry._id },
+          $inc: { occupant: 1, vacantSlot: -1 },
+        });
+        updatedData.room = newRoom._id;
+      }
+    }
+
+    const updatedDailyRent = await DailyRent.findByIdAndUpdate(id, updatedData, { new: true }); // Add { new: true } to return the updated document
     if (!updatedDailyRent) {
       return res.status(404).json({ message: 'DailyRent entry not found' });
     }
+
     res.status(200).json(updatedDailyRent);
   } catch (err) {
     console.error('Error updating DailyRent:', err.message); // Log the error for further insights
