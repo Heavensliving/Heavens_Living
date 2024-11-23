@@ -244,7 +244,7 @@ const PaymentDashboard = () => {
         startY: 75,
         head: [["Date", "Name", "ID", "Category", "Amount"]],
         body: monthlyFees.map((fee) => [
-          new Date(fee.paymentDate).toLocaleDateString(),
+          new Date(fee.paymentDate).toLocaleDateString('en-GB'),
           fee.name || "N/A",
           fee.studentId || "N/A",
           fee.messPeople
@@ -266,7 +266,7 @@ const PaymentDashboard = () => {
         startY: finalY + 5,
         head: [["Date", "Title", "Category", "Payment Method", "Amount"]],
         body: monthlyExpenses.map((expense) => [
-          new Date(expense.date).toLocaleDateString(),
+          new Date(expense.date).toLocaleDateString('en-GB'),
           expense.title || "N/A",
           expense.category || "N/A",
           expense.paymentMethod || "N/A",
