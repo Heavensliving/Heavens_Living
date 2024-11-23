@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 import { useSelector } from "react-redux";
 import API_BASE_URL from "../../config";
@@ -24,7 +24,7 @@ const PendingPaymentsPage = () => {
           `${API_BASE_URL}/fee/payments/pendingPayments`,
           { headers: { 'Authorization': `Bearer ${admin.token}` } }
         );
-        console.log(response.data)
+        // console.log(response.data) // debug statement
         setPendingPayments(response.data);
       } catch (error) {
         setError(`${error}`,"Error fetching pending payments");

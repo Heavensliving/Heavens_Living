@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import axios from 'axios'; 
 import API_BASE_URL from '../../config';
 import DetailModal from './DetailModal'; // Import the Modal component
@@ -76,24 +76,30 @@ const ResolvedHistory = () => {
             </tr>
           </thead>
           <tbody>
-            {filteredRecords.map((record, index) => {
-              // Ensure the date is valid before creating a new Date instance
-              const resolutionDate = new Date(record.updatedAt);
-              const formattedDate = isNaN(resolutionDate.getTime())
-                ? 'Invalid Date' // Fallback for invalid date
-                : resolutionDate.toLocaleDateString();
+            {filteredRecords.length === 0 ? ( // Check if there are no records
+              <tr>
+                <td colSpan="6" className="p-2 text-center text-gray-500">No Data Found</td>
+              </tr>
+            ) : (
+              filteredRecords.map((record, index) => {
+                // Ensure the date is valid before creating a new Date instance
+                const resolutionDate = new Date(record.updatedAt);
+                const formattedDate = isNaN(resolutionDate.getTime())
+                  ? 'Invalid Date' // Fallback for invalid date
+                  : resolutionDate.toLocaleDateString();
 
-              return (
-                <tr key={record._id} className="hover:bg-gray-100 cursor-pointer" onClick={() => handleRowClick(record)}>
-                  <td className="p-2">{index + 1}</td>
-                  <td className="p-2">{record.Name}</td>
-                  <td className="p-2">{record.issue}</td>
-                  <td className="p-2">{record.AssignedTo}</td>
-                  <td className="p-2">{formattedDate}</td>
-                  <td className="p-2 text-green-700">{record.Status}</td>
-                </tr>
-              );
-            })}
+                return (
+                  <tr key={record._id} className="hover:bg-gray-100 cursor-pointer" onClick={() => handleRowClick(record)}>
+                    <td className="p-2">{index + 1}</td>
+                    <td className="p-2">{record.Name}</td>
+                    <td className="p-2">{record.issue}</td>
+                    <td className="p-2">{record.AssignedTo}</td>
+                    <td className="p-2">{formattedDate}</td>
+                    <td className="p-2 text-green-700">{record.Status}</td>
+                  </tr>
+                );
+              })
+            )}
           </tbody>
         </table>
       </div>

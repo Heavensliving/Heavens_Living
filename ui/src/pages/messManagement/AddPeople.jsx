@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import API_BASE_URL from '../../config';
@@ -96,7 +96,7 @@ function AddPeople() {
     }
 
     try {
-      console.log(formData);
+      // console.log(formData); // debug statement
       const response = await axios.post(`${API_BASE_URL}/people/add`, {
         ...formData,
         mealType: formData.mealType.join(', '), // Convert array to string if needed

@@ -1,6 +1,6 @@
-import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
+// eslint-disable-next-line react/prop-types
 const ActionButton = ({ icon: Icon, label, bgColor, textColor, hoverColor, borderColor, navigateTo }) => {
   const navigate = useNavigate();
   return (

@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import API_BASE_URL from '../../config';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
+import heavenslogo from '../../assets/hAsset 4.png'
 
 const Signup = () => {
     const navigate = useNavigate();
@@ -59,28 +60,28 @@ const Signup = () => {
         <div className="flex justify-center items-center min-h-screen bg-gray-100 p-4">
             <div className="flex flex-col md:flex-row border rounded-lg shadow-lg bg-white overflow-hidden w-full max-w-4xl">
                 {/* Left Box */}
-                <div className="flex flex-col justify-center items-center w-full md:w-1/2 bg-gray-800 text-white p-6">
+                <div className="flex flex-col justify-center items-center w-full md:w-1/2 bg-side-bar text-white p-6">
                     <img
-                        src="https://img.freepik.com/free-vector/hand-drawn-people-relaxing-home_23-2148117090.jpg?ga=GA1.1.1459516267.1711715282&semt=ais_hybrid"
-                        className="w-64 mb-4"
+                        src={heavenslogo}
+                        //className="w-64 mb-4"
                         alt="Featured"
                     />
-                    <p className="text-3xl font-semibold text-center">Welcome Aboard!</p>
-                    <small className="text-center w-56">
-                        Lorem ipsum dolor sit amet consectetur, adipisicing elit.
+                    <p className="text-3xl font-semibold text-center">Living</p>
+                    <small className="text-center w-56 mt-3">
+                       Home, Away from Home
                     </small>
                 </div>
 
                 {/* Right Box */}
                 <div className="flex flex-col justify-center items-start w-full md:w-1/2 p-6">
-                    <h2 className="text-2xl font-bold">Create your account</h2>
-                    <p className="text-gray-600">Student Management System</p>
+                    <h2 className="text-2xl font-semibold">Create an account</h2>
+                    <p className="text-gray-600">Hostel Management System</p>
                     {errors.form && <div className="text-red-500 mb-3">{errors.form}</div>}
                     <form onSubmit={handleSubmit} className="w-full mt-4">
                         {errors.name && <div className="text-red-500 mb-2">{errors.name}</div>}
                         <input
                             type="text"
-                            className="block w-full p-3 mb-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500"
+                            className="block w-full p-3 mb-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-side-bar"
                             placeholder="Name"
                             value={name}
                             onChange={(e) => {
@@ -91,7 +92,7 @@ const Signup = () => {
                         {errors.email && <div className="text-red-500 mb-2">{errors.email}</div>}
                         <input
                             type="email"
-                            className="block w-full p-3 mb-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500"
+                            className="block w-full p-3 mb-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-side-bar"
                             placeholder="Email address"
                             value={email}
                             onChange={(e) => {
@@ -103,7 +104,7 @@ const Signup = () => {
                         <div className="relative w-full mb-2">
                             <input
                                 type={showPassword ? "text" : "password"}
-                                className="block w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500"
+                                className="block w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-side-bar"
                                 placeholder="Password"
                                 value={password}
                                 onChange={(e) => {
@@ -122,7 +123,7 @@ const Signup = () => {
                         {errors.phone && <div className="text-red-500 mb-2">{errors.phone}</div>}
                         <input
                             type="text"
-                            className="block w-full p-3 mb-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500"
+                            className="block w-full p-3 mb-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-side-bar"
                             placeholder="Phone number"
                             value={phone}
                             onChange={(e) => {
@@ -132,7 +133,7 @@ const Signup = () => {
                         />
                         {errors.role && <div className="text-red-500 mb-2">{errors.role}</div>}
                         <select
-                            className="block w-full p-3 mb-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500"
+                            className="block w-full p-3 mb-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-side-bar"
                             value={role}
                             onChange={(e) => {
                                 setRole(e.target.value);
@@ -145,7 +146,7 @@ const Signup = () => {
                             <option value="propertyAdmin">Property Admin</option>
                         </select>
                         <button
-                            className="w-full py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition duration-200"
+                            className="w-full py-2 mt-3 bg-side-bar text-white rounded-lg hover:bg-[#373082] transition duration-200"
                             type="submit"
                         >
                             Signup
@@ -153,7 +154,7 @@ const Signup = () => {
                     </form>
 
                     <div className="mt-4">
-                        <small>
+                        <small >
                             Already have an account? <Link to={'/login'} className="text-blue-600 hover:underline">Login</Link>
                         </small>
                     </div>

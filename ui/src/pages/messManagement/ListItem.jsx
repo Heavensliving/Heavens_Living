@@ -1,5 +1,5 @@
+/* eslint-disable react/prop-types */
 
-import React from 'react'
 import { FaCheckCircle } from 'react-icons/fa'
 
 const ListItem = ({ order, mealType, expandedOrder, onExpand, }) => {

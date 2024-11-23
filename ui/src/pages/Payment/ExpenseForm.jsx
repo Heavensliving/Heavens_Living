@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
@@ -64,9 +64,10 @@ const ExpenseForm = () => {
   };
 
   const handleSubmit = async (e) => {
-    console.log(formData)
+    // console.log(formData) // debug statement
     e.preventDefault();
     try {
+      // eslint-disable-next-line no-unused-vars
       const response = await axios.post(
         `${API_BASE_URL}/expense/addExpense`,
         formData,
@@ -74,7 +75,7 @@ const ExpenseForm = () => {
           headers: { Authorization: `Bearer ${admin.token}` },
         }
       );
-      console.log("Expense added:", response.data);
+      // console.log("Expense added:", response.data); // debug statement
       navigate("/expenses");
     } catch (error) {
       console.error("Error adding expense:", error);

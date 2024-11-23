@@ -1,6 +1,6 @@
-import React from 'react';
 
 // Reusable MetricCard component
+// eslint-disable-next-line react/prop-types
 const MetricCard = ({ icon: Icon, bgColor, title, value }) => {
   return (
     <div className="bg-white p-3 rounded-lg shadow flex items-center space-x-4">
