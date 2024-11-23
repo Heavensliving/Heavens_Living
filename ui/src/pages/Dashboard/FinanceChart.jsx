@@ -67,18 +67,18 @@ const FinanceChart = () => {
         const monthlyExpenseData = Array(12).fill(0);
 
         // Log raw data
-        console.log('Raw Expense Data:', expenseData);
-        console.log('Selected Year:', selectedYear, typeof selectedYear);
+        // console.log('Raw Expense Data:', expenseData);
+        // console.log('Selected Year:', selectedYear, typeof selectedYear);
 
         // Process data
         expenseData.forEach((expense) => {
-          console.log('Processing expense:', expense);
-          console.log('Expense year:', expense.year, typeof expense.year);
+          // console.log('Processing expense:', expense);
+          // console.log('Expense year:', expense.year, typeof expense.year);
           
           // Only process if years match
           if (Number(expense.year) === Number(selectedYear)) {
             const month = Number(expense.month) - 1;
-            console.log('Month index:', month);
+            // console.log('Month index:', month);
             
             if (month >= 0 && month < 12) {
               monthlyExpenseData[month] = Number(expense.totalExpense) || 0;
@@ -87,7 +87,7 @@ const FinanceChart = () => {
           }
         });
 
-        console.log('Final Monthly Data:', monthlyExpenseData);
+        // console.log('Final Monthly Data:', monthlyExpenseData);
         setTotalExpense(monthlyExpenseData);
       } catch (error) {
         console.error('Error fetching expense data:', error);
