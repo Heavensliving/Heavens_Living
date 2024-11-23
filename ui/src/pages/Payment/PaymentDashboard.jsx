@@ -4,9 +4,11 @@ import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import API_BASE_URL from "../../config";
 import CheckAuth from "../auth/CheckAuth";
+import jsPDF from "jspdf";
+import "jspdf-autotable";
 
 const PaymentDashboard = () => {
-  const admin = useSelector(store => store.auth.admin);
+  const admin = useSelector((store) => store.auth.admin);
   const [totalReceived, setTotalReceived] = useState(0);
   const [totalReceivedMess, setTotalReceivedMess] = useState(0);
   const [totalMonthlyRent, setTotalMonthlyRent] = useState(0);
@@ -16,6 +18,10 @@ const PaymentDashboard = () => {
   const [totalDeposit, setTotalDeposit] = useState(0); // Total deposit state
   const [totalWaveOff, setTotalWaveOff] = useState(0);
   const [showModal, setShowModal] = useState(false);
+  const [showReportModal, setShowReportModal] = useState(false);
+  const [reportMonth, setReportMonth] = useState("");
+  const [reportYear, setReportYear] = useState(new Date().getFullYear());
+  const [isGenerating, setIsGenerating] = useState(false);
   const navigate = useNavigate();
 
   const openModal = () => setShowModal(true);
@@ -32,8 +38,12 @@ const PaymentDashboard = () => {
           (acc, transaction) => acc + (transaction.amountPaid || 0),
           0
         );
-        const messPeopleTransactions = feeResponse.data.filter((transaction) => transaction.messPeople);
-        const dailyRentTransactions = feeResponse.data.filter((transaction) => transaction.dailyRent);
+        const messPeopleTransactions = feeResponse.data.filter(
+          (transaction) => transaction.messPeople
+        );
+        const dailyRentTransactions = feeResponse.data.filter(
+          (transaction) => transaction.dailyRent
+        );
 
         const messPeopleTotal = messPeopleTransactions.reduce(
           (acc, transaction) => acc + (transaction.amountPaid || 0),
@@ -83,9 +93,12 @@ const PaymentDashboard = () => {
     const fetchTotalMonthlyRent = async () => {
       if (!admin) return;
       try {
-        const rentResponse = await axios.get(`${API_BASE_URL}/fee/totalMonthlyRent`, {
-          headers: { Authorization: `Bearer ${admin.token}` },
-        });
+        const rentResponse = await axios.get(
+          `${API_BASE_URL}/fee/totalMonthlyRent`,
+          {
+            headers: { Authorization: `Bearer ${admin.token}` },
+          }
+        );
         setTotalMonthlyRent(rentResponse.data.totalMonthlyRentStudents);
         setTotalMonthlyRentMess(rentResponse.data.totalMonthlyRentMess);
       } catch (error) {
@@ -120,9 +133,12 @@ const PaymentDashboard = () => {
     const fetchTotalWaveOff = async () => {
       if (!admin) return;
       try {
-        const waveOffResponse = await axios.get(`${API_BASE_URL}/fee/payments/waveoffpayments`, {
-          headers: { Authorization: `Bearer ${admin.token}` },
-        });
+        const waveOffResponse = await axios.get(
+          `${API_BASE_URL}/fee/payments/waveoffpayments`,
+          {
+            headers: { Authorization: `Bearer ${admin.token}` },
+          }
+        );
         // console.log(waveOffResponse); // debug statement
         const totalWaveOffAmount = waveOffResponse.data.reduce(
           (acc, waveOff) => acc + (waveOff.waveOff || 0),
@@ -139,13 +155,155 @@ const PaymentDashboard = () => {
     fetchTotalExpense();
     fetchTotalCommission();
     fetchTotalDeposit();
-    fetchTotalWaveOff(); 
+    fetchTotalWaveOff();
   }, [admin.token]);
+
+  const generateMonthlyReport = async () => {
+    if (!reportMonth || !reportYear) return;
+    setIsGenerating(true);
+
+    try {
+      const [feeResponse, expenseResponse] = await Promise.all([
+        axios.get(`${API_BASE_URL}/fee`, {
+          headers: { Authorization: `Bearer ${admin.token}` },
+        }),
+        axios.get(`${API_BASE_URL}/expense`, {
+          headers: { Authorization: `Bearer ${admin.token}` },
+        }),
+      ]);
+
+      // Filter data for selected month and year
+      const monthlyFees = feeResponse.data.filter((fee) => {
+        const feeDate = new Date(fee.paymentDate);
+        return (
+          feeDate.getMonth() + 1 === Number(reportMonth) &&
+          feeDate.getFullYear() === Number(reportYear)
+        );
+      });
+
+      const monthlyExpenses = expenseResponse.data.expenses.filter(
+        (expense) => {
+          const expenseDate = new Date(expense.date);
+          return (
+            expenseDate.getMonth() + 1 === Number(reportMonth) &&
+            expenseDate.getFullYear() === Number(reportYear)
+          );
+        }
+      );
+
+      // Calculate totals
+      const totalReceived = monthlyFees.reduce(
+        (sum, fee) => sum + (fee.amountPaid || 0),
+        0
+      );
+      const totalExpenses = monthlyExpenses.reduce(
+        (sum, expense) => sum + (expense.amount || 0),
+        0
+      );
+      const profitLoss = totalReceived - totalExpenses;
+
+      // Generate PDF
+      const doc = new jsPDF();
+      const monthName = new Date(reportYear, reportMonth - 1).toLocaleString(
+        "default",
+        { month: "long" }
+      );
+
+      // Header
+      doc.setFontSize(20);
+      doc.text(`Financial Report - ${monthName} ${reportYear}`, 14, 20);
+
+      // Summary Section
+      doc.setFontSize(12);
+      doc.text("Financial Summary", 14, 35);
+      doc.line(14, 37, 196, 37);
+
+      doc.setFontSize(10);
+      doc.text(
+        `Total Received: Rs: ${totalReceived.toLocaleString("en-IN")}`,
+        14,
+        45
+      );
+      doc.text(
+        `Total Expenses: Rs: ${totalExpenses.toLocaleString("en-IN")}`,
+        14,
+        52
+      );
+      doc.text(
+        `${profitLoss >= 0 ? "Net Profit" : "Net Loss"}: Rs: ${Math.abs(
+          profitLoss
+        ).toLocaleString("en-IN")}`,
+        14,
+        59
+      );
+
+      // Fee Transactions Table
+      doc.setFontSize(12);
+      doc.text("Fee Transactions", 14, 70);
+      doc.autoTable({
+        startY: 75,
+        head: [["Date", "Name", "ID", "Category", "Amount"]],
+        body: monthlyFees.map((fee) => [
+          new Date(fee.paymentDate).toLocaleDateString(),
+          fee.name || "N/A",
+          fee.studentId || "N/A",
+          fee.messPeople
+            ? "Mess Only"
+            : fee.dailyRent
+            ? "Daily Rent"
+            : "Regular",
+          `Rs: ${fee.amountPaid.toLocaleString("en-IN")}`,
+        ]),
+        styles: { fontSize: 8 },
+        headStyles: { fillColor: [71, 85, 105] },
+      });
+
+      // Expense Table
+      const finalY = doc.lastAutoTable.finalY + 15;
+      doc.setFontSize(12);
+      doc.text("Expenses", 14, finalY);
+      doc.autoTable({
+        startY: finalY + 5,
+        head: [["Date", "Title", "Category", "Payment Method", "Amount"]],
+        body: monthlyExpenses.map((expense) => [
+          new Date(expense.date).toLocaleDateString(),
+          expense.title || "N/A",
+          expense.category || "N/A",
+          expense.paymentMethod || "N/A",
+          `Rs: ${expense.amount.toLocaleString("en-IN")}`,
+        ]),
+        styles: { fontSize: 8 },
+        headStyles: { fillColor: [71, 85, 105] },
+      });
+
+      // Footer with page numbers
+      const pageCount = doc.internal.getNumberOfPages();
+      doc.setFontSize(8);
+      for (let i = 1; i <= pageCount; i++) {
+        doc.setPage(i);
+        doc.text(
+          `Generated on: ${new Date().toLocaleString()} - Page ${i} of ${pageCount}`,
+          doc.internal.pageSize.width / 2,
+          doc.internal.pageSize.height - 10,
+          { align: "center" }
+        );
+      }
+
+      doc.save(`financial_report_${monthName}_${reportYear}.pdf`);
+      setShowReportModal(false);
+    } catch (error) {
+      console.error("Error generating report:", error);
+      alert("Error generating report. Please try again.");
+    } finally {
+      setIsGenerating(false);
+    }
+  };
 
   const paymentPending = totalMonthlyRent - totalReceived;
   const paymentPendingDisplay = paymentPending < 0 ? 0 : paymentPending;
   const paymentPendingMess = totalMonthlyRentMess - totalReceivedMess;
-  const paymentPendingDisplayMess = paymentPendingMess < 0 ? 0 : paymentPendingMess;
+  const paymentPendingDisplayMess =
+    paymentPendingMess < 0 ? 0 : paymentPendingMess;
 
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
@@ -177,6 +335,12 @@ const PaymentDashboard = () => {
               className="px-4 py-2 bg-red-500 text-white rounded-md"
             >
               Add Commission
+            </button>
+            <button
+              onClick={() => setShowReportModal(true)}
+              className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+            >
+              Download Report
             </button>
           </div>
         </div>
@@ -221,7 +385,9 @@ const PaymentDashboard = () => {
             className="p-4 bg-red-100 text-red-500 rounded-md cursor-pointer"
             onClick={() => navigate("/paymentPending")}
           >
-            <p className="text-lg font-semibold">₹{paymentPendingDisplayMess || 0}</p>
+            <p className="text-lg font-semibold">
+              ₹{paymentPendingDisplayMess || 0}
+            </p>
             <p>Payment Pending</p>
             <span>(Mess Only)</span>
           </div>
@@ -247,10 +413,9 @@ const PaymentDashboard = () => {
             <p>Total Waveoff</p>
           </div>
           {/* Total Deposit Card */}
-          <div
-            className="p-4 bg-gray-100 text-gray-500 rounded-md "
-          >
-            <p className="text-lg font-semibold">₹{totalDeposit || 0}</p> {/* Total Deposit */}
+          <div className="p-4 bg-gray-100 text-gray-500 rounded-md ">
+            <p className="text-lg font-semibold">₹{totalDeposit || 0}</p>{" "}
+            {/* Total Deposit */}
             <p>Total Deposit</p>
           </div>
         </div>
@@ -278,18 +443,93 @@ const PaymentDashboard = () => {
                 Student & Workers
               </li>
               <li
-                onClick={() => navigate("/messOnlyPayment", { state: { paymentType: "Mess Only" } })}
+                onClick={() =>
+                  navigate("/messOnlyPayment", {
+                    state: { paymentType: "Mess Only" },
+                  })
+                }
                 className="cursor-pointer px-4 py-2 bg-green-100 text-green-600 rounded-md hover:bg-green-200"
               >
                 Mess Only
               </li>
               <li
-                 onClick={() => navigate("/messOnlyPayment", { state: { paymentType: "Daily Rent" } })}
+                onClick={() =>
+                  navigate("/messOnlyPayment", {
+                    state: { paymentType: "Daily Rent" },
+                  })
+                }
                 className="cursor-pointer px-4 py-2 bg-yellow-100 text-yellow-600 rounded-md hover:bg-yellow-200"
               >
                 Daily Rent
               </li>
             </ul>
+          </div>
+        </div>
+      )}
+      {showReportModal && (
+        <div className="fixed inset-0 ml-60 z-50 bg-black bg-opacity-50 flex items-center justify-center">
+          <div className="bg-white rounded-lg shadow-lg w-96 p-6">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-semibold">Generate Monthly Report</h2>
+              <button
+                onClick={() => setShowReportModal(false)}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="mb-4">
+              <label className="block text-sm font-medium mb-1">Month:</label>
+              <select
+                value={reportMonth}
+                onChange={(e) => setReportMonth(e.target.value)}
+                className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">Select Month</option>
+                {Array.from({ length: 12 }, (_, i) => (
+                  <option key={i + 1} value={i + 1}>
+                    {new Date(2000, i).toLocaleString("default", {
+                      month: "long",
+                    })}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="mb-6">
+              <label className="block text-sm font-medium mb-1">Year:</label>
+              <select
+                value={reportYear}
+                onChange={(e) => setReportYear(e.target.value)}
+                className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500"
+              >
+                {Array.from({ length: 5 }, (_, i) => {
+                  const year = new Date().getFullYear() - i;
+                  return (
+                    <option key={year} value={year}>
+                      {year}
+                    </option>
+                  );
+                })}
+              </select>
+            </div>
+
+            <div className="flex justify-end gap-2">
+              <button
+                onClick={() => setShowReportModal(false)}
+                className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={generateMonthlyReport}
+                disabled={!reportMonth || isGenerating}
+                className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:bg-blue-300 disabled:cursor-not-allowed"
+              >
+                {isGenerating ? "Generating..." : "Generate Report"}
+              </button>
+            </div>
           </div>
         </div>
       )}
