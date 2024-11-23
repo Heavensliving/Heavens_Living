@@ -22,6 +22,8 @@ export const CarouselModal = ({ isOpen, onClose }) => {
   useEffect(() => {
     if (isOpen) {
       fetchCarousels();
+    } else {
+      resetFields();
     }
   }, [isOpen]);
 
