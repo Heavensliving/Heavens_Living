@@ -1,4 +1,3 @@
-
 import StatsSection from './StatSection';
 import FinanceChart from './FinanceChart';
 import CheckAuth from '../auth/CheckAuth';
@@ -27,40 +26,43 @@ const Dashboard = () => {
       <main className="flex-1 bg-gray-100 p-4 md:p-6">
         <StatsSection />
 
-        {/* Flex container for Calendar and Finance graph */}
-        <div className="flex flex-row gap-6 mt-6">
+        {/* Stack vertically on all screens */}
+        <div className="flex flex-col gap-6 mt-6">
+          {/* Finance Graph Section */}
+          <div className="bg-white p-4 rounded-lg shadow h-[500px]"> {/* Fixed height */}
+            <div className="h-full w-full">
+              <FinanceChart financeData={financeData} />
+            </div>
+          </div>
+
           {/* Calendar Section */}
-          <div className="flex-1 bg-white p-4 rounded-lg shadow" style={{ height: '400px' }}>
-            <h2 className="text-lg font-semibold mb-4 text-center sm:text-left">Calendar - {monthName}</h2>
-            <div className="grid grid-cols-7 gap-2">
+          <div className="bg-white p-4 rounded-lg shadow h-[500px]"> {/* Same fixed height */}
+            <h2 className="text-lg font-semibold mb-4 text-center sm:text-left">
+              Calendar - {monthName}
+            </h2>
+            <div className="grid grid-cols-7 gap-2 h-[calc(100%-3rem)]"> {/* Adjust for header space */}
               {daysOfWeek.map((day, index) => (
                 <div key={index} className="font-bold text-center">
                   {day}
                 </div>
               ))}
-              {/* Empty slots before the first day of the month */}
               {Array.from({ length: firstDayOfMonth }).map((_, index) => (
                 <div key={index} className="text-center"></div>
               ))}
               {calendarDays.map((day) => (
                 <div
                   key={day}
-                  className={`p-2 text-center rounded-full ${day === currentDate ? 'bg-green-500 text-white' : 'hover:bg-gray-200'
-                    }`}
+                  className={`p-2 text-center rounded-full ${
+                    day === currentDate 
+                      ? 'bg-green-500 text-white' 
+                      : 'hover:bg-gray-200'
+                  }`}
                 >
                   {day}
                 </div>
               ))}
             </div>
           </div>
-
-          {/* Finance Graph Section */}
-              <div className="flex-1 bg-white p-4 rounded-lg shadow" style={{ height: '400px' }}>
-                <div >
-                  <FinanceChart financeData={financeData} />
-                </div>
-              </div>
-
         </div>
       </main>
     </div>
