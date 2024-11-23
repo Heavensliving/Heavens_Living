@@ -14,83 +14,91 @@ const FinanceChart = () => {
   const [totalReceived, setTotalReceived] = useState([]);
   const [totalExpense, setTotalExpense] = useState([]);
   const [months, setMonths] = useState([]);
-  // eslint-disable-next-line no-unused-vars
-  const [selectedMonth, setSelectedMonth] = useState(''); 
+  const [selectedMonth, setSelectedMonth] = useState('');
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+  const [availableYears, setAvailableYears] = useState([]);
 
   useEffect(() => {
     if (!admin) return;
-    const fetchFeeData = async () => {
+    const fetchData = async () => {
       try {
         const feeResponse = await axios.get(`${API_BASE_URL}/fee`, {
           headers: { Authorization: `Bearer ${admin.token}` },
         });
     
         const feeTransactions = feeResponse.data;
-    
-        // Debugging: Log fetched data
-        // console.log('Fee Transactions:', feeTransactions);
-    
-        // Initialize all months with zero
+
+        // Initialize all months
         const allMonths = Array.from({ length: 12 }, (_, i) =>
           new Date(0, i).toLocaleString('default', { month: 'long' })
         );
         setMonths(allMonths);
     
-        // Create an array to hold total received for each month
+        // Get unique years from fee transactions
+        const years = [...new Set(feeTransactions.map(transaction => 
+          new Date(transaction.paymentDate).getFullYear()
+        ))].sort((a, b) => b - a);
+        
+        setAvailableYears(years);
+        
+        // Process fee data for selected year
         const monthlyReceivedData = Array(12).fill(0);
-    
-        // Process each transaction
-        feeTransactions.forEach((transaction) => {
-          const transactionDate = new Date(transaction.paymentDate); // Parse the date
-          const monthIndex = transactionDate.getMonth(); // Get month index (0-11)
-    
-          // Debugging: Log the month index and amount
-          // console.log(
-          //   `Transaction Date: ${transactionDate}, Month Index: ${monthIndex}, Amount: ${transaction.amountPaid}`
-          // );
-    
-          // Aggregate total for the corresponding month
-          monthlyReceivedData[monthIndex] += transaction.amountPaid || 0;
-        });
-    
-        // Update state with the aggregated data
+        feeTransactions
+          .filter(transaction => new Date(transaction.paymentDate).getFullYear() === selectedYear)
+          .forEach((transaction) => {
+            const transactionDate = new Date(transaction.paymentDate);
+            const monthIndex = transactionDate.getMonth();
+            monthlyReceivedData[monthIndex] += Number(transaction.amountPaid) || 0;
+          });
         setTotalReceived(monthlyReceivedData);
       } catch (error) {
         console.error('Error fetching fee data:', error);
       }
     };
-    
-    
-    
-  
+
     const fetchExpenseData = async () => {
       try {
         const expenseResponse = await axios.get(`${API_BASE_URL}/expense/monthlyExpense`, {
+          params: { year: selectedYear },
           headers: { Authorization: `Bearer ${admin.token}` },
         });
-  
+
         const expenseData = expenseResponse.data;
-  
-        // Initialize all months with zero
         const monthlyExpenseData = Array(12).fill(0);
-  
+
+        // Log raw data
+        console.log('Raw Expense Data:', expenseData);
+        console.log('Selected Year:', selectedYear, typeof selectedYear);
+
+        // Process data
         expenseData.forEach((expense) => {
-          const month = expense.month - 1; // Convert to zero-based index
-          monthlyExpenseData[month] += expense.totalExpense || 0; // Add to respective month
+          console.log('Processing expense:', expense);
+          console.log('Expense year:', expense.year, typeof expense.year);
+          
+          // Only process if years match
+          if (Number(expense.year) === Number(selectedYear)) {
+            const month = Number(expense.month) - 1;
+            console.log('Month index:', month);
+            
+            if (month >= 0 && month < 12) {
+              monthlyExpenseData[month] = Number(expense.totalExpense) || 0;
+              console.log(`Added ${expense.totalExpense} to month ${month}`);
+            }
+          }
         });
-  
+
+        console.log('Final Monthly Data:', monthlyExpenseData);
         setTotalExpense(monthlyExpenseData);
       } catch (error) {
         console.error('Error fetching expense data:', error);
+        setTotalExpense(Array(12).fill(0));
       }
     };
-  
-    fetchFeeData();
-    fetchExpenseData();
-  }, [admin]);
-  
 
-  // Filter data based on the selected month
+    fetchData();
+    fetchExpenseData();
+  }, [admin, selectedYear]);
+  
   const filteredData = {
     labels: months,
     datasets: [
@@ -123,6 +131,11 @@ const FinanceChart = () => {
       },
       y: {
         beginAtZero: true,
+        ticks: {
+          callback: function(value) {
+            return '₹' + value.toLocaleString('en-IN');
+          }
+        }
       },
     },
     plugins: {
@@ -131,19 +144,41 @@ const FinanceChart = () => {
       },
       tooltip: {
         enabled: true,
+        callbacks: {
+          label: function(context) {
+            let label = context.dataset.label || '';
+            if (label) {
+              label += ': ';
+            }
+            if (context.parsed.y !== null) {
+              label += '₹' + context.parsed.y.toLocaleString('en-IN');
+            }
+            return label;
+          }
+        }
       },
     },
   };
 
   return (
     <div className="relative">
-      {/* Month filter dropdown aligned to top-right */}
-     
+      <div className="absolute right-0 top-0 z-10">
+        <select
+          value={selectedYear}
+          onChange={(e) => setSelectedYear(Number(e.target.value))}
+          className="p-2 border rounded-md bg-white"
+        >
+          {availableYears.map(year => (
+            <option key={year} value={year}>{year}</option>
+          ))}
+        </select>
+      </div>
 
       <div>
-        <h2 className="text-lg font-semibold mb-8 text-center sm:text-left">Finance Overview</h2>
+        <h2 className="text-lg font-semibold mb-8 text-center sm:text-left">
+          Finance Overview - {selectedYear}
+        </h2>
 
-        {/* Bar chart */}
         <Bar
           data={filteredData}
           options={options}
