@@ -10,6 +10,7 @@ function EditPeople() {
   const admin = useSelector(store => store.auth.admin);
   const { id } = useParams(); // Get the ID from the URL
   const navigate = useNavigate();
+  
   const [loading, setLoading] = useState(false);
 
   const [formData, setFormData] = useState({

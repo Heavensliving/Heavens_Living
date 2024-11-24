@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import PendingIssues from './pendingIssue';
+import PendingIssues from './PendingIssue';
 import OngoingIssues from './OnGoingIssue';
 import ResolvedIssues from './ResolvedIssue';
 import { FaCheckCircle, FaPauseCircle, FaTools } from 'react-icons/fa';

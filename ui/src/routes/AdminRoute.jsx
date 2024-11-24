@@ -127,8 +127,6 @@ const AdminRoute = () => {
                     <Route path='/paymentPending' element={<PendingPaymentsPage/>}/> 
                     <Route path='/waveoff' element={<WaveOffPaymentsPage/>}/>
                     <Route path='/addonPage' element={<AddonPage/>}/>
-
-
                     
                 </Route>
 
