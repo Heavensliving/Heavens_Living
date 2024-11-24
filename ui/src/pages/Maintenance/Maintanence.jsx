@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import PendingIssues from './PendingIssue';
-import OngoingIssues from './OnGoingIssue';
-import ResolvedIssues from './ResolvedIssue';
 import { FaCheckCircle, FaPauseCircle, FaTools } from 'react-icons/fa';
 import { MdAssignment } from 'react-icons/md';
 import API_BASE_URL from '../../config';
 import { useSelector } from 'react-redux';
 import CheckAuth from '../auth/CheckAuth';
+import PendingIssue from './PendingIssue';
+import OnGoingIssue from './OnGoingIssue';
+import ResolvedIssue from './ResolvedIssue';
 
 
 const MaintenanceComponent = () => {
@@ -88,10 +88,10 @@ const MaintenanceComponent = () => {
         </div>
 
         <div className="flex space-x-5 flex-grow">
-          <PendingIssues />
-          <OngoingIssues />
+          <PendingIssue />
+          <OnGoingIssue />
         </div>
-        <ResolvedIssues />
+        <ResolvedIssue />
       </div>
     </div>
   );

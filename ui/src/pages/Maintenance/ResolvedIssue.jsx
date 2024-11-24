@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';  // Import Link for navigation
 import API_BASE_URL from '../../config';
 import { useSelector } from 'react-redux';
 
-const ResolvedIssues = () => {
+const ResolvedIssue = () => {
   const admin = useSelector(store => store.auth.admin);
   const [records, setRecords] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -71,4 +71,4 @@ const ResolvedIssues = () => {
   );
 };
 
-export default ResolvedIssues;
+export default ResolvedIssue;

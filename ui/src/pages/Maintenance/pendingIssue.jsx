@@ -5,7 +5,7 @@ import DetailModal from './DetailModal';
 import API_BASE_URL from '../../config';
 import { useSelector } from 'react-redux';
 
-const PendingIssues = () => {
+const PendingIssue = () => {
   const admin = useSelector(store => store.auth.admin);
   const [records, setRecords] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -148,4 +148,4 @@ const PendingIssues = () => {
   );
 };
 
-export default PendingIssues;
+export default PendingIssue;

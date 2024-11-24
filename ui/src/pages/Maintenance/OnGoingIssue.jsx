@@ -4,7 +4,7 @@ import axios from 'axios';
 import API_BASE_URL from '../../config';
 import { useSelector } from 'react-redux';
 
-const OngoingIssues = () => {
+const OnGoingIssue = () => {
   const admin = useSelector(store => store.auth.admin);
   const [records, setRecords] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -156,4 +156,4 @@ const OngoingIssues = () => {
   );
 };
 
-export default OngoingIssues;
+export default OnGoingIssue;
