@@ -138,7 +138,7 @@ const resetPassword = async (req, res) => {
       return res.status(400).json({ message: "Reset link expired." });
     }
 
-    res.redirect(`http://192.168.1.79:3002/reset-password/${token}`);
+    res.redirect(`${FRONTEND_BASE_URL}/reset-password/${token}`);
 
   } catch (error) {
     console.error(error);
