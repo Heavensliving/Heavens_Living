@@ -76,11 +76,11 @@ const OnGoingIssue = () => {
   if (error) return <p>{error}</p>;
 
   return (
-    <div className="bg-white shadow-md rounded-lg p-4 w-2/3 flex flex-col">
+    <div className="bg-white shadow-md rounded-lg p-4 flex flex-col">
       <h2 className="text-lg font-bold text-gray-800 mb-2">Ongoing Issues</h2>
       <div className="flex-grow max-h-80 overflow-y-auto">
-        <table className="min-w-full text-left">
-          <thead>
+        <table className="w-full text-left">
+          <thead className='text-center'>
             <tr>
               <th className="p-2 text-sm font-bold text-gray-700">Sl No</th>
               <th className="p-2 text-sm font-bold text-gray-700">Issuer Name</th>
@@ -91,7 +91,7 @@ const OnGoingIssue = () => {
               <th className="p-2 text-sm font-bold text-gray-700">Action</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody className='text-center'>
             {records.length === 0 ? (
               <tr>
                 <td className="p-2 text-center" colSpan="7">
@@ -130,7 +130,7 @@ const OnGoingIssue = () => {
       {/* Modal for adding remark or skipping */}
       {selectedRecord && (
         <div className="fixed inset-0 bg-gray-900 bg-opacity-50 flex justify-center items-center">
-          <div className="bg-white rounded-lg shadow-lg p-4 w-1/3">
+          <div className="bg-white rounded-lg shadow-lg p-4">
             <h2 className="text-lg font-bold text-gray-800 mb-2">Add Remark (Optional)</h2>
             <textarea
               className="w-full border rounded p-2 mb-4"

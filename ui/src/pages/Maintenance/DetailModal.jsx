@@ -4,7 +4,7 @@ const DetailModal = ({ isOpen, onClose, record }) => {
   if (!isOpen || !record) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div className="fixed inset-0 md:ml-60 lg:ml-60 xl:ml-60 sm:ml-16  bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg p-4 w-1/2 mx-auto">
         <h2 className="text-lg font-bold mb-2">Issue Details</h2>
         <p><strong>Issuer Name:</strong> {record.Name}</p>

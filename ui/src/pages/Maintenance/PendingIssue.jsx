@@ -84,11 +84,11 @@ const PendingIssue = () => {
   if (error) return <div>{error}</div>;
 
   return (
-    <div className="bg-white shadow-md rounded-lg p-4 w-1/3 flex flex-col">
+    <div className="bg-white shadow-md rounded-lg p-4 flex flex-col mb-2">
       <h2 className="text-lg font-bold text-gray-800 mb-2">Pending Issues</h2>
       <div className=" max-h-80 overflow-y-auto">
-        <table className="min-w-full text-left">
-          <thead>
+        <table className="w-full text-left">
+          <thead className='text-center'>
             <tr>
               <th className="p-2 text-sm font-bold text-gray-700">Sl No</th>
               <th className="p-2 text-sm font-bold text-gray-700">Issuer Name</th>
@@ -96,7 +96,7 @@ const PendingIssue = () => {
               <th className="p-2 text-sm font-bold text-gray-700">Action</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody className='text-center'>
             {records.length === 0 ? (
               <tr>
                 <td colSpan="4" className="p-2 text-center text-gray-600">

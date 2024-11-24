@@ -145,7 +145,8 @@ const resetPassword = async (req, res) => {
 
     if (error.name === 'TokenExpiredError') {
       // return res.redirect(`http://localhost:5173/reset_password`);
-      return res.status(400).json({ message: "Reset link has expired. Please request a new password reset." });
+      res.redirect(`${FRONTEND_BASE_URL}/link-expired`);
+      // return res.status(400).json({ message: "Reset link has expired. Please request a new password reset." });
     }
 
     res.status(500).json({ message: "An error occurred. Please try again later." });
@@ -161,8 +162,8 @@ const verify_reset_password = async (req, res) => {
     const resetEntry = await PasswordReset.findOne({ userId: id });
 
     if (!resetEntry || resetEntry.token !== token) {
-      // return res.redirect(`http://localhost:5173/reset_password`);
-      return res.status(400).json({ message: "Reset link has expired. Please request a new password reset." });
+      res.redirect(`${FRONTEND_BASE_URL}/link-expired`);
+      // return res.status(400).json({ message: "Reset link has expired. Please request a new password reset." });
     }
     const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -182,8 +183,8 @@ const verify_reset_password = async (req, res) => {
     console.error(error);
 
     if (error.name === 'TokenExpiredError') {
-      // return res.redirect(`http://localhost:5173/reset_password`);
-      return res.status(400).json({ message: "Reset token has expired. Please request a new password reset." });
+      res.redirect(`${FRONTEND_BASE_URL}/link-expired`);
+      // return res.status(400).json({ message: "Reset token has expired. Please request a new password reset." });
     }
 
     res.status(500).json({ message: "An error occurred. Please try again later." });

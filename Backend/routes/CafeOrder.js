@@ -4,7 +4,7 @@ const { verifyToken } = require("../middleware/tokenVerify");
 
 const router = express.Router()
 
-router.get('/', verifyToken, cafeOrderController.getAllCafeOrders);
+router.get('/', cafeOrderController.getAllCafeOrders);
 
 router.get('/:id', verifyToken, cafeOrderController.getCafeOrderById);
 
@@ -13,6 +13,8 @@ router.post('/add', verifyToken, cafeOrderController.addCafeOrder);
 router.post('/occupant/add', verifyToken, cafeOrderController.CafeOrderByOccupant);
 
 router.put('/update/:id', verifyToken, cafeOrderController.updateCafeOrder);
+
+router.put('/orders/:id/status', cafeOrderController.changeOrderStatus);
 
 router.delete('/delete/:id', verifyToken, cafeOrderController.deleteCafeOrder);
 

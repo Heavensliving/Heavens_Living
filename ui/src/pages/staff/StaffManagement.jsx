@@ -133,8 +133,20 @@ const StaffManagement = () => {
     }
   };
 
-  if (loading) return <div>Loading...</div>;
-  if (error) return <div>Error fetching data.</div>;
+  if (error) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div>{error}</div>
+      </div>
+    );
+  }
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="loadingSpinner border-t-2 border-white border-solid rounded-full w-6 h-6 animate-spin"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-100 p-4 md:p-6 flex flex-col">

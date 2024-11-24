@@ -15,6 +15,7 @@ function MessManagement() {
   const [expandedOrder, setExpandedOrder] = useState(null);
   const [expandedAddon, setExpandedAddon] = useState(null);
   const [todayOrders, setTodayOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   
     // Check current time to determine if orders should be displayed
@@ -43,12 +44,15 @@ function MessManagement() {
             });
             console.log(filteredTomorrowOrders)
             setTodayOrders(filteredTomorrowOrders);
+            setLoading(false); 
           }
         } catch (error) {
           console.error('Error fetching orders:', error);
+          setLoading(false)
+        }finally {
+          setLoading(false); // Ensure loading stops
         }
-      };
-    
+      }; 
       fetchOrders();
     }, [admin]);
 
@@ -68,7 +72,14 @@ function MessManagement() {
   const todayBreakfastCount = todayOrders.filter(order => order.mealType === 'Breakfast').length;
   const todayLunchCount = todayOrders.filter(order => order.mealType === 'Lunch').length;
   const todayDinnerCount = todayOrders.filter(order => order.mealType === 'Dinner').length;
-
+  
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="loadingSpinner border-t-2 border-white border-solid rounded-full w-6 h-6 animate-spin"></div>
+      </div>
+    );
+  }
   return (
     <div className="h-screen flex flex-col bg-gray-100 p-6">
       {/* Button Section */}

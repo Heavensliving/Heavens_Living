@@ -60,8 +60,14 @@ function PropertyManagement() {
     property.propertyName.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  if (loading) return <p>Loading properties...</p>;
-
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="loadingSpinner border-t-2 border-white border-solid rounded-full w-6 h-6 animate-spin"></div>
+      </div>
+    );
+  }
+  
   return (
     <div className="min-h-screen bg-gray-100 p-4 flex flex-col">
       {/* Total Properties Card Section */}

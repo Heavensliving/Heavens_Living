@@ -3,7 +3,10 @@ const mongoose = require("mongoose");
 const CafeOrderByOccupantSchema = new mongoose.Schema(
     {
         orderId: { type: String, required: true, unique: true },
-        roomNumber: { type: String, required: false },
+        customerName: { type: String, required: true },
+        contact: { type: String, required: true },
+        propertyName: { type: String, required: true},
+        roomNumber: { type: String, required: true},
         items: [
             {
                 itemName: { type: String, required: true },
@@ -21,7 +24,7 @@ const CafeOrderByOccupantSchema = new mongoose.Schema(
         },
         status: {
             type: String,
-            enum: ["pending", "completed"],
+            enum: ["pending", "cancelled", "onGoing", "delivered"],
             default: "pending",
         },
         date: { type: Date, default: Date.now, required: true },

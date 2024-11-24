@@ -4,6 +4,7 @@ import axios from 'axios';
 import { FaHome, FaFilter, FaPlus, FaUsers, FaCheck, FaRegCircle } from 'react-icons/fa';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useSelector } from 'react-redux';
+import API_BASE_URL from '../../config';
 
 function Property() {
     const admin = useSelector(store => store.auth.admin);
@@ -23,7 +24,7 @@ function Property() {
 
     const fetchProperties = async () => {
         try {
-            const response = await axios.get(`http://localhost:3000/api/property/properties/${id}`,
+            const response = await axios.get(`${API_BASE_URL}/property/properties/${id}`,
                 { headers: { 'Authorization': `Bearer ${admin.token}` } }
             );
             setProperties(response.data.Properties || []);
@@ -36,7 +37,7 @@ function Property() {
     };
     const fetchPhase = async () => {
         try {
-            const response = await axios.get(`http://localhost:3000/api/phase/${id}`,
+            const response = await axios.get(`${API_BASE_URL}/phase/${id}`,
                 { headers: { 'Authorization': `Bearer ${admin.token}` } }
             );
             setPhase(response.data)
@@ -51,8 +52,20 @@ function Property() {
         property.propertyName.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
-    if (loading) return <p>Loading properties...</p>;
-    if (errorMessage) return <p>{errorMessage}</p>;
+    if (errorMessage) {
+        return (
+          <div className="flex items-center justify-center h-screen">
+            <div>{errorMessage}</div>
+          </div>
+        );
+      }
+      if (loading) {
+        return (
+          <div className="flex items-center justify-center h-screen">
+            <div className="loadingSpinner border-t-2 border-white border-solid rounded-full w-6 h-6 animate-spin"></div>
+          </div>
+        );
+      }
 
     return (
         <div className="min-h-screen bg-gray-100 p-4 flex flex-col">

@@ -7,6 +7,7 @@ import { useSelector } from 'react-redux';
 
 const StatsSection = () => {
   const admin = useSelector(store => store.auth.admin);
+  const [loading, setLoading] = useState(true);
   const [totalStudents, setTotalStudents] = useState();
   const [totalStaffs, setTotalStaffs] = useState(); 
   const [totalDailyRent, setTotalDailyRent] = useState(); 
@@ -21,8 +22,10 @@ const StatsSection = () => {
         ); 
         const nonVacatedStudents = response.data.filter(student => student.vacate == false);
         setTotalStudents(nonVacatedStudents.length); 
+        setLoading(false)
       } catch (error) {
         console.error('Error fetching total students:', error);
+        setLoading(false)
       }
     };
 
@@ -37,8 +40,10 @@ const StatsSection = () => {
           { headers: { 'Authorization': `Bearer ${admin.token}` } }
         ); 
         setTotalStaffs(response.data.length); 
+        setLoading(false)
       } catch (error) {
         console.error('Error fetching total staff:', error);
+        setLoading(false)
       }
     };
 
@@ -54,8 +59,10 @@ const StatsSection = () => {
         ); 
         const activeDailyRents = response.data.filter(rent => rent.vacate === false);
         setTotalDailyRent(activeDailyRents.length); 
+        setLoading(false)
       } catch (error) {
         console.error('Error fetching total staff:', error);
+        setLoading(false)
       }
     };
 
@@ -70,13 +77,23 @@ const StatsSection = () => {
           { headers: { 'Authorization': `Bearer ${admin.token}` } }
         ); 
         setTotalProperties(response.data.length); 
+        setLoading(false)
       } catch (error) {
         console.error('Error fetching total properties:', error);
+        setLoading(false)
       }
     };
 
     fetchTotalProperties();
   }, []);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="loadingSpinner border-t-2 border-white border-solid rounded-full w-6 h-6 animate-spin"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-4 sm:p-6 rounded-lg mb-6">

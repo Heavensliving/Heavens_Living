@@ -22,7 +22,7 @@ const Dashboard = () => {
   const financeData = [200, 150, 300, 400, 250, 350];
 
   return (
-    <div className="flex flex-col h-screen">
+    <div className="flex flex h-screen">
       <main className="flex-1 bg-gray-100 p-4 md:p-6">
         <StatsSection />
 

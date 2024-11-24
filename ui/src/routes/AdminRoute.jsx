@@ -58,7 +58,7 @@ import ResetPassword from '../pages/resetPassword/ResetPassword.jsx'
 import ResetSuccess from '../pages/resetPassword/ResetSuccess.jsx'
 import EmailVerificationSuccess from '../pages/auth/EmailVerificationSuccess.jsx'
 import LinkExpired from '../pages/auth/LinkExpired.jsx'
-import CafeOrders from '../pages/studentManagement/CafeOrders.jsx'
+import CafeOrders from '../pages/cafeOrders/CafeOrders.jsx'
 
 const AdminRoute = () => {
     return (

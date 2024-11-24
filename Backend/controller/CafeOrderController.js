@@ -76,17 +76,6 @@ const addCafeOrder = async (req, res, next) => {
   }
 };
 
-// Get all cafe orders
-const getAllCafeOrders = async (req, res) => {
-  try {
-    const orders = await CafeOrder.find();
-    res.status(200).json(orders);
-  } catch (error) {
-    console.error("Error fetching orders:", error); // Log the error details
-    res.status(500).json({ message: "Error fetching orders", error });
-  }
-};
-
 // Get a cafe order by ID
 const getCafeOrderById = async (req, res) => {
   try {
@@ -160,9 +149,20 @@ const completeCafeOrder = async (req, res) => {
   }
 };
 
+// Get all cafe orders
+const getAllCafeOrders = async (req, res) => {
+  try {
+    const orders = await OrderByOccupant.find();
+    res.status(200).json(orders);
+  } catch (error) {
+    console.error("Error fetching orders:", error); // Log the error details
+    res.status(500).json({ message: "Error fetching orders", error });
+  }
+};
+
 const CafeOrderByOccupant = async (req, res, next) => {
   try {
-    const { items, paymentMethod, occupant } = req.body;
+    const {customerName, contact, propertyName, roomNumber, items, paymentMethod, occupant, status } = req.body;
     if (!items || !Array.isArray(items) || items.length === 0) {
       return res.status(400).json({ message: "Items array is required and must not be empty" });
     }
@@ -192,11 +192,15 @@ const CafeOrderByOccupant = async (req, res, next) => {
       item.total = itemTotal;
     }
 
-    const status = (paymentMethod === "cash" || paymentMethod === "account") ? "completed" : "pending";
+    // const status = (paymentMethod === "cash" || paymentMethod === "account") ? "completed" : "pending";
 
     const newOrder = new OrderByOccupant({
-      items: items,
       orderId,
+      customerName,
+      contact,
+      propertyName,
+      roomNumber,
+      items: items,
       total: totalOrderAmount,
       paymentMethod,
       status,
@@ -225,6 +229,53 @@ const getOrderHistory = async (req, res) => {
   }
 };
 
+const changeOrderStatus = async (req, res) => {
+  const { Id } = req.params;
+  const { status } = req.body; 
+  console.log(Id, status)
+
+  const allowedStatuses = ['pending', 'cancelled', 'onGoing', 'delivered'];
+
+  try {
+    // Check if the status value is valid
+    if (!allowedStatuses.includes(status)) {
+      return res.status(400).json({
+        success: false,
+        message: `Invalid status. Allowed values are: ${allowedStatuses.join(', ')}`,
+      });
+    }
+    const order = await OrderByOccupant.findById(Id)
+    console.log(order)
+
+    // Find the order by orderId and update the status
+    const updatedOrder = await OrderByOccupant.findOneAndUpdate(
+      { Id },
+      { status },
+      { new: true } // Return the updated document
+    );
+    console.log(updatedOrder)
+
+    if (!updatedOrder) {
+      return res.status(404).json({
+        success: false,
+        message: 'Order not found',
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: 'Order status updated successfully',
+      data: updatedOrder,
+    });
+  } catch (error) {
+    console.error('Error updating order status:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error. Unable to update order status',
+    });
+  }
+};
+
 module.exports = {
   addCafeOrder,
   getAllCafeOrders,
@@ -235,4 +286,5 @@ module.exports = {
   completeCafeOrder,
   CafeOrderByOccupant,
   getOrderHistory,
+  changeOrderStatus,
 };

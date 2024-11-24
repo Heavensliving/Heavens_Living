@@ -84,8 +84,20 @@ function PhaseManagement() {
     }
   };
 
-  if (loading) return <p>Loading phases...</p>;
-  if (errorMessage) return <p>{errorMessage}</p>;
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="loadingSpinner border-t-2 border-white border-solid rounded-full w-6 h-6 animate-spin"></div>
+      </div>
+    );
+  }
+  if (errorMessage) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div>{errorMessage}</div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-100 p-4 flex flex-col">

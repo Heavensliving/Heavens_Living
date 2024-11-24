@@ -24,6 +24,7 @@ const StudentManagement = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [sortOption, setSortOption] = useState('All');
   const [propertySort, setPropertySort] = useState(''); 
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!admin) return;
@@ -33,8 +34,10 @@ const StudentManagement = () => {
           { headers: { 'Authorization': `Bearer ${admin.token}` } }
         );
         setStudents(res.data);
+        setLoading(false)
       } catch (error) {
         console.error('Error fetching students:', error);
+        setLoading(false)
       }
     };
     fetchStudents();
@@ -131,6 +134,14 @@ const StudentManagement = () => {
 
     return sorted;
   };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="loadingSpinner border-t-2 border-white border-solid rounded-full w-6 h-6 animate-spin"></div>
+      </div>
+    );
+  }
   
   return (
     <div className="flex flex-col h-screen p-4 bg-gray-100">

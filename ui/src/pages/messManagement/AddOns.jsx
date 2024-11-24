@@ -95,7 +95,7 @@ function AddOns() {
           <h2 className="text-2xl font-semibold ml-4">Available Menu</h2>
         </div>
 
-        <button onClick={() => navigate('/addOns-item')} className="bg-green-500 hover:bg-green-600 text-white p-2 rounded-full w-32 flex items-center justify-center space-x-2">
+        <button onClick={() => navigate('/addOns-item')} className="bg-side-bar hover:bg-[#373082] text-white p-2 rounded-full w-32 flex items-center justify-center space-x-2">
           <FaHamburger size={16} />
           <span>Add Item</span>
         </button>

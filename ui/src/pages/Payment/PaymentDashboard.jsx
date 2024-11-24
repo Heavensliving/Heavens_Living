@@ -22,6 +22,7 @@ const PaymentDashboard = () => {
   const [reportMonth, setReportMonth] = useState("");
   const [reportYear, setReportYear] = useState(new Date().getFullYear());
   const [isGenerating, setIsGenerating] = useState(false);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   const openModal = () => setShowModal(true);
@@ -55,8 +56,10 @@ const PaymentDashboard = () => {
         );
         setTotalReceived(totalAmount - (messPeopleTotal + dailyRentTotal));
         setTotalReceivedMess(messPeopleTotal);
+        setLoading(false)
       } catch (error) {
         console.error("Error fetching fee totals:", error);
+        setLoading(false)
       }
     };
 
@@ -68,6 +71,7 @@ const PaymentDashboard = () => {
           { headers: { Authorization: `Bearer ${admin.token}` } }
         );
         setTotalExpense(expenseResponse.data.totalAmount);
+        setLoading(false)
       } catch (error) {
         console.error("Error fetching total expense:", error);
       }
@@ -85,8 +89,10 @@ const PaymentDashboard = () => {
           0
         );
         setTotalCommission(total);
+        setLoading(false)
       } catch (error) {
         console.error("Error fetching total commission:", error);
+        setLoading(false)
       }
     };
 
@@ -101,8 +107,10 @@ const PaymentDashboard = () => {
         );
         setTotalMonthlyRent(rentResponse.data.totalMonthlyRentStudents);
         setTotalMonthlyRentMess(rentResponse.data.totalMonthlyRentMess);
+        setLoading(false)
       } catch (error) {
         console.error("Error fetching total monthly rent:", error);
+        setLoading(false)
       }
     };
 
@@ -126,8 +134,10 @@ const PaymentDashboard = () => {
         );
 
         setTotalDeposit(totalRefundable + totalNonRefundable); // Combined total
+        setLoading(false)
       } catch (error) {
         console.error("Error fetching student deposits:", error);
+        setLoading(false)
       }
     };
     const fetchTotalWaveOff = async () => {
@@ -145,8 +155,10 @@ const PaymentDashboard = () => {
           0
         );
         setTotalWaveOff(totalWaveOffAmount);
+        setLoading(false)
       } catch (error) {
         console.error("Error fetching wave-off data:", error);
+        setLoading(false)
       }
     };
 
@@ -304,6 +316,14 @@ const PaymentDashboard = () => {
   const paymentPendingMess = totalMonthlyRentMess - totalReceivedMess;
   const paymentPendingDisplayMess =
     paymentPendingMess < 0 ? 0 : paymentPendingMess;
+
+    if (loading) {
+      return (
+        <div className="flex items-center justify-center h-screen">
+          <div className="loadingSpinner border-t-2 border-white border-solid rounded-full w-6 h-6 animate-spin"></div>
+        </div>
+      );
+    }
 
   return (
     <div className="p-6 bg-gray-100 min-h-screen">

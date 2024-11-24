@@ -51,11 +51,18 @@ const PropertyDetails = () => {
   };
 
   if (loading) {
-    return <div className="flex items-center justify-center h-screen"><div className="text-lg font-semibold">Loading...</div></div>;
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="loadingSpinner border-t-2 border-white border-solid rounded-full w-6 h-6 animate-spin"></div>
+      </div>
+    );
   }
-
   if (error) {
-    return <div className="flex items-center justify-center h-screen text-red-600 font-bold">{error}</div>;
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div>{error}</div>
+      </div>
+    );
   }
 
   return (
