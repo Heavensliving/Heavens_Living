@@ -56,7 +56,7 @@ const addStudent = async (req, res) => {
       branch: branchName,
       property: propertyId,
       room: room._id,
-      password: hashedPassword
+      password: hashedPassword,
     });
     await student.save();
     room.occupanets.push(student._id);
@@ -166,6 +166,10 @@ const editStudent = async (req, res) => {
         });
         updatedData.room = newRoom._id;
       }
+    }
+
+    if (updatedData.status && updatedData.status === 'Paid') {
+      updatedData.isBlocked = false; // Set isBlocked to false if status is 'paid'
     }
 
     // Update the student's data
@@ -506,9 +510,30 @@ const updateWarningStatus = async (req, res) => {
   }
 };
 
+const updateBlockStatus = async (req, res) => {
+  try {
+    const { studentId } = req.params; // Get student ID from the request parameters
+console.log(studentId)
+    const student = await Student.findById(studentId);
 
+    if (!student) {
+      return res.status(404).json({ message: 'Student not found' });
+    }
+
+    // Toggle the isBlocked field
+    student.isBlocked = !student.isBlocked;
+
+    // Save the updated student document
+    await student.save();
+
+    res.status(200).json({ message: 'Student block status updated successfully', student });
+  } catch (error) {
+    console.error('Error updating block status:', error);
+    res.status(500).json({ message: 'Error updating block status', error });
+  }
+};
 
 
 // Export the functions for use in routes
-module.exports = { addStudent, getAllStudents, editStudent, updateWarningStatus, currentStatus, deleteStudent, vacateStudent, getStudentById, calculateTotalFee, getStudentByStudentId };
+module.exports = { addStudent, getAllStudents, editStudent, updateWarningStatus, updateBlockStatus, currentStatus, deleteStudent, vacateStudent, getStudentById, calculateTotalFee, getStudentByStudentId };
 

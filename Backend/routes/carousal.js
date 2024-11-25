@@ -16,5 +16,4 @@ router.delete('/deleteCarousal/:id', carousalController.deleteCarousal)
 
 router.delete('/deleteImage/:id', carousalController.deleteCarousalImage)
 
-
 module.exports = router;

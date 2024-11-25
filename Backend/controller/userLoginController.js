@@ -50,6 +50,7 @@ const verifyEmail = async (req, res) => {
 const login = async (req, res) => {
   try {
     const { email, password } = req.body;
+    console.log(email,password)
 
     // Check if email exists in the database
     const user = await Student.findOne({ email });
@@ -63,16 +64,17 @@ const login = async (req, res) => {
         message: 'This email is not verified. Please check your email to verify your account before logging in.',
       });
     }
-
     // Check if password is valid
     const isPasswordValid = await bcrypt.compare(password, user.password);
+    console.log(isPasswordValid)
+
     if (!isPasswordValid) {
       return res.status(401).json({ message: 'Invalid credentials.' });
     }
 
     // Generate JWT token
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '15d' });
-
+  
     res.status(200).json({
       message: 'Login successful',
       token,

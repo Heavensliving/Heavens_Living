@@ -3,6 +3,7 @@ const Item = require("../Models/CafeItemModel");
 const crypto = require('crypto');
 const Student = require("../Models/Add_student");
 const OrderByOccupant = require("../Models/cafeOrderByOccupant");
+const { getIo } = require("../socket");
 
 const generateOrderId = () => {
   const randomNumber = crypto.randomInt(100000, 999999);
@@ -208,6 +209,8 @@ const CafeOrderByOccupant = async (req, res, next) => {
     });
     await newOrder.save();
     await Student.findByIdAndUpdate(occupant, { $push: { cafeOrders: newOrder._id } });
+    const io = getIo();  // Use getIo to access the io instance
+    io.emit("orderUpdated", { message: "New order created", order: newOrder });
     res.status(201).json({ message: "Order added successfully", order: newOrder });
   } catch (error) {
     console.error("Error details:", error); // Log the error details
@@ -230,9 +233,9 @@ const getOrderHistory = async (req, res) => {
 };
 
 const changeOrderStatus = async (req, res) => {
-  const { Id } = req.params;
+  const { id } = req.params;
   const { status } = req.body; 
-  console.log(Id, status)
+  console.log(id, status)
 
   const allowedStatuses = ['pending', 'cancelled', 'onGoing', 'delivered'];
 
@@ -244,12 +247,12 @@ const changeOrderStatus = async (req, res) => {
         message: `Invalid status. Allowed values are: ${allowedStatuses.join(', ')}`,
       });
     }
-    const order = await OrderByOccupant.findById(Id)
+    const order = await OrderByOccupant.findById(id)
     console.log(order)
 
     // Find the order by orderId and update the status
     const updatedOrder = await OrderByOccupant.findOneAndUpdate(
-      { Id },
+      { _id:id },
       { status },
       { new: true } // Return the updated document
     );

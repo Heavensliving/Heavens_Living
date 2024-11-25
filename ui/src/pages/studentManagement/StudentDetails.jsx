@@ -153,6 +153,27 @@ const StudentDetails = () => {
     setIsTransactionOpen(true);
   };
 
+  const handleConfirmBlock = async () => {
+    try {
+      // Call the API to block/unblock the student
+      const response = await axios.patch(
+        `${API_BASE_URL}/students/block/${studentId}`,
+        {}, // No body needed, only headers are required
+        {
+          headers: {
+            Authorization: `Bearer ${admin.token}`, // Make sure the token is included
+          },
+        }
+      );
+      if (response.status === 200) {
+        alert('Student block status updated successfully');
+      }
+    } catch (error) {
+      console.error('Error blocking student:', error);
+      alert('Failed to update block status');
+    }
+  };
+  
   return (
     <div className="min-h-screen bg-gray-100 p-4 flex justify-center">
       <div className="bg-white rounded-xl mb-6 w-full max-w-screen-xl">
@@ -208,6 +229,12 @@ const StudentDetails = () => {
                     className="block px-4 py-2 text-gray-800 hover:bg-gray-200"
                   >
                     Issue Warning
+                  </button>
+                  <button
+                    onClick={handleConfirmBlock}
+                    className="block px-4 py-2 text-gray-800 hover:bg-gray-200"
+                  >
+                    Access Block
                   </button>
                 </div>
               )}

@@ -4,6 +4,7 @@ const dotenv = require('dotenv');
 const cors = require('cors');
 const fileUpload = require('express-fileupload');
 const http = require('http');
+const { initializeSocket } = require('./socket.js');
 
 const adminRoutes = require('./routes/admin');
 const studentRoutes = require('./routes/student');
@@ -26,13 +27,15 @@ const CategoryRoutes = require('./routes/Category');
 const CafeLoginRoutes = require('./routes/CafeLogin.js')
 const userRoutes = require('./routes/user.js')
 const roomAllocationRoutes = require('./routes/RoomAllocation.js')
-const carousalRoutes = require('./routes/carousal.js')
+const carousalRoutes = require('./routes/carousal.js');
 
 dotenv.config();
 
 const app = express();
 
 const server = http.createServer(app);
+
+initializeSocket(server);
 
 const allowedOrigins = ['https://heavens-living.onrender.com'];
 

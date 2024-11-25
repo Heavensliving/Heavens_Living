@@ -120,6 +120,7 @@ const addFeePayment = async (req, res) => {
     // Update payment status if fully paid
     if (payingAmount >= totalAmountToPay) {
       updateData.paymentStatus = 'Paid';
+      updateData.isBlocked = false;
     }
 
     await Student.findByIdAndUpdate(_id, updateData, { new: true });
