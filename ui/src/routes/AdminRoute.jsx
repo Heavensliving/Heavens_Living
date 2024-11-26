@@ -59,6 +59,7 @@ import ResetSuccess from '../pages/resetPassword/ResetSuccess.jsx'
 import EmailVerificationSuccess from '../pages/auth/EmailVerificationSuccess.jsx'
 import LinkExpired from '../pages/auth/LinkExpired.jsx'
 import CafeOrders from '../pages/cafeOrders/CafeOrders.jsx'
+import OrderHistory from '../pages/cafeOrders/OrderHistory.jsx'
 
 const AdminRoute = () => {
     return (
@@ -71,6 +72,7 @@ const AdminRoute = () => {
                 <Route path="/email-verification-success" element={<EmailVerificationSuccess />} />
                 <Route path="/link-expired" element={<LinkExpired />} />
                 <Route path="/cafe-order-panel" element={<CafeOrders />} />
+                <Route path="/cafe-order-history" element={<OrderHistory />} />
                 <Route element={<AdminLayout />}>
                     <Route path="/" element={<Dashboard />} />
                     <Route path="/students" element={<StudentManagement />} />

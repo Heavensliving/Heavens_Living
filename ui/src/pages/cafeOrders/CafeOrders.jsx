@@ -5,8 +5,10 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 import { socket } from '../../Utils/socket';
 import notification from '../../assets/WhatsApp Audio 2024-11-25 at 19.03.55_0eb1052f.mp3'
 import { FaBars } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
 
 const CafeOrders = () => {
+  const navigate = useNavigate()
   const [orders, setOrders] = useState([]);
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [showModal, setShowModal] = useState(false);
@@ -30,7 +32,6 @@ const CafeOrders = () => {
         const response = await axios.get(`${API_BASE_URL}/cafeOrder`);
         const today = new Date();
         today.setHours(0, 0, 0, 0); // Set to midnight to ignore time part
-
         const filteredOrders = response.data.filter(order => {
           const orderDate = new Date(order.date); // Assuming 'date' is in ISO format
           orderDate.setHours(0, 0, 0, 0); // Normalize to midnight
@@ -107,7 +108,9 @@ const CafeOrders = () => {
     }
   };
   const totalOrders = orders.length;
-  const totalAmount = orders.reduce((acc, order) => acc + (order.total || 0), 0);
+  // const totalAmount = orders.reduce((acc, order) => acc + (order.total || 0), 0);
+  const deliveredOrders = orders.filter(order => order.status === "delivered");
+  const totalAmountReceived = deliveredOrders.reduce((sum, order) => sum + order.total, 0);
 
   const OrderCard = () => (
     <div className="space-y-4">
@@ -282,7 +285,7 @@ const CafeOrders = () => {
       </header>
 
       {/* Main content */}
-      <div className="mt-10">
+      <div className="mt-14">
         {/* Add a second heading for orders */}
         <h2 className="text-xl font-semibold mb-4 text-center text-gray-700">Today Orders</h2>
 
@@ -290,7 +293,8 @@ const CafeOrders = () => {
         {showTotal && (
           <div className="ml-4 mb-4">
             <h3 className="text-sm">Total Orders Today: {totalOrders}</h3>
-            <h3 className="text-sm">Total Amount Today: ${totalAmount.toFixed(2)}</h3>
+            <h3 className="text-sm">Total Amount Received Today: ₹{totalAmountReceived}</h3>
+            <h3 onClick={()=> navigate('/cafe-order-history')} className="text-sm underline cursor-pointer">Get Order History</h3>
           </div>
         )}
 
@@ -299,7 +303,6 @@ const CafeOrders = () => {
 
         {/* Render Order Cards */}
         <OrderCard />
-
         {/* Render Order Modal if needed */}
         {showModal && selectedOrder && <OrderModal />}
       </div>

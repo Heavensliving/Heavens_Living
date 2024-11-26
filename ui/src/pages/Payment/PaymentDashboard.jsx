@@ -15,7 +15,8 @@ const PaymentDashboard = () => {
   const [totalMonthlyRentMess, setTotalMonthlyRentMess] = useState(0);
   const [totalExpense, setTotalExpense] = useState(0);
   const [totalCommission, setTotalCommission] = useState(0);
-  const [totalDeposit, setTotalDeposit] = useState(0); // Total deposit state
+  const [totalRefundableDeposit, setTotalRefundableDeposit] = useState(0);
+  const [totalNonRefundableDeposit, setTotalNonRefundableDeposit] = useState(0);
   const [totalWaveOff, setTotalWaveOff] = useState(0);
   const [showModal, setShowModal] = useState(false);
   const [showReportModal, setShowReportModal] = useState(false);
@@ -113,33 +114,34 @@ const PaymentDashboard = () => {
         setLoading(false)
       }
     };
-
     const fetchTotalDeposit = async () => {
       if (!admin) return;
       try {
         const studentResponse = await axios.get(`${API_BASE_URL}/students`, {
           headers: { Authorization: `Bearer ${admin.token}` },
         });
-
-        // console.log(studentResponse); //debug statement
-
+    
         // Calculate total refundable and non-refundable deposit
-        const totalRefundable = studentResponse.data.reduce(
+        const totalRefundableDeposit = studentResponse.data.reduce(
           (acc, student) => acc + (student.refundableDeposit || 0),
           0
         );
-        const totalNonRefundable = studentResponse.data.reduce(
+        const totalNonRefundableDeposit = studentResponse.data.reduce(
           (acc, student) => acc + (student.nonRefundableDeposit || 0),
           0
         );
-
-        setTotalDeposit(totalRefundable + totalNonRefundable); // Combined total
-        setLoading(false)
+    
+        // Set them into separate state variables
+        setTotalRefundableDeposit(totalRefundableDeposit); 
+        setTotalNonRefundableDeposit(totalNonRefundableDeposit);
+    
+        setLoading(false);
       } catch (error) {
         console.error("Error fetching student deposits:", error);
-        setLoading(false)
+        setLoading(false);
       }
     };
+    
     const fetchTotalWaveOff = async () => {
       if (!admin) return;
       try {
@@ -434,9 +436,14 @@ const PaymentDashboard = () => {
           </div>
           {/* Total Deposit Card */}
           <div className="p-4 bg-gray-100 text-gray-500 rounded-md ">
-            <p className="text-lg font-semibold">₹{totalDeposit || 0}</p>{" "}
+            <p className="text-lg font-semibold">₹{totalRefundableDeposit || 0}</p>{" "}
             {/* Total Deposit */}
-            <p>Total Deposit</p>
+            <p>Total Refundable Deposit</p>
+          </div>
+          <div className="p-4 bg-gray-100 text-gray-500 rounded-md ">
+            <p className="text-lg font-semibold">₹{totalNonRefundableDeposit || 0}</p>{" "}
+            {/* Total Deposit */}
+            <p>Total Non Refundable Deposit</p>
           </div>
         </div>
       </div>
