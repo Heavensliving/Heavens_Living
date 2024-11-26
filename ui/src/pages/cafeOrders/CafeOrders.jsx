@@ -3,26 +3,32 @@ import axios from 'axios';
 import CheckAuth from '../auth/CheckAuth';
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 import { socket } from '../../Utils/socket';
-import notification from '../../assets/WhatsApp Audio 2024-11-25 at 19.03.55_0eb1052f.mp3'
+// import notification from '../../assets/WhatsApp Audio 2024-11-25 at 19.03.55_0eb1052f.mp3'
 import { FaBars } from 'react-icons/fa';
+import { Howl } from "howler";
 
 const CafeOrders = () => {
   const [orders, setOrders] = useState([]);
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [showModal, setShowModal] = useState(false);
-  const audioRef = React.useRef(null);
+  // const audioRef = React.useRef(null);
   const [showTotal, setShowTotal] = useState(false);
+  const notificationSound = new Howl({
+    src: ["/assets/WhatsApp Audio 2024-11-25 at 19.03.55_0eb1052f.mp3"],
+    preload: true,
+  });
   const toggleTotal = () => {
     setShowTotal((prev) => !prev); // Toggle the visibility
   };
-  const playNotificationSound = () => {
-    if (audioRef.current) {
-      audioRef.current.currentTime = 0;
-      audioRef.current.play().catch((err) => {
-        console.error("Error playing notification sound:", err);
-      });
-    }
-  };
+
+  // const playNotificationSound = () => {
+  //   if (audioRef.current) {
+  //     audioRef.current.currentTime = 0;
+  //     audioRef.current.play().catch((err) => {
+  //       console.error("Error playing notification sound:", err);
+  //     });
+  //   }
+  // };
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -49,7 +55,8 @@ const CafeOrders = () => {
       console.log("Order update received:", data);
 
       const updatedOrder = data.order;
-      playNotificationSound();
+      // playNotificationSound();
+      notificationSound.play(); // Play sound on order update
       const today = new Date();
       const orderDate = new Date(updatedOrder.date);
       if (
@@ -79,6 +86,7 @@ const CafeOrders = () => {
 
   const handleStatusChange = async (Id, newStatus) => {
     try {
+      notificationSound.stop();
       // console.log(Id, newStatus)
       const response = await axios.put(
         `${API_BASE_URL}/cafeOrder/orders/${Id}/status`,
@@ -285,7 +293,7 @@ const CafeOrders = () => {
         )}
 
         {/* Hidden audio element for playing notification sounds */}
-        <audio ref={audioRef} src={notification} preload="auto" />
+        {/* <audio ref={audioRef} src={notification} preload="auto" /> */}
 
         {/* Render Order Cards */}
         <OrderCard />

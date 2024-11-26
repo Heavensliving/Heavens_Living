@@ -333,11 +333,6 @@ const getWaveOffPayments = async (req, res) => {
   try {
     // Find payments where waveOff amount is greater than 0
     const waveOffPayments = await FeePayment.find({ waveOff: { $gt: 0 } });
-
-    if (waveOffPayments.length === 0) {
-      return res.status(404).json({ message: 'No payments with wave-off amounts found' });
-    }
-
     res.status(200).json(waveOffPayments);
   } catch (error) {
     console.error('Error fetching payments with wave-off amounts:', error);

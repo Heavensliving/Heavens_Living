@@ -128,12 +128,7 @@ const getTotalCashCommissionByPropertyId = async (req, res) => {
 };
 const getAllCommissions = async (req, res) => {
   try {
-    const commissions = await Commission.find(); // Fetch all commissions
-
-    if (commissions.length === 0) {
-      return res.status(404).json({ message: 'No commissions found' });
-    }
-
+    const commissions = await Commission.find(); // Fetch all commission
     res.status(200).json(commissions); // Return the list of commissions
   } catch (error) {
     console.error('Error getting all commissions:', error);
