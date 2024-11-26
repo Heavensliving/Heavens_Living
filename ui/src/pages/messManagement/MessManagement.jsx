@@ -22,7 +22,7 @@ function MessManagement() {
     useEffect(() => {
       // Check current time to determine if orders should be displayed
       const now = new Date();
-      const isAfter11PM = now.getHours() >= 14;
+      const isAfter11PM = now.getHours() >= 22;
     
       // Fetch tomorrow's orders if it's after 11 pm
       const fetchOrdersAndAddons = async () => {
