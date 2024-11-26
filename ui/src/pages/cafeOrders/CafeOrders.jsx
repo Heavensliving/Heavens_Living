@@ -79,12 +79,12 @@ const CafeOrders = () => {
 
   const handleStatusChange = async (Id, newStatus) => {
     try {
-      console.log(Id, newStatus)
+      // console.log(Id, newStatus)
       const response = await axios.put(
         `${API_BASE_URL}/cafeOrder/orders/${Id}/status`,
         { status: newStatus }
       );
-      console.log(response.data)
+      // console.log(response.data)
       if (response.data.success) {
         setOrders((prevOrders) =>
           prevOrders.map((order) =>

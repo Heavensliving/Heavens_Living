@@ -49,20 +49,6 @@ const MaintenanceComponent = () => {
     fetchMaintenanceComponent();
   }, []);
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="loadingSpinner border-t-2 border-white border-solid rounded-full w-6 h-6 animate-spin"></div>
-      </div>
-    );
-  }
-  if (error) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <div>{error}</div>
-      </div>
-    );
-  }
 
   return (
     <div className="relative h-screen">

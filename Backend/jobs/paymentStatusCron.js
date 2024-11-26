@@ -1,7 +1,6 @@
 const cron = require('node-cron');
 const Student = require('../Models/Add_student');
 
-// Schedule task to run daily at 12:02 AM
 cron.schedule('0 0 1 * *', async () => {
   try {
     console.log('Running daily payment status and blocking check...');

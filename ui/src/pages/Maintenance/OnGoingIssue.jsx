@@ -72,8 +72,20 @@ const OnGoingIssue = () => {
     setRemark(''); // Reset remark
   };
 
-  if (loading) return <p>Loading...</p>;
-  if (error) return <p>{error}</p>;
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="loadingSpinner border-t-2 border-white border-solid rounded-full w-6 h-6 animate-spin"></div>
+      </div>
+    );
+  }
+  if (error) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div>{error}</div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-white shadow-md rounded-lg p-4 flex flex-col">

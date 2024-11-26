@@ -22,7 +22,7 @@ function MessManagement() {
     useEffect(() => {
       // Check current time to determine if orders should be displayed
       const now = new Date();
-      const isAfter11PM = now.getHours() >= 16;
+      const isAfter11PM = now.getHours() >= 14;
     
       // Fetch tomorrow's orders if it's after 11 pm
       const fetchOrdersAndAddons = async () => {
@@ -32,7 +32,7 @@ function MessManagement() {
             headers: { 'Authorization': `Bearer ${admin.token}` }
           });
           const allOrders = response.data;
-    
+    console.log(allOrders)
           const today = new Date(now);
           const todayDate = today.toISOString().split('T')[0];
     
@@ -41,7 +41,6 @@ function MessManagement() {
             const orderDate = new Date(order.deliverDate);
             return orderDate.toISOString().split('T')[0] === todayDate;
           });
-    
           setTodayAddons(filteredTodayAddons);
     
           if (isAfter11PM) {
@@ -121,7 +120,7 @@ function MessManagement() {
         </div>
       </div>
       {/* Metrics Section */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 mb-6">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 mb-6 mt-4">
         <MetricCard icon={FaUtensils} bgColor="bg-blue-500" title="Total Orders" value={totalTodayOrders} />
        {/* Add clickable div for "Total Add-ons" card */}
        <div onClick={handleAddonsClick} className="cursor-pointer">
@@ -132,7 +131,7 @@ function MessManagement() {
         <MetricCard icon={FaPizzaSlice} bgColor="bg-purple-500" title="Dinner" value={todayDinnerCount} />
       </div>
       {/* Orders Section */}
-      <div className="mt-6 flex-1 flex flex-col">
+      <div className="mt-2 flex-1 flex flex-col">
         <h2 className="text-lg font-semibold text-gray-800 mb-2">Order Details</h2>
         <div className="flex flex-1 space-x-4">
           {/* Received Orders Column */}
@@ -198,7 +197,7 @@ function MessManagement() {
           </div>
 
           {/* Add-on Orders Column */}
-          <div className="flex-1 bg-white p-4 rounded-lg shadow flex flex-col">
+          <div className="flex-1 bg-white p-4 rounded-lg shadow flex flex-col" style={{ maxHeight: '660px', overflowY: 'auto' }}>
             <h3 className="text-gray-600 text-md">Add-on Orders</h3>
             <ul className="list-disc ml-5 mt-2 flex-1">
               {totalTodayAddons === 0 ? (

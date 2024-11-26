@@ -64,17 +64,13 @@ const AdminRoute = () => {
     return (
         <div>
             <Routes>
-
-                {/* <Route path="/" element={<Navigate to="/signin" />} />
-                <Route path="/signin" element={<UserSignInPage />} />
-                <Route path="/signup" element={<UserSignUpPage />} /> */}
                 <Route path="/signup" element={<Signup />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/reset-password/:token" element={<ResetPassword />} />
                 <Route path="/resetSuccess" element={<ResetSuccess />} />
                 <Route path="/email-verification-success" element={<EmailVerificationSuccess />} />
                 <Route path="/link-expired" element={<LinkExpired />} />
-                <Route path="/cafeOrders" element={<CafeOrders />} />
+                <Route path="/cafe-order-panel" element={<CafeOrders />} />
                 <Route element={<AdminLayout />}>
                     <Route path="/" element={<Dashboard />} />
                     <Route path="/students" element={<StudentManagement />} />
@@ -99,35 +95,35 @@ const AdminRoute = () => {
                     <Route path="/edit-room/:id" element={<EditRoom />} />
                     <Route path="/add-staff" element={<AddStaff />} />
                     <Route path="/add-people" element={<AddPeople />} />
-                    <Route path='/editproperty/:propertyId' element={<EditProperty/>} />
-                    <Route path='/editPeople/:id' element={<EditPeople/>}/>
-                    <Route path='/add-maintanence' element={<AddMaintanence/>}/>
-                    <Route path='/meal-history' element={<MealHistory/>}/>
-                    <Route path='/branch-management' element={<BranchManagement/>}/>
-                    <Route path='/add-branch' element={<AddBranch/>}/>
-                    <Route path='/update/:id' element={<EditBranch/>}/>
-                    <Route path='/phase-management/:id' element={<PhaseManagement/>}/>
-                    <Route path='/add-phase/:id' element={<AddPhase/>}/>
-                    <Route path='/updatePhase/:id' element={<EditPhase/>}/>
-                    <Route path='/properties/:id' element={<Property/>}/>
-                    <Route path='/add-property/:id' element={<AddPropertyToPhase/>}/>
-                    <Route path='history' element={<History/>}/>
-                    <Route path="/dailyRent" element={<DailyRentPage/>}/>
-                    <Route path="/AddDailyRent" element={<AddDailyRent />}/>
-                    <Route path="/dailyRent/:id" element={<DailyRentDetails />}/>
-                    <Route path="/dailyRent/edit/:id" element={<EditDailyRentPerson />}/>
-                    <Route path="/payments" element={<PaymentDashboard />}/>
-                    <Route path='/feePayment' element={<FeePayment/>}/>
-                    <Route path='/messOnlyPayment' element={<MessOnlyPayment/>}/>
-                    <Route path='/AddExpense' element={<ExpenseForm/>}/>
-                    <Route path='/paymentReceived' element={<PaymentReceived/>}/> 
-                    <Route path='/expenses' element={<ExpenseTable/>}/> 
-                    <Route path='/AddCommission' element={<CommissionForm/>}/> 
-                    <Route path='/commissions' element={<CommissionTable/>}/> 
-                    <Route path='/paymentPending' element={<PendingPaymentsPage/>}/> 
-                    <Route path='/waveoff' element={<WaveOffPaymentsPage/>}/>
-                    <Route path='/addonPage' element={<AddonPage/>}/>
-                    
+                    <Route path='/editproperty/:propertyId' element={<EditProperty />} />
+                    <Route path='/editPeople/:id' element={<EditPeople />} />
+                    <Route path='/add-maintanence' element={<AddMaintanence />} />
+                    <Route path='/meal-history' element={<MealHistory />} />
+                    <Route path='/branch-management' element={<BranchManagement />} />
+                    <Route path='/add-branch' element={<AddBranch />} />
+                    <Route path='/update/:id' element={<EditBranch />} />
+                    <Route path='/phase-management/:id' element={<PhaseManagement />} />
+                    <Route path='/add-phase/:id' element={<AddPhase />} />
+                    <Route path='/updatePhase/:id' element={<EditPhase />} />
+                    <Route path='/properties/:id' element={<Property />} />
+                    <Route path='/add-property/:id' element={<AddPropertyToPhase />} />
+                    <Route path='history' element={<History />} />
+                    <Route path="/dailyRent" element={<DailyRentPage />} />
+                    <Route path="/AddDailyRent" element={<AddDailyRent />} />
+                    <Route path="/dailyRent/:id" element={<DailyRentDetails />} />
+                    <Route path="/dailyRent/edit/:id" element={<EditDailyRentPerson />} />
+                    <Route path="/payments" element={<PaymentDashboard />} />
+                    <Route path='/feePayment' element={<FeePayment />} />
+                    <Route path='/messOnlyPayment' element={<MessOnlyPayment />} />
+                    <Route path='/AddExpense' element={<ExpenseForm />} />
+                    <Route path='/paymentReceived' element={<PaymentReceived />} />
+                    <Route path='/expenses' element={<ExpenseTable />} />
+                    <Route path='/AddCommission' element={<CommissionForm />} />
+                    <Route path='/commissions' element={<CommissionTable />} />
+                    <Route path='/paymentPending' element={<PendingPaymentsPage />} />
+                    <Route path='/waveoff' element={<WaveOffPaymentsPage />} />
+                    <Route path='/addonPage' element={<AddonPage />} />
+
                 </Route>
 
             </Routes>

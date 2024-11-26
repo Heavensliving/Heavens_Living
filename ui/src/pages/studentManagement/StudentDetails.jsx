@@ -42,7 +42,7 @@ const StudentDetails = () => {
           Authorization: `Bearer ${admin.token}`,
         },
       })
-        .then(res => {setStudent(res.data.result),setWarnings(res.data.result.warningStatus)})
+        .then(res => { setStudent(res.data.result), setWarnings(res.data.result.warningStatus) })
         .catch(err => console.log(err));
     }
   }, [admin?.token, studentId]);
@@ -76,7 +76,7 @@ const StudentDetails = () => {
     course: student.course,
     advanceFee: student.advanceFee,
     nonRefundableDeposit: student.nonRefundableDeposit,
-    refundableDeposit:student.refundableDeposit,
+    refundableDeposit: student.refundableDeposit,
     monthlyRent: student.monthlyRent,
     adharFrontImage: student.adharFrontImage,
     adharBackImage: student.adharBackImage,
@@ -97,7 +97,7 @@ const StudentDetails = () => {
     collegeName: student.collegeName,
     parentOccupation: student.parentOccupation,
     workingPlace: student.workingPlace,
-    waringStatus: student.waringStatus,
+    warningStatus: student.warningStatus,
   };
   // Function to open the modal with the selected image
   const handleImageClick = (imageSrc) => {
@@ -137,7 +137,7 @@ const StudentDetails = () => {
       console.log("Updated Warnings:", updatedWarnings);
       setWarnings(updatedWarnings);
       await axios.put(
-        `${API_BASE_URL}/students/${studentId}/warning`, {warningStatus: updatedWarnings},
+        `${API_BASE_URL}/students/${studentId}/warning`, { warningStatus: updatedWarnings },
         {
           headers: { Authorization: `Bearer ${admin.token}` },
         }
@@ -154,6 +154,7 @@ const StudentDetails = () => {
   };
 
   const handleConfirmBlock = async () => {
+    alert('Are you sure you want to Block the Access ?')
     try {
       // Call the API to block/unblock the student
       const response = await axios.patch(
@@ -173,7 +174,7 @@ const StudentDetails = () => {
       alert('Failed to update block status');
     }
   };
-  
+
   return (
     <div className="min-h-screen bg-gray-100 p-4 flex justify-center">
       <div className="bg-white rounded-xl mb-6 w-full max-w-screen-xl">
@@ -224,12 +225,14 @@ const StudentDetails = () => {
                   >
                     Edit
                   </button>
-                  <button
-                    onClick={handleOpenWarning}
-                    className="block px-4 py-2 text-gray-800 hover:bg-gray-200"
-                  >
-                    Issue Warning
-                  </button>
+                  {studentData.warningStatus !== 3 && (
+                    <button
+                      onClick={handleOpenWarning}
+                      className="block px-4 py-2 text-gray-800 hover:bg-gray-200"
+                    >
+                      Issue Warning
+                    </button>
+                  )}
                   <button
                     onClick={handleConfirmBlock}
                     className="block px-4 py-2 text-gray-800 hover:bg-gray-200"
@@ -290,10 +293,11 @@ const StudentDetails = () => {
                 <InfoItem icon={FaHome} label="Pg/Hostel Name" value={studentData.pgName} />
                 <InfoItem icon={FaBed} label="Stay Type" value={studentData.typeOfStay} />
                 <InfoItem icon={FaDoorOpen} label="Room Type" value={studentData.roomType} />
-                <InfoItem icon={FaCalendarAlt} label="Join Date" value={studentData.joinDate} />
                 <InfoItem icon={FaBed} label="Room No. " value={studentData.roomNo} />
-                <InfoItem icon={FaPiggyBank} label="Non Refundable Deposit " value={studentData.nonRefundableDeposit} />
+                <InfoItem icon={FaRupeeSign} label="Monthly Rent" value={studentData.monthlyRent} />
                 <InfoItem icon={FaRupeeSign} label="Refundable Deposit " value={studentData.refundableDeposit} />
+                <InfoItem icon={FaPiggyBank} label="Non Refundable Deposit " value={studentData.nonRefundableDeposit} />
+                <InfoItem icon={FaCalendarAlt} label="Join Date" value={studentData.joinDate} />
               </div>
             </div>
           </div>
