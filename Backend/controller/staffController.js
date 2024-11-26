@@ -7,7 +7,7 @@ const crypto = require('crypto');
 // Function to generate a unique student ID
 const generateStaffId = () => {
     const randomNumber = crypto.randomInt(1000, 100000); // Generate a random number between 1000 and 9999
-    return `HVNS${randomNumber}`;
+    return `HVNSS${randomNumber}`;
 };
 
 // Create a new staff member

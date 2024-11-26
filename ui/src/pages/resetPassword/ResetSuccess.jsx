@@ -13,7 +13,7 @@ const ResetSuccess = () => {
     <div
       className="flex flex-col justify-center items-center min-h-screen p-6"
       style={{
-        background: 'linear-gradient(to bottom, #0a1f44, #1769e8, #1c2834)', // Matching gradient
+        background: '#631930',
       }}
     >
       {/* App Logo */}

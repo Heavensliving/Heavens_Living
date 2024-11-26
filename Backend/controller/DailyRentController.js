@@ -7,7 +7,7 @@ const Rooms = require('../Models/RoomAllocationModel');
 // Helper function to generate OccupantId
 const generateOccupantId = () => {
   const randomNumbers = crypto.randomInt(10000, 99999); // Generate a random 5-digit number
-  return `HVNSDO${randomNumbers}`; // Prefix with 'HVNSDO'
+  return `HVNDR${randomNumbers}`; // Prefix with 'HVNSDO'
 };
 
 // Add a new DailyRent entry

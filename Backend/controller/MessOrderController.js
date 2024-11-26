@@ -12,7 +12,7 @@ const generateOrderId = () => {
 // Add an order
 const addOrder = async (req, res) => {
   try {
-    const { name, roomNo, contact, mealType, student, property, adOns = [], bookingStatus, deliverDate } = req.body;
+    const { name, roomNo, contact, mealType, student, property, adOns = [], deliverDate } = req.body;
 
     const orderId = generateOrderId();
     const expiryDate = new Date();
@@ -28,7 +28,6 @@ const addOrder = async (req, res) => {
       adOns,
       student,
       property,
-      bookingStatus,
       deliverDate
     });
 
@@ -137,17 +136,25 @@ const deleteOrder = async (req, res) => {
 // Update the status of an order
 const updateOrderStatus = async (req, res) => {
   try {
-    const { status } = req.body;
-    const order = await MessOrder.findById(req.params.id);
+    const { orderId } = req.body; 
+
+    if (!orderId) {
+      return res.status(400).json({ message: 'Order ID is required' });
+    }
+    const order = await MessOrder.findOne({ orderId: orderId });
+
     if (!order) {
       return res.status(404).json({ message: 'Order not found' });
     }
-    order.status = status;
+
+    // Update the status to 'confirmed'
+    order.bookingStatus = 'confirmed';
     const updatedOrder = await order.save();
 
-    res.status(200).json(updatedOrder);
+    return res.status(200).json({ message: 'Order status updated to confirmed', order: updatedOrder });
   } catch (error) {
-    res.status(500).json({ message: 'Error updating order status', error });
+    console.error('Error updating order status:', error);
+    return res.status(500).json({ message: 'Error updating order status', error });
   }
 };
 

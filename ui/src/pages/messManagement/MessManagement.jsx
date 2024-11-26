@@ -15,10 +15,10 @@ function MessManagement() {
   const [expandedOrder, setExpandedOrder] = useState(null);
   const [expandedAddon, setExpandedAddon] = useState(null);
   const [todayOrders, setTodayOrders] = useState([]);
+  const [todayAddons, setTodayAddons] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  
-    // Check current time to determine if orders should be displayed
+
     useEffect(() => {
       // Check current time to determine if orders should be displayed
       const now = new Date();
@@ -34,6 +34,17 @@ function MessManagement() {
             });
             console.log(response.data);
             const allOrders = response.data;
+            const today = new Date(now);
+            const todayDate = today.toISOString().split('T')[0];
+      
+            // Filter orders for today
+            const filteredTodayOrders = allOrders.filter(order => {
+              if (!order.deliverDate) return false;
+              const orderDate = new Date(order.deliverDate);
+              return orderDate.toISOString().split('T')[0] === todayDate;
+            });
+            console.log(filteredTodayOrders)
+            setTodayAddons(filteredTodayOrders);
             const tomorrow = new Date(now);
             tomorrow.setDate(now.getDate() + 1);
             const tomorrowDate = tomorrow.toISOString().split('T')[0];
@@ -68,7 +79,7 @@ function MessManagement() {
   };
   // Today's statistics
   const totalTodayOrders = todayOrders.length;
-  const totalTodayAddons = todayOrders.reduce((acc, order) => acc + order.adOns.length, 0);
+  const totalTodayAddons = todayAddons.reduce((acc, order) => acc + order.adOns.length, 0);
   const todayBreakfastCount = todayOrders.filter(order => order.mealType === 'Breakfast').length;
   const todayLunchCount = todayOrders.filter(order => order.mealType === 'Lunch').length;
   const todayDinnerCount = todayOrders.filter(order => order.mealType === 'Dinner').length;
@@ -81,7 +92,7 @@ function MessManagement() {
     );
   }
   return (
-    <div className="h-screen flex flex-col bg-gray-100 p-6">
+    <div className="min-h-screen flex flex-col bg-gray-100 p-6">
       {/* Button Section */}
       <div className="flex justify-between flex-wrap mb-4">
         {/* Left side buttons */}
@@ -180,11 +191,11 @@ function MessManagement() {
           {/* Add-on Orders Column */}
           <div className="flex-1 bg-white p-4 rounded-lg shadow flex flex-col">
             <h3 className="text-gray-600 text-md">Add-on Orders</h3>
-            <ul className="list-disc ml-5 mt-2 flex-1" style={{ maxHeight: '300px' }}>
+            <ul className="list-disc ml-5 mt-2 flex-1">
               {totalTodayAddons === 0 ? (
                 <li className="text-gray-500 text-center p-3">No add-on orders.</li>
               ) : (
-                todayOrders.flatMap(order =>
+                todayAddons.flatMap(order =>
                   order.adOns.map((addon, index) => (
                     <li
                       key={`${order.orderId}-${index}`}

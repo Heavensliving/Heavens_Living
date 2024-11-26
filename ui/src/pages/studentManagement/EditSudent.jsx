@@ -40,7 +40,6 @@ function EditStudent() {
         studentId: '',
         joinDate: '',
         currentStatus: 'checkedIn',
-        password: '',
         dateOfBirth: '',
         gender: '',
         year: '',
@@ -110,7 +109,6 @@ function EditStudent() {
         { name: 'name', type: 'text', placeholder: 'Name', required: true, label: 'Name' },
         { name: 'gender', type: 'text', placeholder: 'Gender', required: false, label: 'Gender' },
         { name: 'email', type: 'email', placeholder: 'Email', required: true, label: 'Email' },
-        { name: 'password', type: 'password', placeholder: 'Password', required: true, label: 'Password' },
         { name: 'address', type: 'text', placeholder: 'Address', required: false, label: 'Address' },
         { name: 'contactNo', type: 'text', placeholder: 'Contact Number', required: false, label: 'Contact Number' },
         { name: 'dateOfBirth', type: 'date', required: false, label: 'DOB' },
@@ -132,8 +130,8 @@ function EditStudent() {
         },
         { name: 'roomType', type: 'text', placeholder: 'Room Type', required: false, label: 'Room Type' },
         { name: 'roomNo', type: 'text', placeholder: 'Room Number', label: 'Room Number' },
-        { name: 'refundableDeposit', type: 'number', placeholder: 'Refundable Deposit', label: 'Advance Fee', required: true, },
-        { name: 'nonRefundableDeposit', type: 'number', placeholder: 'Non-Refundable Deposit', label: 'Deposit', required: true, },
+        { name: 'refundableDeposit', type: 'number', placeholder: 'Refundable Deposit', label: 'Refundable Deposit', required: false, },
+        { name: 'nonRefundableDeposit', type: 'number', placeholder: 'Non-Refundable Deposit', label: 'Non-Refundable Deposit', required: false, },
         { name: 'monthlyRent', type: 'number', placeholder: 'Monthly Rent', label: 'Rent', required: false, },
         { name: 'referredBy', type: 'text', placeholder: 'Referred By', required: false, label: 'Referred By' },
         { name: 'typeOfStay', type: 'text', placeholder: 'Type of Stay', label: 'Type of Stay', required: false, },
@@ -320,6 +318,7 @@ function EditStudent() {
                                         value={studentData[field.name] || ""}
                                         onChange={handleChange}
                                         required={field.required}
+                                        min='0'
                                     />
                                 )}
                             </div>

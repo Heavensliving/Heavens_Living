@@ -99,7 +99,7 @@ const getStudentById = async (req, res, next) => {
   const studentId = req.params.id;
   let result;
   try {
-    result = await Student.findById(studentId);
+    result = await Student.findById(studentId).select('-password'); 
     if (!result)
       return res.status(404).json({ message: 'Student with the given ID does not exist.' });
 
@@ -168,7 +168,8 @@ const editStudent = async (req, res) => {
       }
     }
 
-    if (updatedData.status && updatedData.status === 'Paid') {
+    if (updatedData.paymentStatus && updatedData.paymentStatus === 'Paid') {
+      console.log('here', updatedData.status)
       updatedData.isBlocked = false; // Set isBlocked to false if status is 'paid'
     }
 
@@ -258,26 +259,26 @@ const deleteStudent = async (req, res) => {
       if (!student) {
         return res.status(404).json({ message: 'Student not found' });
       }
-    
+
       if (student.room) {
         const room = await Rooms.findById(student.room);
         if (room) {
           room.occupanets = room.occupanets.filter(occupantId => occupantId.toString() !== id);
-    
+
           if (room.occupant > 0) {
             room.occupant -= 1;
           }
           if (room.vacantSlot < room.roomCapacity) {
             room.vacantSlot += 1;
           }
-    
+
           await room.save();
         }
       }
-    
+
       return res.status(200).json({ message: 'Student marked as vacated and room updated successfully', student });
     }
-    
+
 
     const student = await Student.findById(id);
     if (!student) {
@@ -513,7 +514,7 @@ const updateWarningStatus = async (req, res) => {
 const updateBlockStatus = async (req, res) => {
   try {
     const { studentId } = req.params; // Get student ID from the request parameters
-console.log(studentId)
+    console.log(studentId)
     const student = await Student.findById(studentId);
 
     if (!student) {

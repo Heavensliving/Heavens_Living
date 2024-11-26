@@ -1,6 +1,7 @@
 import io from 'socket.io-client';
+import { API_BASE_URL_SOCKET } from '../config';
 
-const socket = io(`https://heavens-05p5.onrender.com`, {
+const socket = io(`${API_BASE_URL_SOCKET}`, {
     transports: ['websocket'],  // Force WebSocket transport
   });  // Ensure this matches your backend URL
 

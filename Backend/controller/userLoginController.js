@@ -7,6 +7,7 @@ const { passwordResetTemplate } = require('../utils/emailTemplates');
 require('dotenv').config();
 const SECRET_KEY = process.env.JWT_SECRET
 const FRONTEND_BASE_URL = process.env.FRONTEND_BASE_URL;
+const BACKEND_BASE_URL = process.env.BACKEND_BASE_URL;
 // Transporter for sending emails
 const transporter = nodemailer.createTransport({
   service: 'gmail',
@@ -91,6 +92,7 @@ const login = async (req, res) => {
 const forgotPassword = async (req, res) => {
   try {
     const { email } = req.body;
+    console.log(email)
     const user = await Student.findOne({ email });
     if (!user) {
       return res.status(404).json({ message: 'This email is not registered' });
@@ -110,7 +112,7 @@ const forgotPassword = async (req, res) => {
       { upsert: true, new: true } // Create if not found, return updated document
     );
 
-    const resetLink = `http://192.168.1.79:3000/api/user/reset-password/${resetToken}`;
+    const resetLink = `${BACKEND_BASE_URL}/user/reset-password/${resetToken}`;
     const emailHtml = passwordResetTemplate(resetLink);
     const mailOptions = {
       from: 'www.heavensliving@gmail.com',

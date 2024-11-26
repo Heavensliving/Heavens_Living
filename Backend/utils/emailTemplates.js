@@ -87,7 +87,7 @@ const emailVerificationTemplate = (link) => `
           padding: 10px 20px;
           font-size: 16px;
           color: #ffffff;
-          background-color: ##631930;
+          background-color: #631930;
           text-decoration: none;
           border-radius: 4px;
         }

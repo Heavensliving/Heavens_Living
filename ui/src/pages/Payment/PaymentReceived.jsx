@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import jsPDF from 'jspdf';
@@ -12,6 +13,7 @@ const PaymentReceived = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedMonth, setSelectedMonth] = useState('');
   const [selectedYear, setSelectedYear] = useState('');
+  const [filterOption, setFilterOption] = useState('totalReceived'); // New state for filter option
 
   useEffect(() => {
     const fetchTransactions = async () => {
@@ -28,7 +30,7 @@ const PaymentReceived = () => {
     };
 
     fetchTransactions();
-  }, []);
+  }, [admin]);
 
   const filteredTransactions = transactions.filter(transaction =>
     transaction.name?.toLowerCase().includes(searchTerm.trim().toLowerCase()) ||
@@ -44,22 +46,34 @@ const PaymentReceived = () => {
     return monthMatches && yearMatches;
   });
 
+  // Apply additional filtering based on the selected filter option
+  const finalFilteredTransactions = furtherFilteredTransactions.filter(transaction => {
+    if (filterOption === 'dailyRent') {
+      return transaction.studentId.startsWith('HVNDR');
+    } else if (filterOption === 'messOnly') {
+      return transaction.studentId.startsWith('HVNMP');
+    } else if (filterOption === 'occupants') {
+      return transaction.studentId.startsWith('HVNS');
+    }
+    return true; // For 'totalReceived', show all
+  });
+
   const totalAmount = transactions.reduce(
     (acc, transaction) => acc + (transaction.amountPaid || 0),
     0
   );
 
   // Totals for selected month and year
-  const filteredTotalAmount = furtherFilteredTransactions.reduce(
+  const filteredTotalAmount = finalFilteredTransactions.reduce(
     (acc, transaction) => acc + (transaction.amountPaid || 0),
     0
   );
 
-  const filteredMessPeopleTotal = furtherFilteredTransactions
+  const filteredMessPeopleTotal = finalFilteredTransactions
     .filter(transaction => transaction.messPeople)
     .reduce((acc, transaction) => acc + (transaction.amountPaid || 0), 0);
 
-    const filteredDailyRentTotal = furtherFilteredTransactions
+  const filteredDailyRentTotal = finalFilteredTransactions
     .filter(transaction => transaction.dailyRent)
     .reduce((acc, transaction) => acc + (transaction.amountPaid || 0), 0);
 
@@ -85,7 +99,7 @@ const PaymentReceived = () => {
     doc.autoTable({
       startY: 35,
       head: [['#', 'Name', 'Occupant ID', 'Transaction ID', 'Date', 'Monthly Rent', 'Amount Paid']],
-      body: furtherFilteredTransactions.map((transaction, index) => [
+      body: finalFilteredTransactions.map((transaction, index) => [
         index + 1,
         transaction.name || 'N/A',
         transaction.studentId || 'N/A',
@@ -151,9 +165,23 @@ const PaymentReceived = () => {
         </div>
       </div>
 
+      {/* Filter Dropdown */}
+      <div className="mb-4">
+        <label className="block text-lg mb-1">Select Filter:</label>
+        <select
+          value={filterOption}
+          onChange={(e) => setFilterOption(e.target.value)}
+          className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-400"
+        >
+          <option value="totalReceived">Total Received</option>
+          <option value="dailyRent">Daily Rent</option>
+          <option value="messOnly">Mess Only</option>
+          <option value="occupants">Occupants</option>
+        </select>
+      </div>
+
       <div className="flex flex-col mb-4">
         <div className="flex justify-between w-full items-start">
-          {/* Left-aligned totals */}
           <div>
             <div className="text-sm text-gray-500">
               For Selected Month & Year
@@ -168,19 +196,6 @@ const PaymentReceived = () => {
               Mess Only: <span className="text-gray-700">₹{filteredMessPeopleTotal}</span>
             </div>
           </div>
-
-          {/* Right-aligned totals */}
-          {/* <div className="text-right">
-            <div className="text-lg font-semibold">
-              Total Received: <span className="text-gray-700">₹{totalAmount}</span>
-            </div>
-            <div className="text-lg font-semibold">
-              Daily Rent: <span className="text-gray-700">₹{totalAmount}</span>
-            </div>
-            <div className="text-lg font-semibold">
-              Mess Only: <span className="text-gray-700">₹{messPeopleTotal}</span>
-            </div>
-          </div> */}
         </div>
       </div>
       <table className="min-w-full bg-white border border-gray-300 rounded-lg shadow-md">
@@ -196,8 +211,8 @@ const PaymentReceived = () => {
           </tr>
         </thead>
         <tbody>
-          {furtherFilteredTransactions.length > 0 ? (
-            furtherFilteredTransactions.map((transaction, index) => (
+          {finalFilteredTransactions.length > 0 ? (
+            finalFilteredTransactions.map((transaction, index) => (
               <tr key={transaction.transactionId || index} className="hover:bg-gray-100 transition-colors">
                 <td className="py-2 px-4 border">{index + 1}</td>
                 <td className="py-2 px-4 border">{transaction.name || 'N/A'}</td>

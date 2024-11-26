@@ -15,15 +15,15 @@ const AddonPage = () => {
         const response = await axios.get(`${API_BASE_URL}/messOrder/`, {
           headers: { Authorization: `Bearer ${admin.token}` },
         });
-
+console.log(response.data)
         if (Array.isArray(response.data)) {
           // Get today's date in 'YYYY-MM-DD' format
           const today = new Date().toISOString().split('T')[0];
 
           // Filter orders to include only today's orders
           const todayOrders = response.data.filter(order => {
-            if (!order.date) return false; // Skip if date is missing
-            const orderDate = new Date(order.date);
+            if (!order.deliverDate) return false; // Skip if date is missing
+            const orderDate = new Date(order.deliverDate);
             return !isNaN(orderDate) && orderDate.toISOString().split('T')[0] === today;
           });
 
@@ -107,7 +107,7 @@ const AddonPage = () => {
                     ))}
                   </td>
                   <td className="border border-gray-300 p-2">
-                    {new Date(order.date).toLocaleDateString()}
+                    {new Date(order.deliverDate).toLocaleDateString()}
                   </td>
                 </tr>
               ))}
