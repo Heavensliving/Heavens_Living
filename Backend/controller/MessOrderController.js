@@ -12,7 +12,7 @@ const generateOrderId = () => {
 // Add an order
 const addOrder = async (req, res) => {
   try {
-    const { name, roomNo, contact, mealType, student, property, adOns = [], deliverDate } = req.body;
+    const { name, roomNo, contact, mealType, student, property, adOns = [], deliverDate, status } = req.body;
 
     const orderId = generateOrderId();
     const expiryDate = new Date();
@@ -24,7 +24,7 @@ const addOrder = async (req, res) => {
       roomNo,
       contact,
       mealType,
-      status: false,
+      status,
       adOns,
       student,
       property,
