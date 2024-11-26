@@ -88,11 +88,19 @@ const getAllCafeItem = async (req, res) => {
   }
 };
 
+const getAllCafeItemForApp = async (req, res) => {
 
+  try {
+    // Fetch items from database with applied query, sort, and limit
+    const foodItems = await CafeItemSchema.find()
 
-
-
-
+    // Respond with items and next cursor
+    res.status(200).json({cafeItems: foodItems});
+  } catch (error) {
+    console.error('Error retrieving food items:', error);
+    res.status(500).json({ message: 'Failed to retrieve food items', error: error.message });
+  }
+};
 
 // Update a food item by ItemId
 const updateCafeItem = async (req, res) => {
@@ -240,4 +248,5 @@ module.exports = {
   toggleCafeItemStatus,
   getCafeItemByCode,
   searchCafeItemsByName,
+  getAllCafeItemForApp
 };

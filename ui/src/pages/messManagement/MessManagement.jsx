@@ -25,46 +25,55 @@ function MessManagement() {
       const isAfter11PM = now.getHours() >= 16;
     
       // Fetch tomorrow's orders if it's after 11 pm
-      const fetchOrders = async () => {
+      const fetchOrdersAndAddons = async () => {
         if (!admin) return;
         try {
+          const response = await axios.get(`${API_BASE_URL}/messOrder/`, {
+            headers: { 'Authorization': `Bearer ${admin.token}` }
+          });
+          const allOrders = response.data;
+    
+          const today = new Date(now);
+          const todayDate = today.toISOString().split('T')[0];
+    
+          const filteredTodayAddons = allOrders.filter(order => {
+            if (!order.deliverDate) return false;
+            const orderDate = new Date(order.deliverDate);
+            return orderDate.toISOString().split('T')[0] === todayDate;
+          });
+    
+          setTodayAddons(filteredTodayAddons);
+    
           if (isAfter11PM) {
-            const response = await axios.get(`${API_BASE_URL}/messOrder/`, {
-              headers: { 'Authorization': `Bearer ${admin.token}` }
-            });
-            console.log(response.data);
-            const allOrders = response.data;
-            const today = new Date(now);
-            const todayDate = today.toISOString().split('T')[0];
-      
-            // Filter orders for today
-            const filteredTodayOrders = allOrders.filter(order => {
-              if (!order.deliverDate) return false;
-              const orderDate = new Date(order.deliverDate);
-              return orderDate.toISOString().split('T')[0] === todayDate;
-            });
-            console.log(filteredTodayOrders)
-            setTodayAddons(filteredTodayOrders);
             const tomorrow = new Date(now);
             tomorrow.setDate(now.getDate() + 1);
             const tomorrowDate = tomorrow.toISOString().split('T')[0];
+    
             const filteredTomorrowOrders = allOrders.filter(order => {
               if (!order.deliverDate) return false;
               const orderDate = new Date(order.deliverDate);
               return orderDate.toISOString().split('T')[0] === tomorrowDate;
             });
-            console.log(filteredTomorrowOrders)
+    
             setTodayOrders(filteredTomorrowOrders);
-            setLoading(false); 
+          } else {
+            // Display today's orders if it's not after 11 PM
+            const filteredTodayOrders = allOrders.filter(order => {
+              if (!order.deliverDate) return false;
+              const orderDate = new Date(order.deliverDate);
+              return orderDate.toISOString().split('T')[0] === todayDate;
+            });
+    
+            setTodayOrders(filteredTodayOrders);
           }
         } catch (error) {
-          console.error('Error fetching orders:', error);
-          setLoading(false)
-        }finally {
-          setLoading(false); // Ensure loading stops
+          console.error('Error fetching orders and addons:', error);
+        } finally {
+          setLoading(false);
         }
-      }; 
-      fetchOrders();
+      };
+    
+      fetchOrdersAndAddons();
     }, [admin]);
 
 
