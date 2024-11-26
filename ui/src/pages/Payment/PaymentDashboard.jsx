@@ -434,17 +434,22 @@ const PaymentDashboard = () => {
             <p className="text-lg font-semibold">₹{totalWaveOff || 0}</p>
             <p>Total Waveoff</p>
           </div>
-          {/* Total Deposit Card */}
-          <div className="p-4 bg-gray-100 text-gray-500 rounded-md ">
-            <p className="text-lg font-semibold">₹{totalRefundableDeposit || 0}</p>{" "}
-            {/* Total Deposit */}
-            <p>Total Refundable Deposit</p>
-          </div>
-          <div className="p-4 bg-gray-100 text-gray-500 rounded-md ">
-            <p className="text-lg font-semibold">₹{totalNonRefundableDeposit || 0}</p>{" "}
-            {/* Total Deposit */}
-            <p>Total Non Refundable Deposit</p>
-          </div>
+         {/* Conditionally render based on admin role */}
+{admin.role !== 'propertyAdmin' && (
+  <>
+    <div className="p-4 bg-gray-100 text-gray-500 rounded-md ">
+      <p className="text-lg font-semibold">₹{totalRefundableDeposit || 0}</p>{" "}
+      {/* Total Deposit */}
+      <p>Total Refundable Deposit</p>
+    </div>
+    <div className="p-4 bg-gray-100 text-gray-500 rounded-md ">
+      <p className="text-lg font-semibold">₹{totalNonRefundableDeposit || 0}</p>{" "}
+      {/* Total Deposit */}
+      <p>Total Non Refundable Deposit</p>
+    </div>
+  </>
+)}
+
         </div>
       </div>
       {showModal && (
