@@ -3,7 +3,7 @@ import { FaEdit, FaTrash, FaToggleOn, FaToggleOff } from 'react-icons/fa';
 import axios from 'axios';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import API_BASE_URL from '../../config';
+const API_BASE_URL =import.meta.env.VITE_API_BASE_URL;
 import ConfirmationModal from '../../components/reUsableComponet/ConfirmationModal';
 
 const StaffTable = ({ staffs, onRowClick, onDeleteClick, searchTerm }) => {

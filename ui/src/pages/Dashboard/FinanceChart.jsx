@@ -192,7 +192,6 @@
 // export default CheckAuth(FinanceChart);
 import { useEffect, useState } from 'react';
 import axios from 'axios';
-import API_BASE_URL from '../../config';
 import { useSelector } from 'react-redux';
 import { Bar } from 'react-chartjs-2';
 import { 
@@ -205,6 +204,7 @@ import {
   Legend 
 } from 'chart.js';
 import CheckAuth from '../auth/CheckAuth';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 // Register Chart.js components
 ChartJS.register(

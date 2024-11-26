@@ -4,9 +4,9 @@ import pageConfig from '../../../Utils/navbarUtils';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { adminLogout } from '../../../store/AuthSlice';
-import API_BASE_URL from '../../../config';
 import axios from 'axios';
 import CarousalModal from '../../carousal/CarousalModal'; // Import the CarousalModal
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const Navbar = () => {
     const location = useLocation();

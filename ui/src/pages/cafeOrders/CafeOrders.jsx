@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import CheckAuth from '../auth/CheckAuth';
-import API_BASE_URL from '../../config';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 import { socket } from '../../Utils/socket';
 import notification from '../../assets/WhatsApp Audio 2024-11-25 at 19.03.55_0eb1052f.mp3'
 import { FaBars } from 'react-icons/fa';

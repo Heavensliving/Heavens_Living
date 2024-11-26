@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import API_BASE_URL from '../../config';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import heavenslogo from '../../assets/hAsset 4.png'
 

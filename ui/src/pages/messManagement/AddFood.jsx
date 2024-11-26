@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
-import { FaArrowLeft, FaTrash } from 'react-icons/fa';
+import { FaTrash } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
-import API_BASE_URL from '../../config';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 import axios from 'axios';
 import { useSelector } from 'react-redux';
 

@@ -3,7 +3,7 @@ import axios from 'axios';
 import app from '../../firebase';
 import { getStorage, ref, uploadBytesResumable, getDownloadURL, deleteObject } from "firebase/storage";
 import { useNavigate, useParams } from 'react-router-dom';
-import API_BASE_URL from '../../config';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 import { useSelector } from 'react-redux';
 import CheckAuth from '../auth/CheckAuth';
 import { ToastContainer, toast } from 'react-toastify';

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { FaHamburger, FaArrowLeft, FaTrash, FaEdit } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import API_BASE_URL from '../../config';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 import ConfirmationModal from '../../components/reUsableComponet/ConfirmationModal';
 import { useSelector } from 'react-redux';
 

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import AssignStaffModal from './AssignStaffModal'; 
 import DetailModal from './DetailModal'; 
-import API_BASE_URL from '../../config';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 import { useSelector } from 'react-redux';
 
 const PendingIssue = () => {

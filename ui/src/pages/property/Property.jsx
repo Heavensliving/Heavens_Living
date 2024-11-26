@@ -4,7 +4,7 @@ import axios from 'axios';
 import { FaHome, FaFilter, FaPlus, FaUsers, FaCheck, FaRegCircle } from 'react-icons/fa';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-import API_BASE_URL from '../../config';
+const API_BASE_URL =import.meta.env.VITE_API_BASE_URL;
 
 function Property() {
     const admin = useSelector(store => store.auth.admin);

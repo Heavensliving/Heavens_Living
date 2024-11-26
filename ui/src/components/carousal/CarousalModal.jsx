@@ -226,8 +226,8 @@ import 'react-toastify/dist/ReactToastify.css';
 import { ImageInput } from './ImageInput';
 import { ImagePreview } from './ImagePreview';
 import { CarouselList } from './CarouselList';
-import API_BASE_URL from '../../config';
 import { IoCloseCircleOutline } from "react-icons/io5";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 export const CarouselModal = ({ isOpen, onClose }) => {
   const [carousels, setCarousels] = useState([]);

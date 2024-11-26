@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
-import API_BASE_URL from '../../config';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 import { useSelector } from 'react-redux';
 
 const AddonPage = () => {
@@ -15,7 +15,7 @@ const AddonPage = () => {
         const response = await axios.get(`${API_BASE_URL}/messOrder/`, {
           headers: { Authorization: `Bearer ${admin.token}` },
         });
-console.log(response.data)
+        // console.log(response.data)
         if (Array.isArray(response.data)) {
           // Get today's date in 'YYYY-MM-DD' format
           const today = new Date().toISOString().split('T')[0];

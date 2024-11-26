@@ -6,7 +6,7 @@ import app from "../../firebase";
 import { useSelector } from "react-redux";
 import DailyRentTable from "./DailyRentTable"; // Import the new table component
 import ConfirmationModal from "../../components/reUsableComponet/ConfirmationModal";
-import API_BASE_URL from "../../config";
+const API_BASE_URL =import.meta.env.VITE_API_BASE_URL;
 import CheckAuth from "../auth/CheckAuth";
 
 const storage = getStorage();

@@ -5,7 +5,7 @@ import axios from 'axios';
 import ConfirmationModal from '../../components/reUsableComponet/ConfirmationModal';
 import { ref, deleteObject, getStorage } from 'firebase/storage';
 import StaffTable from './StaffTable';
-import API_BASE_URL from '../../config';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 import SearchAndSort from '../../components/reUsableComponet/SearchAndSort';
 import { useSelector } from 'react-redux';
 import CheckAuth from '../auth/CheckAuth';

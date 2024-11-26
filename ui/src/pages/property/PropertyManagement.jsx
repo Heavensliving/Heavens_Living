@@ -3,7 +3,7 @@ import axios from 'axios';
 import { FaFilter, FaPlus, FaUsers, FaCheck, FaRegCircle, FaCodeBranch, FaLayerGroup, FaBuilding } from 'react-icons/fa';
 import { MdMeetingRoom } from "react-icons/md";
 import { Link, useNavigate } from 'react-router-dom';
-import API_BASE_URL from '../../config';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 import { useSelector } from 'react-redux';
 
 function PropertyManagement() {

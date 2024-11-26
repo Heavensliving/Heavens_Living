@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { FaPhone, FaEnvelope, FaMapMarkerAlt, FaCalendarAlt, FaHeartbeat, FaBook, FaUser, FaBed, FaDoorOpen, FaGraduationCap, FaHome, FaBriefcase, FaEllipsisH, FaBroom, FaRestroom, FaPiggyBank, FaRupeeSign } from 'react-icons/fa';
 import { useSelector } from 'react-redux';
 import axios from 'axios';
-import API_BASE_URL from '../../config';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 import ProfileCircle from '../../components/reUsableComponet/ProfileCircle';
 import IdProof from '../../components/reUsableComponet/IdProof';
 import ImageModal from '../../components/reUsableComponet/ImageModal';

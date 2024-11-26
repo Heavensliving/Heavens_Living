@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { FaTrash, FaSignOutAlt, FaSignInAlt } from 'react-icons/fa';
 import axios from 'axios';
-import API_BASE_URL from '../../config';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 import ConfirmationModal from '../../components/reUsableComponet/ConfirmationModal';
 
 const StudentTable = ({ students, onRowClick, onDelete, onStatusChange, admin }) => {

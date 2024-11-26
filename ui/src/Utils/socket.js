@@ -1,6 +1,5 @@
 import io from 'socket.io-client';
-import { API_BASE_URL_SOCKET } from '../config';
-
+const API_BASE_URL_SOCKET= import.meta.env.VITE_API_BASE_URL_SOCKET
 const socket = io(`${API_BASE_URL_SOCKET}`, {
     transports: ['websocket'],  // Force WebSocket transport
   });  // Ensure this matches your backend URL

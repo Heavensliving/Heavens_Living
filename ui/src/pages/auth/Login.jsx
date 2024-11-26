@@ -3,9 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import { useDispatch } from "react-redux";
 import axios from 'axios';
 import { setAdmin } from '../../store/AuthSlice';
-import API_BASE_URL from '../../config';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
-import heavenslogo from '../../assets/hAsset 4.png'
+import heavenslogo from '../../assets/hAsset 4.png';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const Login = () => {
     const dispatch = useDispatch();

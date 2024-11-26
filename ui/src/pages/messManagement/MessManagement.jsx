@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { FaUtensils, FaConciergeBell, FaCoffee, FaHamburger, FaPizzaSlice, FaAppleAlt, FaPlusCircle, FaUserPlus, FaCheckCircle } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import API_BASE_URL from '../../config';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 import MetricCard from './MetricCard';
 import ActionButton from './ActionButton';
 import ListItem from './ListItem';

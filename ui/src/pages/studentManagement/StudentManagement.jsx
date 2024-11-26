@@ -7,7 +7,7 @@ import SearchAndSort from '../../components/reUsableComponet/SearchAndSort';
 import { FaUser, FaDollarSign, FaCheckCircle, FaSignInAlt, FaSignOutAlt } from 'react-icons/fa';
 import axios from 'axios';
 import { ref, deleteObject, getStorage } from 'firebase/storage';
-import API_BASE_URL from '../../config';
+const API_BASE_URL =import.meta.env.VITE_API_BASE_URL;
 import { useSelector } from 'react-redux';
 import CheckAuth from '../auth/CheckAuth';
 // eslint-disable-next-line no-unused-vars
