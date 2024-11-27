@@ -47,7 +47,7 @@ const QRScanner = () => {
             const response = await axios.put(`${API_BASE_URL}/messOrder/bookingStatus`, {
                 orderId: orderId, // Send the orderId to the backend directly
             }, { headers: { 'Authorization': `Bearer ${admin.token}` } });
-    
+
             if (response.status === 200) {
                 setMessage(response.data.message || 'Order confirmed successfully!');
             } else {
@@ -62,29 +62,29 @@ const QRScanner = () => {
     };
 
     return (
-        <div className="relative w-full h-full bg-gray-100 flex flex-col">
+        <div className="relative w-full h-full bg-side-bar flex flex-col">
             {/* Header Section */}
             <div className="bg-side-bar text-white text-center py-4">
                 <h1 className="text-2xl font-bold">Heavens</h1>
             </div>
-                <p className="text-lg mt-2 text-center">QR Scanner</p>
+            <p className="text-lg mt-2 text-center">QR Scanner</p>
 
             {/* QR Scanner */}
-            <div 
-                id="qr-scanner" 
+            <div
+                id="qr-scanner"
                 style={{
-                    width: '100%', 
+                    width: '100%',
                     height: '60vh',  // Adjust the height here
                     marginBottom: '20px',  // Optional: add space below the scanner
-                    position: 'relative'
+                    position: 'relative',
                 }}
             ></div>
 
             {/* Scan result and message */}
             {scanResult && !loading && (
-                <div className="absolute top-1/4 w-full text-center text-white">
-                    <p className="text-2xl font-bold">{scanResult}</p>
-                    <p className="mt-2 text-lg">{message}</p>
+                <div className="absolute top-1/4 w-full text-center">
+                    <p className="text-2xl font-bold text-white">{scanResult}</p>
+                    <p className="mt-2 text-lg text-green-500">{message}</p>
                 </div>
             )}
 
@@ -96,15 +96,17 @@ const QRScanner = () => {
             )}
 
             {/* Reset Button */}
-            <button
-                className="absolute bottom-4 left-1/2 transform -translate-x-1/2 px-4 py-2 bg-side-bar text-white rounded-md shadow-md mt-6"
-                onClick={() => {
-                    setScanResult('');
-                    setMessage('');
-                }}
-            >
-                Reset Scanner
-            </button>
+            <div className="absolute bottom-4 w-full flex justify-center">
+                <button
+                    className="px-4 py-2 bg-side-bar text-white rounded-md shadow-md"
+                    onClick={() => {
+                        setScanResult('');
+                        setMessage('');
+                    }}
+                >
+                    Reset Scanner
+                </button>
+            </div>
         </div>
     );
 };

@@ -137,18 +137,25 @@ const deleteOrder = async (req, res) => {
 const updateOrderStatus = async (req, res) => {
   try {
     const { orderId } = req.body; 
-    console.log(orderId)
+    console.log(orderId);
 
     if (!orderId) {
       return res.status(400).json({ message: 'Order ID is required' });
     }
+
+    // Find the order by orderId
     const order = await MessOrder.findOne({ orderId: orderId });
 
     if (!order) {
       return res.status(404).json({ message: 'Order not found' });
     }
 
-    // Update the status to 'confirmed'a
+    // Check if the order is already delivered
+    if (order.bookingStatus === 'delivered') {
+      return res.status(400).json({ message: 'Order already delivered' });
+    }
+
+    // Update the status to 'delivered'
     order.bookingStatus = 'delivered';
     const updatedOrder = await order.save();
 
@@ -158,6 +165,7 @@ const updateOrderStatus = async (req, res) => {
     return res.status(500).json({ message: 'Error confirming order', error });
   }
 };
+
 
 const MessOrderController = {
   addOrder,
