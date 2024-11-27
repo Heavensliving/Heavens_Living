@@ -10,44 +10,29 @@ const QRScanner = () => {
 
     const [scanResult, setScanResult] = useState('');
     const [loading, setLoading] = useState(false);
-    const [message, setMessage] = useState(''); // State to store message from backend
-    const [isScanning, setIsScanning] = useState(true); // Control scanning
-    const scannerRef = React.useRef(null); // Keep scanner instance persistent
+    const [message, setMessage] = useState('');  // State to store message from backend
 
     useEffect(() => {
-        // Initialize the QR code scanner once
-        scannerRef.current = new Html5QrcodeScanner("qr-scanner", {
-            fps: 10, // Scan frame rate (frames per second)
+        // Initialize the QR code scanner
+        const scanner = new Html5QrcodeScanner("qr-scanner", {
+            fps: 10,  // Scan frame rate (frames per second)
             qrbox: 250, // Size of the scanning box
         });
 
-        if (isScanning) {
-            scannerRef.current.render(onScanSuccess, onScanError);
-        }
+        // Start the scanner
+        scanner.render(onScanSuccess, onScanError);
 
         // Cleanup the scanner when the component unmounts
         return () => {
-            scannerRef.current.clear();
+            scanner.clear();
         };
-    }, []); // Initialize once
-
-    // Handle scanning toggling
-    useEffect(() => {
-        if (isScanning) {
-            scannerRef.current.render(onScanSuccess, onScanError);
-        } else {
-            scannerRef.current.pause(); // Pause scanning instead of clearing
-        }
-    }, [isScanning]);
+    }, []);
 
     // Callback when a QR code is successfully scanned
     const onScanSuccess = (decodedText) => {
-        if (isScanning) {
-            setIsScanning(false); // Stop scanning after success
-            setScanResult(decodedText); // Update the scan result state
-            console.log(`Scanned Result: ${decodedText}`); // Log the result directly here
-            handleScan(decodedText); // Pass the decodedText directly to handleScan
-        }
+        setScanResult(decodedText);  // Update the scan result state
+        console.log(`Scanned Result: ${decodedText}`);  // Log the result directly here
+        handleScan(decodedText);  // Pass the decodedText directly to handleScan
     };
 
     // Callback when there is an error with the scan
@@ -57,7 +42,7 @@ const QRScanner = () => {
 
     const handleScan = async (orderId) => {
         setLoading(true);
-        console.log("Scanned Order ID:", orderId); // Log the orderId here
+        console.log("Scanned Order ID:", orderId);  // Log the orderId here
         try {
             const response = await axios.put(`${API_BASE_URL}/messOrder/bookingStatus`, {
                 orderId: orderId, // Send the orderId to the backend directly
@@ -89,8 +74,8 @@ const QRScanner = () => {
                 id="qr-scanner"
                 style={{
                     width: '100%',
-                    height: '60vh', // Adjust the height here
-                    marginBottom: '20px', // Optional: add space below the scanner
+                    height: '60vh',  // Adjust the height here
+                    marginBottom: '20px',  // Optional: add space below the scanner
                     position: 'relative',
                 }}
             ></div>
@@ -117,7 +102,6 @@ const QRScanner = () => {
                     onClick={() => {
                         setScanResult('');
                         setMessage('');
-                        setIsScanning(true); // Restart scanning
                     }}
                 >
                     Reset
