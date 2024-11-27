@@ -137,12 +137,9 @@ const deleteOrder = async (req, res) => {
 const updateOrderStatus = async (req, res) => {
   try {
     const { orderId } = req.body; 
-    console.log(orderId);
-
     if (!orderId) {
       return res.status(400).json({ message: 'Order ID is required' });
     }
-
     // Find the order by orderId
     const order = await MessOrder.findOne({ orderId: orderId });
 
