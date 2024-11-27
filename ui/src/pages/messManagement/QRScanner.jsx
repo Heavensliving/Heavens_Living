@@ -67,10 +67,18 @@ const QRScanner = () => {
             <div className="bg-side-bar text-white text-center py-4">
                 <h1 className="text-2xl font-bold">Heavens</h1>
             </div>
-                <p className="text-lg mt-2 text-center">QR scanner</p>
+                <p className="text-lg mt-2">QR Scanner</p>
 
             {/* QR Scanner */}
-            <div id="qr-scanner" style={{ width: '100%', height: '500px' }}></div>
+            <div 
+                id="qr-scanner" 
+                style={{
+                    width: '100%', 
+                    height: '60vh',  // Adjust the height here
+                    marginBottom: '20px',  // Optional: add space below the scanner
+                    position: 'relative'
+                }}
+            ></div>
 
             {/* Scan result and message */}
             {scanResult && !loading && (
