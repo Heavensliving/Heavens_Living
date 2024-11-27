@@ -70,7 +70,7 @@ const QRScanner = () => {
                 <p className="text-lg mt-2 text-center">QR scanner</p>
 
             {/* QR Scanner */}
-            <div id="qr-scanner" style={{ width: '100%', height: '50vh' }}></div>
+            <div id="qr-scanner" style={{ width: '100%', height: '500px' }}></div>
 
             {/* Scan result and message */}
             {scanResult && !loading && (
@@ -89,7 +89,7 @@ const QRScanner = () => {
 
             {/* Reset Button */}
             <button
-                className="absolute bottom-4 left-1/2 transform -translate-x-1/2 px-4 py-2 bg-blue-600 text-white rounded-md shadow-md focus:ring-2 focus:ring-blue-300"
+                className="absolute bottom-4 left-1/2 transform -translate-x-1/2 px-4 py-2 bg-side-bar text-white rounded-md shadow-md"
                 onClick={() => {
                     setScanResult('');
                     setMessage('');
