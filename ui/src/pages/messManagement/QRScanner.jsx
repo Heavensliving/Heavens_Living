@@ -1,15 +1,39 @@
 import React, { useState } from 'react';
 import QrScanner from 'react-qr-scanner';
+import axios from 'axios'; // Import Axios
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const QRScanner = () => {
   const [scanResult, setScanResult] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleScan = (data) => {
+  const handleScan = async (data) => {
     if (data) {
-      setScanResult(data.text || 'No Data Found');
-      console.log(`Scanned Data: ${data.text}`);
-      // Make an API call here with the scanned data
+      const scannedData = data.text || 'No Data Found';
+      setScanResult(scannedData);
+      console.log(`Scanned Data: ${scannedData}`);
+
+      // Make an API call with Axios
+      setLoading(true);
+      try {
+        const response = await axios.put(`${API_BASE_URL}/bookingStatus`, {
+          bookingId: scannedData, // Sending the scanned booking ID
+        });
+
+        if (response.status === 200) {
+          console.log('API Response:', response.data);
+          alert('Order confirmed successfully!');
+        } else {
+          console.error('API Error:', response.data);
+          alert(`Error: ${response.data.message || 'Failed to confirm order'}`);
+        }
+      } catch (apiError) {
+        console.error('Network/API Error:', apiError);
+        alert('Network error while confirming order.');
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
@@ -23,6 +47,10 @@ const QRScanner = () => {
     width: 320,
   };
 
+  const videoConstraints = {
+    facingMode: 'environment', // Use the back camera
+  };
+
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">
       <h1 className="text-2xl font-bold mb-6 text-gray-800 text-center">
@@ -34,6 +62,7 @@ const QRScanner = () => {
           style={previewStyle}
           onError={handleError}
           onScan={handleScan}
+          videoConstraints={videoConstraints}
           className="w-full"
         />
       </div>
@@ -46,6 +75,11 @@ const QRScanner = () => {
         <p className="mt-4 text-lg font-medium text-red-600 text-center">
           {error}
         </p>
+      )}
+      {loading && (
+        <div className="mt-4 text-lg font-medium text-blue-600 text-center">
+          Processing...
+        </div>
       )}
       <button
         className="mt-6 px-4 py-2 bg-blue-600 text-white rounded-md shadow-md focus:ring-2 focus:ring-blue-300"
