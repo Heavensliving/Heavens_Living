@@ -1,5 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { BrowserMultiFormatReader } from '@zxing/library';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
@@ -9,35 +8,32 @@ const QRScanner = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const videoRef = useRef(null);
-  const codeReader = useRef(new BrowserMultiFormatReader());
 
   useEffect(() => {
-    const startScanner = async () => {
+    // Function to check camera access
+    const checkCameraAccess = async () => {
       try {
-        // Start scanning using the back camera
-        await codeReader.current.decodeFromVideoDevice(
-          'environment', // Back camera (environment-facing)
-          videoRef.current,
-          (result, err) => {
-            if (result) {
-              handleScan(result.getText());
-            }
-            if (err) {
-              handleError(err);
-            }
-          }
-        );
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: 'environment' }, // Back camera
+        });
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+        }
       } catch (err) {
-        setError('Camera not accessible');
-        console.error(err);
+        console.error('Camera access error:', err);
+        setError('Camera not accessible. Please check permissions or device.');
       }
     };
 
-    startScanner();
+    checkCameraAccess();
 
     return () => {
-      // Clean up and stop scanner on unmount
-      codeReader.current.reset();
+      // Stop the camera when component is unmounted
+      if (videoRef.current) {
+        const stream = videoRef.current.srcObject;
+        const tracks = stream?.getTracks();
+        tracks?.forEach((track) => track.stop());
+      }
     };
   }, []);
 
@@ -45,11 +41,10 @@ const QRScanner = () => {
     setScanResult(scannedData);
     console.log(`Scanned Data: ${scannedData}`);
 
-    // Make an API call with Axios
     setLoading(true);
     try {
       const response = await axios.put(`${API_BASE_URL}/bookingStatus`, {
-        bookingId: scannedData, // Sending the scanned booking ID
+        bookingId: scannedData,
       });
 
       if (response.status === 200) {
@@ -67,16 +62,9 @@ const QRScanner = () => {
     }
   };
 
-  const handleError = (err) => {
-    setError('QR Scanner Error: Unable to read QR code');
-    console.error(err);
-  };
-
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">
-      <h1 className="text-2xl font-bold mb-6 text-gray-800 text-center">
-        Confirm Your Order
-      </h1>
+      <h1 className="text-2xl font-bold mb-6 text-gray-800 text-center">Confirm Your Order</h1>
       <div className="w-full max-w-sm bg-white p-4 rounded-lg shadow-lg">
         <video
           ref={videoRef}
@@ -93,9 +81,7 @@ const QRScanner = () => {
         </p>
       )}
       {error && (
-        <p className="mt-4 text-lg font-medium text-red-600 text-center">
-          {error}
-        </p>
+        <p className="mt-4 text-lg font-medium text-red-600 text-center">{error}</p>
       )}
       {loading && (
         <div className="mt-4 text-lg font-medium text-blue-600 text-center">
