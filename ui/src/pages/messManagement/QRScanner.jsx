@@ -42,8 +42,8 @@ const QRScanner = () => {
   const handleScan = async (scannedData) => {
     setLoading(true);
     try {
-      // Replace the fetch API with axios
-      const response = await axios.put(`${process.env.VITE_API_BASE_URL}/bookingStatus`, {
+      console.log(scannedData)
+      const response = await axios.put(`${process.env.VITE_API_BASE_URL}/messOrder/bookingStatus`, {
         orderId: scannedData,
       });
 
