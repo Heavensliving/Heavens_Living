@@ -47,8 +47,11 @@ const QRScanner = () => {
     width: 320,
   };
 
+  // Ensure you're using the back camera (environment-facing)
   const videoConstraints = {
-    facingMode: 'environment', // Use the back camera
+    facingMode: {
+      exact: 'environment', // This should force the back camera
+    },
   };
 
   return (
@@ -62,7 +65,7 @@ const QRScanner = () => {
           style={previewStyle}
           onError={handleError}
           onScan={handleScan}
-          videoConstraints={videoConstraints}
+          videoConstraints={videoConstraints} // Pass the constraints to use back camera
           className="w-full"
         />
       </div>
