@@ -145,8 +145,10 @@ const updateOrderStatus = async (req, res) => {
 
     // Find the order by orderId
     const order = await MessOrder.findOne({ orderId: orderId });
+    console.log(order)
 
     if (!order) {
+      console.log('order not found')
       return res.status(404).json({ message: 'Order not found' });
     }
 
