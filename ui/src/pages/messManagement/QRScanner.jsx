@@ -62,7 +62,7 @@ const QRScanner = () => {
     };
 
     return (
-        <div className="relative w-full h-full bg-side-bar flex flex-col">
+        <div className="relative w-full h-full flex flex-col">
             {/* Header Section */}
             <div className="bg-side-bar text-white text-center py-4">
                 <h1 className="text-2xl font-bold">Heavens</h1>
@@ -96,7 +96,7 @@ const QRScanner = () => {
             )}
 
             {/* Reset Button */}
-            <div className="absolute bottom-4 w-full flex justify-center">
+            <div className="absolute bottom-1 w-full flex justify-center">
                 <button
                     className="px-4 py-2 bg-side-bar text-white rounded-md shadow-md"
                     onClick={() => {
@@ -104,7 +104,7 @@ const QRScanner = () => {
                         setMessage('');
                     }}
                 >
-                    Reset Scanner
+                    Reset
                 </button>
             </div>
         </div>
