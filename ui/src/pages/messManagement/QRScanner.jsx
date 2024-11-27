@@ -11,7 +11,7 @@ const QRScanner = () => {
     const [scanResult, setScanResult] = useState('');
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState(''); // State to store message from backend
-    const [isScanning, setIsScanning] = useState(true); // Control scanning state
+    const [isHandlingScan, setIsHandlingScan] = useState(false); // Flag for managing scan handling
 
     useEffect(() => {
         // Initialize the QR code scanner
@@ -20,28 +20,26 @@ const QRScanner = () => {
             qrbox: 250, // Size of the scanning box
         });
 
-        // Start the scanner if scanning is enabled
-        if (isScanning) {
-            scanner.render(onScanSuccess, onScanError);
-        }
+        // Start the scanner
+        scanner.render(onScanSuccess, onScanError);
 
         // Cleanup the scanner when the component unmounts
         return () => {
             scanner.clear();
         };
-    }, [isScanning]); // Reinitialize the scanner when isScanning changes
+    }, []);
 
     // Callback when a QR code is successfully scanned
     const onScanSuccess = (decodedText) => {
-        if (isScanning) {
-            setScanResult(decodedText); // Update the scan result state
-            setIsScanning(false); // Pause scanning
+        if (!isHandlingScan) {
+            setIsHandlingScan(true); // Prevent further scans during handling
+            setScanResult(decodedText);
             console.log(`Scanned Result: ${decodedText}`);
-            handleScan(decodedText); // Pass the decodedText directly to handleScan
+            handleScan(decodedText);
 
-            // Resume scanning after a delay (e.g., 3 seconds)
+            // Allow further scans after a delay (e.g., 3 seconds)
             setTimeout(() => {
-                setIsScanning(true);
+                setIsHandlingScan(false);
             }, 3000); // Adjust the delay as needed
         }
     };
@@ -107,18 +105,18 @@ const QRScanner = () => {
             )}
 
             {/* Reset Button */}
-            <div className="absolute bottom-1 w-full flex justify-center">
+            <div className="w-full flex justify-center mt-6">
                 <button
                     className="px-4 py-2 bg-side-bar text-white rounded-md shadow-md"
                     onClick={() => {
                         setScanResult('');
                         setMessage('');
-                        setIsScanning(true); // Restart scanning
                     }}
                 >
                     Reset
                 </button>
             </div>
+
         </div>
     );
 };
