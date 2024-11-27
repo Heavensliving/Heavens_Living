@@ -70,7 +70,7 @@ const QRScanner = () => {
                 <p className="text-lg mt-2 text-center">QR scanner</p>
 
             {/* QR Scanner */}
-            <div id="qr-scanner" style={{ width: '100%', height: '85vh' }}></div>
+            <div id="qr-scanner" style={{ width: '100%', height: '50vh' }}></div>
 
             {/* Scan result and message */}
             {scanResult && !loading && (
