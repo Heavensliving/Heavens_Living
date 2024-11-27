@@ -67,7 +67,7 @@ const QRScanner = () => {
             <div className="bg-side-bar text-white text-center py-4">
                 <h1 className="text-2xl font-bold">Heavens</h1>
             </div>
-                <p className="text-lg mt-2">QR Scanner</p>
+                <p className="text-lg mt-2 text-center">QR Scanner</p>
 
             {/* QR Scanner */}
             <div 
@@ -97,7 +97,7 @@ const QRScanner = () => {
 
             {/* Reset Button */}
             <button
-                className="absolute bottom-4 left-1/2 transform -translate-x-1/2 px-4 py-2 bg-side-bar text-white rounded-md shadow-md"
+                className="absolute bottom-4 left-1/2 transform -translate-x-1/2 px-4 py-2 bg-side-bar text-white rounded-md shadow-md mt-6"
                 onClick={() => {
                     setScanResult('');
                     setMessage('');
