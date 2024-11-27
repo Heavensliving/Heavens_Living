@@ -58,7 +58,7 @@ const MessOrderHistory = () => {
                 <td className="border p-2">{order.roomNo}</td>
                 <td className="border p-2">{order.contact}</td>
                 <td className="border p-2">{order.mealType}</td>
-                <td className="border p-2">{order.status ? 'Completed' : 'Pending'}</td>
+                <td className="border p-2">{order.bookingStatus}</td>
                 <td className="border p-2">{new Date(order.bookingDate).toLocaleDateString('en-GB')}</td>
                 <td className="border p-2">
                   {order.adOns.length > 0

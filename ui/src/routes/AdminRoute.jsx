@@ -60,6 +60,7 @@ import EmailVerificationSuccess from '../pages/auth/EmailVerificationSuccess.jsx
 import LinkExpired from '../pages/auth/LinkExpired.jsx'
 import CafeOrders from '../pages/cafeOrders/CafeOrders.jsx'
 import OrderHistory from '../pages/cafeOrders/OrderHistory.jsx'
+import QRScanner from '../pages/messManagement/QRScanner.jsx'
 
 const AdminRoute = () => {
     return (
@@ -73,6 +74,7 @@ const AdminRoute = () => {
                 <Route path="/link-expired" element={<LinkExpired />} />
                 <Route path="/cafe-order-panel" element={<CafeOrders />} />
                 <Route path="/cafe-order-history" element={<OrderHistory />} />
+                <Route path="/qr-scanner" element={<QRScanner />} />
                 <Route element={<AdminLayout />}>
                     <Route path="/" element={<Dashboard />} />
                     <Route path="/students" element={<StudentManagement />} />

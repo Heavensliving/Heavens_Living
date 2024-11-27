@@ -99,7 +99,7 @@ const AddonPage = () => {
                   <td className="border border-gray-300 p-2">{order.contact}</td>
                   <td className="border border-gray-300 p-2">{order.mealType}</td>
                   <td className="border border-gray-300 p-2">
-                    {order.status ? 'Active' : 'Inactive'}
+                    {order.bookingStatus}
                   </td>
                   <td className="border border-gray-300 p-2">
                     {order.adOns.map(addon => (

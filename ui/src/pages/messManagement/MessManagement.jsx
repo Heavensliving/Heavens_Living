@@ -47,24 +47,31 @@ function MessManagement() {
             const tomorrow = new Date(now);
             tomorrow.setDate(now.getDate() + 1);
             const tomorrowDate = tomorrow.toISOString().split('T')[0];
-    
             const filteredTomorrowOrders = allOrders.filter(order => {
               if (!order.deliverDate) return false;
               const orderDate = new Date(order.deliverDate);
-              return orderDate.toISOString().split('T')[0] === tomorrowDate;
+              return (
+                orderDate.toISOString().split('T')[0] === tomorrowDate &&
+                (!order.adOns || order.adOns.length === 0) // Check if adOns is empty or not present
+              );
             });
-    
+          
             setTodayOrders(filteredTomorrowOrders);
           } else {
-            // Display today's orders if it's not after 11 PM
+            const today = new Date(now);
+            const todayDate = today.toISOString().split('T')[0];
             const filteredTodayOrders = allOrders.filter(order => {
               if (!order.deliverDate) return false;
               const orderDate = new Date(order.deliverDate);
-              return orderDate.toISOString().split('T')[0] === todayDate;
+              return (
+                orderDate.toISOString().split('T')[0] === todayDate &&
+                (!order.adOns || order.adOns.length === 0) // Check if adOns is empty or not present
+              );
             });
-    
+            console.log(filteredTodayOrders);
             setTodayOrders(filteredTodayOrders);
           }
+          
         } catch (error) {
           console.error('Error fetching orders and addons:', error);
         } finally {
