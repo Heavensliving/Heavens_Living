@@ -54,8 +54,8 @@ const QRScanner = () => {
                 setMessage('Error: Failed to confirm order');
             }
         } catch (error) {
-            console.error('Network error:', error);
-            setMessage('Network error while confirming order');
+            console.error('Network error:', error.response || error.message || error);
+            setMessage(error.response?.data?.message || 'Network error while confirming order');
         } finally {
             setLoading(false);
         }
