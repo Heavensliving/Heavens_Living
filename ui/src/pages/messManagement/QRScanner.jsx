@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios'; // Import Axios
 import { Html5QrcodeScanner } from 'html5-qrcode';
 import { useSelector } from 'react-redux';
@@ -10,7 +10,6 @@ const QRScanner = () => {
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState('');  // State to store message from backend
-    const qrCodeRef = useRef(null); // To hold the scanner reference
 
     useEffect(() => {
         // Initialize the QR code scanner
@@ -30,10 +29,9 @@ const QRScanner = () => {
 
     // Callback when a QR code is successfully scanned
     const onScanSuccess = (decodedText) => {
-        setScanResult(decodedText);
-        console.log(`Scanned Result: ${decodedText}`);
-        // Process the scanned data, for example, API call
-        handleScan();
+        setScanResult(decodedText);  // Update the scan result state
+        console.log(`Scanned Result: ${decodedText}`);  // Log the result directly here
+        handleScan(decodedText);  // Pass the decodedText directly to handleScan
     };
 
     // Callback when there is an error with the scan
@@ -42,17 +40,15 @@ const QRScanner = () => {
         setError(errorMessage);
     };
 
-    const handleScan = async () => {
+    const handleScan = async (orderId) => {
         setLoading(true);
+        console.log("Scanned Order ID:", orderId);  // Log the orderId here
         try {
-            console.log(scanResult)
             const response = await axios.put(`${API_BASE_URL}/messOrder/bookingStatus`, {
-                orderId: scanResult,
-            },
-                { headers: { 'Authorization': `Bearer ${admin.token}` } });
-
+                orderId: orderId, // Send the orderId to the backend directly
+            }, { headers: { 'Authorization': `Bearer ${admin.token}` } });
+    
             if (response.status === 200) {
-                // Set the message from the backend
                 setMessage(response.data.message || 'Order confirmed successfully!');
             } else {
                 setMessage('Error: Failed to confirm order');
@@ -64,7 +60,7 @@ const QRScanner = () => {
             setLoading(false);
         }
     };
-
+    
     return (
         <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">
             <h1 className="text-2xl font-bold mb-6 text-gray-800 text-center">Confirm Your Order</h1>
