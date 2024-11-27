@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios'; // Import Axios
 import { Html5QrcodeScanner } from 'html5-qrcode';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const QRScanner = () => {
   const [scanResult, setScanResult] = useState('');
@@ -26,11 +27,11 @@ const QRScanner = () => {
   }, []);
 
   // Callback when a QR code is successfully scanned
-  const onScanSuccess = (decodedText, decodedResult) => {
+  const onScanSuccess = (decodedText) => {
     setScanResult(decodedText);
     console.log(`Scanned Result: ${decodedText}`);
     // Process the scanned data, for example, API call
-    handleScan(decodedText);
+    handleScan();
   };
 
   // Callback when there is an error with the scan
@@ -39,12 +40,12 @@ const QRScanner = () => {
     setError(errorMessage);
   };
 
-  const handleScan = async (scannedData) => {
+  const handleScan = async () => {
     setLoading(true);
     try {
-      console.log(scannedData)
-      const response = await axios.put(`${process.env.VITE_API_BASE_URL}/messOrder/bookingStatus`, {
-        orderId: scannedData,
+      console.log(scanResult)
+      const response = await axios.put(`${API_BASE_URL}/messOrder/bookingStatus`, {
+        orderId: scanResult,
       });
 
       if (response.status === 200) {
@@ -90,7 +91,7 @@ const QRScanner = () => {
         onClick={() => {
           setScanResult('');
           setError('');
-          setMessage('');  // Reset message
+          setMessage(''); 
         }}
       >
         Reset Scanner
