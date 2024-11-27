@@ -10,41 +10,43 @@ const QRScanner = () => {
 
     const [scanResult, setScanResult] = useState('');
     const [loading, setLoading] = useState(false);
-    const [message, setMessage] = useState(''); // State to store message from backend
-    const [isHandlingScan, setIsHandlingScan] = useState(false); // Flag for managing scan handling
+    const [message, setMessage] = useState('');
+    const [scanner, setScanner] = useState(null); // To control the scanner
 
     useEffect(() => {
-        // Initialize the QR code scanner
-        const scanner = new Html5QrcodeScanner("qr-scanner", {
+        const qrScanner = new Html5QrcodeScanner("qr-scanner", {
             fps: 10, // Scan frame rate (frames per second)
             qrbox: 250, // Size of the scanning box
         });
 
-        // Start the scanner
-        scanner.render(onScanSuccess, onScanError);
+        // Save the scanner instance to state for control
+        setScanner(qrScanner);
 
-        // Cleanup the scanner when the component unmounts
+        qrScanner.render(onScanSuccess, onScanError);
+
+        // Cleanup on component unmount
         return () => {
-            scanner.clear();
+            qrScanner.clear();
         };
     }, []);
 
-    // Callback when a QR code is successfully scanned
-    const onScanSuccess = (decodedText) => {
-        if (!isHandlingScan) {
-            setIsHandlingScan(true); // Prevent further scans during handling
-            setScanResult(decodedText);
-            console.log(`Scanned Result: ${decodedText}`);
-            handleScan(decodedText);
-
-            // Allow further scans after a delay (e.g., 3 seconds)
-            setTimeout(() => {
-                setIsHandlingScan(false);
-            }, 3000); // Adjust the delay as needed
+    const onScanSuccess = async (decodedText) => {
+        if (scanner) {
+            scanner.pause(); // Pause scanning to process the result
         }
+
+        setScanResult(decodedText);
+        console.log(`Scanned Result: ${decodedText}`);
+        await handleScan(decodedText);
+
+        // Resume scanning after 3 seconds
+        setTimeout(() => {
+            if (scanner) {
+                scanner.resume();
+            }
+        }, 3000);
     };
 
-    // Callback when there is an error with the scan
     const onScanError = (errorMessage) => {
         console.error('QR Scan error:', errorMessage);
     };
@@ -83,7 +85,7 @@ const QRScanner = () => {
                 id="qr-scanner"
                 style={{
                     width: '100%',
-                    height: '60vh', // Adjust the height here
+                    height: '60vh',
                     marginBottom: '20px',
                     position: 'relative',
                 }}
@@ -105,18 +107,20 @@ const QRScanner = () => {
             )}
 
             {/* Reset Button */}
-            <div className="w-full flex justify-center mt-6">
+            <div className="relative w-full flex justify-center mt-4">
                 <button
                     className="px-4 py-2 bg-side-bar text-white rounded-md shadow-md"
                     onClick={() => {
                         setScanResult('');
                         setMessage('');
+                        if (scanner) {
+                            scanner.resume(); // Ensure scanner is resumed on reset
+                        }
                     }}
                 >
                     Reset
                 </button>
             </div>
-
         </div>
     );
 };
