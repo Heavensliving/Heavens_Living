@@ -137,6 +137,7 @@ const deleteOrder = async (req, res) => {
 const updateOrderStatus = async (req, res) => {
   try {
     const { orderId } = req.body; 
+    console.log(orderId)
 
     if (!orderId) {
       return res.status(400).json({ message: 'Order ID is required' });
@@ -147,14 +148,14 @@ const updateOrderStatus = async (req, res) => {
       return res.status(404).json({ message: 'Order not found' });
     }
 
-    // Update the status to 'confirmed'
-    order.bookingStatus = 'confirmed';
+    // Update the status to 'confirmed'a
+    order.bookingStatus = 'delivered';
     const updatedOrder = await order.save();
 
-    return res.status(200).json({ message: 'Order status updated to confirmed', order: updatedOrder });
+    return res.status(200).json({ message: 'Order confirmed', order: updatedOrder });
   } catch (error) {
     console.error('Error updating order status:', error);
-    return res.status(500).json({ message: 'Error updating order status', error });
+    return res.status(500).json({ message: 'Error confirming order', error });
   }
 };
 

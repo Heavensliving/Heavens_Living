@@ -1,10 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
+import axios from 'axios'; // Import Axios
 import { Html5QrcodeScanner } from 'html5-qrcode';
 
 const QRScanner = () => {
   const [scanResult, setScanResult] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState('');  // State to store message from backend
   const qrCodeRef = useRef(null); // To hold the scanner reference
 
   useEffect(() => {
@@ -40,22 +42,20 @@ const QRScanner = () => {
   const handleScan = async (scannedData) => {
     setLoading(true);
     try {
-      // Make an API request with the scanned data
-      const response = await fetch(`${process.env.VITE_API_BASE_URL}/bookingStatus`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ bookingId: scannedData }),
+      // Replace the fetch API with axios
+      const response = await axios.put(`${process.env.VITE_API_BASE_URL}/bookingStatus`, {
+        orderId: scannedData,
       });
 
-      if (response.ok) {
-        console.log('Order confirmed successfully!');
-        alert('Order confirmed successfully!');
+      if (response.status === 200) {
+        // Set the message from the backend
+        setMessage(response.data.message || 'Order confirmed successfully!');
       } else {
-        alert('Error: Failed to confirm order');
+        setMessage('Error: Failed to confirm order');
       }
     } catch (error) {
       console.error('Network error:', error);
-      alert('Network error while confirming order');
+      setMessage('Network error while confirming order');
     } finally {
       setLoading(false);
     }
@@ -80,11 +80,17 @@ const QRScanner = () => {
           Processing...
         </div>
       )}
+      {message && (
+        <div className="mt-4 text-lg font-medium text-center">
+          <p>{message}</p>
+        </div>
+      )}
       <button
         className="mt-6 px-4 py-2 bg-blue-600 text-white rounded-md shadow-md focus:ring-2 focus:ring-blue-300"
         onClick={() => {
           setScanResult('');
           setError('');
+          setMessage('');  // Reset message
         }}
       >
         Reset Scanner
