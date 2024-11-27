@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios'; // Import Axios
+import axios from 'axios';
 import { Html5QrcodeScanner } from 'html5-qrcode';
 import { useSelector } from 'react-redux';
 
@@ -11,36 +11,35 @@ const QRScanner = () => {
     const [scanResult, setScanResult] = useState('');
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState('');
-    const [scanner, setScanner] = useState(null); // To control the scanner
+    const [scanner, setScanner] = useState(null);
+    const [isPaused, setIsPaused] = useState(false); // To track if scanner is paused
 
     useEffect(() => {
         const qrScanner = new Html5QrcodeScanner("qr-scanner", {
-            fps: 10, // Scan frame rate (frames per second)
-            qrbox: 250, // Size of the scanning box
+            fps: 10,
+            qrbox: 250,
         });
 
-        // Save the scanner instance to state for control
         setScanner(qrScanner);
-
         qrScanner.render(onScanSuccess, onScanError);
 
-        // Cleanup on component unmount
         return () => {
             qrScanner.clear();
         };
     }, []);
 
     const onScanSuccess = async (decodedText) => {
-        if (scanner) {
-            scanner.pause(); // Pause scanning to process the result
-        }
+        if (isPaused) return;
 
         setScanResult(decodedText);
+        setIsPaused(true); // Prevent further scans
+
         console.log(`Scanned Result: ${decodedText}`);
         await handleScan(decodedText);
 
-        // Resume scanning after 3 seconds
+        // Delay for 3 seconds before resuming scanning
         setTimeout(() => {
+            setIsPaused(false);
             if (scanner) {
                 scanner.resume();
             }
@@ -92,7 +91,7 @@ const QRScanner = () => {
             ></div>
 
             {/* Scan result and message */}
-            {scanResult && !loading && (
+            {scanResult && (
                 <div className="absolute top-1/4 w-full text-center">
                     <p className="text-2xl font-bold text-white">{scanResult}</p>
                     <p className="mt-2 text-lg text-green-500">{message}</p>
@@ -107,14 +106,14 @@ const QRScanner = () => {
             )}
 
             {/* Reset Button */}
-            <div className="relative w-full flex justify-center mt-4">
+            <div className="relative w-full flex justify-center mt-2">
                 <button
                     className="px-4 py-2 bg-side-bar text-white rounded-md shadow-md"
                     onClick={() => {
                         setScanResult('');
                         setMessage('');
                         if (scanner) {
-                            scanner.resume(); // Ensure scanner is resumed on reset
+                            scanner.resume();
                         }
                     }}
                 >
