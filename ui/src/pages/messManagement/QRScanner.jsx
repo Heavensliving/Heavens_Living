@@ -12,24 +12,33 @@ const QRScanner = () => {
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState(''); // State to store message from backend
     const [isScanning, setIsScanning] = useState(true); // Control scanning
+    const scannerRef = React.useRef(null); // Keep scanner instance persistent
 
     useEffect(() => {
-        // Initialize the QR code scanner
-        const scanner = new Html5QrcodeScanner("qr-scanner", {
+        // Initialize the QR code scanner once
+        scannerRef.current = new Html5QrcodeScanner("qr-scanner", {
             fps: 10, // Scan frame rate (frames per second)
             qrbox: 250, // Size of the scanning box
         });
 
-        // Start the scanner if scanning is enabled
         if (isScanning) {
-            scanner.render(onScanSuccess, onScanError);
+            scannerRef.current.render(onScanSuccess, onScanError);
         }
 
         // Cleanup the scanner when the component unmounts
         return () => {
-            scanner.clear();
+            scannerRef.current.clear();
         };
-    }, [isScanning]); // Reinitialize the scanner when isScanning changes
+    }, []); // Initialize once
+
+    // Handle scanning toggling
+    useEffect(() => {
+        if (isScanning) {
+            scannerRef.current.render(onScanSuccess, onScanError);
+        } else {
+            scannerRef.current.pause(); // Pause scanning instead of clearing
+        }
+    }, [isScanning]);
 
     // Callback when a QR code is successfully scanned
     const onScanSuccess = (decodedText) => {
