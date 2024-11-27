@@ -2,12 +2,13 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios'; // Import Axios
 import { Html5QrcodeScanner } from 'html5-qrcode';
 import { useSelector } from 'react-redux';
+
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const QRScanner = () => {
     const admin = useSelector(store => store.auth.admin);
+
     const [scanResult, setScanResult] = useState('');
-    const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState('');  // State to store message from backend
 
@@ -37,7 +38,6 @@ const QRScanner = () => {
     // Callback when there is an error with the scan
     const onScanError = (errorMessage) => {
         console.error('QR Scan error:', errorMessage);
-        setError(errorMessage);
     };
 
     const handleScan = async (orderId) => {
@@ -60,36 +60,38 @@ const QRScanner = () => {
             setLoading(false);
         }
     };
-    
+
     return (
-        <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">
-            <h1 className="text-2xl font-bold mb-6 text-gray-800 text-center">Confirm Your Order</h1>
+        <div className="relative w-full h-full bg-gray-100 flex flex-col">
+            {/* Header Section */}
+            <div className="bg-side-bar text-white text-center py-4">
+                <h1 className="text-2xl font-bold">Heavens</h1>
+            </div>
+                <p className="text-lg mt-2 text-center">QR scanner</p>
 
-            <div id="qr-scanner" style={{ width: '100%', height: 250 }}></div>
+            {/* QR Scanner */}
+            <div id="qr-scanner" style={{ width: '100%', height: '85vh' }}></div>
 
-            {scanResult && (
-                <p className="mt-4 text-lg font-medium text-green-600 text-center">
-                    Scanned Code: {scanResult}
-                </p>
+            {/* Scan result and message */}
+            {scanResult && !loading && (
+                <div className="absolute top-1/4 w-full text-center text-white">
+                    <p className="text-2xl font-bold">{scanResult}</p>
+                    <p className="mt-2 text-lg">{message}</p>
+                </div>
             )}
-            {error && (
-                <p className="mt-4 text-lg font-medium text-red-600 text-center">{error}</p>
-            )}
+
+            {/* Loading state */}
             {loading && (
-                <div className="mt-4 text-lg font-medium text-blue-600 text-center">
-                    Processing...
+                <div className="absolute top-1/4 w-full text-center text-white">
+                    <p className="text-lg">Processing...</p>
                 </div>
             )}
-            {message && (
-                <div className="mt-4 text-lg font-medium text-center">
-                    <p>{message}</p>
-                </div>
-            )}
+
+            {/* Reset Button */}
             <button
-                className="mt-6 px-4 py-2 bg-blue-600 text-white rounded-md shadow-md focus:ring-2 focus:ring-blue-300"
+                className="absolute bottom-4 left-1/2 transform -translate-x-1/2 px-4 py-2 bg-blue-600 text-white rounded-md shadow-md focus:ring-2 focus:ring-blue-300"
                 onClick={() => {
                     setScanResult('');
-                    setError('');
                     setMessage('');
                 }}
             >
