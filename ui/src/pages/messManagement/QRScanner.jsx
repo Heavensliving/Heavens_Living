@@ -1,39 +1,69 @@
-import React, { useState } from 'react';
-import QrScanner from 'react-qr-scanner';
-import axios from 'axios'; // Import Axios
+import React, { useState, useRef, useEffect } from 'react';
+import { BrowserMultiFormatReader } from '@zxing/library';
+import axios from 'axios';
+
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const QRScanner = () => {
   const [scanResult, setScanResult] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const videoRef = useRef(null);
+  const codeReader = useRef(new BrowserMultiFormatReader());
 
-  const handleScan = async (data) => {
-    if (data) {
-      const scannedData = data.text || 'No Data Found';
-      setScanResult(scannedData);
-      console.log(`Scanned Data: ${scannedData}`);
-
-      // Make an API call with Axios
-      setLoading(true);
+  useEffect(() => {
+    const startScanner = async () => {
       try {
-        const response = await axios.put(`${API_BASE_URL}/bookingStatus`, {
-          bookingId: scannedData, // Sending the scanned booking ID
-        });
-
-        if (response.status === 200) {
-          console.log('API Response:', response.data);
-          alert('Order confirmed successfully!');
-        } else {
-          console.error('API Error:', response.data);
-          alert(`Error: ${response.data.message || 'Failed to confirm order'}`);
-        }
-      } catch (apiError) {
-        console.error('Network/API Error:', apiError);
-        alert('Network error while confirming order.');
-      } finally {
-        setLoading(false);
+        // Start scanning using the back camera
+        await codeReader.current.decodeFromVideoDevice(
+          'environment', // Back camera (environment-facing)
+          videoRef.current,
+          (result, err) => {
+            if (result) {
+              handleScan(result.getText());
+            }
+            if (err) {
+              handleError(err);
+            }
+          }
+        );
+      } catch (err) {
+        setError('Camera not accessible');
+        console.error(err);
       }
+    };
+
+    startScanner();
+
+    return () => {
+      // Clean up and stop scanner on unmount
+      codeReader.current.reset();
+    };
+  }, []);
+
+  const handleScan = async (scannedData) => {
+    setScanResult(scannedData);
+    console.log(`Scanned Data: ${scannedData}`);
+
+    // Make an API call with Axios
+    setLoading(true);
+    try {
+      const response = await axios.put(`${API_BASE_URL}/bookingStatus`, {
+        bookingId: scannedData, // Sending the scanned booking ID
+      });
+
+      if (response.status === 200) {
+        console.log('API Response:', response.data);
+        alert('Order confirmed successfully!');
+      } else {
+        console.error('API Error:', response.data);
+        alert(`Error: ${response.data.message || 'Failed to confirm order'}`);
+      }
+    } catch (apiError) {
+      console.error('Network/API Error:', apiError);
+      alert('Network error while confirming order.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -42,31 +72,19 @@ const QRScanner = () => {
     console.error(err);
   };
 
-  const previewStyle = {
-    height: 240,
-    width: 320,
-  };
-
-  // Ensure you're using the back camera (environment-facing)
-  const videoConstraints = {
-    facingMode: {
-      exact: 'environment', // This should force the back camera
-    },
-  };
-
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">
       <h1 className="text-2xl font-bold mb-6 text-gray-800 text-center">
         Confirm Your Order
       </h1>
       <div className="w-full max-w-sm bg-white p-4 rounded-lg shadow-lg">
-        <QrScanner
-          delay={300}
-          style={previewStyle}
-          onError={handleError}
-          onScan={handleScan}
-          videoConstraints={videoConstraints} // Pass the constraints to use back camera
+        <video
+          ref={videoRef}
+          style={{ width: '100%', height: 240 }}
           className="w-full"
+          autoPlay
+          muted
+          playsInline
         />
       </div>
       {scanResult && (
