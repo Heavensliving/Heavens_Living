@@ -111,10 +111,10 @@ const getOrderById = async (req, res) => {
 const getOrder = async (req, res, next) => {
   const studentId = req.query.student;
   try {
-      const studentOrders = await MessOrder.find({ student: studentId })
-      return res.status(200).json({ studentOrders });
+    const studentOrders = await MessOrder.find({ student: studentId })
+    return res.status(200).json({ studentOrders });
   } catch (error) {
-      return res.status(500).json({ message: "There was a problem retrieving the Bookings." });
+    return res.status(500).json({ message: "There was a problem retrieving the Bookings." });
   }
 }
 
@@ -136,7 +136,7 @@ const deleteOrder = async (req, res) => {
 // Update the status of an order
 const updateOrderStatus = async (req, res) => {
   try {
-    const { orderId } = req.body; 
+    const { orderId } = req.body;
     if (!orderId) {
       return res.status(400).json({ message: 'Order ID is required' });
     }
@@ -157,7 +157,9 @@ const updateOrderStatus = async (req, res) => {
     order.bookingStatus = 'delivered';
     const updatedOrder = await order.save();
 
-    return res.status(200).json({ message: 'Order confirmed', order: updatedOrder });
+    setTimeout(() => {
+      return res.status(200).json({ message: 'Order confirmed', order: updatedOrder });
+    }, 3000);
   } catch (error) {
     console.error('Error updating order status:', error);
     return res.status(500).json({ message: 'Error confirming order', error });
@@ -173,7 +175,7 @@ const MessOrderController = {
   updateOrderStatus,
   getOrder,
   addAdonOrder,
-  
+
 };
 
 module.exports = MessOrderController;
