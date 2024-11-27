@@ -31,21 +31,21 @@ const QRScanner = () => {
     }, []);
 
     const onScanSuccess = async (decodedText) => {
+    if (scanner) {
+        scanner.pause(); // Pause scanning to process the result
+    }
+
+    setScanResult(decodedText);
+    console.log(`Scanned Result: ${decodedText}`);
+    await handleScan(decodedText);
+
+    // Wait for 3 seconds before resuming the scanner
+    setTimeout(() => {
         if (scanner) {
-            scanner.pause(); // Pause scanning to process the result
+            scanner.resume(); // Resume scanning after 3 seconds
         }
-
-        setScanResult(decodedText);
-        console.log(`Scanned Result: ${decodedText}`);
-        await handleScan(decodedText);
-
-        // Wait for 3 seconds before resuming the scanner
-        setTimeout(() => {
-            if (scanner) {
-                scanner.resume(); // Resume scanning after 3 seconds
-            }
-        }, 3000); // 3-second delay
-    };
+    }, 3000); // 3-second delay
+};
 
 
     const onScanError = (errorMessage) => {
