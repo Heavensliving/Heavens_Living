@@ -11,6 +11,7 @@ const QRScanner = () => {
     const [scanResult, setScanResult] = useState('');
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState('');
+    const [showWhiteScreen, setShowWhiteScreen] = useState(false); // For white screen
     const [scanner, setScanner] = useState(null); // To control the scanner
 
     useEffect(() => {
@@ -39,12 +40,14 @@ const QRScanner = () => {
         console.log(`Scanned Result: ${decodedText}`);
         await handleScan(decodedText);
 
-        // Resume scanning after 3 seconds
+        // Temporarily display the white screen
+        setShowWhiteScreen(true);
         setTimeout(() => {
+            setShowWhiteScreen(false);
             if (scanner) {
-                scanner.resume();
+                scanner.resume(); // Resume scanning
             }
-        }, 3000);
+        }, 3000); // 3 seconds
     };
 
     const onScanError = (errorMessage) => {
@@ -80,47 +83,53 @@ const QRScanner = () => {
             </div>
             <p className="text-lg mt-2 text-center">QR Scanner</p>
 
-            {/* QR Scanner */}
-            <div
-                id="qr-scanner"
-                style={{
-                    width: '100%',
-                    height: '60vh',
-                    marginBottom: '20px',
-                    position: 'relative',
-                }}
-            ></div>
-
-            {/* Scan result and message */}
-            {scanResult && !loading && (
-                <div className="absolute top-1/4 w-full text-center">
-                    <p className="text-2xl font-bold text-white">{scanResult}</p>
-                    <p className="mt-2 text-lg text-green-500">{message}</p>
-                </div>
-            )}
-
-            {/* Loading state */}
-            {loading && (
-                <div className="absolute top-1/4 w-full text-center text-white">
-                    <p className="text-lg">Processing...</p>
-                </div>
-            )}
-
-            {/* Reset Button */}
-            <div className="relative w-full flex justify-center">
-                <button
-                    className="px-4 py-2 bg-side-bar text-white rounded-md shadow-md"
-                    onClick={() => {
-                        setScanResult('');
-                        setMessage('');
-                        if (scanner) {
-                            scanner.resume(); // Ensure scanner is resumed on reset
-                        }
-                    }}
+            {/* Conditional white screen */}
+            {showWhiteScreen ? (
+                <div
+                    className="absolute inset-0 bg-white flex flex-col items-center justify-center"
+                    style={{ zIndex: 10 }}
                 >
-                    Reset
-                </button>
-            </div>
+                    <p className="text-2xl font-bold text-black">{scanResult}</p>
+                    <p className="text-lg text-green-500 mt-2">{message}</p>
+                </div>
+            ) : (
+                <>
+                    {/* QR Scanner */}
+                    <div
+                        id="qr-scanner"
+                        style={{
+                            width: '100%',
+                            height: '60vh',
+                            marginBottom: '20px',
+                            position: 'relative',
+                        }}
+                    ></div>
+
+                    {/* Loading state */}
+                    {loading && (
+                        <div className="absolute top-1/4 w-full text-center text-white">
+                            <p className="text-lg">Processing...</p>
+                        </div>
+                    )}
+
+                    {/* Reset Button */}
+                    <div className="relative w-full flex justify-center">
+                        <button
+                            className="px-4 py-2 bg-side-bar text-white rounded-md shadow-md"
+                            onClick={() => {
+                                setScanResult('');
+                                setMessage('');
+                                setShowWhiteScreen(false); // Reset white screen state
+                                if (scanner) {
+                                    scanner.resume(); // Ensure scanner is resumed on reset
+                                }
+                            }}
+                        >
+                            Reset
+                        </button>
+                    </div>
+                </>
+            )}
         </div>
     );
 };
