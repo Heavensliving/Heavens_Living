@@ -37,7 +37,7 @@ const server = http.createServer(app);
 
 initializeSocket(server);
 
-const allowedOrigins = ['https://heavens-living.onrender.com', "https://heavens-cafe-1.onrender.com"];
+const allowedOrigins = ['https://hportal.heavensliving.com', 'https://heavens-cafe-1.onrender.com'];
 
 app.use(cors({
   origin: function (origin, callback) {
@@ -47,7 +47,11 @@ app.use(cors({
     } else {
       callback(new Error('Not allowed by CORS'));
     }
-  }
+  },
+
+methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'], // Allow methods
+  allowedHeaders: ['Content-Type', 'Authorization'], // Allow specific headers
+  credentials: true,
 }));
 
 // app.use(cors({

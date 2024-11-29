@@ -5,8 +5,8 @@ let io;
 const initializeSocket = (server) => {
   io = new Server(server, {
     cors: {
-      origin: '*',
-      methods: ['GET', 'POST'],
+      origin: 'https://hportal.heavensliving.com',
+      methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
     },
   });
 
