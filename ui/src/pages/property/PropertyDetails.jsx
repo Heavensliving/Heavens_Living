@@ -20,7 +20,7 @@ const PropertyDetails = () => {
     const fetchPropertyDetails = async () => {
       try {
         const response = await axios.get(`${API_BASE_URL}/property/${propertyId}`,
-          {headers: { 'Authorization': `Bearer ${admin.token}` }}
+          { headers: { 'Authorization': `Bearer ${admin.token}` } }
         );
         setProperty(response.data);
       } catch (error) {
@@ -36,9 +36,9 @@ const PropertyDetails = () => {
   const handleDelete = async () => {
     try {
       await axios.delete(`${API_BASE_URL}/property/delete/${propertyId}`,
-        {headers: { 'Authorization': `Bearer ${admin.token}` }}
+        { headers: { 'Authorization': `Bearer ${admin.token}` } }
       );
-      navigate('/property');
+      navigate('/properties');
     } catch (error) {
       console.error('Error deleting property:', error);
       alert('Failed to delete the property');
@@ -76,9 +76,14 @@ const PropertyDetails = () => {
                 <FontAwesomeIcon icon={faEdit} size="lg" />
               </button>
             </Link>
-            <button onClick={() => setIsModalOpen(true)} className="text-red-500 hover:text-red-700">
-              <FontAwesomeIcon icon={faTrash} size="lg" />
-            </button>
+            {admin.role === 'mainAdmin' && (
+              <button
+                onClick={() => setIsModalOpen(true)}
+                className="text-red-500 hover:text-red-700"
+              >
+                <FontAwesomeIcon icon={faTrash} size="lg" />
+              </button>
+            )}
           </div>
         </div>
 

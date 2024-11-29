@@ -59,7 +59,7 @@ app.use(fileUpload({
   createParentPath: true
 }));
 
-require('./jobs/paymentStatusCron');
+require('./jobs/cron');
 
 // MongoDB Connection
 mongoose.connect(process.env.MONGO_URI)

@@ -450,6 +450,7 @@ function AddStaff() {
                     onChange={handleChange}
                     required={field.required}
                     accept={field.accept || undefined}
+                    min='0'
                   />
                 )}
               </div>

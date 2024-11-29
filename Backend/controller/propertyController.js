@@ -2,6 +2,13 @@
 const Property = require('../Models/Add_property');
 const crypto = require('crypto');
 const Phase = require('../Models/AddPhase');
+const Rooms = require('../Models/RoomAllocationModel');
+const Student = require('../Models/Add_student');
+const Staff = require('../Models/Add_staff');
+const peopleModel = require('../Models/AddPeople');
+const Commission = require('../Models/commisionModel');
+const DailyRent = require('../Models/DailyRentModel');
+const Expense = require('../Models/expensePay');
 
 
 
@@ -59,22 +66,96 @@ const getPropertyById = async (req, res) => {
 
 // Update a property by ID (using MongoDB _id)
 const updateProperty = async (req, res) => {
+    const session = await Property.startSession(); // Start a transaction
+    session.startTransaction();
+
     try {
-        const property = await Property.findByIdAndUpdate(
-            req.params.id,
-            req.body,
-            { new: true, runValidators: true }
-        );
-        
+        const { id } = req.params;
+        const updatedData = req.body;
+        console.log(updatedData)
+
+        // Find the original property
+        const property = await Property.findById(id).session(session);
+
         if (!property) {
+            await session.abortTransaction();
+            session.endSession();
             return res.status(404).json({ message: 'Property not found' });
         }
+
+        // Check if the property name is being updated
+        const isNameUpdated = updatedData.propertyName && updatedData.propertyName !== property.propertyName;
+        console.log(isNameUpdated)
+
+        // Update the property document
+        const updatedProperty = await Property.findByIdAndUpdate(
+            id,
+            updatedData,
+            { new: true, runValidators: true, session }
+        );
+
+        if (isNameUpdated) {
+            // Update related Student documents
+            await Student.updateMany(
+                { pgName: property.propertyName }, // Match existing property name
+                { pgName: updatedData.propertyName }, // Update to new property name
+                { session }
+            );
+
+            // Update related Room documents
+            await Rooms.updateMany(
+                { propertyName: property.propertyName }, // Match existing property name
+                { propertyName: updatedData.propertyName }, // Update to new property name
+                { session }
+            );
+
+            await Staff.updateMany(
+                { propertyName: property.propertyName }, // Match existing property name
+                { propertyName: updatedData.propertyName }, // Update to new property name
+                { session }
+            );
         
-        res.status(200).json({ message: 'Property updated successfully', property });
+            await peopleModel.updateMany(
+                { propertyName: property.propertyName }, // Match existing property name
+                { propertyName: updatedData.propertyName }, // Update to new property name
+                { session }
+            );
+
+            await Commission.updateMany(
+                { propertyName: property.propertyName }, // Match existing property name
+                { propertyName: updatedData.propertyName }, // Update to new property name
+                { session }
+            );
+
+            await DailyRent.updateMany(
+                { pgName: property.propertyName }, // Match existing property name
+                { pgName: updatedData.propertyName }, // Update to new property name
+                { session }
+            );
+
+            await Expense.updateMany(
+                { propertyName: property.propertyName }, // Match existing property name
+                { propertyName: updatedData.propertyName }, // Update to new property name
+                { session }
+            );
+        }
+
+        // Commit the transaction
+        await session.commitTransaction();
+        session.endSession();
+
+        res.status(200).json({
+            message: 'Property updated successfully',
+            property: updatedProperty,
+        });
     } catch (error) {
+        // Rollback transaction in case of an error
+        await session.abortTransaction();
+        session.endSession();
         res.status(400).json({ error: error.message });
     }
 };
+
 
 // Delete a property by ID (using MongoDB _id)
 const deleteProperty = async (req, res) => {

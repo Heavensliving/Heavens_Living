@@ -72,7 +72,7 @@ const StaffTable = ({ staffs, onRowClick, onDeleteClick, searchTerm }) => {
             <th className="py-4">Name</th>
             <th className="py-4">ID</th>
             <th className="py-4">Employee Type</th>
-            <th className="py-4">Contact Number</th>
+            <th className="py-4">Contact</th>
             <th className="py-4">Status</th>
             <th className="py-4">Action</th>
           </tr>

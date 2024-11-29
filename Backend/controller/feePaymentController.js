@@ -343,8 +343,8 @@ const getWaveOffPayments = async (req, res) => {
 const getTotalMonthlyRent = async (req, res) => {
   try {
     // Fetch all students from the database
-    const students = await Student.find({}, 'monthlyRent'); // Only selecting monthlyRent field
-    const messPeople = await peopleModel.find({}, 'monthlyRent');
+    const students = await Student.find({ vacate: false }, 'monthlyRent'); // Only selecting monthlyRent field
+    const messPeople = await peopleModel.find({vacate: false}, 'monthlyRent');
 
     const totalMonthlyRentStudents = students.reduce((acc, student) => {
       return acc + (student.monthlyRent || 0); // Default to 0 if monthlyRent is undefined

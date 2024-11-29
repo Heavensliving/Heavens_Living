@@ -23,7 +23,7 @@ function BranchManagement() {
   const fetchBranches = async () => {
     try {
       const response = await axios.get(`${API_BASE_URL}/branch`,
-        {headers: { 'Authorization': `Bearer ${admin.token}` }}
+        { headers: { 'Authorization': `Bearer ${admin.token}` } }
       );
       setBranches(response.data);
       setLoading(false);
@@ -37,7 +37,7 @@ function BranchManagement() {
     branch?.Name?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const phasePageRender = (id) =>{
+  const phasePageRender = (id) => {
     navigate(`/phase-management/${id}`);
   }
 
@@ -53,7 +53,9 @@ function BranchManagement() {
   const ConfirmDelete = async () => {
     if (branchToDelete) {
       try {
-        await axios.delete(`${API_BASE_URL}/branch/delete/${branchToDelete}`);
+        await axios.delete(`${API_BASE_URL}/branch/delete/${branchToDelete}`,
+          { headers: { 'Authorization': `Bearer ${admin.token}` } }
+        );
         fetchBranches(); // Refresh the branch list after deletion
         setIsModalOpen(false); // Close the modal
       } catch (error) {
@@ -109,7 +111,7 @@ function BranchManagement() {
           {/* Add Branch Button */}
           <button
             onClick={() => navigate('/add-branch')}
-            className="flex items-center px-4 py-2 bg-side-bar text-white rounded-full hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="flex items-center px-4 py-2 bg-side-bar text-white rounded-full hover:bg-[#373082] focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             <FaPlus className="mr-2" />
             Add Branch
@@ -135,9 +137,15 @@ function BranchManagement() {
                   <button onClick={() => handleUpdate(branch._id)} className="text-blue-600 hover:text-blue-800">
                     <FaEdit />
                   </button>
-                  <button onClick={() => handleDelete(branch._id)} className="text-red-600 hover:text-red-800">
-                    <FaTrashAlt />
-                  </button>
+
+                  {admin.role === 'mainAdmin' && (
+                    <button
+                      onClick={() => handleDelete(branch._id)}
+                      className="text-red-500 hover:text-red-700"
+                    >
+                      <FaTrashAlt />
+                    </button>
+                  )}
                 </div>
               </div>
             </div>

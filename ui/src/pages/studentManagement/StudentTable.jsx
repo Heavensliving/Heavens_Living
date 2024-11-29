@@ -28,7 +28,7 @@ const StudentTable = ({ students, onRowClick, onDelete, onStatusChange, admin })
         { currentStatus: newStatus },
         { headers: { Authorization: `Bearer ${admin.token}` } }
       );
-      console.log(`Student ${newStatus} successfully:`, response.data);
+      // console.log(`Student ${newStatus} successfully:`, response.data);
 
       selectedStudent.currentStatus = newStatus;
       onStatusChange(selectedStudent._id, newStatus);
@@ -45,11 +45,11 @@ const StudentTable = ({ students, onRowClick, onDelete, onStatusChange, admin })
           <tr className="border-b border-gray-300">
             <th className="py-2 px-2 font-normal text-xs md:text-sm">#</th>
             <th className="py-2 px-2 font-normal text-xs md:text-sm">Name</th>
-            <th className="py-2 px-2 font-normal text-xs md:text-sm">Id</th>
+            <th className="py-2 px-2 font-normal text-xs md:text-sm">ID</th>
             <th className="py-2 px-2 font-normal text-xs md:text-sm">Join Date</th>
-            <th className="py-2 px-2 font-normal text-xs md:text-sm">Contact Number</th>
-            <th className="py-2 px-2 font-normal text-xs md:text-sm">Room No</th>
-            <th className="py-2 px-2 font-normal text-xs md:text-sm">Payment Status</th>
+            <th className="py-2 px-2 font-normal text-xs md:text-sm">Contact</th>
+            <th className="py-2 px-2 font-normal text-xs md:text-sm">Room</th>
+            <th className="py-2 px-2 font-normal text-xs md:text-sm">Payment</th>
             <th className="py-2 px-2 font-normal text-xs md:text-sm">Action</th>
           </tr>
         </thead>

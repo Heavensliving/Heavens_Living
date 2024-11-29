@@ -114,20 +114,6 @@ function PropertyManagement() {
         />
 
         <div className="flex space-x-2">
-          {/* Filter Button */}
-          {/* <button className="flex items-center px-4 py-2 bg-white border border-gray-300 rounded-full hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500">
-            <FaFilter className="mr-2" />
-            Filter
-          </button> */}
-
-          {/* Add Property Button */}
-          {/* <button
-            onClick={() => navigate('/add-property')}
-            className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <FaPlus className="mr-2" />
-            Add Property
-          </button> */}
         </div>
       </div>
 

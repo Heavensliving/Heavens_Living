@@ -139,14 +139,14 @@ function AddStudent() {
     {
       name: 'roomType',
       type: 'select',
-      options: rooms.map((room) => ({
-        id: room.id,
-        name: room.roomType
+      options: [...new Set(rooms.map((room) => room.roomType))].map((roomType) => ({
+        id: roomType, // You can adjust if `id` is different
+        name: roomType
       })),
       placeholder: 'Room Type',
       label: 'Room Type',
       required: true,
-    },
+    },    
     {
       name: 'roomNo',
       type: 'select',

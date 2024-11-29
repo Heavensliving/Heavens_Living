@@ -23,7 +23,7 @@ const PaymentReceived = () => {
           { headers: { 'Authorization': `Bearer ${admin.token}` } }
         );
         setTransactions(response.data.reverse());
-        console.log(response.data);
+        // console.log(response.data);
       } catch (error) {
         console.error("Error fetching transactions:", error);
       }

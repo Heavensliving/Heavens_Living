@@ -1,7 +1,9 @@
 const cron = require('node-cron');
 const Student = require('../Models/Add_student');
+const MessOrder = require('../Models/MessOrderModel');
+const moment = require('moment');
 
-cron.schedule('0 0 1 * *', async () => {
+cron.schedule('0 0 * * *', async () => {
   try {
     console.log('Running daily payment status and blocking check...');
 
@@ -65,8 +67,6 @@ cron.schedule('0 0 1 * *', async () => {
 
       // Update `dateOfPayment` for the next cycle
       if (today >= nextDueDate) {
-        // Update the student's `dateOfPayment` for the same day next month (i.e., 10-12-2024)
-        const updatedNextPaymentDate = new Date(nextDueDate.getFullYear(), nextDueDate.getMonth() + 1, nextDueDate.getDate());
         await Student.findByIdAndUpdate(_id, { dateOfPayment: today });
         console.log(`${student.name}'s dateOfPayment updated to ${today.toISOString().slice(0, 10)}.`);
       }
@@ -75,5 +75,23 @@ cron.schedule('0 0 1 * *', async () => {
     console.log('Daily payment status and blocking check completed.');
   } catch (error) {
     console.error('Error during daily payment status and blocking check:', error);
+  }
+});
+
+
+cron.schedule('0 0 * * *', async () => {  // Runs daily at midnight
+  try {
+    console.log('Running daily cleanup of orders older than 3 days...');
+
+    const deleteOlderThan = moment().subtract(3, 'days').toDate(); // Get date 3 days ago
+    const deletedOrders = await MessOrder.deleteMany({
+      deliverDate: { $lt: deleteOlderThan },  // Delete orders where bookingDate is older than 3 days
+    });
+
+    console.log(`${deletedOrders.deletedCount} orders deleted that were older than 3 days.`);
+
+    console.log('Order cleanup completed.');
+  } catch (error) {
+    console.error('Error during order cleanup:', error);
   }
 });

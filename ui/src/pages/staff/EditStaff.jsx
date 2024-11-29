@@ -265,6 +265,7 @@ function EditStaff() {
                                             onChange={handleChange}
                                             required={field.required}
                                             accept={field.accept || undefined}
+                                            min='0'
                                         />
                                         {oldFiles[field.name] && (
                                             <img

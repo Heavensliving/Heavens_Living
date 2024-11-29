@@ -13,6 +13,7 @@ function RoomAllocation() {
   const [selectedRoom, setSelectedRoom] = useState(null); // To store the selected room data
   const [occupants, setOccupants] = useState([]); // To store occupant details
   const [isModalOpen, setIsModalOpen] = useState(false); // To control modal visibility
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!admin) return;
@@ -51,6 +52,7 @@ function RoomAllocation() {
         }));
   
         setProperties(formattedProperties);
+        setLoading(false)
         console.log(formattedProperties);
   
       } catch (error) {
@@ -88,6 +90,14 @@ function RoomAllocation() {
     setSelectedRoom(null);
     setOccupants([]);
   };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="loadingSpinner border-t-2 border-white border-solid rounded-full w-6 h-6 animate-spin"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-6">

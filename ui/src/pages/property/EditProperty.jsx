@@ -101,7 +101,7 @@ function EditProperty() {
                 name="propertyName"
                 id="propertyName"
                 className="p-3 border border-gray-300 rounded-lg w-full"
-                value={propertyData.propertyName}
+                value={propertyData.propertyName || ''}
                 onChange={handleChange}
                 required
               />
@@ -116,7 +116,7 @@ function EditProperty() {
                 name="location"
                 id="location"
                 className="p-3 border border-gray-300 rounded-lg w-full"
-                value={propertyData.location}
+                value={propertyData.location || ''}
                 onChange={handleChange}
                 required
               />
@@ -131,7 +131,7 @@ function EditProperty() {
                 name="address"
                 id="address"
                 className="p-3 border border-gray-300 rounded-lg w-full"
-                value={propertyData.address}
+                value={propertyData.address || ''}
                 onChange={handleChange}
                 required
               />
@@ -146,7 +146,7 @@ function EditProperty() {
                 name="contactNumber"
                 id="contactNumber"
                 className="p-3 border border-gray-300 rounded-lg w-full"
-                value={propertyData.contactNumber}
+                value={propertyData.contactNumber || ''}
                 onChange={handleChange}
                 required
               />
@@ -161,7 +161,7 @@ function EditProperty() {
                 name="totalBeds"
                 id="totalBeds"
                 className="p-3 border border-gray-300 rounded-lg w-full"
-                value={propertyData.totalBeds}
+                value={propertyData.totalBeds || ''}
                 onChange={handleChange}
                 required
               />
@@ -176,7 +176,7 @@ function EditProperty() {
                 name="preferredBy"
                 id="preferredBy"
                 className="p-3 border border-gray-300 rounded-lg w-full"
-                value={propertyData.preferredBy}
+                value={propertyData.preferredBy || ''}
                 onChange={handleChange}
                 required
               />
@@ -191,7 +191,7 @@ function EditProperty() {
                 name="startingPrice"
                 id="startingPrice"
                 className="p-3 border border-gray-300 rounded-lg w-full"
-                value={propertyData.startingPrice}
+                value={propertyData.startingPrice || ''}
                 onChange={handleChange}
                 required
               />
@@ -207,7 +207,7 @@ function EditProperty() {
                 name="oneSharing"
                 id="oneSharing"
                 className="p-3 border border-gray-300 rounded-lg w-full"
-                value={propertyData.oneSharing}
+                value={propertyData.oneSharing || ''}
                 onChange={handleChange}
               />
             </div>
@@ -221,7 +221,7 @@ function EditProperty() {
                 name="twoSharing"
                 id="twoSharing"
                 className="p-3 border border-gray-300 rounded-lg w-full"
-                value={propertyData.twoSharing}
+                value={propertyData.twoSharing || ''}
                 onChange={handleChange}
               />
             </div>
@@ -234,7 +234,7 @@ function EditProperty() {
                 name="threeSharing"
                 id="threeSharing"
                 className="p-3 border border-gray-300 rounded-lg w-full"
-                value={propertyData.threeSharing}
+                value={propertyData.threeSharing || ''}
                 onChange={handleChange}
               />
             </div>
@@ -248,7 +248,7 @@ function EditProperty() {
                 name="fourSharing"
                 id="fourSharing"
                 className="p-3 border border-gray-300 rounded-lg w-full"
-                value={propertyData.fourSharing}
+                value={propertyData.fourSharing || ''}
                 onChange={handleChange}
               />
             </div>
@@ -263,7 +263,7 @@ function EditProperty() {
                 name="propertyType"
                 id="propertyType"
                 className="p-3 border border-gray-300 rounded-lg w-full"
-                value={propertyData.propertyType}
+                value={propertyData.propertyType || ''}
                 onChange={handleChange}
                 required
               />
@@ -277,7 +277,7 @@ function EditProperty() {
                 name="propertyOwnerName"
                 id="propertyOwnerName"
                 className="p-3 border border-gray-300 rounded-lg w-full"
-                value={propertyData.propertyOwnerName}
+                value={propertyData.propertyOwnerName || ''}
                 onChange={handleChange}
                 required
               />

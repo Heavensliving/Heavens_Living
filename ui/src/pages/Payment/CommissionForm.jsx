@@ -52,7 +52,7 @@ const CommissionForm = () => {
       );
       
       setMessage(response.data.message);
-      console.log(response.data);
+      // console.log(response.data);
 
       // Navigate to '/payments' after successful submission
       navigate('/payments');

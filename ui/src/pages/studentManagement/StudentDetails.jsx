@@ -144,6 +144,7 @@ const StudentDetails = () => {
         }
       );
       setIsWarningModalOpen(false); // Close modal
+      window.location.reload();
     } catch (error) {
       console.error("Failed to update warnings:", error);
     }

@@ -16,13 +16,14 @@ const MessOrderSchema = new mongoose.Schema({
       {
         name: { type: String, required: false },
         quantity: { type: Number, required: false, default: 1 },
+        price: { type: Number, required: false, default: 0 },
         _id: false
       }
     ],
     required: false,
     default: []
   },
-
+  totalPrice: { type: Number, required: false, default: 0 },
   student: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Student'

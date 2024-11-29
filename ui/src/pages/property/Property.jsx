@@ -98,7 +98,7 @@ function Property() {
                     {/* Add Property Button */}
                     <button
                         onClick={() => navigate(`/add-property/${id}`)}
-                        className="flex items-center px-4 py-2 bg-side-bar text-white rounded-full hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="flex items-center px-4 py-2 bg-side-bar text-white rounded-full hover:bg-[#373082] focus:outline-none focus:ring-2 focus:ring-blue-500"
                     >
                         <FaPlus className="mr-2" />
                         Add Property

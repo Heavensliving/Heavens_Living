@@ -130,7 +130,7 @@ function PhaseManagement() {
           {/* Add Phase Button */}
           <button
             onClick={() => navigate(`/add-phase/${id}`)}
-            className="flex items-center px-4 py-2 bg-side-bar text-white rounded-full hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="flex items-center px-4 py-2 bg-side-bar text-white rounded-full hover:bg-[#373082] focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             <FaPlus className="mr-2" />
             Add Phase
@@ -155,9 +155,15 @@ function PhaseManagement() {
                   <button onClick={() => handleUpdate(phase._id)} className="text-blue-600 hover:text-blue-800">
                     <FaEdit />
                   </button>
-                  <button onClick={() => handleDelete(phase._id)} className="text-red-600 hover:text-red-800">
-                    <FaTrashAlt />
-                  </button>
+        
+                  {admin.role === 'mainAdmin' && (
+                    <button
+                      onClick={() => handleDelete(phase._id)}
+                      className="text-red-500 hover:text-red-700"
+                    >
+                      <FaTrashAlt />
+                    </button>
+                  )}
                 </div>
               </div>
             </div>

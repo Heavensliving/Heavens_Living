@@ -46,7 +46,7 @@ const CafeOrders = () => {
     fetchOrders();
 
     socket.on("orderUpdated", (data) => {
-      console.log("Order update received:", data);
+      // console.log("Order update received:", data);
 
       const updatedOrder = data.order;
       playNotificationSound();

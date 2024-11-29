@@ -13,6 +13,15 @@ const generateOrderId = () => {
 const addOrder = async (req, res) => {
   try {
     const { name, roomNo, contact, mealType, student, property, adOns = [], deliverDate, status } = req.body;
+    let totalPrice = 0;
+
+    if (adOns.length > 0) {
+      adOns.forEach((adOn) => {
+        if (adOn.price && adOn.quantity) {
+          totalPrice += adOn.price * adOn.quantity;
+        }
+      });
+    }
 
     const orderId = generateOrderId();
     const expiryDate = new Date();
@@ -26,6 +35,7 @@ const addOrder = async (req, res) => {
       mealType,
       status,
       adOns,
+      totalPrice,
       student,
       property,
       deliverDate
@@ -150,16 +160,13 @@ const updateOrderStatus = async (req, res) => {
 
     // Check if the order is already delivered
     if (order.bookingStatus === 'delivered') {
-      return res.status(400).json({ message: 'Order already delivered' });
+        return res.status(400).json({ message: 'Order already delivered' });
     }
 
     // Update the status to 'delivered'
     order.bookingStatus = 'delivered';
     const updatedOrder = await order.save();
-
-    setTimeout(() => {
-      return res.status(200).json({ message: 'Order confirmed', order: updatedOrder });
-    }, 3000);
+    return res.status(200).json({ message: 'Order confirmed', order: updatedOrder });
   } catch (error) {
     console.error('Error updating order status:', error);
     return res.status(500).json({ message: 'Error confirming order', error });

@@ -109,7 +109,7 @@ const AddDailyRent = () => {
           const roomsData = Array.isArray(response.data)
             ? response.data // If response.data is already an array
             : response.data.rooms || [];
-          console.log("here", response.data)
+          // console.log("here", response.data)
           // Filter rooms with vacantSlot > 0
           const availableRooms = roomsData.filter(room => room.vacantSlot > 0);
           console.log(availableRooms)
@@ -146,7 +146,7 @@ const AddDailyRent = () => {
       // Debug: Log the selected value to see if it's correct
       console.log("Selected PG Name:", value);
       const selectedProperty = properties.find(property => property._id === value);
-      console.log("Selected Property:", selectedProperty);
+      // console.log("Selected Property:", selectedProperty);
       setPgName(selectedProperty.propertyName)
       setFormData((prevData) => ({
         ...prevData,

@@ -148,7 +148,10 @@ const pageConfig = {
       title:"Waveoff"
     },
     '/addonPage':{
-      title:"Add-ons"
+      title:"Today Add-ons"
+    },
+    '/updatePhase/:id':{
+      title:"Update Phase"
     },
     
     

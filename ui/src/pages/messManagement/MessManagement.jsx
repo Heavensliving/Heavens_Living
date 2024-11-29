@@ -19,68 +19,67 @@ function MessManagement() {
   const [loading, setLoading] = useState(true);
 
 
-    useEffect(() => {
-      // Check current time to determine if orders should be displayed
-      const now = new Date();
-      const isAfter11PM = now.getHours() >= 22;
-    
-      // Fetch tomorrow's orders if it's after 11 pm
-      const fetchOrdersAndAddons = async () => {
-        if (!admin) return;
-        try {
-          const response = await axios.get(`${API_BASE_URL}/messOrder/`, {
-            headers: { 'Authorization': `Bearer ${admin.token}` }
-          });
-          const allOrders = response.data;
-    console.log(allOrders)
-          const today = new Date(now);
-          const todayDate = today.toISOString().split('T')[0];
-    
-          const filteredTodayAddons = allOrders.filter(order => {
+  useEffect(() => {
+    // Check current time to determine if orders should be displayed
+    const now = new Date();
+    const isAfter11PM = now.getHours() >= 22;
+
+    // Fetch tomorrow's orders if it's after 11 pm
+    const fetchOrdersAndAddons = async () => {
+      if (!admin) return;
+      try {
+        const response = await axios.get(`${API_BASE_URL}/messOrder/`, {
+          headers: { 'Authorization': `Bearer ${admin.token}` }
+        });
+        const allOrders = response.data;
+        const today = new Date(now);
+        const todayDate = today.toISOString().split('T')[0];
+
+        const filteredTodayAddons = allOrders.filter(order => {
+          if (!order.deliverDate) return false;
+          const orderDate = new Date(order.deliverDate);
+          return orderDate.toISOString().split('T')[0] === todayDate;
+        });
+        setTodayAddons(filteredTodayAddons);
+
+        if (isAfter11PM) {
+          const tomorrow = new Date(now);
+          tomorrow.setDate(now.getDate() + 1);
+          const tomorrowDate = tomorrow.toISOString().split('T')[0];
+          const filteredTomorrowOrders = allOrders.filter(order => {
             if (!order.deliverDate) return false;
             const orderDate = new Date(order.deliverDate);
-            return orderDate.toISOString().split('T')[0] === todayDate;
+            return (
+              orderDate.toISOString().split('T')[0] === tomorrowDate &&
+              (!order.adOns || order.adOns.length === 0) // Check if adOns is empty or not present
+            );
           });
-          setTodayAddons(filteredTodayAddons);
-    
-          if (isAfter11PM) {
-            const tomorrow = new Date(now);
-            tomorrow.setDate(now.getDate() + 1);
-            const tomorrowDate = tomorrow.toISOString().split('T')[0];
-            const filteredTomorrowOrders = allOrders.filter(order => {
-              if (!order.deliverDate) return false;
-              const orderDate = new Date(order.deliverDate);
-              return (
-                orderDate.toISOString().split('T')[0] === tomorrowDate &&
-                (!order.adOns || order.adOns.length === 0) // Check if adOns is empty or not present
-              );
-            });
-          
-            setTodayOrders(filteredTomorrowOrders);
-          } else {
-            const today = new Date(now);
-            const todayDate = today.toISOString().split('T')[0];
-            const filteredTodayOrders = allOrders.filter(order => {
-              if (!order.deliverDate) return false;
-              const orderDate = new Date(order.deliverDate);
-              return (
-                orderDate.toISOString().split('T')[0] === todayDate &&
-                (!order.adOns || order.adOns.length === 0) // Check if adOns is empty or not present
-              );
-            });
-            console.log(filteredTodayOrders);
-            setTodayOrders(filteredTodayOrders);
-          }
-          
-        } catch (error) {
-          console.error('Error fetching orders and addons:', error);
-        } finally {
-          setLoading(false);
+
+          setTodayOrders(filteredTomorrowOrders);
+        } else {
+          const today = new Date(now);
+          const todayDate = today.toISOString().split('T')[0];
+          const filteredTodayOrders = allOrders.filter(order => {
+            if (!order.deliverDate) return false;
+            const orderDate = new Date(order.deliverDate);
+            return (
+              orderDate.toISOString().split('T')[0] === todayDate &&
+              (!order.adOns || order.adOns.length === 0) // Check if adOns is empty or not present
+            );
+          });
+          // console.log(filteredTodayOrders);
+          setTodayOrders(filteredTodayOrders);
         }
-      };
-    
-      fetchOrdersAndAddons();
-    }, [admin]);
+
+      } catch (error) {
+        console.error('Error fetching orders and addons:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchOrdersAndAddons();
+  }, [admin]);
 
 
   const toggleExpandOrder = (orderId) => {
@@ -98,7 +97,7 @@ function MessManagement() {
   const todayBreakfastCount = todayOrders.filter(order => order.mealType === 'Breakfast').length;
   const todayLunchCount = todayOrders.filter(order => order.mealType === 'Lunch').length;
   const todayDinnerCount = todayOrders.filter(order => order.mealType === 'Dinner').length;
-  
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-screen">
@@ -129,8 +128,8 @@ function MessManagement() {
       {/* Metrics Section */}
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 mb-6 mt-4">
         <MetricCard icon={FaUtensils} bgColor="bg-blue-500" title="Total Orders" value={totalTodayOrders} />
-       {/* Add clickable div for "Total Add-ons" card */}
-       <div onClick={handleAddonsClick} className="cursor-pointer">
+        {/* Add clickable div for "Total Add-ons" card */}
+        <div onClick={handleAddonsClick} className="cursor-pointer">
           <MetricCard icon={FaConciergeBell} bgColor="bg-green-500" title="Total Add-ons" value={totalTodayAddons} />
         </div>
         <MetricCard icon={FaCoffee} bgColor="bg-yellow-500" title="Breakfast" value={todayBreakfastCount} />
