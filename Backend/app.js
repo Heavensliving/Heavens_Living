@@ -47,10 +47,7 @@ app.use(cors({
     } else {
       callback(new Error('Not allowed by CORS'));
     }
-  },
-  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Authorization', 'Role', 'Content-Type'],
-  credentials: true,
+  }
 }));
 
 // app.use(cors({
