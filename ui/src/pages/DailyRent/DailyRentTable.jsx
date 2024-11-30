@@ -1,9 +1,7 @@
-import React from "react";
 import { FaEdit, FaTrash } from "react-icons/fa";
-
 const DailyRentTable = ({ dailyRents, onRowClick, onEdit, onDelete, admin }) => {
-  // Function to handle disabling actions for property admins
   const isPropertyAdmin = admin.role === 'propertyAdmin';
+  const isMainAdmin = admin.role === 'mainAdmin';
 
   return (
     <div className="overflow-x-auto">
@@ -29,22 +27,22 @@ const DailyRentTable = ({ dailyRents, onRowClick, onEdit, onDelete, admin }) => 
             </tr>
           ) : (
             dailyRents.map((dailyRent, index) => {
-              // Determine if the row should be highlighted based on vacate status
               const rowClass = dailyRent.vacate ? "bg-red-100" : "hover:bg-gray-50";
+
+              const allowRowClick =
+                (isPropertyAdmin && !dailyRent.vacate) || isMainAdmin;
 
               return (
                 <tr
                   key={dailyRent._id}
-                  className={`border-b cursor-pointer ${rowClass}`}
+                  className={`border-b ${rowClass} ${
+                    allowRowClick ? 'cursor-pointer' : 'cursor-not-allowed'
+                  }`}
                   onClick={(e) => {
-                    // Only allow row click for non-propertyAdmins or if vacate is false
-                    if (!isPropertyAdmin) {
+                    if (allowRowClick) {
+                      e.stopPropagation();
                       onRowClick(dailyRent._id);
                     }
-                    e.stopPropagation();
-                  }}
-                  style={{
-                    cursor: isPropertyAdmin ? 'not-allowed' : 'pointer',
                   }}
                 >
                   <td className="py-2 px-4">{index + 1}</td>
@@ -65,27 +63,31 @@ const DailyRentTable = ({ dailyRents, onRowClick, onEdit, onDelete, admin }) => 
                   <td className="py-2 px-4">{dailyRent.DailyRent}</td>
                   <td className="py-2 px-4 flex space-x-4">
                     <FaEdit
-                      className={`cursor-pointer ${isPropertyAdmin ? 'text-gray-400' : 'text-blue-500'} hover:text-blue-600`}
+                      className={`${
+                        allowRowClick ? 'text-blue-500' : 'text-gray-400'
+                      } hover:text-blue-600`}
                       onClick={(e) => {
-                        if (!isPropertyAdmin) {
+                        if (allowRowClick) {
                           e.stopPropagation();
                           onEdit(dailyRent._id);
                         }
                       }}
                       style={{
-                        cursor: isPropertyAdmin ? 'not-allowed' : 'pointer',
+                        cursor: allowRowClick ? 'pointer' : 'not-allowed',
                       }}
                     />
                     <FaTrash
-                      className={`cursor-pointer ${isPropertyAdmin ? 'text-gray-400' : 'text-red-500'} hover:text-red-600`}
+                      className={`${
+                        allowRowClick ? 'text-red-500' : 'text-gray-400'
+                      } hover:text-red-600`}
                       onClick={(e) => {
-                        if (!isPropertyAdmin) {
+                        if (allowRowClick) {
                           e.stopPropagation();
                           onDelete(dailyRent._id);
                         }
                       }}
                       style={{
-                        cursor: isPropertyAdmin ? 'not-allowed' : 'pointer',
+                        cursor: allowRowClick ? 'pointer' : 'not-allowed',
                       }}
                     />
                   </td>
