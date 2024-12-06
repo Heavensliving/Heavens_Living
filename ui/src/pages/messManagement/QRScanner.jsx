@@ -144,8 +144,8 @@ const QRScanner = () => {
                     </div>
                 </div>
             )}
-            {message && <div className="text-center text-lg text-green-500 mt-4">{message}</div>}
             {loading && <div className="absolute top-1/4 w-full text-center text-white"><p className="text-lg">Processing...</p></div>}
+            {message && <div className="text-center text-lg text-green-500 mt-4">{message}</div>}
             <div className="relative w-full flex justify-center mt-4">
                 <button className="px-4 py-2 bg-side-bar text-white rounded-md shadow-md" onClick={handleReset}>Reset</button>
             </div>
