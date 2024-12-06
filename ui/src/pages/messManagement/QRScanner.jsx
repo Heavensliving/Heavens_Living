@@ -33,6 +33,10 @@ const QRScanner = () => {
     }, [scannerActive]);
 
     const onScanSuccess = async (decodedText) => {
+        if (loading) {
+            console.warn('Scan already in progress. Ignoring this scan.');
+            return;
+        }
         if (scanner) {
             scanner.pause();
         }
@@ -56,9 +60,9 @@ const QRScanner = () => {
 
             if (response.status === 200) {
                 setMessage(response.data.message || 'Order confirmed successfully!');
-                 fetchStudentDetails(orderId);
+                await fetchStudentDetails(orderId);
             } else {
-                setMessage('Error: Failed to confirm order');
+                setMessage(response.data.message || 'Error: Failed to confirm order');
             }
         } catch (error) {
             console.error('Network error:', error.response || error.message || error);
@@ -95,75 +99,42 @@ const QRScanner = () => {
     };
 
     const handleReset = () => {
+        if (scanner) {
+            scanner.clear();
+            setScanner(null);
+        }
         setScanResult('');
         setMessage('');
         setDetails(null);
-        setScannerActive(true);
+        setScannerActive(false);
+        setTimeout(() => {
+            setScannerActive(true);
+        }, 500);
     };
 
     return (
         <div className="relative w-full h-full flex flex-col">
-            {/* Header Section */}
             <div className="bg-side-bar text-white text-center py-4">
                 <h1 className="text-2xl font-bold">Heavens</h1>
             </div>
             <p className="text-lg mt-2 text-center">QR Scanner</p>
-
-            {/* QR Scanner */}
             {scannerActive && (
-                <div
-                    id="qr-scanner"
-                    style={{
-                        width: '100%',
-                        height: '60vh',
-                        marginBottom: '20px',
-                        position: 'relative',
-                    }}
-                ></div>
+                <div id="qr-scanner" style={{ width: '100%', height: '60vh', marginBottom: '20px', position: 'relative' }}></div>
             )}
-
-            {/* Display scanned details */}
             {!scannerActive && details && (
                 <div className="p-4 bg-gray-100 rounded shadow-md w-11/12 mx-auto mt-4">
-                    <h2 className="text-2xl font-bold text-center text-blue-600 mb-4">
-                        Category: {details.category}
-                    </h2>
+                    <h2 className="text-2xl font-bold text-center text-blue-600 mb-4">Category: {details.category}</h2>
                     <div className="text-center">
-                        <p>
-                            <strong>Name:</strong> {details.name}
-                        </p>
-                        <p>
-                            <strong>Meal Type:</strong> {details.mealType}
-                        </p>
-                        <p>
-                            <strong>Order ID:</strong> {details.orderId}
-                        </p>
+                        <p><strong>Name:</strong> {details.name}</p>
+                        <p><strong>Meal Type:</strong> {details.mealType}</p>
+                        <p><strong>Order ID:</strong> {details.orderId}</p>
                     </div>
                 </div>
             )}
-
-            {/* Message */}
-            {message && (
-                <div className="text-center text-lg text-green-500 mt-4">
-                    {message}
-                </div>
-            )}
-
-            {/* Loading state */}
-            {loading && (
-                <div className="absolute top-1/4 w-full text-center text-white">
-                    <p className="text-lg">Processing...</p>
-                </div>
-            )}
-
-            {/* Reset Button */}
+            {message && <div className="text-center text-lg text-green-500 mt-4">{message}</div>}
+            {loading && <div className="absolute top-1/4 w-full text-center text-white"><p className="text-lg">Processing...</p></div>}
             <div className="relative w-full flex justify-center mt-4">
-                <button
-                    className="px-4 py-2 bg-side-bar text-white rounded-md shadow-md"
-                    onClick={handleReset}
-                >
-                    Reset
-                </button>
+                <button className="px-4 py-2 bg-side-bar text-white rounded-md shadow-md" onClick={handleReset}>Reset</button>
             </div>
         </div>
     );
