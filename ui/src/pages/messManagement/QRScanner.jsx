@@ -14,6 +14,7 @@ const QRScanner = () => {
     const [scanner, setScanner] = useState(null);
     const [scannerActive, setScannerActive] = useState(true);
     const [details, setDetails] = useState(null);
+    const [scanning, setScanning] = useState(false);
 
     useEffect(() => {
         if (scannerActive) {
@@ -33,16 +34,12 @@ const QRScanner = () => {
     }, [scannerActive]);
 
     const onScanSuccess = async (decodedText) => {
-        if (loading) {
-            console.warn('Scan already in progress. Ignoring this scan.');
-            return;
-        }
-        if (scanner) {
-            scanner.pause();
-        }
+        if (scanning) return; // Prevent multiple scans
+        setScanning(true); // Block further scans
         setScanResult(decodedText);
         console.log(`Scanned Result: ${decodedText}`);
         await handleScan(decodedText);
+        setScanning(false); // Reset scanning state after request
     };
 
     const onScanError = (errorMessage) => {
@@ -57,18 +54,10 @@ const QRScanner = () => {
                 { orderId },
                 { headers: { Authorization: `Bearer ${admin.token}` } }
             );
-    
+
             if (response.status === 200) {
                 setMessage(response.data.message || 'Order confirmed successfully!');
                 await fetchStudentDetails(orderId);
-            } else if (response.data.orderStatus === 'delivered') {
-                setMessage('This order has already been delivered.');
-                setDetails({
-                    category: 'N/A',
-                    mealType: 'N/A',
-                    name: 'N/A',
-                    orderId,
-                });
             } else {
                 setMessage(response.data.message || 'Error: Failed to confirm order');
             }
