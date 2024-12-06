@@ -14,7 +14,7 @@ const QRScanner = () => {
     const [scanner, setScanner] = useState(null);
     const [scannerActive, setScannerActive] = useState(true);
     const [details, setDetails] = useState(null);
-    const [scanning, setScanning] = useState(false); // New state
+    const [scanning, setScanning] = useState(false);
 
     useEffect(() => {
         if (scannerActive) {
@@ -34,12 +34,17 @@ const QRScanner = () => {
     }, [scannerActive]);
 
     const onScanSuccess = async (decodedText) => {
-        if (scanning) return; // Prevent multiple scans
-        setScanning(true); // Block further scans
+        if (scanning) return;
+        setScanning(true);
         setScanResult(decodedText);
         console.log(`Scanned Result: ${decodedText}`);
         await handleScan(decodedText);
-        setScanning(false); // Reset scanning state after request
+        setScanning(false);
+    };
+
+    const onScanError = (errorMessage) => {
+        // Log the error or handle it
+        console.warn("QR Scan Error:", errorMessage);
     };
 
     const handleScan = async (orderId) => {
@@ -56,7 +61,7 @@ const QRScanner = () => {
                 await fetchStudentDetails(orderId);
             } else if (response.data.orderStatus === 'delivered') {
                 setMessage('This order has already been delivered.');
-                await fetchStudentDetails(orderId); // Still fetch details
+                await fetchStudentDetails(orderId);
             } else {
                 setMessage(response.data.message || 'Error: Failed to confirm order');
             }
