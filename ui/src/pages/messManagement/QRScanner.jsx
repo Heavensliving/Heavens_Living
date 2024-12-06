@@ -134,6 +134,7 @@ const QRScanner = () => {
             {scannerActive && (
                 <div id="qr-scanner" style={{ width: '100%', height: '60vh', marginBottom: '20px', position: 'relative' }}></div>
             )}
+            {message && <div className="text-center text-lg text-green-500 mt-4">{message}</div>}
             {!scannerActive && details && (
                 <div className="p-4 bg-gray-100 rounded shadow-md w-11/12 mx-auto mt-4">
                     <h2 className="text-2xl font-bold text-center text-blue-600 mb-4">Category: {details.category}</h2>
@@ -145,7 +146,6 @@ const QRScanner = () => {
                 </div>
             )}
             {loading && <div className="absolute top-1/4 w-full text-center text-white"><p className="text-lg">Processing...</p></div>}
-            {message && <div className="text-center text-lg text-green-500 mt-4">{message}</div>}
             <div className="relative w-full flex justify-center mt-4">
                 <button className="px-4 py-2 bg-side-bar text-white rounded-md shadow-md" onClick={handleReset}>Reset</button>
             </div>
