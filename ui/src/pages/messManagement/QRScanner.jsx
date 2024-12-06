@@ -74,7 +74,7 @@ const QRScanner = () => {
             });
 
             if (studentResponse.status === 200) {
-                const category = studentResponse.data;
+                const category = studentResponse.data.student.category;
                 console.log('Category:', category);
 
                 setMessage(`Category: ${category}`);

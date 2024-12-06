@@ -175,11 +175,10 @@ const updateOrderStatus = async (req, res) => {
 
 const getStudentByOrderId = async (req, res) => {
   const { orderId } = req.params;
-console.log(orderId)
+
   try {
     // Fetch the order by orderId
     const order = await MessOrder.findOne({ orderId }).populate('student');
-    console.log(order)
 
     if (!order) {
       return res.status(404).json({ message: 'Order not found' });
