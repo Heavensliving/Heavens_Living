@@ -57,10 +57,18 @@ const QRScanner = () => {
                 { orderId },
                 { headers: { Authorization: `Bearer ${admin.token}` } }
             );
-
+    
             if (response.status === 200) {
                 setMessage(response.data.message || 'Order confirmed successfully!');
                 await fetchStudentDetails(orderId);
+            } else if (response.data.orderStatus === 'delivered') {
+                setMessage('This order has already been delivered.');
+                setDetails({
+                    category: 'N/A',
+                    mealType: 'N/A',
+                    name: 'N/A',
+                    orderId,
+                });
             } else {
                 setMessage(response.data.message || 'Error: Failed to confirm order');
             }
@@ -71,6 +79,7 @@ const QRScanner = () => {
             setLoading(false);
         }
     };
+    
 
     const fetchStudentDetails = async (orderId) => {
         try {
