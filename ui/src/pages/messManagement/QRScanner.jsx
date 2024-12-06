@@ -99,6 +99,7 @@ const QRScanner = () => {
                     mealType: order.mealType,
                     name: order.name,
                     orderId: order.orderId,
+                    adOns: order.adOns
                 });
                 setScannerActive(false);
             } else {
@@ -140,7 +141,6 @@ const QRScanner = () => {
             {loading && (
                 <div className="absolute top-1/4 w-full text-center text-white">
                     <p className="text-lg">Processing...</p>
-                    <p className="text-lg mt-2">{message}</p> {/* Display the message below Processing... */}
                 </div>
             )}
             {!scannerActive && details && (
@@ -150,9 +150,22 @@ const QRScanner = () => {
                         <p><strong>Name:</strong> {details.name}</p>
                         <p><strong>Meal Type:</strong> {details.mealType}</p>
                         <p><strong>Order ID:</strong> {details.orderId}</p>
+                        {details.adOns && details.adOns.length > 0 && (
+                            <div className="mt-4">
+                                <h3 className="text-xl font-semibold">Add-Ons:</h3>
+                                <ul className="list-disc pl-5">
+                                    {details.adOns.map((addon, index) => (
+                                        <li key={index}>
+                                            <strong>{addon.name}</strong> - Quantity: {addon.quantity}, Price: ${addon.price}, Total: ${addon.totalPrice}
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                        )}
                     </div>
                 </div>
             )}
+
             <div className="relative w-full flex justify-center mt-4">
                 <button className="px-4 py-2 bg-side-bar text-white rounded-md shadow-md" onClick={handleReset}>Reset</button>
             </div>

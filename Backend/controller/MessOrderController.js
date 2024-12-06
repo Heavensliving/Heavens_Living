@@ -160,7 +160,7 @@ const updateOrderStatus = async (req, res) => {
 
     // Check if the order is already delivered
     if (order.bookingStatus === 'delivered') {
-      return res.status(400).json({ message: 'Order confirmed' });
+      return res.status(400).json({ message: 'Order already delivered' });
     }
 
     // Update the status to 'delivered'
