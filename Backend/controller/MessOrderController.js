@@ -157,13 +157,15 @@ const updateOrderStatus = async (req, res) => {
       console.log('order not found')
       return res.status(404).json({ message: 'Order not found' });
     }
+
+    // Check if the order is already delivered
+    if (order.bookingStatus === 'delivered') {
+      return res.status(400).json({ message: 'Order already delivered' });
+    }
+
     // Update the status to 'delivered'
     order.bookingStatus = 'delivered';
     const updatedOrder = await order.save();
-     // Check if the order is already delivered
-     if (order.bookingStatus === 'delivered') {
-      return res.status(400).json({ message: 'Order already delivered', orderStatus: order.bookingStatus, });
-    }
     return res.status(200).json({ message: 'Order confirmed', order: updatedOrder });
   } catch (error) {
     console.error('Error updating order status:', error);
