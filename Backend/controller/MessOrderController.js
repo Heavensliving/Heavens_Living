@@ -150,25 +150,26 @@ const updateOrderStatus = async (req, res) => {
     if (!orderId) {
       return res.status(400).json({ message: 'Order ID is required' });
     }
+    // Find the order by orderId
+    const order = await MessOrder.findOne({ orderId: orderId });
 
-    // Use atomic `findOneAndUpdate` with conditions
-    const updatedOrder = await MessOrder.findOneAndUpdate(
-      { orderId: orderId, bookingStatus: { $ne: 'delivered' } }, // Only update if not delivered
-      { bookingStatus: 'delivered' },
-      { new: true } // Return the updated document
-    );
-
-    if (!updatedOrder) {
-      return res.status(400).json({ message: 'Order already delivered' });
+    if (!order) {
+      console.log('order not found')
+      return res.status(404).json({ message: 'Order not found' });
     }
-
+    // Update the status to 'delivered'
+    order.bookingStatus = 'delivered';
+    const updatedOrder = await order.save();
+     // Check if the order is already delivered
+     if (order.bookingStatus === 'delivered') {
+      return res.status(400).json({ message: 'Order already delivered', orderStatus: order.bookingStatus, });
+    }
     return res.status(200).json({ message: 'Order confirmed', order: updatedOrder });
   } catch (error) {
     console.error('Error updating order status:', error);
     return res.status(500).json({ message: 'Error confirming order', error });
   }
 };
-
 
 const getStudentByOrderId = async (req, res) => {
   const { orderId } = req.params;

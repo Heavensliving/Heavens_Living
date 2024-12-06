@@ -56,7 +56,7 @@ const QRScanner = () => {
 
             if (response.status === 200) {
                 setMessage(response.data.message || 'Order confirmed successfully!');
-                await fetchStudentDetails(orderId);
+                 fetchStudentDetails(orderId);
             } else {
                 setMessage('Error: Failed to confirm order');
             }
