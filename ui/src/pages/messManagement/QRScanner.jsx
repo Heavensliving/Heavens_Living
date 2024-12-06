@@ -156,7 +156,7 @@ const QRScanner = () => {
                                 <ul className="list-disc pl-5">
                                     {details.adOns.map((addon, index) => (
                                         <li key={index}>
-                                            <strong>{addon.name}</strong> - Quantity: {addon.quantity}, Price: ${addon.price}, Total: ${addon.totalPrice}
+                                            <strong>{addon.name}</strong> - Quantity: {addon.quantity}, Price: {addon.price}
                                         </li>
                                     ))}
                                 </ul>
@@ -165,7 +165,6 @@ const QRScanner = () => {
                     </div>
                 </div>
             )}
-
             <div className="relative w-full flex justify-center mt-4">
                 <button className="px-4 py-2 bg-side-bar text-white rounded-md shadow-md" onClick={handleReset}>Reset</button>
             </div>
