@@ -14,7 +14,7 @@ const QRScanner = () => {
     const [scanner, setScanner] = useState(null);
     const [scannerActive, setScannerActive] = useState(true);
     const [details, setDetails] = useState(null);
-    const [scanning, setScanning] = useState(false);
+    const [scanning, setScanning] = useState(false); // New state
 
     useEffect(() => {
         if (scannerActive) {
@@ -42,10 +42,6 @@ const QRScanner = () => {
         setScanning(false); // Reset scanning state after request
     };
 
-    const onScanError = (errorMessage) => {
-        console.error('QR Scan error:', errorMessage);
-    };
-
     const handleScan = async (orderId) => {
         setLoading(true);
         try {
@@ -58,6 +54,9 @@ const QRScanner = () => {
             if (response.status === 200) {
                 setMessage(response.data.message || 'Order confirmed successfully!');
                 await fetchStudentDetails(orderId);
+            } else if (response.data.orderStatus === 'delivered') {
+                setMessage('This order has already been delivered.');
+                await fetchStudentDetails(orderId); // Still fetch details
             } else {
                 setMessage(response.data.message || 'Error: Failed to confirm order');
             }
@@ -68,7 +67,6 @@ const QRScanner = () => {
             setLoading(false);
         }
     };
-    
 
     const fetchStudentDetails = async (orderId) => {
         try {
@@ -81,10 +79,10 @@ const QRScanner = () => {
                 const order = studentResponse.data.order;
 
                 setDetails({
-                    category: studentData.category,
-                    mealType: order.mealType,
-                    name: order.name,
-                    orderId: order.orderId,
+                    category: studentData?.category || 'N/A',
+                    mealType: order?.mealType || 'N/A',
+                    name: order?.name || 'N/A',
+                    orderId: orderId,
                 });
                 setScannerActive(false);
             } else {
