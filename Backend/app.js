@@ -37,7 +37,7 @@ const server = http.createServer(app);
 
 initializeSocket(server);
 
-const allowedOrigins = ['https://heavens-living.onrender.com', "https://heavens-cafe-1.onrender.com"];
+const allowedOrigins = ['https://heavens-living.onrender.com', "https://heavens-cafe-1.onrender.com", "https://heaven-living.web.app"];
 
 app.use(cors({
   origin: function (origin, callback) {
