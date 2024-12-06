@@ -14,6 +14,7 @@ const QRScanner = () => {
     const [scanner, setScanner] = useState(null);
     const [scannerActive, setScannerActive] = useState(true);
     const [details, setDetails] = useState(null);
+    const [isOrderDelivered, setIsOrderDelivered] = useState(false);
 
     useEffect(() => {
         if (scannerActive) {
@@ -47,6 +48,10 @@ const QRScanner = () => {
 
     const handleScan = async (orderId) => {
         setLoading(true);
+        if (isOrderDelivered) {
+            setMessage('Order already delivered! Please reset to scan another.');
+            return;
+        }
         try {
             const response = await axios.put(
                 `${API_BASE_URL}/messOrder/bookingStatus`,
@@ -58,7 +63,15 @@ const QRScanner = () => {
                 setMessage(response.data.message || 'Order confirmed successfully!');
                 await fetchStudentDetails(orderId);
             } else {
-                setMessage('Error: Failed to confirm order');
+                setMessage(response.data.message || 'Error: Failed to confirm order');
+                if (response.data.orderStatus === 'delivered') {
+                    setDetails({
+                        category: 'N/A', // Optional, based on your requirements
+                        mealType: 'N/A',
+                        name: 'N/A',
+                        orderId,
+                    });
+                }
             }
         } catch (error) {
             console.error('Network error:', error.response || error.message || error);
@@ -67,6 +80,7 @@ const QRScanner = () => {
             setLoading(false);
         }
     };
+
 
     const fetchStudentDetails = async (orderId) => {
         try {
@@ -99,6 +113,7 @@ const QRScanner = () => {
         setMessage('');
         setDetails(null);
         setScannerActive(true);
+        setIsOrderDelivered(false);
     };
 
     return (
@@ -125,8 +140,8 @@ const QRScanner = () => {
             {/* Display scanned details */}
             {!scannerActive && details && (
                 <div className="p-4 bg-gray-100 rounded shadow-md w-11/12 mx-auto mt-4">
-                    <h2 className="text-2xl font-bold text-center text-blue-600 mb-4">
-                        Category: {details.category}
+                    <h2 className={`text-2xl font-bold text-center ${details.category ? 'text-blue-600' : 'text-red-500'} mb-4`}>
+                        {details.category ? `Category: ${details.category}` : 'Order already delivered!'}
                     </h2>
                     <div className="text-center">
                         <p>
