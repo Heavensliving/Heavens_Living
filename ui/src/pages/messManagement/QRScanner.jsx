@@ -6,13 +6,14 @@ import { useSelector } from 'react-redux';
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const QRScanner = () => {
-    const admin = useSelector(store => store.auth.admin);
+    const admin = useSelector((store) => store.auth.admin);
 
     const [scanResult, setScanResult] = useState('');
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState('');
     const [scanner, setScanner] = useState(null);
-    const [scannerActive, setScannerActive] = useState(true); // New state to control scanning
+    const [scannerActive, setScannerActive] = useState(true);
+    const [details, setDetails] = useState(null);
 
     useEffect(() => {
         if (scannerActive) {
@@ -33,7 +34,7 @@ const QRScanner = () => {
 
     const onScanSuccess = async (decodedText) => {
         if (scanner) {
-            scanner.pause(); // Pause scanning
+            scanner.pause();
         }
         setScanResult(decodedText);
         console.log(`Scanned Result: ${decodedText}`);
@@ -46,15 +47,16 @@ const QRScanner = () => {
 
     const handleScan = async (orderId) => {
         setLoading(true);
-        console.log("Scanned Order ID:", orderId);
         try {
-            const response = await axios.put(`${API_BASE_URL}/messOrder/bookingStatus`, {
-                orderId: orderId,
-            }, { headers: { 'Authorization': `Bearer ${admin.token}` } });
+            const response = await axios.put(
+                `${API_BASE_URL}/messOrder/bookingStatus`,
+                { orderId },
+                { headers: { Authorization: `Bearer ${admin.token}` } }
+            );
 
             if (response.status === 200) {
                 setMessage(response.data.message || 'Order confirmed successfully!');
-                fetchStudentDetails(orderId);
+                await fetchStudentDetails(orderId);
             } else {
                 setMessage('Error: Failed to confirm order');
             }
@@ -67,18 +69,22 @@ const QRScanner = () => {
     };
 
     const fetchStudentDetails = async (orderId) => {
-
         try {
             const studentResponse = await axios.get(`${API_BASE_URL}/messOrder/order/${orderId}`, {
-                headers: { 'Authorization': `Bearer ${admin.token}` },
+                headers: { Authorization: `Bearer ${admin.token}` },
             });
 
             if (studentResponse.status === 200) {
-                const category = studentResponse.data.student.category;
-                console.log('Category:', category);
+                const studentData = studentResponse.data.student;
+                const order = studentResponse.data.order;
 
-                setMessage(`Category: ${category}`);
-                setScannerActive(false); // Disable scanner after successful data fetch
+                setDetails({
+                    category: studentData.category,
+                    mealType: order.mealType,
+                    name: order.name,
+                    orderId: order.orderId,
+                });
+                setScannerActive(false);
             } else {
                 setMessage('Error: Failed to fetch student details');
             }
@@ -91,7 +97,8 @@ const QRScanner = () => {
     const handleReset = () => {
         setScanResult('');
         setMessage('');
-        setScannerActive(true); // Re-enable scanner
+        setDetails(null);
+        setScannerActive(true);
     };
 
     return (
@@ -115,11 +122,30 @@ const QRScanner = () => {
                 ></div>
             )}
 
-            {/* Scan result and message */}
-            {scanResult && !loading && (
-                <div className="absolute top-1/4 w-full text-center">
-                    <p className="text-2xl font-bold text-white">{scanResult}</p>
-                    <p className="mt-2 text-lg text-green-500">{message}</p>
+            {/* Display scanned details */}
+            {!scannerActive && details && (
+                <div className="p-4 bg-gray-100 rounded shadow-md w-11/12 mx-auto mt-4">
+                    <h2 className="text-2xl font-bold text-center text-blue-600 mb-4">
+                        Category: {details.category}
+                    </h2>
+                    <div className="text-center">
+                        <p>
+                            <strong>Name:</strong> {details.name}
+                        </p>
+                        <p>
+                            <strong>Meal Type:</strong> {details.mealType}
+                        </p>
+                        <p>
+                            <strong>Order ID:</strong> {details.orderId}
+                        </p>
+                    </div>
+                </div>
+            )}
+
+            {/* Message */}
+            {message && (
+                <div className="text-center text-lg text-green-500 mt-4">
+                    {message}
                 </div>
             )}
 
@@ -131,7 +157,7 @@ const QRScanner = () => {
             )}
 
             {/* Reset Button */}
-            <div className="relative w-full flex justify-center">
+            <div className="relative w-full flex justify-center mt-4">
                 <button
                     className="px-4 py-2 bg-side-bar text-white rounded-md shadow-md"
                     onClick={handleReset}

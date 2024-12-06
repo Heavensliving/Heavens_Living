@@ -193,7 +193,8 @@ const getStudentByOrderId = async (req, res) => {
     }
 
     res.status(200).json({
-      student
+      student,
+      order
     });
   } catch (error) {
     console.error('Error fetching order or student:', error);
