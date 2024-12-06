@@ -67,8 +67,9 @@ const QRScanner = () => {
     };
 
     const fetchStudentDetails = async (orderId) => {
+
         try {
-            const studentResponse = await axios.get(`${API_BASE_URL}/students/studentId/${orderId}`, {
+            const studentResponse = await axios.get(`${API_BASE_URL}/messOrder/order/${orderId}`, {
                 headers: { 'Authorization': `Bearer ${admin.token}` },
             });
 

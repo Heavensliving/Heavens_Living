@@ -21,5 +21,7 @@ router.put('/bookingStatus', verifyToken, MessOrderController.updateOrderStatus)
 
 router.get('/user/orders', verifyToken, MessOrderController.getOrder)
 
+router.get('/order/:orderId', verifyToken, MessOrderController.getStudentByOrderId);
+
 // Export the router and the setSocketIO function
 module.exports = router;

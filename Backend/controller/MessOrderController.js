@@ -160,7 +160,7 @@ const updateOrderStatus = async (req, res) => {
 
     // Check if the order is already delivered
     if (order.bookingStatus === 'delivered') {
-        return res.status(400).json({ message: 'Order already delivered' });
+      return res.status(400).json({ message: 'Order already delivered' });
     }
 
     // Update the status to 'delivered'
@@ -173,6 +173,35 @@ const updateOrderStatus = async (req, res) => {
   }
 };
 
+const getStudentByOrderId = async (req, res) => {
+  const { orderId } = req.params;
+console.log(orderId)
+  try {
+    // Fetch the order by orderId
+    const order = await MessOrder.findOne({ orderId }).populate('student');
+    console.log(order)
+
+    if (!order) {
+      return res.status(404).json({ message: 'Order not found' });
+    }
+
+    // Retrieve student details from the populated student field
+    const student = order.student;
+    console.log(student)
+
+    if (!student) {
+      return res.status(404).json({ message: 'Student not found for the given order' });
+    }
+
+    res.status(200).json({
+      student
+    });
+  } catch (error) {
+    console.error('Error fetching order or student:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+}
+
 
 const MessOrderController = {
   addOrder,
@@ -182,6 +211,7 @@ const MessOrderController = {
   updateOrderStatus,
   getOrder,
   addAdonOrder,
+  getStudentByOrderId,
 
 };
 
