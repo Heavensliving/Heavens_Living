@@ -37,13 +37,24 @@ const QRScanner = () => {
             console.warn('Scan already in progress. Ignoring this scan.');
             return;
         }
+    
         if (scanner) {
             scanner.pause();
         }
-        setScanResult(decodedText);
+    
+        // Reset state for repeated scans
+        setScanResult('');
+        setDetails(null);
+        setMessage('');
+        setScannerActive(true);
+    
         console.log(`Scanned Result: ${decodedText}`);
+        setScanResult(decodedText);
+    
+        // Proceed with handling the scan
         await handleScan(decodedText);
     };
+    
 
     const onScanError = (errorMessage) => {
         console.error('QR Scan error:', errorMessage);
@@ -73,15 +84,16 @@ const QRScanner = () => {
     };
 
     const fetchStudentDetails = async (orderId) => {
+        setDetails(null); // Clear previous details before fetching new ones
         try {
             const studentResponse = await axios.get(`${API_BASE_URL}/messOrder/order/${orderId}`, {
                 headers: { Authorization: `Bearer ${admin.token}` },
             });
-
+    
             if (studentResponse.status === 200) {
                 const studentData = studentResponse.data.student;
                 const order = studentResponse.data.order;
-
+    
                 setDetails({
                     category: studentData.category,
                     mealType: order.mealType,
@@ -97,6 +109,7 @@ const QRScanner = () => {
             setMessage(error.response?.data?.message || 'Network error while fetching student details');
         }
     };
+    
 
     const handleReset = () => {
         if (scanner) {
