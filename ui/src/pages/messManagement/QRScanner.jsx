@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios'; // Import Axios
+import axios from 'axios';
 import { Html5QrcodeScanner } from 'html5-qrcode';
 import { useSelector } from 'react-redux';
 
@@ -11,42 +11,34 @@ const QRScanner = () => {
     const [scanResult, setScanResult] = useState('');
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState('');
-    const [scanner, setScanner] = useState(null); // To control the scanner
+    const [scanner, setScanner] = useState(null);
+    const [scannerActive, setScannerActive] = useState(true); // New state to control scanning
 
     useEffect(() => {
-        const qrScanner = new Html5QrcodeScanner("qr-scanner", {
-            fps: 10, // Scan frame rate (frames per second)
-            qrbox: 250, // Size of the scanning box
-        });
+        if (scannerActive) {
+            const qrScanner = new Html5QrcodeScanner("qr-scanner", {
+                fps: 10,
+                qrbox: 250,
+            });
 
-        // Save the scanner instance to state for control
-        setScanner(qrScanner);
+            setScanner(qrScanner);
 
-        qrScanner.render(onScanSuccess, onScanError);
+            qrScanner.render(onScanSuccess, onScanError);
 
-        // Cleanup on component unmount
-        return () => {
-            qrScanner.clear();
-        };
-    }, []);
+            return () => {
+                qrScanner.clear();
+            };
+        }
+    }, [scannerActive]);
 
     const onScanSuccess = async (decodedText) => {
-    if (scanner) {
-        scanner.pause(); // Pause scanning to process the result
-    }
-
-    setScanResult(decodedText);
-    console.log(`Scanned Result: ${decodedText}`);
-    await handleScan(decodedText);
-
-    // Wait for 3 seconds before resuming the scanner
-    setTimeout(() => {
         if (scanner) {
-            scanner.resume(); // Resume scanning after 3 seconds
+            scanner.pause(); // Pause scanning
         }
-    }, 3000); // 3-second delay
-};
-
+        setScanResult(decodedText);
+        console.log(`Scanned Result: ${decodedText}`);
+        await handleScan(decodedText);
+    };
 
     const onScanError = (errorMessage) => {
         console.error('QR Scan error:', errorMessage);
@@ -59,9 +51,10 @@ const QRScanner = () => {
             const response = await axios.put(`${API_BASE_URL}/messOrder/bookingStatus`, {
                 orderId: orderId,
             }, { headers: { 'Authorization': `Bearer ${admin.token}` } });
-// console.log(response.data.order)
+
             if (response.status === 200) {
                 setMessage(response.data.message || 'Order confirmed successfully!');
+                fetchStudentDetails(orderId);
             } else {
                 setMessage('Error: Failed to confirm order');
             }
@@ -73,6 +66,33 @@ const QRScanner = () => {
         }
     };
 
+    const fetchStudentDetails = async (orderId) => {
+        try {
+            const studentResponse = await axios.get(`${API_BASE_URL}/students/studentId/${orderId}`, {
+                headers: { 'Authorization': `Bearer ${admin.token}` },
+            });
+
+            if (studentResponse.status === 200) {
+                const category = studentResponse.data.category;
+                console.log('Category:', category);
+
+                setMessage(`Category: ${category}`);
+                setScannerActive(false); // Disable scanner after successful data fetch
+            } else {
+                setMessage('Error: Failed to fetch student details');
+            }
+        } catch (error) {
+            console.error('Error fetching student details:', error.response || error.message || error);
+            setMessage(error.response?.data?.message || 'Network error while fetching student details');
+        }
+    };
+
+    const handleReset = () => {
+        setScanResult('');
+        setMessage('');
+        setScannerActive(true); // Re-enable scanner
+    };
+
     return (
         <div className="relative w-full h-full flex flex-col">
             {/* Header Section */}
@@ -82,15 +102,17 @@ const QRScanner = () => {
             <p className="text-lg mt-2 text-center">QR Scanner</p>
 
             {/* QR Scanner */}
-            <div
-                id="qr-scanner"
-                style={{
-                    width: '100%',
-                    height: '60vh',
-                    marginBottom: '20px',
-                    position: 'relative',
-                }}
-            ></div>
+            {scannerActive && (
+                <div
+                    id="qr-scanner"
+                    style={{
+                        width: '100%',
+                        height: '60vh',
+                        marginBottom: '20px',
+                        position: 'relative',
+                    }}
+                ></div>
+            )}
 
             {/* Scan result and message */}
             {scanResult && !loading && (
@@ -111,13 +133,7 @@ const QRScanner = () => {
             <div className="relative w-full flex justify-center">
                 <button
                     className="px-4 py-2 bg-side-bar text-white rounded-md shadow-md"
-                    onClick={() => {
-                        setScanResult('');
-                        setMessage('');
-                        if (scanner) {
-                            scanner.resume(); // Ensure scanner is resumed on reset
-                        }
-                    }}
+                    onClick={handleReset}
                 >
                     Reset
                 </button>

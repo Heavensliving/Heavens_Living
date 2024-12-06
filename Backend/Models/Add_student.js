@@ -40,6 +40,7 @@ const studentSchema = new mongoose.Schema({
   pendingSince: { type: Date, required: false },
   isBlocked: { type: Boolean, default: false },
   profileCompletionPercentage: { type: String, required: true, default: '10' },
+  category: { type: String, enum: ['Basic', 'Standard', 'Premium'], default: 'Basic' },
   room: { type: mongoose.Schema.Types.ObjectId, ref: 'Rooms' },
   maintenance: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Maintanance' }],
   messOrders: [{ type: mongoose.Schema.Types.ObjectId, ref: 'MessOrder' }],

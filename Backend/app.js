@@ -51,7 +51,7 @@ app.use(cors({
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Authorization', 'Role', 'Content-Type'],
   credentials: true,
-}));// 
+}));
 
 // app.use(cors({
 //   origin: '*',
