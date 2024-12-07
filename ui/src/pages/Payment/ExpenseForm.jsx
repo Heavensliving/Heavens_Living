@@ -4,6 +4,8 @@ import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 import CheckAuth from "../auth/CheckAuth";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const ExpenseForm = () => {
   const admin = useSelector((store) => store.auth.admin);
@@ -23,6 +25,7 @@ const ExpenseForm = () => {
 
   const [properties, setProperties] = useState([]);
   const [staffMembers, setStaffMembers] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (!admin) return;
@@ -66,6 +69,7 @@ const ExpenseForm = () => {
   const handleSubmit = async (e) => {
     // console.log(formData) // debug statement
     e.preventDefault();
+    setLoading(true);
     try {
       // eslint-disable-next-line no-unused-vars
       const response = await axios.post(
@@ -76,12 +80,19 @@ const ExpenseForm = () => {
         }
       );
       // console.log("Expense added:", response.data); // debug statement
-      navigate("/expenses");
+    
+      toast.success('Expense Added Successfully!', { autoClose: 500 });
+      setTimeout(() => {
+        navigate("/expenses");
+        setLoading(false);
+      }, 1000);
     } catch (error) {
       console.error("Error adding expense:", error);
+      toast.error('Failed to add commission', { autoClose: 500 });
       alert(
         error.response?.data?.error ||
           "Failed to add expense. Please check the input data and try again."
+          
       );
     }
   };
@@ -235,6 +246,7 @@ const ExpenseForm = () => {
           </button>
         </form>
       </div>
+      <ToastContainer />
     </div>
   );
 };

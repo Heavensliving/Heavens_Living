@@ -2,8 +2,10 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-const API_BASE_URL =import.meta.env.VITE_API_BASE_URL;
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 import CheckAuth from '../auth/CheckAuth';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const CommissionForm = () => {
   const admin = useSelector(store => store.auth.admin);
@@ -16,6 +18,7 @@ const CommissionForm = () => {
   const [propertyName, setPropertyName] = useState('');
   const [message, setMessage] = useState('');
   const [properties, setProperties] = useState([]); // State for storing fetched properties
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   // Fetching properties when the component mounts
@@ -37,6 +40,7 @@ const CommissionForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true)
 
     try {
       const response = await axios.post(`${API_BASE_URL}/commission/add`, {
@@ -48,15 +52,19 @@ const CommissionForm = () => {
         propertyId, // Send the propertyId selected from the dropdown
         propertyName,
       },
-      { headers: { 'Authorization': `Bearer ${admin.token}` } }
+        { headers: { 'Authorization': `Bearer ${admin.token}` } }
       );
-      
+
       setMessage(response.data.message);
       // console.log(response.data);
 
       // Navigate to '/payments' after successful submission
-      navigate('/payments');
 
+      toast.success('Commission Added Successfully!', { autoClose: 500 });
+      setTimeout(() => {
+        navigate('/payments');
+        setLoading(false);
+      }, 1000);
       // Reset form fields after successful submission
       setAgentName('');
       setAmount('');
@@ -68,6 +76,7 @@ const CommissionForm = () => {
     } catch (error) {
       console.error('Error adding commission:', error);
       setMessage('Failed to add commission');
+      toast.error('Failed to add commission', { autoClose: 500 });
     }
   };
 
@@ -165,7 +174,7 @@ const CommissionForm = () => {
               ))}
             </select>
           </div>
-          
+
           {/* Displaying the selected propertyId */}
           {propertyId && (
             <div className="col-span-2">
@@ -189,6 +198,7 @@ const CommissionForm = () => {
           </button>
         </form>
       </div>
+      <ToastContainer />
     </div>
   );
 };

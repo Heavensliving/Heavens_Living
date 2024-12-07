@@ -460,7 +460,6 @@ const getStudentByStudentId = async (req, res) => {
       pendingRentAmount,
       advanceBalance,
       pendingBalance,
-      category,
       _id
     });
   } catch (error) {

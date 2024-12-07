@@ -5,6 +5,8 @@ import { FaSearch } from 'react-icons/fa';
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 import { useSelector } from 'react-redux';
 import CheckAuth from '../auth/CheckAuth';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 // eslint-disable-next-line react/prop-types
 const InputField = ({ label, name, type = 'text', value, onChange, required = false, disabled = false }) => (
@@ -67,6 +69,7 @@ const FeePayment = () => {
   const [paidDate, setPaidDate] = useState('');
   const [monthYear, setMonthYear] = useState('');
   const [isStudentDataFetched, setIsStudentDataFetched] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const handleStudentIdChange = (e) => {
     setFormData({ studentId: e.target.value });
@@ -112,6 +115,7 @@ const FeePayment = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true)
 
     // Construct formData with all necessary fields
     const comprehensiveFormData = {
@@ -132,9 +136,15 @@ const FeePayment = () => {
       await axios.post(`${API_BASE_URL}/fee/add`, comprehensiveFormData,
         { headers: { 'Authorization': `Bearer ${admin.token}` } }
       );
-      navigate('/payments');
+    
+      toast.success('Payments Added Successfully!', { autoClose: 500 });
+      setTimeout(() => {
+        navigate('/payments');
+        setLoading(false);
+      }, 1000);
     } catch (error) {
       console.error("Error recording fee payment:", error);
+      toast.error('Failed to add commission', { autoClose: 500 });
     }
   };
 
@@ -249,6 +259,7 @@ const FeePayment = () => {
           )}
         </form>
       </div>
+      <ToastContainer />
     </div>
   );
 };
