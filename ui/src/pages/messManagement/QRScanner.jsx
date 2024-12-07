@@ -37,13 +37,24 @@ const QRScanner = () => {
             console.warn('Scan already in progress. Ignoring this scan.');
             return;
         }
+
         if (scanner) {
             scanner.pause();
         }
-        setScanResult(decodedText);
+
+        // Reset state for repeated scans
+        setScanResult('');
+        setDetails(null);
+        setMessage('');
+        setScannerActive(true);
+
         console.log(`Scanned Result: ${decodedText}`);
+        setScanResult(decodedText);
+
+        // Proceed with handling the scan
         await handleScan(decodedText);
     };
+
 
     const onScanError = (errorMessage) => {
         console.error('QR Scan error:', errorMessage);
@@ -73,6 +84,7 @@ const QRScanner = () => {
     };
 
     const fetchStudentDetails = async (orderId) => {
+        setDetails(null); // Clear previous details before fetching new ones
         try {
             const studentResponse = await axios.get(`${API_BASE_URL}/messOrder/order/${orderId}`, {
                 headers: { Authorization: `Bearer ${admin.token}` },
@@ -87,6 +99,7 @@ const QRScanner = () => {
                     mealType: order.mealType,
                     name: order.name,
                     orderId: order.orderId,
+                    adOns: order.adOns
                 });
                 setScannerActive(false);
             } else {
@@ -97,6 +110,7 @@ const QRScanner = () => {
             setMessage(error.response?.data?.message || 'Network error while fetching student details');
         }
     };
+
 
     const handleReset = () => {
         if (scanner) {
@@ -121,6 +135,14 @@ const QRScanner = () => {
             {scannerActive && (
                 <div id="qr-scanner" style={{ width: '100%', height: '60vh', marginBottom: '20px', position: 'relative' }}></div>
             )}
+            {message && !loading && (
+                <div className="text-center text-lg text-green-500 mt-4">{message}</div>
+            )}
+            {loading && (
+                <div className="absolute top-1/4 w-full text-center text-white">
+                    <p className="text-lg">Processing...</p>
+                </div>
+            )}
             {!scannerActive && details && (
                 <div className="p-4 bg-gray-100 rounded shadow-md w-11/12 mx-auto mt-4">
                     <h2 className="text-2xl font-bold text-center text-blue-600 mb-4">Category: {details.category}</h2>
@@ -128,16 +150,25 @@ const QRScanner = () => {
                         <p><strong>Name:</strong> {details.name}</p>
                         <p><strong>Meal Type:</strong> {details.mealType}</p>
                         <p><strong>Order ID:</strong> {details.orderId}</p>
+                        {details.adOns && details.adOns.length > 0 && (
+                            <div className="mt-4">
+                                <h3 className="text-xl font-semibold">Add-Ons:</h3>
+                                <ul className="list-disc pl-5">
+                                    {details.adOns.map((addon, index) => (
+                                        <li key={index}>
+                                            <strong>{addon.name}</strong> - Quantity: {addon.quantity}, Price: {addon.price}
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                        )}
                     </div>
                 </div>
             )}
-            {message && <div className="text-center text-lg text-green-500 mt-4">{message}</div>}
-            {loading && <div className="absolute top-1/4 w-full text-center text-white"><p className="text-lg">Processing...</p></div>}
             <div className="relative w-full flex justify-center mt-4">
                 <button className="px-4 py-2 bg-side-bar text-white rounded-md shadow-md" onClick={handleReset}>Reset</button>
             </div>
         </div>
     );
 };
-
 export default QRScanner;
