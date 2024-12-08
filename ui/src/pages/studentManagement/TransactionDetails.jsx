@@ -7,7 +7,7 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const TransactionDetails = ({ onClose, slideIn }) => {
     const admin = useSelector(store => store.auth.admin);
-    const { studentId } = useParams(); 
+    const { studentId } = useParams();
     const [transactions, setTransactions] = useState([]); // Set to an array
 
     useEffect(() => {
@@ -17,7 +17,7 @@ const TransactionDetails = ({ onClose, slideIn }) => {
                     headers: { 'Authorization': `Bearer ${admin.token}` }
                 })
                 .then((response) => {
-                    console.log(response.data);
+                    // console.log(response.data);
                     // Set all transactions if there's more than one
                     if (response.data.length > 0) {
                         setTransactions(response.data.reverse());
@@ -31,9 +31,8 @@ const TransactionDetails = ({ onClose, slideIn }) => {
 
     return (
         <div
-            className={`fixed inset-y-0 right-0 bg-white w-full max-w-md shadow-2xl transform transition-transform duration-300 ${
-                slideIn ? 'translate-x-0' : 'translate-x-full'
-            } z-50`}
+            className={`fixed inset-y-0 right-0 bg-white w-full max-w-md shadow-2xl transform transition-transform duration-300 ${slideIn ? 'translate-x-0' : 'translate-x-full'
+                } z-50`}
         >
             <div className="p-4 h-full flex flex-col">
                 <h2 className="text-lg font-bold text-gray-900 text-center mb-4">Transaction Overview</h2>
@@ -53,7 +52,8 @@ const TransactionDetails = ({ onClose, slideIn }) => {
                                 <div className="grid grid-cols-2 gap-2">
                                     <div>
                                         <p className="text-gray-700 text-sm"><strong>Amount Paid</strong></p>
-                                        <p className="text-md text-gray-900">${transaction.amountPaid}</p>
+                                        <p className="text-md text-gray-900">&#8377;
+                                            {transaction.amountPaid}</p>
                                     </div>
                                     <div>
                                         <p className="text-gray-700 text-sm"><strong>Date of payment</strong></p>
@@ -78,7 +78,7 @@ const TransactionDetails = ({ onClose, slideIn }) => {
 
                 <button
                     onClick={onClose}
-                    className="self-center mt-4 bg-side-bar hover:from-blue-600 hover:bg-gray-700 text-white font-medium py-2 px-4 rounded-lg shadow-lg"
+                    className="self-center mt-4 bg-side-bar hover:from-blue-600 hover:bg-[#373082] text-white font-medium py-2 px-4 rounded-lg shadow-lg"
                 >
                     Close
                 </button>

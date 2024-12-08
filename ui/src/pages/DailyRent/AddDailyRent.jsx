@@ -111,8 +111,8 @@ const AddDailyRent = () => {
             : response.data.rooms || [];
           // console.log("here", response.data)
           // Filter rooms with vacantSlot > 0
-          const availableRooms = roomsData.filter(room => room.vacantSlot > 0);
-          console.log(availableRooms)
+          const availableRooms = roomsData.filter(room => room.vacantSlot > 0 && room.status === 'available');
+          // console.log(availableRooms)
           setRooms(availableRooms); // Set the rooms to state
         } catch (error) {
           console.error('Error fetching rooms:', error);
@@ -259,7 +259,11 @@ const AddDailyRent = () => {
           label="Room Type"
           name="roomType"
           onChange={handleChange}
-          options={rooms.map(room => ({ _id: room.id, propertyName: room.roomType }))}
+          options={[
+            ...new Map(
+              rooms.map((room) => [room.roomType, { _id: room.id, propertyName: room.roomType }])
+            ).values()
+          ]}
           required
         />
         <Select
@@ -287,17 +291,17 @@ const AddDailyRent = () => {
         <Input label="Aadhar Front Image" type="file" name="adharFrontImage" onChange={handleChange} accept="image/*" />
         <Input label="Aadhar Back Image" type="file" name="adharBackImage" onChange={handleChange} accept="image/*" />
         <ToastContainer />
-          <button
-            type="submit"
-            className={`w-full bg-side-bar text-white font-bold py-3 rounded-lg hover:bg-[#373082] transition duration-300 flex items-center justify-center ${loading ? ' cursor-not-allowed' : ''}`}
-            disabled={loading}
-          >
-            {loading ? (
-              <div className="spinner border-t-2 border-white border-solid rounded-full w-6 h-6 animate-spin"></div>
-            ) : (
-              'Register'
-            )}
-          </button>
+        <button
+          type="submit"
+          className={`w-full bg-side-bar text-white font-bold py-3 rounded-lg hover:bg-[#373082] transition duration-300 flex items-center justify-center ${loading ? ' cursor-not-allowed' : ''}`}
+          disabled={loading}
+        >
+          {loading ? (
+            <div className="spinner border-t-2 border-white border-solid rounded-full w-6 h-6 animate-spin"></div>
+          ) : (
+            'Register'
+          )}
+        </button>
       </form>
     </div>
   );

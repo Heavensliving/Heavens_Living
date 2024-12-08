@@ -23,7 +23,7 @@ const ExpenseTable = () => {
         const response = await axios.get(`${API_BASE_URL}/expense/`, {
           headers: { 'Authorization': `Bearer ${admin.token}` }
         });
-        setExpenses(response.data.expenses);
+        setExpenses(response.data.expenses.reverse());
       } catch (error) {
         setError('Error fetching expenses');
       } finally {

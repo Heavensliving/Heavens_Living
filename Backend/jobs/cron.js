@@ -27,8 +27,8 @@ cron.schedule('0 0 * * *', async () => {
         const lastPaymentDate = new Date(dateOfPayment);
         nextDueDate = new Date(lastPaymentDate.getFullYear(), lastPaymentDate.getMonth() + 1, lastPaymentDate.getDate());
       } else {
-        // If there is no `dateOfPayment`, calculate the first due date (same day next month from join date)
-        nextDueDate = new Date(joinDateObj.getFullYear(), joinDateObj.getMonth() + 1, joinDateObj.getDate());
+        // If there is no `dateOfPayment`, calculate the first due date (same day join date)
+        nextDueDate = new Date(joinDateObj.getFullYear(), joinDateObj.getMonth(), joinDateObj.getDate());
       }
 
       // Ensure nextDueDate is in the past or today
@@ -42,7 +42,7 @@ cron.schedule('0 0 * * *', async () => {
             dateOfPayment: today, // Set dateOfPayment to the current due date (same day of the next month)
           });
 
-          console.log(`${student.name}'s status set to Pending for due date ${nextDueDate.toISOString().slice(0, 10)}.`);
+          console.log(`${student.name}'s status set to Pending for due date ${today.toISOString().slice(0, 10)}.`);
         } else {
           // If `dateOfPayment` is already set, just update the payment status to Pending
           await Student.findByIdAndUpdate(_id, {

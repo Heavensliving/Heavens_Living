@@ -88,7 +88,7 @@ function AddStudent() {
 
           // console.log(response.data) //debug statement
           // Filter rooms with vacantSlot > 0
-          const availableRooms = response.data.filter(room => room.vacantSlot > 0);
+          const availableRooms = response.data.filter(room => room.vacantSlot > 0 && room.status === 'available');
           setRooms(availableRooms); // Set the rooms to state
         } catch (error) {
           console.error('Error fetching rooms:', error);

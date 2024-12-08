@@ -81,7 +81,7 @@ const ExpenseForm = () => {
       console.error("Error adding expense:", error);
       alert(
         error.response?.data?.error ||
-          "Failed to add expense. Please check the input data and try again."
+        "Failed to add expense. Please check the input data and try again."
       );
     }
   };
@@ -96,10 +96,11 @@ const ExpenseForm = () => {
         onChange={onChange}
         className="w-full p-2 border rounded-md"
         {...extraProps}
+        min='0'
       />
     </div>
   );
-
+  
   const renderSelect = (label, name, value, onChange, options, extraProps = {}) => (
     <div>
       <label className="block text-gray-700 mb-2">{label}</label>
@@ -148,13 +149,12 @@ const ExpenseForm = () => {
               ["Salary", "Grocery", "Vehicle", "Cafe", "Others"],
               { required: true }
             )}
-            {renderInput(
+            {renderSelect(
               "Payment Method",
               "paymentMethod",
-              "text",
               formData.paymentMethod,
               handleChange,
-              { required: true }
+              ["UPI", "Bank Transfer", "Cash"],
             )}
           </div>
 

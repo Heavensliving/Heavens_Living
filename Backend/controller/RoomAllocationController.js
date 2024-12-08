@@ -6,7 +6,7 @@ const Rooms = require("../Models/RoomAllocationModel");
 
 const addRoom = async (req, res) => {
   try {
-    const { propertyName, roomNo, roomType, capacity, vacantSlot, currentStatus, property } = req.body;
+    const { propertyName, roomNo, roomType, capacity, vacantSlot, currentStatus, property, underMaintenance } = req.body;
     const existingRoom = await Rooms.findOne({ property, roomNumber: roomNo });
     if (existingRoom) {
       return res.status(400).json({
@@ -22,6 +22,7 @@ const addRoom = async (req, res) => {
       vacantSlot,
       status: currentStatus,
       property,
+      underMaintenance
     });
     await newRoom.save();
     await Property.findByIdAndUpdate(property, { $push: { rooms: newRoom._id } });

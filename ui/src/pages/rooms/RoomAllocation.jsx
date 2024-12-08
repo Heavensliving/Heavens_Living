@@ -77,7 +77,9 @@ function RoomAllocation() {
         const isMatchingOccupancy =
           !occupancyFilter ||
           (occupancyFilter === 'Occupied' && room.vacantSlot === 0) ||
-          (occupancyFilter === 'Vacant' && room.vacantSlot > 0);
+          (occupancyFilter === 'Vacant' && room.vacantSlot > 0) ||
+          (occupancyFilter === 'unavailable' && room.status === 'unavailable') ||
+          (occupancyFilter === 'underMaintenance' && room.status === 'underMaintenance');
         const isMatchingSearch =
           !searchQuery ||
           room.roomNumber.toLowerCase().includes(searchQuery.toLowerCase());
@@ -155,6 +157,8 @@ function RoomAllocation() {
           <option value="">All Rooms</option>
           <option value="Occupied">Occupied</option>
           <option value="Vacant">Vacant</option>
+          <option value="unavailable">Unavailable</option>
+          <option value="underMaintenance">Under Maintenance</option>
         </select>
 
         {/* Search by Room Number */}
@@ -180,7 +184,7 @@ function RoomAllocation() {
               return (
                 <div
                   key={room.roomNumber}
-                  className="bg-white border border-gray-300 rounded-xl shadow-lg overflow-hidden cursor-pointer"
+                  className="relative bg-white border border-gray-300 rounded-xl shadow-lg overflow-hidden cursor-pointer"
                   onClick={() => handleCardClick(room._id, room.roomNumber)}
                 >
                   <div className="p-6">
@@ -196,7 +200,7 @@ function RoomAllocation() {
                     <p className="text-gray-600 mb-2">Room Type: {room.roomType}</p>
                     <p className="text-gray-600 mb-2">Occupant: {room.occupant}</p>
                     <p className="text-gray-600 mb-2">Vacant: {room.vacantSlot}</p>
-                    <p className="text-gray-600 flex items-center">
+                    <p className="text-gray-600 flex items-center mb-3">
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         className="h-5 w-5 text-gray-400 mr-1"
@@ -214,12 +218,25 @@ function RoomAllocation() {
                       {room.occupant}/{room.roomCapacity} occupied
                     </p>
                   </div>
+
+                  {/* Status Badge */}
+                  {room.status === 'underMaintenance' && (
+                    <div className="absolute bottom-0 left-0 right-0 bg-yellow-100 text-yellow-600 text-center py-2 text-sm font-bold">
+                      Under Maintenance
+                    </div>
+                  )}
+                  {room.status === 'unavailable' && (
+                    <div className="absolute bottom-0 left-0 right-0 bg-red-100 text-red-600 text-center py-2 text-sm font-bold">
+                      Unavailable
+                    </div>
+                  )}
                 </div>
               );
             })}
           </div>
         </div>
       ))}
+
 
       {/* Modal Component */}
       {isModalOpen && (

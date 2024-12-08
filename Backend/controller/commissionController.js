@@ -4,6 +4,7 @@ const Commission = require('../Models/commisionModel');
 const addCommission = async (req, res) => {
   try {
     const { agentName, amount, note, paymentType, transactionId, propertyId, propertyName } = req.body;
+    console.log(req.body)
     
     const newCommissionEntry = new Commission({
       agentName,

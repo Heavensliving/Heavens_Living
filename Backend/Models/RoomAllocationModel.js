@@ -33,7 +33,7 @@ const RoomAllocationSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ["available", "unavailable"],
+    enum: ["available", "unavailable", "underManitenance"],
     required: true,
   },
   occupanets: [{ type: mongoose.Schema.Types.ObjectId, ref: "Student" }],

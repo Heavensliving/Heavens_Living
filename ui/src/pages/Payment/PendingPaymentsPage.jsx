@@ -94,7 +94,7 @@ const PendingPaymentsPage = () => {
     });
 
     // Total Amount Calculation
-    const totalDueAmount = filteredTransactions.reduce((sum, payment) => sum + (parseFloat(payment.pendingRentAmount) || 0), 0);
+    // const totalDueAmount = filteredTransactions.reduce((sum, payment) => sum + (parseFloat(payment.pendingRentAmount) || 0), 0);
 
     // Add Total Below the Table
     const finalY = doc.lastAutoTable.finalY || 0;

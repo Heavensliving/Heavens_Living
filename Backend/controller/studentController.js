@@ -428,10 +428,11 @@ const getStudentByStudentId = async (req, res) => {
       }
     } else {
       // If no cleared date, calculate unpaid months from the original join date
-      unpaidMonths = (today.getFullYear() - joinDate.getFullYear()) * 12 + (today.getMonth() - joinDate.getMonth());
-      if (today.getDate() < joinDate.getDate()) {
-        unpaidMonths--;
-      }
+      unpaidMonths = 1
+      // (today.getFullYear() - joinDate.getFullYear()) * 12 + (today.getMonth() - joinDate.getMonth());
+      // if (today.getDate() < joinDate.getDate()) {
+      //   unpaidMonths--;
+      // }
     }
 
     // Calculate total due rent for unpaid months
@@ -460,7 +461,6 @@ const getStudentByStudentId = async (req, res) => {
       pendingRentAmount,
       advanceBalance,
       pendingBalance,
-      category,
       _id
     });
   } catch (error) {

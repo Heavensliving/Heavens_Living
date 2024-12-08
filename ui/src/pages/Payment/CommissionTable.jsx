@@ -18,7 +18,7 @@ const CommissionTable = () => {
         const response = await axios.get(`${API_BASE_URL}/commission/`, {
           headers: { 'Authorization': `Bearer ${admin.token}` },
         });
-        setCommissions(response.data); // Adjust based on the actual response structure
+        setCommissions(response.data.reverse()); // Adjust based on the actual response structure
       } catch (error) {
         console.error('Error fetching commission data:', error);
         setError('Failed to fetch commissions');

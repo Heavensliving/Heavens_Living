@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-const API_BASE_URL =import.meta.env.VITE_API_BASE_URL;
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 import CheckAuth from '../auth/CheckAuth';
 
 const CommissionForm = () => {
@@ -48,9 +48,9 @@ const CommissionForm = () => {
         propertyId, // Send the propertyId selected from the dropdown
         propertyName,
       },
-      { headers: { 'Authorization': `Bearer ${admin.token}` } }
+        { headers: { 'Authorization': `Bearer ${admin.token}` } }
       );
-      
+
       setMessage(response.data.message);
       // console.log(response.data);
 
@@ -104,6 +104,7 @@ const CommissionForm = () => {
               required
               className="mt-1 p-3 border border-gray-300 rounded-md w-full focus:ring-blue-500 focus:border-blue-500"
               placeholder="Enter amount"
+              min='0'
             />
           </div>
           <div>
@@ -120,15 +121,19 @@ const CommissionForm = () => {
             <label className="block text-sm font-medium text-gray-700">
               Payment Type
             </label>
-            <input
-              type="text"
+            <select
               value={paymentType}
               onChange={(e) => setPaymentType(e.target.value)}
               required
               className="mt-1 p-3 border border-gray-300 rounded-md w-full focus:ring-blue-500 focus:border-blue-500"
-              placeholder="Enter payment type"
-            />
+            >
+              <option value="">Select Payment Type</option>
+              <option value="Cash">Cash</option>
+              <option value="UPI">UPI</option>
+              <option value="Bank Transfer">Bank Transfer</option>
+            </select>
           </div>
+
           <div>
             <label className="block text-sm font-medium text-gray-700">
               Transaction ID
@@ -165,7 +170,7 @@ const CommissionForm = () => {
               ))}
             </select>
           </div>
-          
+
           {/* Displaying the selected propertyId */}
           {propertyId && (
             <div className="col-span-2">

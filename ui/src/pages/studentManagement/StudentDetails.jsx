@@ -99,6 +99,7 @@ const StudentDetails = () => {
     workingPlace: student.workingPlace,
     warningStatus: student.warningStatus,
     isBlocked: student.isBlocked,
+    category: student.category
   };
   // Function to open the modal with the selected image
   const handleImageClick = (imageSrc) => {
@@ -178,7 +179,7 @@ const StudentDetails = () => {
       }
     }
   };
-  
+
   const handleUnblockAccess = async () => {
     if (window.confirm('Are you sure you want to Unblock the Access?')) { // Using window.confirm for confirmation
       try {
@@ -202,7 +203,7 @@ const StudentDetails = () => {
       }
     }
   };
-  
+
 
   return (
     <div className="min-h-screen bg-gray-100 p-4 flex justify-center">
@@ -227,6 +228,18 @@ const StudentDetails = () => {
               {warnings === 2 && <span className="text-orange-600 text-sm">{studentData.name} has received a second warning</span>}
               {warnings === 3 && <span className="text-red-700 text-sm">{studentData.name} has been blacklisted due to multiple warnings</span>}
               <p className="text-gray-500">{studentData.studentId}</p>
+              <p
+                className={
+                  studentData.category === "Basic"
+                    ? "text-green-500"
+                    : studentData.category === "Standard"
+                      ? "text-yellow-500"
+                      : "text-blue-500"
+                }
+              >
+                {studentData.category}
+              </p>
+
             </div>
 
             {/* Right Side: Transaction History Section */}

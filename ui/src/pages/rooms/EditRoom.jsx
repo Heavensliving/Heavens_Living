@@ -19,7 +19,7 @@ function EditRoom() {
         roomCapacity: '',
         occupant: '',
         vacantSlot: '',
-        currentStatus: 'available',
+        status: '',
         property: '', // This is the property ID
     });
 
@@ -38,7 +38,7 @@ function EditRoom() {
                     roomCapacity: room.roomCapacity,
                     occupant: room.occupant,
                     vacantSlot: room.vacantSlot,
-                    currentStatus: room.currentStatus,
+                    status: room.status,
                     property: room.property, // The property ID
                 });
             } catch (error) {
@@ -165,14 +165,14 @@ function EditRoom() {
                     <FormField
                         label="Current Status"
                         id="currentStatus"
-                        name="currentStatus"
+                        name="status"
                         type="select"
-                        value={roomDetails.currentStatus}
+                        value={roomDetails.status}
                         onChange={handleChange}
                         options={[
                             { value: 'available', label: 'Available' },
-                            { value: 'occupied', label: 'Occupied' },
-                            { value: 'maintenance', label: 'Under Maintenance' },
+                            { value: 'unavailable', label: 'Unavailable' },
+                            { value: 'underMaintenance', label: 'Under Maintenance' },
                         ]}
                     />
                     <div className="w-full px-2 mb-4">

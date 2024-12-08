@@ -128,6 +128,7 @@ function AddRoom() {
                         options={[
                             { value: "available", label: "Available" },
                             { value: "unavailable", label: "Unavailable" },
+                            { value: "underMaintenance", label: "Under Maintenance" }
                         ]}
                     />
                 </div>
