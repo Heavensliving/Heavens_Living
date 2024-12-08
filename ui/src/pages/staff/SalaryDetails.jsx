@@ -96,7 +96,7 @@ const SalaryDetails = ({ onClose, slideIn }) => {
 
                 <button
                     onClick={onClose}
-                    className="self-center mt-4 bg-side-bar hover:bg-gray-700 text-white font-medium py-2 px-4 rounded-lg shadow-lg"
+                    className="self-center mt-4 bg-side-bar hover:bg-[#373082] text-white font-medium py-2 px-4 rounded-lg shadow-lg"
                 >
                     Close
                 </button>

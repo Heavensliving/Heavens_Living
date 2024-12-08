@@ -9,6 +9,7 @@ import "jspdf-autotable";
 
 const PaymentDashboard = () => {
   const admin = useSelector((store) => store.auth.admin);
+  const [total, setTotal] = useState(0);
   const [totalReceived, setTotalReceived] = useState(0);
   const [totalReceivedMess, setTotalReceivedMess] = useState(0);
   const [totalMonthlyRent, setTotalMonthlyRent] = useState(0);
@@ -55,6 +56,7 @@ const PaymentDashboard = () => {
           (acc, transaction) => acc + (transaction.amountPaid || 0),
           0
         );
+        setTotal(totalAmount)
         setTotalReceived(totalAmount - (messPeopleTotal + dailyRentTotal));
         setTotalReceivedMess(messPeopleTotal);
         setLoading(false)
@@ -120,7 +122,7 @@ const PaymentDashboard = () => {
         const studentResponse = await axios.get(`${API_BASE_URL}/students`, {
           headers: { Authorization: `Bearer ${admin.token}` },
         });
-    
+
         // Calculate total refundable and non-refundable deposit
         const totalRefundableDeposit = studentResponse.data.reduce(
           (acc, student) => acc + (student.refundableDeposit || 0),
@@ -130,18 +132,18 @@ const PaymentDashboard = () => {
           (acc, student) => acc + (student.nonRefundableDeposit || 0),
           0
         );
-    
+
         // Set them into separate state variables
-        setTotalRefundableDeposit(totalRefundableDeposit); 
+        setTotalRefundableDeposit(totalRefundableDeposit);
         setTotalNonRefundableDeposit(totalNonRefundableDeposit);
-    
+
         setLoading(false);
       } catch (error) {
         console.error("Error fetching student deposits:", error);
         setLoading(false);
       }
     };
-    
+
     const fetchTotalWaveOff = async () => {
       if (!admin) return;
       try {
@@ -264,8 +266,8 @@ const PaymentDashboard = () => {
           fee.messPeople
             ? "Mess Only"
             : fee.dailyRent
-            ? "Daily Rent"
-            : "Regular",
+              ? "Daily Rent"
+              : "Regular",
           `Rs: ${fee.amountPaid.toLocaleString("en-IN")}`,
         ]),
         styles: { fontSize: 8 },
@@ -319,13 +321,13 @@ const PaymentDashboard = () => {
   const paymentPendingDisplayMess =
     paymentPendingMess < 0 ? 0 : paymentPendingMess;
 
-    if (loading) {
-      return (
-        <div className="flex items-center justify-center h-screen">
-          <div className="loadingSpinner border-t-2 border-white border-solid rounded-full w-6 h-6 animate-spin"></div>
-        </div>
-      );
-    }
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="loadingSpinner border-t-2 border-white border-solid rounded-full w-6 h-6 animate-spin"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
@@ -388,24 +390,24 @@ const PaymentDashboard = () => {
             <p>Payment Pending</p>
           </div>
           <div
-            className="p-4 bg-yellow-100 text-yellow-500 rounded-md cursor-pointer"
-            onClick={() => navigate("/expenses")}
+            className="p-4 bg-yellow-100 text-yellow-500 rounded-md"
+            // onClick={() => navigate("/expenses")}
           >
             <p className="text-lg font-semibold">₹{totalMonthlyRentMess}</p>
             <p>Monthly Rent</p>
             <span>(Mess Only)</span>
           </div>
           <div
-            className="p-4 bg-green-100 text-green-500 rounded-md cursor-pointer"
-            onClick={() => navigate("/paymentReceived")}
+            className="p-4 bg-green-100 text-green-500 rounded-md"
+            // onClick={() => navigate("/paymentReceived")}
           >
             <p className="text-lg font-semibold">₹{totalReceivedMess || 0}</p>
             <p>Payment Received</p>
             <span>(Mess Only)</span>
           </div>
           <div
-            className="p-4 bg-red-100 text-red-500 rounded-md cursor-pointer"
-            onClick={() => navigate("/paymentPending")}
+            className="p-4 bg-red-100 text-red-500 rounded-md"
+            // onClick={() => navigate("/paymentPending")}
           >
             <p className="text-lg font-semibold">
               ₹{paymentPendingDisplayMess || 0}
@@ -417,9 +419,14 @@ const PaymentDashboard = () => {
             className="p-4 bg-gray-100 text-gray-500 rounded-md cursor-pointer"
             onClick={() => navigate("/expenses")}
           >
-            <p className="text-lg font-semibold">₹{totalExpense}</p>
+            <p className="text-lg font-semibold ">₹{totalExpense + totalCommission + totalWaveOff}</p>
             <p>Expense</p>
           </div>
+          <div className="p-4 bg-gray-100 text-gray-500 rounded-md ">
+                <p className="text-lg font-semibold">₹{total-totalExpense || 0}</p>{" "}
+                {/* Total Deposit */}
+                <p>Balance</p>
+              </div>
           <div
             className="p-4 bg-gray-100 text-gray-500 rounded-md cursor-pointer"
             onClick={() => navigate("/commissions")}
@@ -432,23 +439,23 @@ const PaymentDashboard = () => {
             onClick={() => navigate("/waveoff")}
           >
             <p className="text-lg font-semibold">₹{totalWaveOff || 0}</p>
-            <p>Total Waveoff</p>
+            <p>Waveoff</p>
           </div>
-         {/* Conditionally render based on admin role */}
-{admin.role !== 'propertyAdmin' && (
-  <>
-    <div className="p-4 bg-gray-100 text-gray-500 rounded-md ">
-      <p className="text-lg font-semibold">₹{totalRefundableDeposit || 0}</p>{" "}
-      {/* Total Deposit */}
-      <p>Total Refundable Deposit</p>
-    </div>
-    <div className="p-4 bg-gray-100 text-gray-500 rounded-md ">
-      <p className="text-lg font-semibold">₹{totalNonRefundableDeposit || 0}</p>{" "}
-      {/* Total Deposit */}
-      <p>Total Non Refundable Deposit</p>
-    </div>
-  </>
-)}
+          {/* Conditionally render based on admin role */}
+          {admin.role !== 'propertyAdmin' && (
+            <>
+            <div className="p-4 bg-gray-100 text-gray-500 rounded-md ">
+                <p className="text-lg font-semibold">₹{totalNonRefundableDeposit || 0}</p>{" "}
+                {/* Total Deposit */}
+                <p>Non Refundable Deposit</p>
+              </div>
+              <div className="p-4 bg-gray-100 text-gray-500 rounded-md ">
+                <p className="text-lg font-semibold">₹{totalRefundableDeposit || 0}</p>{" "}
+                {/* Total Deposit */}
+                <p>Refundable Deposit</p>
+              </div>
+            </>
+          )}
 
         </div>
       </div>

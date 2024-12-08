@@ -71,7 +71,7 @@ const StaffTable = ({ staffs, onRowClick, onDeleteClick, searchTerm }) => {
             <th className="py-4">#</th>
             <th className="py-4">Name</th>
             <th className="py-4">ID</th>
-            <th className="py-4">Employee Type</th>
+            <th className="py-4">Job Role</th>
             <th className="py-4">Contact</th>
             <th className="py-4">Status</th>
             <th className="py-4">Action</th>

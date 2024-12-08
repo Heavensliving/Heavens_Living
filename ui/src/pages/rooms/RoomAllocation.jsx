@@ -57,7 +57,7 @@ function RoomAllocation() {
 
         setProperties(formattedProperties);
         setLoading(false)
-        console.log(formattedProperties);
+        // console.log(formattedProperties);
 
       } catch (error) {
         console.error('Error fetching rooms:', error);
@@ -99,7 +99,7 @@ function RoomAllocation() {
         dailyRent: response.data.dailyRent,
         occupants: response.data.occupants,
       };
-      console.log(combinedData)
+      // console.log(combinedData)
       setOccupants(combinedData);
       setRoomId(roomId)
       setSelectedRoom(roomNumber);
@@ -237,7 +237,6 @@ function RoomAllocation() {
         </div>
       ))}
 
-
       {/* Modal Component */}
       {isModalOpen && (
         <div className="fixed ml-60 inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -253,6 +252,14 @@ function RoomAllocation() {
                     <div key={index} className="p-4">
                       <p className="text-lg font-medium">{rent.name}</p>
                       <p className="text-gray-600">{rent.contactNo}</p>
+                      <span
+                        className={`inline-block px-3 py-1 text-sm font-medium rounded-full ${rent.paymentStatus === 'paid'
+                            ? 'bg-green-100 text-green-600'
+                            : 'bg-red-100 text-red-600'
+                          }`}
+                      >
+                        {rent.paymentStatus === 'paid' ? 'Paid' : 'Pending'}
+                      </span>
                     </div>
                   ))}
                 </div>
@@ -270,6 +277,14 @@ function RoomAllocation() {
                     <div key={index} className="p-4">
                       <p className="text-lg font-medium">{occupant.name}</p>
                       <p className="text-gray-600">{occupant.contactNo}</p>
+                      <span
+                        className={`inline-block px-3 py-1 text-sm font-medium rounded-full ${occupant.paymentStatus === 'Paid'
+                            ? 'bg-green-100 text-green-600'
+                            : 'bg-red-100 text-red-600'
+                          }`}
+                      >
+                        {occupant.paymentStatus === 'Paid' ? 'Paid' : 'Pending'}
+                      </span>
                     </div>
                   ))}
                 </div>
@@ -295,7 +310,9 @@ function RoomAllocation() {
             </div>
           </div>
         </div>
-      )}    </div>
+      )}
+
+    </div>
   );
 }
 

@@ -154,8 +154,8 @@ const getOccupants = async (req, res) => {
   try {
     const { id } = req.params;
     const room = await Rooms.findOne({ _id: id })
-      .populate('occupanets', 'name contactNo roomNo room') // Populate occupants with specific fields
-      .populate('dailyRent', 'name contactNo roomNo room');
+      .populate('occupanets', 'name contactNo roomNo room paymentStatus') // Populate occupants with specific fields
+      .populate('dailyRent', 'name contactNo roomNo room paymentStatus');
     if (!room) {
       return res.status(404).json({ message: 'Room not found' });
     }

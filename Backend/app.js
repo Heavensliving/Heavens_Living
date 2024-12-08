@@ -54,22 +54,8 @@ app.use(cors({
 }));
 
 // app.use(cors({
-//   origin: function (origin, callback) {
-//     // Check if the origin is in the allowedOrigins array or if it's undefined (for non-browser requests)
-//     if (!origin || allowedOrigins.indexOf(origin) !== -1) {
-//       callback(null, true);
-//     } else {
-//       callback(new Error('Not allowed by CORS'));
-//     }
-//   },
-//   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-//   allowedHeaders: ['Authorization', 'Role', 'Content-Type'],
-//   credentials: true,
-// }));
-
-app.use(cors({
-  origin: '*',
-}))
+//   origin: '*',
+// }))
 
 app.use(express.json());
 app.use(fileUpload({

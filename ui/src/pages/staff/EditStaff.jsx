@@ -196,7 +196,7 @@ function EditStaff() {
         { name: 'Contactnumber', label: 'Contact Number', type: 'number', placeholder: 'Contact Number', required: true },
         { name: 'Email', label: 'Email', type: 'email', placeholder: 'Email (optional)', required: false },
         { name: 'DOB', label: 'Date of Birth', type: 'date', placeholder: 'Date of Birth', required: true },
-        { name: 'Type', label: 'Type of Job', type: 'text', placeholder: 'Type', required: true },
+        { name: 'Type', label: 'Job Role', type: 'text', placeholder: 'Type', required: true },
         { name: 'Salary', label: 'Salary', type: 'text', placeholder: 'Salary', required: true },
         {
             name: 'PaySchedule',

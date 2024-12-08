@@ -61,7 +61,7 @@ const CommissionTable = () => {
         <tbody>
           {filteredCommissions.length > 0 ? (
             filteredCommissions.map((commission, index) => (
-              <tr key={commission._id}>
+              <tr key={commission._id} className='text-center'>
                 <td className="py-2 px-4 border">{index + 1}</td> {/* Display index number */}
                 <td className="py-2 px-4 border">{commission.agentName}</td>
                 <td className="py-2 px-4 border">{commission.amount}</td>

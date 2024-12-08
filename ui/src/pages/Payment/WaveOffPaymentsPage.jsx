@@ -92,13 +92,13 @@ const WaveOffPaymentsPage = () => {
                 </tr>
               ) : (
                 filteredPayments.map((payment) => (
-                  <tr key={payment._id} className="odd:bg-white even:bg-gray-50">
+                  <tr key={payment._id} className="odd:bg-white even:bg-gray-50 text-center">
                     <td className="px-4 py-2 border">{payment.name}</td>
                     <td className="px-4 py-2 border">{payment.studentId}</td>
                     <td className="px-4 py-2 border">{payment.transactionId}</td>
                     <td className="px-4 py-2 border">{payment.paymentClearedMonthYear}</td>
-                    <td className="px-4 py-2 border">{payment.paymentDate}</td>
-                    <td className="px-4 py-2 border">{payment.rentAmount}</td>
+                    <td className="px-4 py-2 border">{new Date(payment.paymentDate).toLocaleDateString('en-GB')}</td>
+                    <td className="px-4 py-2 border">{payment.monthlyRent}</td>
                     <td className="px-4 py-2 border">{payment.waveOff}</td>
                   </tr>
                 ))

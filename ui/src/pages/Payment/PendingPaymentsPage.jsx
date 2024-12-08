@@ -195,7 +195,7 @@ const PendingPaymentsPage = () => {
                       : "Not Found"}
                   </td>
                   <td className="py-2 px-4 border text-sm">{payment.paymentClearedMonthYear || "Not Found"}</td>
-                  <td className="py-2 px-4 border text-sm">{payment.pendingRentAmount || "0"}</td>
+                  <td className="py-2 px-4 border text-sm">{payment.pendingRentAmount || payment.monthlyRent}</td>
                 </tr>
               ))}
             </tbody>

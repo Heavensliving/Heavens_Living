@@ -205,8 +205,8 @@ const ExpenseTable = () => {
         <tbody>
           {sortedExpenses.length > 0 ? (
             sortedExpenses.map((expense, index) => (
-              <tr key={expense._id} className="hover:bg-gray-100 transition-colors">
-                <td className="py-2 px-4 border">{index + 1}</td>
+              <tr key={expense._id} className="hover:bg-gray-100 transition-colors text-center">
+                <td className="py-2 px-4 border ">{index + 1}</td>
                 <td className="py-2 px-4 border">{expense.title}</td>
                 <td className="py-2 px-4 border">{expense.type}</td>
                 <td className="py-2 px-4 border">{expense.category}</td>

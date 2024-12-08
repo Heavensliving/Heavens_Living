@@ -115,7 +115,7 @@ const StaffDetails = () => {
                 <InfoItem icon={FaPhone} label="Contact" value={staffData.contact} />
                 <InfoItem icon={FaEnvelope} label="Email" value={staffData.email} />
                 <InfoItem icon={FaMapMarkerAlt} label="Address" value={staffData.address} />
-                <InfoItem icon={FaBriefcase} label="Employment Type" value={staffData.type} />
+                <InfoItem icon={FaBriefcase} label="Job Role" value={staffData.type} />
                 <InfoItem icon={FaUserCheck} label="Status"
                   value={
                     <span className={staffData.status === "Active" ? "text-green-500" : "text-red-500"}>
