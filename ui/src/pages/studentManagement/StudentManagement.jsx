@@ -146,11 +146,11 @@ const StudentManagement = () => {
   return (
     <div className="flex flex-col h-screen p-4 bg-gray-100">
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 mb-6">
-        <MetricCard title="Total Students" value={totalStudents} icon={<FaUser />} color="bg-blue-500" />
-        <MetricCard title="Payment Pending" value={paymentPending} icon={<FaDollarSign />} color="bg-red-500" />
-        <MetricCard title="Payment Completed" value={paymentCompleted} icon={<FaCheckCircle />} color="bg-green-500" />
+        <MetricCard title="Total Students" value={totalStudents} icon={<FaUser />} color="bg-blue-500" onClick={() => setSortOption('All')}/>
+        <MetricCard title="Payment Pending" value={paymentPending} icon={<FaDollarSign />} color="bg-red-500" onClick={() => setSortOption('Pending')} />
+        <MetricCard title="Payment Completed" value={paymentCompleted} icon={<FaCheckCircle />} color="bg-green-500" onClick={() => setSortOption('Paid')}/>
         <MetricCard title="Checked In" value={checkedIn} icon={<FaSignInAlt />} color="bg-yellow-500" />
-        <MetricCard title="Checked Out" value={checkedOut} icon={<FaSignOutAlt />} color="bg-gray-500" />
+        <MetricCard title="Checked Out" value={checkedOut} icon={<FaSignOutAlt />} color="bg-gray-500" onClick={() => setSortOption('CheckedOut')}/>
       </div>
 
       <SearchAndSort
@@ -177,7 +177,7 @@ const StudentManagement = () => {
         </select>
       </div>
 
-      <main className="flex-1 bg-white p-4 rounded-lg shadow overflow-x-auto">
+      <main className="flex-1 bg-white p-4 rounded-lg shadow ">
         <StudentTable students={sortedStudents()} onRowClick={handleRowClick}  onStatusChange={handleStatusChange} onDelete={handleDelete} admin={admin}/>
       </main>
 

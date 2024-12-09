@@ -248,11 +248,11 @@ const EditDailyRentPerson = () => {
           ]}
           required
         />
-        <Input label="Address" name="address" value={formData.address} onChange={handleChange} required />
+        <Input label="Address" name="address" value={formData.address} onChange={handleChange} />
         <Input label="Date of Birth" type="date" name="dateOfBirth" value={formData.dateOfBirth} onChange={handleChange} />
         <Input label="Contact No" name="contactNo" value={formData.contactNo} onChange={handleChange} required />
-        <Input label="Email" type="email" name="email" value={formData.email} onChange={handleChange} required />
-        <Input label="Blood Group" name="bloodGroup" value={formData.bloodGroup} onChange={handleChange} required />
+        <Input label="Email" type="email" name="email" value={formData.email} onChange={handleChange} />
+        <Input label="Blood Group" name="bloodGroup" value={formData.bloodGroup} onChange={handleChange} />
         <Select
           label="Pg Name"
           name="propertyId"

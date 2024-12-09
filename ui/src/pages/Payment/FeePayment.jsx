@@ -21,6 +21,7 @@ const InputField = ({ label, name, type = 'text', value, onChange, required = fa
       className="w-full p-2 border rounded-md"
       required={required}
       disabled={disabled}
+      onWheel={(e) => e.target.blur()}
     />
   </div>
 );
@@ -136,7 +137,7 @@ const FeePayment = () => {
       await axios.post(`${API_BASE_URL}/fee/add`, comprehensiveFormData,
         { headers: { 'Authorization': `Bearer ${admin.token}` } }
       );
-    
+
       toast.success('Payments Added Successfully!', { autoClose: 500 });
       setTimeout(() => {
         navigate('/payments');
@@ -212,17 +213,18 @@ const FeePayment = () => {
             {isStudentDataFetched && (
               <>
                 <h1 className="w-full text-lg font-semibold mt-4 text-center mb-4">Make Payment</h1>
-                <InputField label="Wave-Off Amount" name="waveOffAmount" type="number" value={waveOffAmount} onChange={(e) => setWaveOffAmount(e.target.value)} />
+                <InputField label="Wave-Off Amount" name="waveOffAmount" type="number" value={waveOffAmount} onChange={(e) => setWaveOffAmount(e.target.value)}/>
                 <InputField label="Wave-Off Reason" name="waveOffReason" value={waveOffReason} onChange={(e) => setWaveOffReason(e.target.value)} />
                 <InputField label="Total Amount to Pay" name="totalAmount" type="number" value={totalAmountToPay} onChange={(e) => setTotalAmountToPay(e.target.value)} disabled />
-                <InputField label="Amount Paying" name="payingAmount" type="number" value={payingAmount} onChange={(e) => setPayingAmount(e.target.value)} />
+                <InputField label="Amount Paying" name="payingAmount" type="number" value={payingAmount} onChange={(e) => setPayingAmount(e.target.value)}/>
                 <div className="w-full md:w-1/2 px-2 mb-4">
                   <label className="block text-gray-700 mb-2">Payment Mode</label>
                   <select
                     name="paymentMode"
                     className="w-full p-2 border rounded-md"
                     required
-                    onChange={(e) => setPaymentMode(e.target.value)} // Set the payment mode
+                    value={paymentMode} // Bind the value to paymentMode
+                    onChange={(e) => setPaymentMode(e.target.value)} // Update paymentMode
                   >
                     <option value="">Select Payment Mode</option>
                     <option value="Cash">Cash</option>
@@ -230,7 +232,16 @@ const FeePayment = () => {
                     <option value="UPI">UPI</option>
                   </select>
                 </div>
-                <InputField label="Transaction ID" name="transactionID" value={transactionId} onChange={(e) => setTransactionId(e.target.value)} />
+
+                {/* Conditionally render Transaction ID only if payment mode is not "Cash" */}
+                {paymentMode !== "Cash" && (
+                  <InputField
+                    label="Transaction ID"
+                    name="transactionID"
+                    value={transactionId}
+                    onChange={(e) => setTransactionId(e.target.value)}
+                  />
+                )}
                 <div className="w-full md:w-1/2 px-2 mb-4">
                   <label className="block text-gray-700 mb-2">Fee Cleared Month/Year</label>
                   <select
@@ -247,14 +258,23 @@ const FeePayment = () => {
                     ))}
                   </select>
                 </div>
-                <InputField label="Paid Date" name="paidDate" type="date" value={paidDate} onChange={(e) => setPaidDate(e.target.value)} />
-
+                <InputField label="Paid Date" name="paidDate" type="date" value={paidDate} onChange={(e) => setPaidDate(e.target.value)} required />
               </>
             )}
           </div>
           {isStudentDataFetched && (
             <div className="flex justify-center mt-4">
-              <button type="submit" className="px-6 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">Submit Payment</button>
+              <button
+                type="submit"
+                className={`w-full bg-side-bar text-white font-bold py-3 rounded-lg hover:bg-[#373082] transition duration-300 flex items-center justify-center ${loading ? ' cursor-not-allowed' : ''}`}
+                disabled={loading}
+              >
+                {loading ? (
+                  <div className="spinner border-t-2 border-white border-solid rounded-full w-6 h-6 animate-spin"></div>
+                ) : (
+                  'Submit Payment'
+                )}
+              </button>
             </div>
           )}
         </form>

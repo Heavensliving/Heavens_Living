@@ -12,7 +12,7 @@ const FeePaymentSchema = new mongoose.Schema({
   paymentDate: { type: Date, required: true },
   waveOff: { type: Number, default: 0 },
   waveOffReason: { type: String, default:'' },
-  transactionId: { type: String, required: false, unique: true },
+  transactionId: { type: String, required: false, unique: true, default: '' },
   paymentMode: { 
     type: String, 
     enum: ['Cash', 'Net Banking', 'UPI'],

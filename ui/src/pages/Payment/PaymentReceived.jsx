@@ -121,7 +121,7 @@ const PaymentReceived = () => {
     <div className="container mx-auto p-6 bg-gray-100 rounded-lg shadow-lg min-h-screen">
       <button
         onClick={downloadPDF}
-        className="mb-4 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-700"
+        className="mb-4 px-4 py-2 bg-side-bar text-white rounded-lg hover:bg-[#373082]"
       >
         Download Report
       </button>

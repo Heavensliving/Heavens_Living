@@ -322,6 +322,7 @@ function AddStudent() {
                       name={field.name}
                       placeholder={field.placeholder}
                       onChange={handleChange}
+                      onWheel={(e) => e.target.blur()}
                       className="p-3 border border-gray-300 rounded-lg w-full"
                     />
                     <button
@@ -357,6 +358,7 @@ function AddStudent() {
                     accept={field.accept}
                     className="p-3 border border-gray-300 rounded-lg w-full"
                     min={'0'}
+                    onWheel={(e) => e.target.blur()}
                   />
                 )}
               </div>

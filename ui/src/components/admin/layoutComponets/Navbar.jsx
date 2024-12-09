@@ -6,6 +6,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { adminLogout } from '../../../store/AuthSlice';
 import axios from 'axios';
 import CarousalModal from '../../carousal/CarousalModal'; // Import the CarousalModal
+import { FiSliders } from "react-icons/fi";
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const Navbar = () => {
@@ -94,8 +95,11 @@ const Navbar = () => {
                             </span>
                         </div>
                     )}
-                    <button className="relative p-2 bg-white rounded-full shadow" onClick={() => setCarousalModalOpen(true)}>
+                    <button className="relative p-2 bg-white rounded-full shadow" onClick={() => navigate('/notification')}>
                         <FaBell className="h-6 w-6 text-gray-400" />
+                    </button>
+                    <button className="relative p-2 bg-white rounded-full shadow" onClick={() => setCarousalModalOpen(true)}>
+                        <FiSliders className="h-6 w-6 text-gray-400" />
                     </button>
 
                     {/* Settings Button with Dropdown */}

@@ -80,7 +80,7 @@ const ExpenseForm = () => {
         }
       );
       // console.log("Expense added:", response.data); // debug statement
-    
+
       toast.success('Expense Added Successfully!', { autoClose: 500 });
       setTimeout(() => {
         navigate("/expenses");
@@ -89,10 +89,7 @@ const ExpenseForm = () => {
     } catch (error) {
       console.error("Error adding expense:", error);
       toast.error('Failed to add commission', { autoClose: 500 });
-      alert(
-        error.response?.data?.error ||
-        "Failed to add expense. Please check the input data and try again."
-      );
+      setLoading(false);
     }
   };
 
@@ -107,10 +104,11 @@ const ExpenseForm = () => {
         className="w-full p-2 border rounded-md"
         {...extraProps}
         min='0'
+        onWheel={(e) => e.target.blur()}
       />
     </div>
   );
-  
+
   const renderSelect = (label, name, value, onChange, options, extraProps = {}) => (
     <div>
       <label className="block text-gray-700 mb-2">{label}</label>
@@ -146,7 +144,14 @@ const ExpenseForm = () => {
           {/* Title and Type */}
           <div className="grid grid-cols-2 gap-4">
             {renderInput("Title", "title", "text", formData.title, handleChange, { required: true })}
-            {renderInput("Type", "type", "text", formData.type, handleChange, { required: true })}
+            {renderSelect(
+              "Type",
+              "type",
+              formData.type,
+              handleChange,
+              ["PG", "Mess", "Others"],
+              { required: true }
+            )}
           </div>
 
           {/* Category and Payment Method */}
@@ -159,13 +164,31 @@ const ExpenseForm = () => {
               ["Salary", "Grocery", "Vehicle", "Cafe", "Others"],
               { required: true }
             )}
+            {renderInput("Other Reason", "otherReason", "text", formData.otherReason, handleChange)}
+            {renderInput("Amount", "amount", "number", formData.amount, handleChange, {
+              required: true,
+            })}
             {renderSelect(
               "Payment Method",
               "paymentMethod",
               formData.paymentMethod,
               handleChange,
               ["UPI", "Bank Transfer", "Cash"],
+              { required: true }
             )}
+
+            {/* Conditionally render Transaction ID */}
+            {formData.paymentMethod !== "Cash" &&
+              renderInput(
+                "Transaction ID",
+                "transactionId",
+                "text",
+                formData.transactionId,
+                handleChange,
+                { required: true }
+              )
+            }
+            {renderInput("Date", "date", "date", formData.date, handleChange, { required: true })}
           </div>
 
           {/* Conditionally Render Staff Member Dropdown */}
@@ -184,26 +207,6 @@ const ExpenseForm = () => {
               )}
             </div>
           )}
-
-          {/* Amount and Date */}
-          <div className="grid grid-cols-2 gap-4">
-            {renderInput("Amount", "amount", "number", formData.amount, handleChange, {
-              required: true,
-            })}
-            {renderInput("Date", "date", "date", formData.date, handleChange, { required: true })}
-          </div>
-
-          {/* Other Reason and Transaction ID */}
-          <div className="grid grid-cols-2 gap-4">
-            {renderInput("Other Reason", "otherReason", "text", formData.otherReason, handleChange)}
-            {renderInput(
-              "Transaction ID",
-              "transactionId",
-              "text",
-              formData.transactionId,
-              handleChange
-            )}
-          </div>
 
           {/* Property Name and Property ID */}
           <div className="grid grid-cols-2 gap-4">
@@ -236,12 +239,16 @@ const ExpenseForm = () => {
               { readOnly: true, className: "bg-gray-100" }
             )}
           </div>
-
           <button
             type="submit"
-            className="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 transition"
+            className={`w-full bg-side-bar text-white font-bold py-3 rounded-lg hover:bg-[#373082] transition duration-300 flex items-center justify-center ${loading ? ' cursor-not-allowed' : ''}`}
+            disabled={loading}
           >
-            Add Expense
+            {loading ? (
+              <div className="spinner border-t-2 border-white border-solid rounded-full w-6 h-6 animate-spin"></div>
+            ) : (
+              'Add Expense'
+            )}
           </button>
         </form>
       </div>

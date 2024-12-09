@@ -46,43 +46,44 @@ const CommissionTable = () => {
         className="mb-4 p-2 border border-gray-300 rounded w-full max-w-md"
       />
       <table className="min-w-full bg-white border border-gray-300">
-        <thead>
-          <tr className="bg-gray-200">
-            <th className="py-2 px-4 border">#</th> {/* Index Column */}
-            <th className="py-2 px-4 border">Agent Name</th>
-            <th className="py-2 px-4 border">Amount</th>
-            <th className="py-2 px-4 border">Note</th>
-            <th className="py-2 px-4 border">Payment Type</th>
-            <th className="py-2 px-4 border">Transaction ID</th>
-            <th className="py-2 px-4 border">Date</th>
-            <th className="py-2 px-4 border">Property Name</th>
-          </tr>
-        </thead>
-        <tbody>
-          {filteredCommissions.length > 0 ? (
-            filteredCommissions.map((commission, index) => (
-              <tr key={commission._id} className='text-center'>
-                <td className="py-2 px-4 border">{index + 1}</td> {/* Display index number */}
-                <td className="py-2 px-4 border">{commission.agentName}</td>
-                <td className="py-2 px-4 border">{commission.amount}</td>
-                <td className="py-2 px-4 border">{commission.note || 'N/A'}</td>
-                <td className="py-2 px-4 border">{commission.paymentType}</td>
-                <td className="py-2 px-4 border">{commission.transactionId || 'N/A'}</td>
-                <td className="py-2 px-4 border">
-                  {new Date(commission.createdAt).toLocaleDateString('en-GB') || 'N/A'}
-                </td>
-                <td className="py-2 px-4 border">{commission.propertyName}</td>
-              </tr>
-            ))
-          ) : (
-            <tr>
-              <td colSpan="8" className="py-2 px-4 text-center border text-gray-500">
-                No data found
-              </td>
-            </tr>
-          )}
-        </tbody>
-      </table>
+  <thead>
+    <tr className="bg-gray-200">
+      <th className="py-2 px-4 border">#</th>
+      <th className="py-2 px-4 border">Agent Name</th>
+      <th className="py-2 px-4 border">Amount</th>
+      <th className="py-2 px-4 border">Note</th>
+      <th className="py-2 px-4 border">Payment Type</th>
+      <th className="py-2 px-4 border">TransactionID</th>
+      <th className="py-2 px-4 border">Date</th>
+      <th className="py-2 px-4 border">Property</th>
+    </tr>
+  </thead>
+  <tbody>
+    {filteredCommissions.length > 0 ? (
+      filteredCommissions.map((commission, index) => (
+        <tr key={commission._id} className="text-center">
+          <td className="py-2 px-4 border">{index + 1}</td>
+          <td className="py-2 px-4 border">{commission.agentName}</td>
+          <td className="py-2 px-4 border">{commission.amount}</td>
+          <td className="py-2 px-4 border">{commission.note || 'N/A'}</td>
+          <td className="py-2 px-4 border">{commission.paymentType}</td>
+          <td className="py-2 px-4 border">{commission.transactionId || 'N/A'}</td>
+          <td className="py-2 px-4 border">
+            {new Date(commission.createdAt).toLocaleDateString('en-GB') || 'N/A'}
+          </td>
+          <td className="py-2 px-4 border">{commission.propertyName}</td>
+        </tr>
+      ))
+    ) : (
+      <tr>
+        <td colSpan="8" className="py-2 px-4 text-center border text-gray-500">
+          No data found
+        </td>
+      </tr>
+    )}
+  </tbody>
+</table>
+
     </div>
   );
 };

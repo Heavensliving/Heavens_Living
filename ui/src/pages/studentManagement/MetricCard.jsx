@@ -1,9 +1,9 @@
 // MetricCard.js
 import React from 'react';
 
-const MetricCard = ({ title, value, icon, color }) => {
+const MetricCard = ({ title, value, icon, color, onClick }) => {
   return (
-    <div className={`bg-white p-4 rounded-lg shadow flex items-center`}>
+    <div className={`bg-white p-4 rounded-lg shadow flex items-center cursor-pointer`} onClick={onClick}>
       <div className={`${color} p-3 rounded-full`}>
         {icon}
       </div>

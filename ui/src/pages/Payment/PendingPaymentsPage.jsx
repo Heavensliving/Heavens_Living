@@ -78,17 +78,17 @@ const PendingPaymentsPage = () => {
       index + 1,
       payment.name || "N/A",
       payment.studentId || "N/A",
+      payment.room || "N/A",
       payment.monthlyRent || "N/A",
-      payment.lastPaidDate ? new Date(payment.lastPaidDate).toLocaleDateString() : null,
-      payment.paymentClearedMonthYear || "N/A",
-      payment.pendingRentAmount || "0",
+      payment.lastPaidDate ? new Date(payment.lastPaidDate).toLocaleDateString() : '-',
+      payment.paymentClearedMonthYear || "-",
+      payment.pendingRentAmount || payment.monthlyRent,
     ]);
-
     // Add the table
     doc.autoTable({
       startY: 40,
       head: [
-        ['#', 'Name', 'Student ID', 'Rent Amount', 'Last Paid Date', 'Cleared Month', 'Total Due Amount'],
+        ['#', 'Name', 'Student ID', 'room', 'Rent Amount', 'Last Paid Date', 'Cleared Month', 'Total Due Amount'],
       ],
       body: tableData,
     });
@@ -96,10 +96,10 @@ const PendingPaymentsPage = () => {
     // Total Amount Calculation
     // const totalDueAmount = filteredTransactions.reduce((sum, payment) => sum + (parseFloat(payment.pendingRentAmount) || 0), 0);
 
-    // Add Total Below the Table
-    const finalY = doc.lastAutoTable.finalY || 0;
-    doc.setFontSize(12);
-    doc.text(`Total Pending Amount: Rs.${totalDueAmount.toFixed(2)}`, 14, finalY + 10);
+    // // Add Total Below the Table
+    // const finalY = doc.lastAutoTable.finalY || 0;
+    // doc.setFontSize(12);
+    // doc.text(`Total Pending Amount: Rs.${totalDueAmount.toFixed(2)}`, 14, finalY + 10);
 
     // Save the PDF
     doc.save('Pending_Payments_Report.pdf');
@@ -117,7 +117,7 @@ const PendingPaymentsPage = () => {
     <div className="container mx-auto p-6 bg-gray-100 rounded-lg shadow-lg min-h-screen">
       <button
         onClick={downloadPDF}
-        className="mb-4 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-700"
+        className="mb-4 px-4 py-2 bg-side-bar text-white rounded-lg hover:bg-[#373082]"
       >
         Download Report
       </button>
@@ -172,29 +172,33 @@ const PendingPaymentsPage = () => {
           <table className="min-w-full bg-white border border-gray-300 rounded-lg shadow-md">
             <thead className="bg-gray-300 text-black">
               <tr>
-                <th className="py-3 px-4 border text-left text-sm">Name</th>
-                <th className="py-3 px-4 border text-left text-sm">Student ID</th>
-                <th className="py-3 px-4 border text-left text-sm">Rent Amount</th>
-                <th className="py-3 px-4 border text-left text-sm">Last Paid Date</th>
-                <th className="py-3 px-4 border text-left text-sm">Rent Cleared Month</th>
-                <th className="py-3 px-4 border text-left text-sm">Total Amount To Pay</th>
+              <th className="py-3 px-4 border text-left text-sm text-center">#</th>
+                <th className="py-3 px-4 border text-left text-sm text-center">Name</th>
+                <th className="py-3 px-4 border text-left text-sm text-center">Student ID</th>
+                <th className="py-3 px-4 border text-left text-sm text-center">Room</th>
+                <th className="py-3 px-4 border text-left text-sm text-center">Rent</th>
+                <th className="py-3 px-4 border text-left text-sm text-center">Last Paid</th>
+                <th className="py-3 px-4 border text-left text-sm text-center">Rent Cleared Month</th>
+                <th className="py-3 px-4 border text-left text-sm text-center">Amount To Pay</th>
               </tr>
             </thead>
             <tbody>
-              {filteredTransactions.map((payment) => (
+              {filteredTransactions.map((payment,index) => (
                 <tr
                   key={payment.studentId}
-                  className="hover:bg-gray-100 transition-colors"
+                  className="hover:bg-gray-100 transition-colors text-center"
                 >
+                   <td className="py-2 px-4 border text-sm">{index + 1 || "N/A"}</td>
                   <td className="py-2 px-4 border text-sm">{payment.name || "N/A"}</td>
                   <td className="py-2 px-4 border text-sm">{payment.studentId || "N/A"}</td>
+                  <td className="py-2 px-4 border text-sm">{payment.room || "N/A"}</td>
                   <td className="py-2 px-4 border text-sm">{payment.monthlyRent || "N/A"}</td>
                   <td className="py-2 px-4 border text-sm">
                     {payment.lastPaidDate
                       ? new Date(payment.lastPaidDate).toLocaleDateString()
-                      : "Not Found"}
+                      : "-"}
                   </td>
-                  <td className="py-2 px-4 border text-sm">{payment.paymentClearedMonthYear || "Not Found"}</td>
+                  <td className="py-2 px-4 border text-sm">{payment.paymentClearedMonthYear || "-"}</td>
                   <td className="py-2 px-4 border text-sm">{payment.pendingRentAmount || payment.monthlyRent}</td>
                 </tr>
               ))}

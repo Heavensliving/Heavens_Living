@@ -11,6 +11,7 @@ const PaymentDashboard = () => {
   const admin = useSelector((store) => store.auth.admin);
   const [total, setTotal] = useState(0);
   const [totalReceived, setTotalReceived] = useState(0);
+  const [totalAmountWithoutAdvance, setTotalAmountWithoutAdvance] = useState(0);
   const [totalReceivedMess, setTotalReceivedMess] = useState(0);
   const [totalMonthlyRent, setTotalMonthlyRent] = useState(0);
   const [totalMonthlyRentMess, setTotalMonthlyRentMess] = useState(0);
@@ -41,6 +42,14 @@ const PaymentDashboard = () => {
           (acc, transaction) => acc + (transaction.amountPaid || 0),
           0
         );
+        const totalAmountWithOutAdvance = feeResponse.data.reduce(
+          (acc, transaction) => {
+            // Subtract the advanceBalance from amountPaid to exclude advances
+            const effectiveAmountPaid = transaction.amountPaid - (transaction.advanceBalance || 0);
+            return acc + (effectiveAmountPaid > 0 ? effectiveAmountPaid : 0); // Ensure no negative values are added
+          },
+          0
+        );        
         const messPeopleTransactions = feeResponse.data.filter(
           (transaction) => transaction.messPeople
         );
@@ -58,6 +67,7 @@ const PaymentDashboard = () => {
         );
         setTotal(totalAmount)
         setTotalReceived(totalAmount - (messPeopleTotal + dailyRentTotal));
+        setTotalAmountWithoutAdvance(totalAmountWithOutAdvance - (messPeopleTotal + dailyRentTotal));
         setTotalReceivedMess(messPeopleTotal);
         setLoading(false)
       } catch (error) {
@@ -216,7 +226,7 @@ const PaymentDashboard = () => {
         (sum, expense) => sum + (expense.amount || 0),
         0
       );
-      const profitLoss = totalReceived - totalExpenses;
+      const profitLoss = totalReceived - totalExpenses+totalWaveOff+totalCommission;
 
       // Generate PDF
       const doc = new jsPDF();
@@ -241,23 +251,33 @@ const PaymentDashboard = () => {
         45
       );
       doc.text(
-        `Total Expenses: Rs: ${totalExpenses.toLocaleString("en-IN")}`,
+        `Total Commission: Rs: ${totalCommission.toLocaleString("en-IN")}`,
         14,
         52
+      );
+      doc.text(
+        `Total Waveoff: Rs: ${totalWaveOff.toLocaleString("en-IN")}`,
+        14,
+        59
+      );
+      doc.text(
+        `Total Expenses: Rs: ${totalExpenses.toLocaleString("en-IN")}`,
+        14,
+        66
       );
       doc.text(
         `${profitLoss >= 0 ? "Net Profit" : "Net Loss"}: Rs: ${Math.abs(
           profitLoss
         ).toLocaleString("en-IN")}`,
         14,
-        59
+        73
       );
 
       // Fee Transactions Table
       doc.setFontSize(12);
-      doc.text("Fee Transactions", 14, 70);
+      doc.text("Fee Transactions", 14, 83);
       doc.autoTable({
-        startY: 75,
+        startY: 87,
         head: [["Date", "Name", "ID", "Category", "Amount"]],
         body: monthlyFees.map((fee) => [
           new Date(fee.paymentDate).toLocaleDateString('en-GB'),
@@ -315,7 +335,7 @@ const PaymentDashboard = () => {
     }
   };
 
-  const paymentPending = totalMonthlyRent - totalReceived;
+  const paymentPending = totalMonthlyRent - totalAmountWithoutAdvance;
   const paymentPendingDisplay = paymentPending < 0 ? 0 : paymentPending;
   const paymentPendingMess = totalMonthlyRentMess - totalReceivedMess;
   const paymentPendingDisplayMess =
@@ -362,7 +382,7 @@ const PaymentDashboard = () => {
             </button>
             <button
               onClick={() => setShowReportModal(true)}
-              className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+              className="px-4 py-2 bg-side-bar text-white rounded-md hover:bg-[#373082]"
             >
               Download Report
             </button>
@@ -419,11 +439,11 @@ const PaymentDashboard = () => {
             className="p-4 bg-gray-100 text-gray-500 rounded-md cursor-pointer"
             onClick={() => navigate("/expenses")}
           >
-            <p className="text-lg font-semibold ">₹{totalExpense + totalCommission + totalWaveOff}</p>
+            <p className="text-lg font-semibold ">₹{totalExpense}</p>
             <p>Expense</p>
           </div>
           <div className="p-4 bg-gray-100 text-gray-500 rounded-md ">
-                <p className="text-lg font-semibold">₹{total-totalExpense || 0}</p>{" "}
+                <p className="text-lg font-semibold">₹{total-(totalExpense-totalCommission-totalWaveOff) || 0}</p>{" "}
                 {/* Total Deposit */}
                 <p>Balance</p>
               </div>
@@ -456,7 +476,6 @@ const PaymentDashboard = () => {
               </div>
             </>
           )}
-
         </div>
       </div>
       {showModal && (

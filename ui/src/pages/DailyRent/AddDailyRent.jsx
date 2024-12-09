@@ -24,6 +24,7 @@ const Input = ({ label, type = 'text', name, value, onChange, required = false, 
       accept={accept}
       placeholder={placeholder}
       min='1'
+      onWheel={(e) => e.target.blur()}
     />
   </div>
 );

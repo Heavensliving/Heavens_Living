@@ -61,6 +61,7 @@ import LinkExpired from '../pages/auth/LinkExpired.jsx'
 import CafeOrders from '../pages/cafeOrders/CafeOrders.jsx'
 import OrderHistory from '../pages/cafeOrders/OrderHistory.jsx'
 import QRScanner from '../pages/messManagement/QRScanner.jsx'
+import Notification from '../pages/notification/Notification.jsx'
 
 const AdminRoute = () => {
     return (
@@ -127,6 +128,7 @@ const AdminRoute = () => {
                     <Route path='/paymentPending' element={<PendingPaymentsPage />} />
                     <Route path='/waveoff' element={<WaveOffPaymentsPage />} />
                     <Route path='/addonPage' element={<AddonPage />} />
+                    <Route path='/notification' element={<Notification />} />
 
                 </Route>
 

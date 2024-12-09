@@ -23,7 +23,8 @@ const expenseSchema = new mongoose.Schema({
   },
   transactionId: {
     type: String,
-    default: ''
+    default: '',
+    required: false
   },
   amount: {
     type: Number,

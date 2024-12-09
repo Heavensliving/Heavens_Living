@@ -25,7 +25,7 @@ const DailyRentPage = () => {
       const response = await axios.get(`${API_BASE_URL}/DailyRent`, {
         headers: { Authorization: `Bearer ${admin.token}` },
       });
-      setDailyRents(response.data);
+      setDailyRents(response.data.reverse());
     } catch (error) {
       console.error("Error fetching daily rents:", error);
     }

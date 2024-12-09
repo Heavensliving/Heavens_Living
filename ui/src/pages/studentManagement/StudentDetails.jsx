@@ -245,7 +245,7 @@ const StudentDetails = () => {
             {/* Right Side: Transaction History Section */}
             <div className="ml-auto flex items-center space-x-8 relative">
               <h2
-                className="text-lg font-bold text-gray-800 cursor-pointer"
+                className="text-lg font-bold text-gray-800 cursor-pointer underline"
                 onClick={() => handleTransactionClick()}
               >
                 Transaction History

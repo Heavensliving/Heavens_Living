@@ -20,7 +20,7 @@ const addExpense = async (req, res) => {
     } = req.body;
 
     // Validate required fields
-    if (!title || !type || !category || !amount || !date || !propertyId || !transactionId) {
+    if (!title || !type || !category || !amount || !date || !propertyId) {
       return res.status(400).json({ error: "Missing required fields." });
     }
 

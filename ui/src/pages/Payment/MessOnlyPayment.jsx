@@ -99,8 +99,8 @@ const MessOnlyPayment = () => {
                 <form onSubmit={handleSubmit}>
                     <div className="flex flex-wrap -mx-2">
                         <h1 className="w-full text-lg font-semibold mt-4 text-center mb-4">Make Payment</h1>
-                        <InputField label="Enter Id" name="id" type="text" value={studentId} onChange={(e) => setStudentId(e.target.value)} />
-                        <InputField label="Amount Paying" name="payingAmount" type="number" value={payingAmount} onChange={(e) => setPayingAmount(e.target.value)} />
+                        <InputField label="Enter ID" name="id" type="text" value={studentId} onChange={(e) => setStudentId(e.target.value)} required/>
+                        <InputField label="Amount Paying" name="payingAmount" type="number" value={payingAmount} onChange={(e) => setPayingAmount(e.target.value)} required/>
                         <div className="w-full md:w-1/2 px-2 mb-4">
                             <label className="block text-gray-700 mb-2">Payment Mode</label>
                             <select
@@ -115,7 +115,7 @@ const MessOnlyPayment = () => {
                                 <option value="UPI">UPI</option>
                             </select>
                         </div>
-                        <InputField label="Transaction ID" name="transactionID" value={transactionId} onChange={(e) => setTransactionId(e.target.value)} />
+                        <InputField label="Transaction ID" name="transactionID" value={transactionId} onChange={(e) => setTransactionId(e.target.value)} required/>
                         {paymentType !== "Daily Rent" && (
                             <div className="w-full md:w-1/2 px-2 mb-4">
                                 <label className="block text-gray-700 mb-2">Fee Cleared Month/Year</label>

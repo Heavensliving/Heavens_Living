@@ -13,6 +13,7 @@ const ExpenseTable = () => {
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
+  const [selectedType, setSelectedType] = useState('');
   const [selectedMonth, setSelectedMonth] = useState('');
   const [selectedYear, setSelectedYear] = useState('');
 
@@ -45,8 +46,9 @@ const ExpenseTable = () => {
     const monthMatches = selectedMonth ? date.getMonth() + 1 === parseInt(selectedMonth) : true;
     const yearMatches = selectedYear ? date.getFullYear() === parseInt(selectedYear) : true;
     const categoryMatches = selectedCategory ? expense.category === selectedCategory : true;
+    const typeMatches = selectedType ? expense.type === selectedType : true;
 
-    return monthMatches && yearMatches && categoryMatches;
+    return monthMatches && yearMatches && categoryMatches && typeMatches;
   });
 
   // Calculate total amount and total salary
@@ -104,12 +106,13 @@ const ExpenseTable = () => {
 
   // Get unique categories from expenses for filtering
   const categories = [...new Set(expenses.map(expense => expense.category))];
+  const types = [...new Set(expenses.map(expense => expense.type))];
 
   return (
     <div className="container mx-auto p-6 bg-gray-100 rounded-lg shadow-lg">
       <button 
         onClick={downloadPDF}
-        className="mb-4 p-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+        className="mb-4 p-3 bg-side-bar text-white rounded-lg hover:bg-[#373082] transition"
       >
         Download PDF
       </button>
@@ -123,7 +126,7 @@ const ExpenseTable = () => {
         className="mb-4 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-400 w-full"
       />
       
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
         {/* Category Dropdown */}
         <div>
           <label className="block text-lg mb-1">Filter by Category:</label>
@@ -136,6 +139,22 @@ const ExpenseTable = () => {
             {categories.map((category, index) => (
               <option key={index} value={category}>
                 {category.charAt(0).toUpperCase() + category.slice(1)}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div>
+          <label className="block text-lg mb-1">Filter by Type:</label>
+          <select
+            value={selectedType}
+            onChange={(e) => setSelectedType(e.target.value)}
+            className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-400"
+          >
+            <option value="">All Types</option>
+            {types.map((type, index) => (
+              <option key={index} value={type}>
+                {type.charAt(0).toUpperCase() + type.slice(1)}
               </option>
             ))}
           </select>

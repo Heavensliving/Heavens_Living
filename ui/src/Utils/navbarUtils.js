@@ -152,6 +152,8 @@ const pageConfig = {
     },
     '/updatePhase/:id':{
       title:"Update Phase"
+    },'/notification':{
+      title:"Notification"
     },
     
     

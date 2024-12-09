@@ -33,15 +33,18 @@ const PendingIssue = () => {
     // Fetch staff members
     const fetchStaffMembers = async () => {
       try {
-        const response = await axios.get(`${API_BASE_URL}/staff`,
-          {headers: { 'Authorization': `Bearer ${admin.token}` }}
-        );
-        setStaffMembers(response.data);
+        const response = await axios.get(`${API_BASE_URL}/staff`, {
+          headers: { 'Authorization': `Bearer ${admin.token}` }
+        });
+    
+        // Filter staff members based on status
+        const onDutyStaff = response.data.filter(staff => staff.Status === 'On Duty');
+        setStaffMembers(onDutyStaff);
       } catch (err) {
         console.error('Error fetching staff members', err);
       }
     };
-
+    
     fetchMaintenanceRecords();
     fetchStaffMembers();
 

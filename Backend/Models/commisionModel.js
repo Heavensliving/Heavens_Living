@@ -7,7 +7,7 @@ const commissionEntrySchema = new mongoose.Schema({
   amount: { type: Number, required: true },
   note: String,
   paymentType: { type: String, required: true },
-  transactionId: { type: String },
+  transactionId: { type: String, required: false, default:''},
   propertyName: {
     type: String,  
     required: true

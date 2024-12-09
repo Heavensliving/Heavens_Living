@@ -257,6 +257,7 @@ const getPendingPayments = async (req, res) => {
         return {
           studentId: student.studentId,
           name: student.name,
+          room:student.roomNo,
           monthlyRent,
           unpaidMonths,
           pendingRentAmount,

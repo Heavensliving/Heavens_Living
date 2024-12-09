@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { FaPhone, FaEnvelope, FaMapMarkerAlt, FaBriefcase, FaUserCheck, FaMoneyBill, FaClock } from 'react-icons/fa';
+import { FaPhone, FaEnvelope, FaMapMarkerAlt, FaBriefcase, FaUserCheck, FaMoneyBill, FaClock, FaCalendarAlt } from 'react-icons/fa';
 import { useSelector } from 'react-redux';
 import axios from 'axios';
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
@@ -65,6 +65,7 @@ const StaffDetails = () => {
     contact: staff.Contactnumber,
     email: staff.Email,
     address: staff.Address,
+    DOB: new Date(staff.DOB).toLocaleDateString(),
     type: staff.Type,
     status: staff.Status,
     salary: staff.Salary,
@@ -115,6 +116,7 @@ const StaffDetails = () => {
                 <InfoItem icon={FaPhone} label="Contact" value={staffData.contact} />
                 <InfoItem icon={FaEnvelope} label="Email" value={staffData.email} />
                 <InfoItem icon={FaMapMarkerAlt} label="Address" value={staffData.address} />
+                <InfoItem icon={FaCalendarAlt} label="DOB" value={staffData.DOB} />
                 <InfoItem icon={FaBriefcase} label="Job Role" value={staffData.type} />
                 <InfoItem icon={FaUserCheck} label="Status"
                   value={
@@ -152,7 +154,7 @@ const StaffDetails = () => {
               </div>
               <div className="ml-auto flex items-center space-x-8 mt-4 relative">
                 <h2
-                  className="text-lg font-bold text-gray-800 cursor-pointer"
+                  className="text-lg font-bold text-gray-800 cursor-pointer underline"
                   onClick={handleTransactionClick}
                 >
                   Transaction History

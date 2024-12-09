@@ -211,6 +211,7 @@ function AddStaff() {
                     required={field.required}
                     accept={field.accept || undefined}
                     min='0'
+                    onWheel={(e) => e.target.blur()}
                   />
                 )}
               </div>
