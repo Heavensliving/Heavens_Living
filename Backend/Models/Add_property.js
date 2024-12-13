@@ -13,6 +13,7 @@ const PropertySchema = new mongoose.Schema(
     startingPrice: { type: Number, required: true },
     oneSharing: { type: Number },
     twoSharing: { type: Number },
+    threeSharing: { type: Number},
     fourSharing: { type: Number },
     propertyType: { type: String, required: true },
     branchName: { type: String, required: true },

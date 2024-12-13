@@ -2,7 +2,7 @@
 const mongoose = require('mongoose');
 
 const MaintananceSchema = new mongoose.Schema({
-  Name: { type: String, required: true },
+  Name: { type: String, required: false },
   issue: { type: String, required: true },
   description: { type: String, required: true },
   AssignedTo: { type: String, required: false },

@@ -34,4 +34,4 @@ const MessOrderSchema = new mongoose.Schema({
 
 const MessOrder = mongoose.model('MessOrder', MessOrderSchema);
 
-module.exports = MessOrder;
+module.exports = MessOrder

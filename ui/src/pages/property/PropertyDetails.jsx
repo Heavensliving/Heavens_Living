@@ -98,6 +98,9 @@ const PropertyDetails = () => {
             <strong className="text-gray-700">Two Sharing Price:</strong> <span className="text-gray-800">${property.twoSharing}</span>
           </div>
           <div className="p-4 bg-gray-100 rounded-lg shadow-md">
+            <strong className="text-gray-700">Three Sharing Price:</strong> <span className="text-gray-800">${property.threeSharing}</span>
+          </div>
+          <div className="p-4 bg-gray-100 rounded-lg shadow-md">
             <strong className="text-gray-700">Four Sharing Price:</strong> <span className="text-gray-800">${property.fourSharing}</span>
           </div>
           <div className="p-4 bg-gray-100 rounded-lg shadow-md">

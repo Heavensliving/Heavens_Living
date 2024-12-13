@@ -20,8 +20,6 @@ function EditProperty() {
     fourSharing: '',
     sixSharing: '',
     propertyType: '',
-    branch: '',
-    phase: '',
     propertyOwnerName: '',
   });
 
@@ -56,7 +54,7 @@ function EditProperty() {
     try {
       const response = await axios.put(`${API_BASE_URL}/property/edit/${propertyId}`, propertyData);
       if (response.status === 200) {
-        navigate('/property'); 
+        navigate(`/property/${propertyId}`); 
       }
     } catch (error) {
       console.error('Error:', error.response?.data || error.message);
@@ -210,6 +208,19 @@ function EditProperty() {
                 onChange={handleChange}
               />
             </div>
+            <div>
+              <label htmlFor="threeSharing" className="block text-sm font-medium text-gray-700">
+                Three Sharing Price
+              </label>
+              <input
+                type="number"
+                name="threeSharing"
+                id="threeSharing"
+                className="p-3 border border-gray-300 rounded-lg w-full"
+                value={propertyData.threeSharing}
+                onChange={handleChange}
+              />
+            </div>
 
             <div>
               <label htmlFor="fourSharing" className="block text-sm font-medium text-gray-700">
@@ -240,37 +251,6 @@ function EditProperty() {
                 required
               />
             </div>
-
-            <div>
-              <label htmlFor="branch" className="block text-sm font-medium text-gray-700">
-                Branch
-              </label>
-              <input
-                type="text"
-                name="branch"
-                id="branch"
-                className="p-3 border border-gray-300 rounded-lg w-full"
-                value={propertyData.branch}
-                onChange={handleChange}
-                required
-              />
-            </div>
-
-            <div>
-              <label htmlFor="phase" className="block text-sm font-medium text-gray-700">
-                Phase
-              </label>
-              <input
-                type="text"
-                name="phase"
-                id="phase"
-                className="p-3 border border-gray-300 rounded-lg w-full"
-                value={propertyData.phase}
-                onChange={handleChange}
-                required
-              />
-            </div>
-
             <div>
               <label htmlFor="propertyOwnerName" className="block text-sm font-medium text-gray-700">
                 Property Owner's Name

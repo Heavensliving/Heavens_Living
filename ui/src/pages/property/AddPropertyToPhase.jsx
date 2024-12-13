@@ -37,6 +37,7 @@ function AddPropertyToPhase() {
         startingPrice: '',
         oneSharing: '',
         twoSharing: '',
+        threeSharing: '',
         fourSharing: '',
         propertyType: '',
         phaseId: id,
@@ -78,6 +79,7 @@ function AddPropertyToPhase() {
         { label: 'Starting Price', name: 'startingPrice', type: 'number', required: true },
         { label: 'One Sharing Price', name: 'oneSharing', type: 'number' },
         { label: 'Two Sharing Price', name: 'twoSharing', type: 'number' },
+        { label: 'Three Sharing Price', name: 'threeSharing', type: 'number' },
         { label: 'Four Sharing Price', name: 'fourSharing', type: 'number' },
     ];
 
