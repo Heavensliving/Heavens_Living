@@ -16,7 +16,7 @@
 
 
 const express = require('express');
-const { addStudent, getAllStudents, editStudent, deleteStudent, vacateStudent, getStudentById } = require('../controller/studentController');
+const { addStudent, getAllStudents, editStudent, deleteStudent, vacateStudent, getStudentById, getStudentByStudentId } = require('../controller/studentController');
 
 const router = express.Router();
 
@@ -24,6 +24,7 @@ const router = express.Router();
 router.post('/add',addStudent);
 router.get('/', getAllStudents);
 router.get('/:id', getStudentById);
+router.get('/studentId/:studentId', getStudentByStudentId);
 router.put('/edit/:id', editStudent); // Edit student route
 router.delete('/vacate/:id', vacateStudent); // Delete student route
 router.delete('/delete/:id', deleteStudent); // Delete student route

@@ -1,43 +1,63 @@
+const Student = require('../Models/Add_student');
 const FeePayment = require('../Models/feePayment'); // Ensure the path is correct
 
 // Function to add a fee payment
 const addFeePayment = async (req, res) => {
+  console.log(req.body)
   try {
     const {
       name,
-      studentId,
-      hostelId,
-      hostelName,
-      transactionId,
-      monthYear,
+      studentId, // custom unique ID
+      totalAmountToPay,
+      payingAmount,
+      feeClearedMonthYear,
+      waveOffAmount,
       paidDate,
-      rentAmount,
-      waveOff,
       waveOffReason,
-      totalAmount,
+      transactionId,
+      _id,
     } = req.body;
 
+    let advanceBalance = 0;
+    let balance = 0;
+    if (payingAmount > totalAmountToPay) {
+      advanceBalance = payingAmount - totalAmountToPay;
+    } else{
+      balance = totalAmountToPay - payingAmount;
+    }
+
+
+    // Create a new fee payment document
     const feePayment = new FeePayment({
+      studentId, // Custom ID format
       name,
-      studentId,
-      hostelId,
-      hostelName,
-      transactionId,
-      monthYear,
-      paidDate,
-      rentAmount,
-      waveOff,
+      totalAmountToPay,
+      amountPaid: payingAmount,
+      pendingBalance: balance,
+      advanceBalance,
+      paymentClearedMonthYear: feeClearedMonthYear,
+      paymentDate: paidDate,
+      waveOff: waveOffAmount,
       waveOffReason,
-      totalAmount,
+      transactionId,
+      student: _id,
     });
 
+    // Save fee payment to the database
     await feePayment.save();
+
+    // Update Student's payment info
+    await Student.findByIdAndUpdate(_id, {
+      $push: { payments: feePayment._id },
+    });
+
     res.status(201).json({ message: 'Fee payment added successfully', feePayment });
   } catch (error) {
     console.error('Error adding fee payment:', error);
     res.status(500).json({ message: 'Error adding fee payment', error });
   }
 };
+
 
 // Function to get all fee payments
 const getAllFeePayments = async (req, res) => {

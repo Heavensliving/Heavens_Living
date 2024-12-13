@@ -8,22 +8,22 @@ const studentSchema = new mongoose.Schema({
   bloodGroup: { type: String, required: true },
   parentName: { type: String, required: true },
   parentNumber: { type: String, required: true },
-  course: { type: String }, 
-  advanceFee: { type: Number },
+  course: { type: String },
   nonRefundableDeposit: { type: Number },
-  monthlyRent: { type: Number },
-  adharFrontImage: { type: String,required:false }, // Store Firebase URL
-  adharBackImage: { type: String ,required:false },  // Store Firebase URL
-  photo: { type: String,required:false},           // Store Firebase URL
+  refundableDeposit: { type: Number },
+  monthlyRent: { type: Number, required: true },
+  paymentStatus: { type: String, default: 'Paid', enum: ['Pending', 'Paid'], }, 
+  adharFrontImage: { type: String, required: false },  // Store Firebase URL
+  adharBackImage: { type: String, required: false },   // Store Firebase URL
+  photo: { type: String, required: false },            // Store Firebase URL
   hostelName: { type: String },
   roomType: { type: String },
   roomNo: { type: String },
   referredBy: { type: String, required: true },
   typeOfStay: { type: String },
-  paymentStatus: { type: String },
-  pgName: { type:String },
+  pgName: { type: String },
   studentId: { type: String, unique: true, required: true },
-  joinDate: { type: Date },
+  joinDate: { type: Date, default: Date.now },  // Default join date to now
   currentStatus: { type: String },
   password: { type: String, required: true },
   dateOfBirth: { type: Date, required: true },
@@ -34,12 +34,10 @@ const studentSchema = new mongoose.Schema({
   workingPlace: { type: String },
   branch: { type: String, required: true },
   phase: { type: String, required: true },
-  maintenance: [{type: mongoose.Schema.Types.ObjectId, ref: 'Maintanance'}],
-  messOrders: [{type: mongoose.Schema.Types.ObjectId, ref: 'MessOrder'}],
-  property: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Property'
-}
+  maintenance: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Maintanance' }],
+  messOrders: [{ type: mongoose.Schema.Types.ObjectId, ref: 'MessOrder' }],
+  payments: [{ type: mongoose.Schema.Types.ObjectId, ref: 'FeePayment' }],  // Tracks individual payment records
+  property: { type: mongoose.Schema.Types.ObjectId, ref: 'Property' }
 }, { timestamps: true });
 
 const Student = mongoose.model('Student', studentSchema);

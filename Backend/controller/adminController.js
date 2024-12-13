@@ -50,7 +50,7 @@ exports.signup = async (req, res) => {
 
 // login
 exports.login = async (req, res) => {
-    const { email, password } = req.body;
+    const { email, password, role } = req.body;
 
     try {
         const admin = await Admin.findOne({ email })
@@ -67,7 +67,8 @@ exports.login = async (req, res) => {
 
         const token = jwt.sign({ adminId: admin._id }, JWT_SECRET);
         const adminName = admin.name
-        res.status(200).json({ token , adminName});
+        const role = admin.role
+        res.status(200).json({ token , adminName, role});
     } catch (error) {
         console.error(error);
         res
@@ -75,3 +76,18 @@ exports.login = async (req, res) => {
             .json({ message: "An error occurred. Please try again later." });
     }
 };
+
+exports.adminLogout = async (req, res) => {
+    const token = req.headers.authorization;
+
+    if (!token) {
+        return res.status(401).json({ message: 'Unauthorized' });
+    }
+
+    try {
+        return res.status(200).json({ message: "Logged out successfully" });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: "Internal Server Error" });
+    }
+}
