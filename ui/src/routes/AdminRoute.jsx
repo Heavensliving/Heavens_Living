@@ -129,7 +129,7 @@ const AdminRoute = () => {
                     <Route path='/waveoff' element={<WaveOffPaymentsPage />} />
                     <Route path='/addonPage' element={<AddonPage />} />
                     <Route path='/notification' element={<Notification />} />
-
+                    
                 </Route>
 
             </Routes>
