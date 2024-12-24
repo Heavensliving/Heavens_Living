@@ -62,6 +62,7 @@ import CafeOrders from '../pages/cafeOrders/CafeOrders.jsx'
 import OrderHistory from '../pages/cafeOrders/OrderHistory.jsx'
 import QRScanner from '../pages/messManagement/QRScanner.jsx'
 import Notification from '../pages/notification/Notification.jsx'
+import InventoryManagement from '../pages/Inventory/InventoryManagement.jsx'
 
 const AdminRoute = () => {
     return (
@@ -129,7 +130,8 @@ const AdminRoute = () => {
                     <Route path='/waveoff' element={<WaveOffPaymentsPage />} />
                     <Route path='/addonPage' element={<AddonPage />} />
                     <Route path='/notification' element={<Notification />} />
-                    
+                    <Route path='/inventory' element={<InventoryManagement />} />
+
                 </Route>
 
             </Routes>
