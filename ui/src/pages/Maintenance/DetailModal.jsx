@@ -13,6 +13,8 @@ const DetailModal = ({ isOpen, onClose, record }) => {
         <p><strong>Room no.:</strong> {record.roomNo}</p>
         <p><strong>Date and Time:</strong> {new Date(record.createdAt).toLocaleString()}</p>
         <p><strong>Status:</strong> {record.Status}</p>
+        <p><strong>Assigned To</strong> {record.AssignedTo}</p>      
+
 
         {/* Conditionally render "Resolved By" and "Remark" only if status is not "pending" */}
         {record.Status !== 'pending' && (
