@@ -5,6 +5,7 @@ const stockSchema = new mongoose.Schema({
   quantityType: { type: String, required: true },
   stockQty: { type: Number, required: true },
   usedQty: { type: Number, default: 0 },
+  category: { type: String, required: false },
 });
 
 const Stock = mongoose.model('Stock', stockSchema);
