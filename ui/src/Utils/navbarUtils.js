@@ -155,6 +155,9 @@ const pageConfig = {
     },'/notification':{
       title:"Notification"
     },
+    '/inventory':{
+      title:"Inventory Management"
+    },
     
     
     

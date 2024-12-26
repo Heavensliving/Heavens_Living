@@ -28,6 +28,7 @@ const CafeLoginRoutes = require('./routes/CafeLogin.js')
 const userRoutes = require('./routes/user.js')
 const roomAllocationRoutes = require('./routes/RoomAllocation.js')
 const carousalRoutes = require('./routes/carousal.js');
+const stockRoutes = require('./routes/stockRoutes.js');
 
 dotenv.config();
 
@@ -92,6 +93,7 @@ app.use('/api/CafeAuth',CafeLoginRoutes);
 app.use('/api/user/',userRoutes);
 app.use('/api/room/',roomAllocationRoutes)
 app.use('/api/carousal/',carousalRoutes)
+app.use('/api/stocks', stockRoutes);
 
 
 

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { FaUtensils, FaConciergeBell, FaCoffee, FaHamburger, FaPizzaSlice, FaAppleAlt, FaPlusCircle, FaUserPlus, FaCheckCircle } from 'react-icons/fa';
+import { FaUtensils, FaConciergeBell, FaCoffee, FaHamburger, FaPizzaSlice, FaAppleAlt, FaPlusCircle, FaUserPlus, FaCheckCircle, FaBoxes } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
@@ -120,6 +120,8 @@ function MessManagement() {
         </div>
         {/* Right side buttons */}
         <div className="flex space-x-4 mt-2 md:mt-0">
+        <ActionButton
+    icon={FaBoxes} label="Inventory" bgColor="bg-white" borderColor="border-2 border-yellow-500" textColor="text-yellow-500" hoverColor="bg-yellow-50" navigateTo="/inventory"/>
           <ActionButton icon={FaUserPlus} label="Add People" bgColor="bg-purple-500" hoverColor="bg-purple-600" textColor="text-white" navigateTo="/add-people" />
           <ActionButton icon={FaAppleAlt} label="Add Food" bgColor="bg-white" borderColor="border-2 border-blue-500" textColor="text-blue-500" hoverColor="bg-blue-50" navigateTo="/add-food" />
           <ActionButton icon={FaPlusCircle} label="Add Add-ons" bgColor="bg-green-500" hoverColor="bg-green-600" textColor="text-white" navigateTo="/add-ons" />
