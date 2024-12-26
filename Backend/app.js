@@ -112,6 +112,7 @@ app.use('/api/user/',userRoutes);
 app.use('/api/room/',roomAllocationRoutes)
 app.use('/api/carousal/',carousalRoutes)
 app.use('/api/stocks', stockRoutes);
+app.use('/api/inventorycategories', inventoryCategoryRoutes);
 app.use('/api/investment', InvestmentRoute)
 
 
