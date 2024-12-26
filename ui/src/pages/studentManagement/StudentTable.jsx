@@ -79,7 +79,7 @@ const StudentTable = ({ students, onRowClick, onDelete, onStatusChange, admin })
                 <td className="py-4 px-4 text-center text-gray-700 font-medium text-xs md:text-sm">
                   {index + 1}
                 </td>
-                <td className="py-4 px-4 text-center text-gray-700 font-medium text-xs md:text-sm">
+                <td className="py-4 px-4 text-gray-700 font-medium text-xs md:text-sm">
                   {student.name}{" "}
                   {student.vacate && (
                     <span className="text-sm text-red-600 font-bold">
