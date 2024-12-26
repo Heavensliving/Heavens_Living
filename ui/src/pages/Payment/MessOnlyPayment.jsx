@@ -81,7 +81,7 @@ const MessOnlyPayment = () => {
             await axios.post(`${API_BASE_URL}/fee/add`, comprehensiveFormData,
                 { headers: { 'Authorization': `Bearer ${admin.token}` } }
             );
-            navigate('/payments');
+            navigate('/paymentReceived');
         } catch (error) {
             setErrorMessage(error)
             console.error("Error recording fee payment:", error);

@@ -20,7 +20,7 @@ const DailyRentSchema = new mongoose.Schema({
   checkOut: { type: Date },
   currentStatus: { type: String, default: 'Active'},
   vacate: { type: Boolean, default: false },
-  dateOfBirth: { type: Date, required: true },
+  dateOfBirth: { type: Date, required: false },
   gender: { type: String, required: true },
   branch: { type: String, required: true },
   phase: { type: String, required: true },

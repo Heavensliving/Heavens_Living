@@ -176,17 +176,17 @@ const DailyRentPage = () => {
         onClose={() => setIsModalOpen(false)}
         onConfirm={ConfirmDeleteDailyRent}
         title={
-          admin?.role === "propertyAdmin"
+          admin?.role === "Property-Admin"
             ? "Confirm Vacate"
             : "Confirm Delete"
         }
         message={
-          admin?.role === "propertyAdmin"
-            ? `Are you sure you want to vacate this student?`
-            : `Are you sure you want to delete this student?`
+          admin?.role === "Property-Admin"
+            ? `Are you sure you want to vacate this rent person?`
+            : `Are you sure you want to delete this rent person?`
         }
         confirmLabel={
-          admin?.role === "propertyAdmin"
+          admin?.role === "Property-Admin"
             ? "Vacate"
             : "Delete"
         }

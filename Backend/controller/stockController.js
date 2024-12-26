@@ -37,4 +37,4 @@ const getStocks = async (req, res) => {
   
 
 // Export the functions correctly
-module.exports = { addStock, getStocks, updateStock };
+module.exports = { addStock, getStocks };

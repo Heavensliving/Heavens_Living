@@ -1,7 +1,7 @@
 import { FaEdit, FaTrash } from "react-icons/fa";
 const DailyRentTable = ({ dailyRents, onRowClick, onEdit, onDelete, admin }) => {
-  const isPropertyAdmin = admin.role === 'propertyAdmin';
-  const isMainAdmin = admin.role === 'mainAdmin';
+  const isPropertyAdmin = admin.role === 'Property-Admin';
+  const isMainAdmin = admin.role === 'Main-Admin';
 
   return (
     <div className="overflow-x-auto">
@@ -10,7 +10,6 @@ const DailyRentTable = ({ dailyRents, onRowClick, onEdit, onDelete, admin }) => 
           <tr className="bg-gray-100 border-b">
             <th className="py-2 px-4">#</th>
             <th className="py-2 px-4">Name</th>
-            <th className="py-2 px-4">Contact</th>
             <th className="py-2 px-4">Room</th>
             <th className="py-2 px-4">Check In</th>
             <th className="py-2 px-4">Check Out</th>
@@ -52,7 +51,6 @@ const DailyRentTable = ({ dailyRents, onRowClick, onEdit, onDelete, admin }) => 
                       <div className="text-xs text-red-600">Vacated</div>
                     )}
                   </td>
-                  <td className="py-2 px-4">{dailyRent.contactNo}</td>
                   <td className="py-2 px-4">{dailyRent.roomNo}</td>
                   <td className="py-2 px-4">
                     {new Date(dailyRent.checkIn).toLocaleDateString()}
