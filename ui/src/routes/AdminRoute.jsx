@@ -63,6 +63,7 @@ import OrderHistory from '../pages/cafeOrders/OrderHistory.jsx'
 import QRScanner from '../pages/messManagement/QRScanner.jsx'
 import Notification from '../pages/notification/Notification.jsx'
 import InventoryManagement from '../pages/Inventory/InventoryManagement.jsx'
+import InventoryUsage from '../pages/Inventory/InventoryUsage.jsx'
 
 const AdminRoute = () => {
     return (
@@ -131,6 +132,7 @@ const AdminRoute = () => {
                     <Route path='/addonPage' element={<AddonPage />} />
                     <Route path='/notification' element={<Notification />} />
                     <Route path='/inventory' element={<InventoryManagement />} />
+                    <Route path="/inventory-usage" element={<InventoryUsage />} />
 
                 </Route>
 

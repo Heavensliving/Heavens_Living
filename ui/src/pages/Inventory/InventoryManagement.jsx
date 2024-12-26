@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Table, Progress, Button, message, Input, Select } from 'antd';
+import { Table, Progress, Button, message, Input, Select, Tag } from 'antd';
 import axios from 'axios';
 import { useSelector } from 'react-redux';
 import AddStockModal from './AddStockModal';
 import UpdateStockModal from './UpdateStockModal';
 import DailyUsageModal from './DailyUsageModal'; 
+import { useNavigate } from 'react-router-dom';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -16,7 +17,10 @@ const InventoryManagement = () => {
   const [stocks, setStocks] = useState([]); 
   const [filteredStocks, setFilteredStocks] = useState([]); 
   const [searchTerm, setSearchTerm] = useState(""); 
-  const [sortOrder, setSortOrder] = useState("ascend"); 
+  const [categories, setCategories] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState(null);
+  const navigate = useNavigate();
+  // const [sortOrder, setSortOrder] = useState("ascend"); 
 
 
   const fetchStocks = async () => {
@@ -46,9 +50,45 @@ const InventoryManagement = () => {
     }
 };
 
+const fetchCategories = async () => {
+  try {
+    const res = await axios.get(`${API_BASE_URL}/inventorycategories/get`, {
+      headers: { Authorization: `Bearer ${admin.token}` },
+    });
+    if (res.data.categories) {
+      setCategories(res.data.categories);
+    }
+  } catch (error) {
+    console.error('Error fetching categories:', error);
+  }
+};
+
 useEffect(() => {
     fetchStocks();
+    fetchCategories();
 }, []);
+
+
+const handleCategoryChange = (value) => {
+  setSelectedCategory(value);
+  const filteredData = value ? stocks.filter((stock) => stock.category === value) : stocks;
+  setFilteredStocks(filteredData);
+};
+
+const logUsage = async (itemName, action, qty) => {
+  try {
+    await axios.post(`${API_BASE_URL}/usage-log/add`, {
+      itemName,
+      action,
+      qty,
+      date: new Date().toISOString(),
+    }, {
+      headers: { Authorization: `Bearer ${admin.token}` },
+    });
+  } catch (error) {
+    console.error('Error logging usage:', error);
+  }
+};
 
 
   // Add Stock API handler
@@ -83,6 +123,7 @@ useEffect(() => {
     }
   };
 
+
   // Daily Usage API handler
   const handleDailyUsage = async (itemId, dailyUsage) => {
     try {
@@ -107,6 +148,12 @@ useEffect(() => {
     }
   };
 
+
+    
+    const handleViewUsage = () => {
+      navigate('/inventory-usage');  // Navigate to InventoryUsage page
+    };
+
   // Handle search
   const handleSearch = (value) => {
     setSearchTerm(value);
@@ -114,19 +161,6 @@ useEffect(() => {
       stock.itemName.toLowerCase().includes(value.toLowerCase())
     );
     setFilteredStocks(filteredData);
-  };
-
-  // Handle sorting
-  const handleSort = (value) => {
-    setSortOrder(value);
-    const sortedData = [...filteredStocks].sort((a, b) => {
-      if (value === "ascend") {
-        return a.stockQty - b.stockQty;
-      } else {
-        return b.stockQty - a.stockQty;
-      }
-    });
-    setFilteredStocks(sortedData);
   };
 
   const columns = [
@@ -146,30 +180,31 @@ useEffect(() => {
       dataIndex: 'stockQty',
       key: 'stockQty',
       render: (stockQty, record) => {
-        const availableStock = record.stockQty - record.usedQty;
-        const percent = (availableStock / record.stockQty) * 100;
-  
-        let strokeColor = '#52c41a'; // Default to light green
-        if (percent >= 75) {
-          strokeColor = '#1e7e34'; // Dark green for 75%-100%
-        } else if (percent >= 50) {
-          strokeColor = '#90ee90'; // Light green for 50%-74%
-        } else if (percent >= 20) {
-          strokeColor = '#faad14'; // Yellow for 20%-49%
+        const availableStock = record.stockQty - record.usedQty; 
+        const lowAlertQty = record.lowAlertQty || 0;
+    
+        let stockStatus = ''; // Default stock status
+        let color = ''; // Color for the status
+    
+        // Determine the stock status and color based on lowAlertQty and availableStock
+        if (availableStock === 0) {
+          stockStatus = 'Out of Stock';
+          color = 'red';
+        } else if (availableStock <= lowAlertQty) {
+          stockStatus = 'Low';
+          color = 'orange';
         } else {
-          strokeColor = '#ff4d4f'; // Red for 0%-19%
-        }  
-
+          stockStatus = 'Sufficient';
+          color = 'green';
+        }
         return (
-          <Progress
-            percent={percent}
-            status="active"
-            strokeColor={strokeColor}
-            format={() => `${percent.toFixed(0)}%`}
-          />
+          <Tag color={color}>
+            {stockStatus}
+          </Tag>
         );
       },
     },
+    
     {
       title: 'Used Qty',
       dataIndex: 'usedQty',
@@ -206,9 +241,10 @@ useEffect(() => {
   return (
     <div className="p-4">
       <div className="flex justify-between items-center mb-5">
-        <Button type="link" className="p-0 text-gray-500 font-semibold">
-          Download Report
-        </Button>
+      <Button type="link" className="p-0 text-gray-500 font-semibold" onClick={handleViewUsage}>
+        View Usage
+      </Button>
+
 
         <div className="flex space-x-2">
           <Button
@@ -243,13 +279,28 @@ useEffect(() => {
           onChange={(e) => handleSearch(e.target.value)}
           className="mr-3 w-full sm:w-1/2 md:w-1/3 lg:w-1/4"
         />
-        <Select
+        {/* <Select
           defaultValue={sortOrder}
           onChange={handleSort}
           className="w-36 sm:w-40 md:w-48"
         >
           <Select.Option value="ascend">Sort by Stock (Asc)</Select.Option>
           <Select.Option value="descend">Sort by Stock (Desc)</Select.Option>
+        </Select> */}
+
+        {/* Category Filter (Sort) */}
+        <Select
+          placeholder="Select Category"
+          value={selectedCategory}
+          onChange={handleCategoryChange}
+          className="w-36 sm:w-40 md:w-48"
+        >
+          <Select.Option value={null}>All Categories</Select.Option>
+          {categories.map((category) => (
+            <Select.Option key={category._id} value={category.name}>
+              {category.name}
+            </Select.Option>
+          ))}
         </Select>
       </div>
 

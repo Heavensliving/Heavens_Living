@@ -3,7 +3,7 @@ const Stock = require('../Models/Stock');
 // Add new stock
 const addStock = async (req, res) => {
   try {
-    const { itemName, quantityType, stockQty, usedQty, category } = req.body;
+    const { itemName, quantityType, stockQty, usedQty, category, lowAlertQty } = req.body;
 
     const newStock = new Stock({
       itemName,
@@ -11,6 +11,7 @@ const addStock = async (req, res) => {
       stockQty,
       usedQty,
       category, 
+      lowAlertQty,
     });
 
     await newStock.save();
@@ -40,28 +41,30 @@ const getStocks = async (req, res) => {
 // Update stock
 const updateStock = async (req, res) => {
   try {
-    const { itemId, additionalStock } = req.body;
+      const { itemId, additionalStock } = req.body;
 
-    // Validate inputs
-    if (!itemId || additionalStock <= 0) {
-      return res.status(400).json({ message: 'Invalid input data' });
-    }
+      // Validate inputs
+      if (!itemId || additionalStock <= 0 || isNaN(additionalStock)) {
+          return res.status(400).json({ message: 'Please enter a positive number to add stock.' });
+      }
 
-    // Find the stock item and update its stockQty
-    const stock = await Stock.findById(itemId);
-    if (!stock) {
-      return res.status(404).json({ message: 'Stock item not found' });
-    }
+      // Find the stock item and update its stockQty
+      const stock = await Stock.findById(itemId);
+      if (!stock) {
+          return res.status(404).json({ message: 'Stock item not found' });
+      }
 
-    stock.stockQty += additionalStock; // Add the additional stock
-    await stock.save();
+      stock.stockQty += additionalStock; // Add the additional stock
+      await stock.save();
 
-    res.status(200).json({ message: 'Stock updated successfully' });
+      res.status(200).json({ message: 'Stock updated successfully' });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Error updating stock' });
+      console.error(error);
+      res.status(500).json({ message: 'Error updating stock' });
   }
 };
+
+
 
 const updateDailyUsage = async (req, res) => {
   const { itemId, dailyUsage } = req.body;
@@ -109,4 +112,3 @@ const deleteStock = async (req, res) => {
 };
 
 module.exports = { addStock, getStocks, updateStock, updateDailyUsage, deleteStock };
-

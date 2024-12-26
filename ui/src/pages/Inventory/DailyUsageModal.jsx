@@ -4,12 +4,14 @@ import { Modal, Form, Select, InputNumber, Button, message } from 'antd';
 const DailyUsageModal = ({ isModalOpen, handleCancel, handleDailyUsage, stocks }) => {
   const [selectedItem, setSelectedItem] = useState(null); // Store selected item details
   const [dailyUsage, setDailyUsage] = useState(0); // Store daily usage value
+  const [error, setError] = useState(''); // State to store error message
 
   // Clear the fields when modal is closed or reset
   useEffect(() => {
     if (!isModalOpen) {
       setSelectedItem(null);
       setDailyUsage(0);
+      setError(''); // Clear error on modal close
     }
   }, [isModalOpen]);
 
@@ -23,8 +25,10 @@ const DailyUsageModal = ({ isModalOpen, handleCancel, handleDailyUsage, stocks }
       message.error('Please select an item.');
       return;
     }
-    if (dailyUsage <= 0) {
-      message.error('Please enter a valid daily usage quantity (at least 1).');
+
+    // Validate the dailyUsage value
+    if (dailyUsage <= 0 || isNaN(dailyUsage)) {
+      message.error('Please enter a valid positive number for daily usage.');
       return;
     }
 
@@ -37,6 +41,25 @@ const DailyUsageModal = ({ isModalOpen, handleCancel, handleDailyUsage, stocks }
 
     // Call the handleDailyUsage function to update the usage
     handleDailyUsage(selectedItem._id, dailyUsage);
+  };
+
+  const handleDailyUsageChange = (value) => {
+    // Reject non-numeric or invalid input
+    if (value && (value <= 0 || isNaN(value) || String(value).includes('-') || /[a-zA-Z]/.test(value))) {
+      setError('Please enter a valid positive number.');
+      return;
+    }
+
+    // If valid, clear the error and update the state
+    setDailyUsage(value);
+    setError('');
+  };
+
+  const handleInputBlur = () => {
+    // Ensure that the final value is valid
+    if (dailyUsage <= 0 || isNaN(dailyUsage)) {
+      setError('Please enter a valid positive number.');
+    }
   };
 
   return (
@@ -82,10 +105,12 @@ const DailyUsageModal = ({ isModalOpen, handleCancel, handleDailyUsage, stocks }
           <InputNumber
             min={1}
             placeholder="Enter daily usage"
-            onChange={(value) => setDailyUsage(value)}
+            value={dailyUsage} // Controlled value for daily usage
+            onChange={handleDailyUsageChange}
+            onBlur={handleInputBlur}
             style={{ width: '100%' }}
-            value={dailyUsage} // Ensure the dailyUsage value is controlled
           />
+          {error && <div style={{ color: 'red', marginTop: '10px' }}>{error}</div>}
         </Form.Item>
       </Form>
     </Modal>
