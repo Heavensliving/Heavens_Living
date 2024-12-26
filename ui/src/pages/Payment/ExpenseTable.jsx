@@ -5,6 +5,7 @@ import 'jspdf-autotable'; // Make sure to import the autoTable plugin
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 import { useSelector } from 'react-redux';
 import CheckAuth from '../auth/CheckAuth';
+import ImageModal from '../../components/reUsableComponet/ImageModal';
 
 const ExpenseTable = () => {
   const admin = useSelector(store => store.auth.admin);
@@ -16,6 +17,9 @@ const ExpenseTable = () => {
   const [selectedType, setSelectedType] = useState('');
   const [selectedMonth, setSelectedMonth] = useState('');
   const [selectedYear, setSelectedYear] = useState('');
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalImageSrc, setModalImageSrc] = useState('');
+  const [isLoading, setIsLoading] = useState(true); // Track image loading state
 
   useEffect(() => {
     if (!admin) return;
@@ -35,13 +39,28 @@ const ExpenseTable = () => {
     fetchExpenses();
   }, []);
 
+  const handleRowClick = (expense) => {
+    if (expense.billImg) {
+      setModalImageSrc(expense.billImg);
+    } else {
+      setModalImageSrc("No bill available currently.");
+    }
+    setIsModalOpen(true);
+  };
+
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setModalImageSrc('');
+  };
+
   // Filter expenses based on the search term
   const filteredExpenses = expenses.filter(expense =>
     expense.title.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   // Further filter by category, month, and year
-  const sortedExpenses = filteredExpenses.filter(expense => {
+  const Expenses = filteredExpenses.filter(expense => {
     const date = new Date(expense.date);
     const monthMatches = selectedMonth ? date.getMonth() + 1 === parseInt(selectedMonth) : true;
     const yearMatches = selectedYear ? date.getFullYear() === parseInt(selectedYear) : true;
@@ -51,6 +70,8 @@ const ExpenseTable = () => {
     return monthMatches && yearMatches && categoryMatches && typeMatches;
   });
 
+  const sortedExpenses = [...Expenses].sort((a, b) => new Date(b.date) - new Date(a.date));
+
   // Calculate total amount and total salary
   const totalAmount = sortedExpenses.reduce((total, expense) => total + expense.amount, 0);
   const totalSalary = sortedExpenses
@@ -59,10 +80,10 @@ const ExpenseTable = () => {
 
   const downloadPDF = () => {
     const doc = new jsPDF();
-    doc.setFontSize(18); 
+    doc.setFontSize(18);
     doc.text('Expense Report', 14, 20);
-    doc.setFontSize(10); 
-    doc.text('Date: ' + new Date().toLocaleDateString(), 14, 30); 
+    doc.setFontSize(10);
+    doc.text('Date: ' + new Date().toLocaleDateString(), 14, 30);
 
     // Add the table
     doc.autoTable({
@@ -91,7 +112,11 @@ const ExpenseTable = () => {
   };
 
   if (loading) {
-    return <p className="text-center">Loading expenses...</p>;
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="loadingSpinner border-t-2 border-white border-solid rounded-full w-6 h-6 animate-spin"></div>
+      </div>
+    );
   }
 
   if (error) {
@@ -110,13 +135,13 @@ const ExpenseTable = () => {
 
   return (
     <div className="container mx-auto p-6 bg-gray-100 rounded-lg shadow-lg">
-      <button 
+      <button
         onClick={downloadPDF}
         className="mb-4 p-3 bg-side-bar text-white rounded-lg hover:bg-[#373082] transition"
       >
         Download PDF
       </button>
-      
+
       {/* Search Input */}
       <input
         type="text"
@@ -125,7 +150,7 @@ const ExpenseTable = () => {
         onChange={(e) => setSearchTerm(e.target.value)}
         className="mb-4 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-400 w-full"
       />
-      
+
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
         {/* Category Dropdown */}
         <div>
@@ -214,35 +239,74 @@ const ExpenseTable = () => {
             <th className="py-3 px-4 border">Title</th>
             <th className="py-3 px-4 border">Type</th>
             <th className="py-3 px-4 border">Category</th>
-            <th className="py-3 px-4 border">Payment Method</th>
+            <th className="py-3 px-4 border">Payment</th>
             <th className="py-3 px-4 border">Amount</th>
             <th className="py-3 px-4 border">Date</th>
-            <th className="py-3 px-4 border">Property Name</th>
+            <th className="py-3 px-4 border">Property</th>
             <th className="py-3 px-4 border">Transaction ID</th>
+            <th className="py-3 px-4 border">Bill</th>
           </tr>
         </thead>
         <tbody>
           {sortedExpenses.length > 0 ? (
-            sortedExpenses.map((expense, index) => (
-              <tr key={expense._id} className="hover:bg-gray-100 transition-colors text-center">
-                <td className="py-2 px-4 border ">{index + 1}</td>
-                <td className="py-2 px-4 border">{expense.title}</td>
-                <td className="py-2 px-4 border">{expense.type}</td>
-                <td className="py-2 px-4 border">{expense.category}</td>
-                <td className="py-2 px-4 border">{expense.paymentMethod}</td>
-                <td className="py-2 px-4 border">{expense.amount}</td>
-                <td className="py-2 px-4 border">{new Date(expense.date).toLocaleDateString('en-GB')}</td>
-                <td className="py-2 px-4 border">{expense.propertyName}</td>
-                <td className="py-2 px-4 border">{expense.transactionId}</td>
-              </tr>
-            ))
+            sortedExpenses.map((expense, index) => {
+              const defaultImage = 'https://jkfenner.com/wp-content/uploads/2019/11/default.jpg';
+              return (
+                <tr
+                  key={expense._id}
+                  className="hover:bg-gray-100 transition-colors group" // Added group class to tr for hover effect
+                >
+                  <td className="py-2 px-4 border text-center">{index + 1}</td>
+                  <td className="py-2 px-4 border relative">{expense.title}
+                    {/* Tooltip */}
+                    {expense.otherReason && (
+                      <div className="absolute top-8 -translate-x-1/2 -translate-y-full bg-gray-800 text-white text-sm p-1 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        {expense.otherReason}
+                      </div>
+                    )}
+                  </td>
+                  <td className="py-2 px-4 border text-center">{expense.type}</td>
+                  <td className="py-2 px-4 border text-center">{expense.category}</td>
+                  <td className="py-2 px-4 border text-center">{expense.paymentMethod}</td>
+                  <td className="py-2 px-4 border text-center">{expense.amount}</td>
+                  <td className="py-2 px-4 border text-center">
+                    {new Date(expense.date).toLocaleDateString('en-GB')}
+                  </td>
+                  <td className="py-2 px-4 border text-center">{expense.propertyName}</td>
+                  <td className="py-2 px-4 border text-center">{expense.transactionId}</td>
+                  <td className={`py-2 px-4 border text-center ${expense.billImg ? 'cursor-pointer' : ''}`}>
+                    {expense.billImg ? (
+                      <img
+                        src={isLoading ? defaultImage : expense.billImg}
+                        alt="Bill"
+                        onLoad={() => setIsLoading(false)}
+                        onClick={() => handleRowClick(expense)}
+                      />
+                    ) : (
+                      <span>-</span>
+                    )}
+                  </td>
+                </tr>
+              );
+            })
           ) : (
             <tr>
-              <td colSpan="9" className="py-3 px-4 text-center">No records found</td>
+              <td colSpan="9" className="py-3 px-4 text-center">
+                No records found
+              </td>
             </tr>
           )}
         </tbody>
+
       </table>
+
+      {/* Image Modal */}
+      <ImageModal
+        isOpen={isModalOpen}
+        onClose={closeModal}
+        imageSrc={modalImageSrc}
+        altText="&nbsp; No bill available &nbsp;&nbsp;&nbsp;"
+      />
     </div>
   );
 };

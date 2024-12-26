@@ -6,16 +6,21 @@ import app from "../../firebase";
 import { useSelector } from "react-redux";
 import DailyRentTable from "./DailyRentTable"; // Import the new table component
 import ConfirmationModal from "../../components/reUsableComponet/ConfirmationModal";
-const API_BASE_URL =import.meta.env.VITE_API_BASE_URL;
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 import CheckAuth from "../auth/CheckAuth";
+import SearchAndSort from "../../components/reUsableComponet/SearchAndSort";
+import MetricCard from "../studentManagement/MetricCard";
+import { FaCheckCircle, FaDollarSign, FaUser } from "react-icons/fa";
 
 const storage = getStorage();
 
 const DailyRentPage = () => {
   const admin = useSelector((store) => store.auth.admin);
   const [dailyRents, setDailyRents] = useState([]);
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchQuery, setSearchQuery] = useState('');
+  const [sortOption, setSortOption] = useState('All');
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [propertySort, setPropertySort] = useState('');
   const [selectedRentId, setSelectedRentId] = useState(null);
   const navigate = useNavigate();
 
@@ -60,8 +65,8 @@ const DailyRentPage = () => {
       await axios.delete(`${API_BASE_URL}/DailyRent/delete/${selectedRentId}`, {
         headers: {
           'Authorization': `Bearer ${admin.token}`,
-          'Role': admin.role 
-         } 
+          'Role': admin.role
+        }
       });
       fetchDailyRents();
       setIsModalOpen(false);
@@ -70,12 +75,31 @@ const DailyRentPage = () => {
     }
   };
 
-  const filteredDailyRents = dailyRents.filter((dailyRent) =>
-    dailyRent.name.toLowerCase().includes(searchTerm.toLowerCase())
+   const filteredStudents = dailyRents.filter(dailyRent =>
+    dailyRent.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  const totalDailyRenters = dailyRents.filter(dailyRent => dailyRent.vacate == false).length;
+  const paymentPending = dailyRents.filter(dailyRent => dailyRent.paymentStatus === 'Pending' && dailyRent.vacate == false).length;
+  const paymentCompleted = dailyRents.filter(dailyRent => dailyRent.paymentStatus === 'Paid' && dailyRent.vacate == false).length;
 
   const handleRowClick = (id) => {
     navigate(`/dailyRent/${id}`);
+  };
+
+  const sortingOptions = [
+    { value: 'All', label: 'All' },
+    { value: 'Pending', label: 'Pending' },
+    { value: 'Paid', label: 'Paid' },
+    { value: 'Vacated', label: 'Vacated' }          
+  ];
+
+  const handlePropertySortChange = (e) => {
+    setPropertySort(e.target.value);
+  };
+
+  const handleSortChange = (option) => {
+    setSortOption(option);
   };
 
   const handleEdit = (id) => {
@@ -86,49 +110,83 @@ const DailyRentPage = () => {
     fetchDailyRents();
   }, []);
 
+  const sortedStudents = () => {
+    let sorted = filteredStudents;
+
+    if (sortOption === 'Pending') {
+      sorted = filteredStudents.filter(student => student.paymentStatus === 'Pending' && student.vacate !== true); // Exclude vacated students
+    } else if (sortOption === 'Paid') {
+      sorted = filteredStudents.filter(student => student.paymentStatus === 'Paid' && student.vacate !== true); // Exclude vacated students
+    } else if (sortOption === 'CheckedOut') {
+      sorted = filteredStudents.filter(student => student.currentStatus === 'checkedOut' && student.vacate !== true); // Only vacated students
+    } else if (sortOption === 'Vacated') {
+      sorted = filteredStudents.filter(student => student.vacate === true); // Only vacated students
+    } else if (sortOption === 'All') {
+      sorted = filteredStudents.filter(student => student.vacate !== true);
+    }
+
+    if (propertySort) {
+      sorted = sorted.filter(student => student.pgName === propertySort);
+    }
+
+    return sorted;
+  };
+
   return (
     <div className="container mx-auto px-4">
-      <h1 className="text-2xl font-bold text-center my-6">Daily Rent Management</h1>
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-4 mb-6 mt-6">
+        <MetricCard title="Total Daily Renters" value={totalDailyRenters} icon={<FaUser />} color="bg-blue-500" onClick={() => setSortOption('All')}/>
+        <MetricCard title="Payment Pending" value={paymentPending} icon={<FaDollarSign />} color="bg-red-500" onClick={() => setSortOption('Pending')} />
+        <MetricCard title="Payment Completed" value={paymentCompleted} icon={<FaCheckCircle />} color="bg-green-500" onClick={() => setSortOption('Paid')}/>
+      </div>
 
-      <div className="mb-4 flex justify-between items-center">
-        <input
-          type="text"
-          placeholder="Search by name..."
-          className="border border-gray-300 px-4 py-2 rounded shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
-        <button
-          className="bg-side-bar text-white py-2 px-4 rounded hover:bg-[#373082]"
-          onClick={() => navigate("/AddDailyRent")}
+      <SearchAndSort
+        searchQuery={searchQuery}
+        handleSearchChange={(e) => setSearchQuery(e.target.value)}
+        sortingOptions={sortingOptions}
+        onSortChange={handleSortChange}
+        addNewEntryPath="/AddDailyRent"
+      />
+
+      {/* New field for sorting by pgName */}
+      <div className="mb-4">
+        <label htmlFor="propertySort" className="block text-sm font-medium text-gray-700">Filter by Property</label>
+        <select
+          id="propertySort"
+          value={propertySort}
+          onChange={handlePropertySortChange}
+          className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
         >
-          Add People
-        </button>
+          <option value="">Select Property</option>
+          {[...new Set(dailyRents.map(dailyRent => dailyRent.pgName))].map(pgName => (
+            <option key={pgName} value={pgName}>{pgName}</option>
+          ))}
+        </select>
       </div>
 
       <DailyRentTable
-        dailyRents={filteredDailyRents}
+        dailyRents={sortedStudents()}
         onRowClick={handleRowClick}
         onEdit={handleEdit}
         onDelete={handleDelete}
         admin={admin}
       />
-<ConfirmationModal
+      <ConfirmationModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onConfirm={ConfirmDeleteDailyRent}
         title={
-          admin?.role === "propertyAdmin"
+          admin?.role === "Property-Admin"
             ? "Confirm Vacate"
             : "Confirm Delete"
         }
         message={
-          admin?.role === "propertyAdmin"
-            ? `Are you sure you want to vacate this student?`
-            : `Are you sure you want to delete this student?`
+          admin?.role === "Property-Admin"
+            ? `Are you sure you want to vacate this rent person?`
+            : `Are you sure you want to delete this rent person?`
         }
         confirmLabel={
-          admin?.role === "propertyAdmin"
+          admin?.role === "Property-Admin"
             ? "Vacate"
             : "Delete"
         }

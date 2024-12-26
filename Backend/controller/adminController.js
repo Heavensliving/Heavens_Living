@@ -9,8 +9,7 @@ const passwordValidation = new RegExp(
 const JWT_SECRET = process.env.JWT_SECRET || "heavensliving";
 
 exports.signup = async (req, res) => {
-    console.log(req.body)
-    const { name, email, password, role } = req.body;
+    const { name, email, password, role, properties } = req.body;
 
     // Validate the password before any other operation
     if (!passwordValidation.test(password)) {
@@ -24,22 +23,23 @@ exports.signup = async (req, res) => {
 
     try {
         const existingUser = await Admin.findOne({ email });
-    
+
         if (existingUser) {
             return res.status(400).json({
                 message: "Email is already registered.",
             });
         }
-    
+
         const admin = new Admin({
             name,
             email,
             password: hashedPassword,
-            role
+            role,
+            properties,
         });
-    
+
         await admin.save(); // Ensure to wait for the save operation
-    
+
         res.status(201).json({
             message: "Admin signed up successfully!",
         });
@@ -47,7 +47,7 @@ exports.signup = async (req, res) => {
         console.error("Error saving admin:", error); // Log more specific error info
         res.status(500).json({ message: "Error creating Admin. Please try again later." });
     }
-    
+
 };
 
 // login
@@ -75,9 +75,10 @@ exports.login = async (req, res) => {
         const token = jwt.sign({ adminId: admin._id }, JWT_SECRET, { expiresIn: '24h' });
         const adminName = admin.name;
         const role = admin.role;
+        const properties = admin.properties;
 
         // Success response
-        res.status(200).json({ token, adminName, role });
+        res.status(200).json({ token, adminName, role, properties });
     } catch (error) {
         console.error("Error in login route:", error);
         res

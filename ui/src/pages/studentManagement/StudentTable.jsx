@@ -69,9 +69,9 @@ const StudentTable = ({ students, onRowClick, onDelete, onStatusChange, admin })
                   : student.currentStatus === "checkedOut"
                     ? "bg-yellow-100"
                     : ""
-                  } ${admin.role === "mainAdmin" || (admin.role === "propertyAdmin" && !student.vacate) ? "cursor-pointer" : "cursor-not-allowed"}`}
+                  } ${admin.role === "Main-Admin" || (admin.role === "Property-Admin" && !student.vacate) ? "cursor-pointer" : "cursor-not-allowed"}`}
                 onClick={() => {
-                  if (admin.role === "mainAdmin" || (admin.role === "propertyAdmin" && !student.vacate)) {
+                  if (admin.role === "Main-Admin" || (admin.role === "Property-Admin" && !student.vacate)) {
                     onRowClick(student._id);
                   }
                 }}
@@ -79,7 +79,7 @@ const StudentTable = ({ students, onRowClick, onDelete, onStatusChange, admin })
                 <td className="py-4 px-4 text-center text-gray-700 font-medium text-xs md:text-sm">
                   {index + 1}
                 </td>
-                <td className="py-4 px-4 text-center text-gray-700 font-medium text-xs md:text-sm">
+                <td className="py-4 px-4 text-gray-700 font-medium text-xs md:text-sm">
                   {student.name}{" "}
                   {student.vacate && (
                     <span className="text-sm text-red-600 font-bold">
@@ -117,7 +117,7 @@ const StudentTable = ({ students, onRowClick, onDelete, onStatusChange, admin })
                   </span>
                 </td>
                 <td className="py-2 px-2 text-center text-xs md:text-sm">
-                  {admin.role === "propertyAdmin" ? (
+                  {admin.role === "Property-Admin" ? (
                     <>
                       {/* Status Toggle Button */}
                       <button
@@ -140,24 +140,24 @@ const StudentTable = ({ students, onRowClick, onDelete, onStatusChange, admin })
 
                       {/* Delete Button */}
                       <button
-                        className={`ml-4 text-red-600 hover:underline text-red-500 ${admin.role === "mainAdmin" ? "" : student.vacate ? "text-gray-400 cursor-not-allowed" : ""}`}
+                        className={`ml-4 text-red-600 hover:underline text-red-500 ${admin.role === "Main-Admin" ? "" : student.vacate ? "text-gray-400 cursor-not-allowed" : ""}`}
                         onClick={(e) => {
                           e.stopPropagation();
-                          if (admin.role === "mainAdmin" || !student.vacate) onDelete(student._id);
+                          if (admin.role === "Main-Admin" || !student.vacate) onDelete(student._id);
                         }}
-                        disabled={student.vacate && admin.role !== "mainAdmin"}
+                        disabled={student.vacate && admin.role !== "Main-Admin"}
                       >
                         <FaTrash />
                       </button>
                     </>
                   ) : (
                     <button
-                      className={`text-red-600 hover:underline ${student.vacate && admin.role !== "mainAdmin" ? "text-gray-400 cursor-not-allowed" : ""}`}
+                      className={`text-red-600 hover:underline ${student.vacate && admin.role !== "Main-Admin" ? "text-gray-400 cursor-not-allowed" : ""}`}
                       onClick={(e) => {
                         e.stopPropagation();
-                        if (admin.role === "mainAdmin" || !student.vacate) onDelete(student._id);
+                        if (admin.role === "Main-Admin" || !student.vacate) onDelete(student._id);
                       }}
-                      disabled={student.vacate && admin.role !== "mainAdmin"}
+                      disabled={student.vacate && admin.role !== "Main-Admin"}
                     >
                       <FaTrash />
                     </button>

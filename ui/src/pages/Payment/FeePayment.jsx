@@ -140,12 +140,13 @@ const FeePayment = () => {
 
       toast.success('Payments Added Successfully!', { autoClose: 500 });
       setTimeout(() => {
-        navigate('/payments');
+        navigate('/paymentReceived');
         setLoading(false);
       }, 1000);
     } catch (error) {
       console.error("Error recording fee payment:", error);
-      toast.error('Failed to add commission', { autoClose: 500 });
+      toast.error(error.response.data.message, { autoClose: 500 });
+      setLoading(false);
     }
   };
 

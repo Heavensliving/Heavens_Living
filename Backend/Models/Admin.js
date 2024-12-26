@@ -6,12 +6,26 @@ const adminSchema = new mongoose.Schema(
     email: { type: String, required: true, unique: true },
     phone: { type: String, required: false },
     password: { type: String, required: true },
-    role: { 
-      type: String, 
-      enum: ['mainAdmin', 'branchAdmin', 'propertyAdmin'], 
-      required: true 
+    role: {
+      type: String,
+      enum: ['Main-Admin', 'Branch-Admin', 'Property-Admin'],
+      required: true
     },
-  },{ timestamps: true }
+    properties: [
+      {
+        id: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: 'Property',
+          required: true
+        },
+        name: {
+          type: String,
+          required: true
+        },
+        _id: false,
+      }
+    ]
+  }, { timestamps: true }
 );
 
 const Admin = mongoose.model('Admin', adminSchema);

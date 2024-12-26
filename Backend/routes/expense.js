@@ -1,5 +1,6 @@
 const express = require('express');
 const expenseController = require('../controller/expenseController');
+const  expenseCategoryController = require("../controller/expense-categoryController");
 const { verifyToken } = require('../middleware/tokenVerify');
 
 const router = express.Router();
@@ -21,5 +22,9 @@ router.get('/total-expense/by-filter', verifyToken, expenseController.getTotalEx
 router.get('/expenses/by-property', verifyToken, expenseController.getExpensesByProperty);
 
 router.get('/monthlyExpense', verifyToken, expenseController.getMonthlyTotalExpense);
+
+router.post('/add', verifyToken, expenseCategoryController.addCategory);
+
+router.get('/categories', verifyToken, expenseCategoryController.getAllCategories);
 
 module.exports = router;

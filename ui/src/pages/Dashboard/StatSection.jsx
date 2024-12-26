@@ -140,7 +140,7 @@ const StatsSection = () => {
               <FaCalendar className="text-white text-3xl" />
             </div>
             <div className="flex flex-col justify-center">
-              <h2 className="text-md sm:text-lg font-semibold">Daily Rent</h2>
+              <h2 className="text-md sm:text-lg font-semibold">Total Daily Renters</h2>
               <p className="text-xl sm:text-2xl font-bold">{totalDailyRent}</p>
             </div>
           </div>

@@ -43,7 +43,8 @@ const Login = () => {
                 const admin = {
                     adminName: res.data.adminName,
                     token: res.data.token,
-                    role: res.data.role
+                    role: res.data.role,
+                    properties: res.data.properties
                 };
                 dispatch(setAdmin(admin));
 

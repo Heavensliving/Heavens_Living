@@ -462,7 +462,7 @@ const PaymentDashboard = () => {
             <p>Waveoff</p>
           </div>
           {/* Conditionally render based on admin role */}
-          {admin.role !== 'propertyAdmin' && (
+          {admin.role !== 'Property-Admin' && (
             <>
             <div className="p-4 bg-gray-100 text-gray-500 rounded-md ">
                 <p className="text-lg font-semibold">₹{totalNonRefundableDeposit || 0}</p>{" "}

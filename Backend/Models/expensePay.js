@@ -23,7 +23,7 @@ const expenseSchema = new mongoose.Schema({
   },
   transactionId: {
     type: String,
-    default: '',
+    default: '-',
     required: false
   },
   amount: {
@@ -41,6 +41,10 @@ const expenseSchema = new mongoose.Schema({
   propertyId: {
     type: String,
     required: false, // Ensure propertyId is required
+  },
+  billImg: {
+    type: String,
+    required: false,
   },
   staff: {
     type: mongoose.Schema.Types.ObjectId,
