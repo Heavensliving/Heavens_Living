@@ -27,6 +27,16 @@ const addFeePayment = async (req, res) => {
 
     const student = _id;
 
+    if (transactionId){
+      const existingTransaction = await FeePayment.findOne({ transactionId });
+
+      if (existingTransaction) {
+          return res.status(400).json({
+              message: "Transaction Id is already existed.",
+          });
+      }
+    }    
+
     // Calculate balances
     let advanceBalance = 0;
     let balance = 0;
@@ -44,7 +54,7 @@ const addFeePayment = async (req, res) => {
       advanceBalance,
       paymentDate: paidDate,
       paymentClearedMonthYear: feeClearedMonthYear,
-      transactionId,
+      transactionId: transactionId || null,
       paymentMode,
       student,
     };

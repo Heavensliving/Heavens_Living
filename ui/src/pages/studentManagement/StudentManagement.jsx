@@ -126,6 +126,8 @@ const StudentManagement = () => {
       sorted = filteredStudents.filter(student => student.vacate === true); // Only vacated students
     }  else if (sortOption === 'All') {
       sorted = filteredStudents.filter(student => student.vacate !== true); // Only vacated students
+    } else if (sortOption === 'CheckedIn') {
+      sorted = filteredStudents.filter(student => student.currentStatus === 'checkedIn' && student.vacate !== true);
     }
 
     if (propertySort) {
@@ -149,7 +151,7 @@ const StudentManagement = () => {
         <MetricCard title="Total Students" value={totalStudents} icon={<FaUser />} color="bg-blue-500" onClick={() => setSortOption('All')}/>
         <MetricCard title="Payment Pending" value={paymentPending} icon={<FaDollarSign />} color="bg-red-500" onClick={() => setSortOption('Pending')} />
         <MetricCard title="Payment Completed" value={paymentCompleted} icon={<FaCheckCircle />} color="bg-green-500" onClick={() => setSortOption('Paid')}/>
-        <MetricCard title="Checked In" value={checkedIn} icon={<FaSignInAlt />} color="bg-yellow-500" />
+        <MetricCard title="Checked In" value={checkedIn} icon={<FaSignInAlt />} color="bg-yellow-500" onClick={() => setSortOption('CheckedIn')}/>
         <MetricCard title="Checked Out" value={checkedOut} icon={<FaSignOutAlt />} color="bg-gray-500" onClick={() => setSortOption('CheckedOut')}/>
       </div>
 

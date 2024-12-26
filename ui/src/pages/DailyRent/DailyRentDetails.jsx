@@ -104,7 +104,7 @@ const DailyRentDetails = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pr-6 pl-6">
             {/* Left Column - Tenant Information */}
             <div className="bg-white p-6 rounded-lg shadow-md">
-              <h3 className="text-lg font-semibold mb-4 text-gray-700">Tenant Information</h3>
+              <h3 className="text-lg font-semibold mb-4 text-gray-700">Personal Information</h3>
               <div className="space-y-4">
                 <InfoItem icon={FaPhone} label="Contact" value={dailyRentData.contact} />
                 <InfoItem icon={FaEnvelope} label="Email" value={dailyRentData.email} />

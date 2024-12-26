@@ -17,15 +17,15 @@ const addExpense = async (req, res) => {
       propertyName,
       staff,
       transactionId,
+      billImg
     } = req.body;
-
     // Validate required fields
     if (!title || !type || !category || !amount || !date || !propertyId) {
       return res.status(400).json({ error: "Missing required fields." });
     }
 
     // Validate propertyId exists in Property collection
-    const property = await Property.findOne({ propertyId });
+    const property = await Property.findById(propertyId);
     if (!property) {
       return res.status(400).json({ error: "Invalid property ID." });
     }
@@ -54,9 +54,11 @@ const addExpense = async (req, res) => {
       propertyName,
       staff: staff || undefined, // Optional field
       transactionId,
+      billImg: billImg || undefined,
     });
-
+    console.log(newExpense)
     await newExpense.save();
+    console.log(newExpense)
 
     res.status(201).json({ message: "Expense added successfully.", expense: newExpense });
   } catch (error) {

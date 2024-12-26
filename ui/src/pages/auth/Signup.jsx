@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
@@ -15,6 +15,36 @@ const Signup = () => {
     const [phone, setPhone] = useState('');
     const [errors, setErrors] = useState({});
     const [loading, setLoading] = useState(false);
+    const [properties, setProperties] = useState([]);
+    const [selectedProperties, setSelectedProperties] = useState([]);
+
+    useEffect(() => {
+        // Fetch properties when the "Property Admin" role is selected
+        if (role === 'Property-Admin' || role === 'Main-Admin' || role === 'Main-Admin') {
+            axios
+                .get(`${API_BASE_URL}/property`)
+                .then((response) => {
+                    setProperties(response.data);
+                    if (role === 'Main-Admin') {
+                        setSelectedProperties(response.data.map(property => ({ id: property._id, name: property.propertyName })));
+                    }
+                })
+                .catch((error) => {
+                    console.error('Error fetching properties:', error);
+                });
+        } else {
+            setProperties([]);
+            setSelectedProperties([]);
+        }
+    }, [role]);
+
+    const handlePropertyChange = (property) => {
+        setSelectedProperties((prev) =>
+            prev.some((p) => p.id === property._id)
+                ? prev.filter((p) => p.id !== property._id) // Remove if already selected
+                : [...prev, { id: property._id, name: property.propertyName }] // Add if not selected
+        );
+    };
 
     const validateEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.toLowerCase());
     const validatePassword = (password) => {
@@ -39,6 +69,9 @@ const Signup = () => {
         if (!phone) newErrors.phone = "Phone number is required";
         else if (!validatePhone(phone)) newErrors.phone = "Phone number must be a 10-digit number";
         if (!role) newErrors.role = "Role selection is required";
+        if (role === 'Property-Admin' && selectedProperties.length === 0) {
+            newErrors.selectedProperties = "Please select property";
+        }
         if (Object.keys(newErrors).length > 0) {
             setLoading(false);
         }
@@ -46,7 +79,7 @@ const Signup = () => {
         setErrors(newErrors);
 
         if (Object.keys(newErrors).length === 0) {
-            axios.post(`${API_BASE_URL}/admin/signup`, { name, email, password, phone, role })
+            axios.post(`${API_BASE_URL}/admin/signup`, { name, email, password, phone, role, properties: selectedProperties })
                 .then(() => {
                     setErrors({});
                     navigate('/login');
@@ -74,7 +107,7 @@ const Signup = () => {
                     />
                     <p className="text-3xl font-semibold text-center">Living</p>
                     <small className="text-center w-56 mt-3">
-                       Home, Away from Home
+                        Home, Away from Home
                     </small>
                 </div>
 
@@ -147,21 +180,40 @@ const Signup = () => {
                             }}
                         >
                             <option value="">Select Role</option>
-                            <option value="mainAdmin">Main Admin</option>
-                            <option value="branchAdmin">Branch Admin</option>
-                            <option value="propertyAdmin">Property Admin</option>
+                            <option value="Main-Admin">Main Admin</option>
+                            <option value="Branch-Admin">Branch Admin</option>
+                            <option value="Property-Admin">Property Admin</option>
                         </select>
+                        {/* Properties (Checkboxes) */}
+                        {role === 'Property-Admin' && properties.length > 0 && (
+                            <div className="mt-2">
+                                {errors.selectedProperties && <div className="text-red-500 mb-2">{errors.selectedProperties}</div>}
+                                <label className="block font-semibold mb-1">Select Properties:</label>
+                                {properties.map((property, index) => (
+                                    <div key={index} className="flex items-center mb-1">
+                                        <input
+                                            type="checkbox"
+                                            className="mr-2"
+                                            checked={selectedProperties.some((p) => p.id === property._id)}
+                                            onChange={() => handlePropertyChange(property)}
+                                        />
+                                        <label>{property.propertyName}</label>
+                                    </div>
+                                ))}
+                                {errors.properties && <div className="text-red-500">{errors.properties}</div>}
+                            </div>
+                        )}
                         <button
-                                type="submit"
-                                className={`w-full bg-side-bar text-white font-bold py-3 rounded-lg hover:bg-[#373082] transition duration-300 flex items-center justify-center ${loading ? ' cursor-not-allowed' : ''}`}
-                                disabled={loading}
-                            >
-                                {loading ? (
-                                    <div className="spinner border-t-2 border-white border-solid rounded-full w-6 h-6 animate-spin"></div>
-                                ) : (
-                                    'Signup'
-                                )}
-                            </button>
+                            type="submit"
+                            className={`w-full bg-side-bar text-white font-bold py-3 rounded-lg hover:bg-[#373082] transition duration-300 flex items-center justify-center ${loading ? ' cursor-not-allowed' : ''}`}
+                            disabled={loading}
+                        >
+                            {loading ? (
+                                <div className="spinner border-t-2 border-white border-solid rounded-full w-6 h-6 animate-spin"></div>
+                            ) : (
+                                'Signup'
+                            )}
+                        </button>
                     </form>
 
                     <div className="mt-4">

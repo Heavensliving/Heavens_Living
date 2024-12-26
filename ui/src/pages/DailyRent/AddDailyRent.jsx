@@ -135,31 +135,67 @@ const AddDailyRent = () => {
     }
   }, [roomType, rooms]);
 
+  // const handleChange = (e) => {
+  //   const { name, type, files, value } = e.target;
+  //   if (name === 'roomType') {
+  //     setRoomType(value);
+  //     setFormData((preData) => {
+  //       return { ...preData, roomType: value }
+  //     })
+  //   } else if (name === 'propertyId') {
+  //     // Debug: Log the selected value to see if it's correct
+  //     console.log("Selected PG Name:", value);
+  //     const selectedProperty = properties.find(property => property._id === value);
+  //     // console.log("Selected Property:", selectedProperty);
+  //     setPgName(selectedProperty.propertyName)
+  //     setFormData((prevData) => ({
+  //       ...prevData,
+  //       pgName: value,
+  //     }));
+  //   }
+  //   if (type === 'file') {
+  //     setFormData({ ...formData, [name]: files[0] });
+  //   } else {
+  //     setFormData({ ...formData, [name]: value });
+  //   }
+  // };
+
   const handleChange = (e) => {
     const { name, type, files, value } = e.target;
-    if (name === 'roomType') {
-      console.log('hreer')
-      setRoomType(value);
-      setFormData((preData) => {
-        return { ...preData, roomType: value }
-      })
-    } else if (name === 'propertyId') {
-      // Debug: Log the selected value to see if it's correct
-      console.log("Selected PG Name:", value);
-      const selectedProperty = properties.find(property => property._id === value);
-      // console.log("Selected Property:", selectedProperty);
-      setPgName(selectedProperty.propertyName)
-      setFormData((prevData) => ({
-        ...prevData,
-        pgName: value,
-      }));
-    }
+
+    // Update form data
     if (type === 'file') {
       setFormData({ ...formData, [name]: files[0] });
     } else {
-      setFormData({ ...formData, [name]: value });
+      setFormData((prevData) => ({ ...prevData, [name]: value }));
+    }
+
+    // Handle special cases
+    if (name === 'roomType') {
+      setRoomType(value);
+    } else if (name === 'propertyId') {
+      const selectedProperty = properties.find(property => property._id === value);
+      setPgName(selectedProperty.propertyName);
+    }
+
+    // Calculate and set the number of days dynamically
+    if (name === 'checkIn' || name === 'checkOut') {
+      const checkInDate = name === 'checkIn' ? new Date(value) : new Date(formData.checkIn);
+      const checkOutDate = name === 'checkOut' ? new Date(value) : new Date(formData.checkOut);
+
+      if (checkInDate && checkOutDate && checkInDate <= checkOutDate) {
+        const timeDiff = checkOutDate - checkInDate;
+        const daysDiff = Math.ceil(timeDiff / (1000 * 60 * 60 * 24)); // Convert ms to days
+        setFormData((prevData) => ({
+          ...prevData,
+          days: daysDiff > 0 ? daysDiff : '',
+        }));
+      } else {
+        setFormData((prevData) => ({ ...prevData, days: '' }));
+      }
     }
   };
+
 
   const uploadFile = (file) => {
     return new Promise((resolve, reject) => {
@@ -243,11 +279,11 @@ const AddDailyRent = () => {
           required
         />
         <Input label="Address" name="address" value={formData.address} onChange={handleChange} required />
-        <Input label="Date of Birth" type="date" name="dateOfBirth" value={formData.dateOfBirth} onChange={handleChange} required />
+        <Input label="Date of Birth" type="date" name="dateOfBirth" value={formData.dateOfBirth} onChange={handleChange} />
         <Input label="Contact No" name="contactNo" value={formData.contactNo} onChange={handleChange} required />
-        <Input label="Email" type="email" name="email" value={formData.email} onChange={handleChange} required />
+        <Input label="Email" type="email" name="email" value={formData.email} onChange={handleChange} />
         <Input label="Blood Group" name="bloodGroup" value={formData.bloodGroup} onChange={handleChange} />
-        <Input label="Daily Rent" type="number" name="DailyRent" value={formData.DailyRent} onChange={handleChange} />
+        <Input label="Daily Rent" type="number" name="DailyRent" value={formData.DailyRent} onChange={handleChange} required />
         <Select
           label="Pg Name"
           name="propertyId"
@@ -277,6 +313,7 @@ const AddDailyRent = () => {
         <Input label="Type of Stay" name="typeOfStay" value={formData.typeOfStay} onChange={handleChange} />
         <Input label="Check In Date" type="date" name="checkIn" value={formData.checkIn} onChange={handleChange} />
         <Input label="Check Out Date" type="date" name="checkOut" value={formData.checkOut} onChange={handleChange} />
+        <Input label="No of days" type="number" name="days" value={formData.days} readOnly />
         <Select
           label="Payment Status"
           name="paymentStatus"
