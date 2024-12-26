@@ -12,6 +12,7 @@ const links = [
     { path: '/mess', label: 'Mess Management', icon: <FaUtensils /> },
     { path: '/payments', label: 'Payments', icon: <FaMoneyBill /> },
     { path: '/maintanance', label: 'Maintenance', icon: <FaTools /> },
+    { path: '/investment', label: 'Investment', icon: <FaMoneyBill /> },
 ];
 
 const Sidebar = () => {
