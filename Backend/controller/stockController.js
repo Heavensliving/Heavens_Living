@@ -5,7 +5,7 @@ const UsageLog = require('../Models/UsageLog');
 
 const addStock = async (req, res) => {
   try {
-    const { itemName, quantityType, stockQty, usedQty, category, lowAlertQty, adminName, properties } = req.body;
+    const { itemName, quantityType, stockQty, usedQty, category, lowAlertQty, adminName, properties, myProperty } = req.body;
 
     // Ensure properties is an array of objects with id and name
     const formattedProperties = properties.map(property => ({
@@ -23,6 +23,7 @@ const addStock = async (req, res) => {
       lowAlertQty,
       adminName,
       propertyName: formattedProperties, // Save property details in the database
+      myProperty,
     });
 
     // Save the new stock to the database
@@ -94,6 +95,9 @@ const updateStock = async (req, res) => {
 };
 
 
+
+
+
 const updateDailyUsage = async (req, res) => {
   const { itemId, dailyUsage, adminName, properties } = req.body;
 
@@ -152,6 +156,8 @@ const deleteStock = async (req, res) => {
   }
 };
 
+
+
 const logUsage = async (itemName, action, qty, adminName, properties) => {
   try {
     // Ensure properties is an array of objects with id and name
@@ -177,6 +183,10 @@ const logUsage = async (itemName, action, qty, adminName, properties) => {
 };
 
 
+
+
+
+
 const getUsageLogs = async (req, res) => {
   try {
     const logs = await UsageLog.find().sort({ date: -1 }); // Fetch logs sorted by date
@@ -186,5 +196,6 @@ const getUsageLogs = async (req, res) => {
     res.status(500).json({ message: 'Error fetching usage logs' });
   }
 };
+
 
 module.exports = { addStock, getStocks, updateStock, updateDailyUsage, deleteStock, logUsage, getUsageLogs };

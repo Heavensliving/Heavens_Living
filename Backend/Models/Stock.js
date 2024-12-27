@@ -12,6 +12,7 @@ const stockSchema = new mongoose.Schema({
     id: { type: String, required: true },
     name: { type: String, required: true }
   }],
+  myProperty: { type: String },
 });
 
 const Stock = mongoose.model('Stock', stockSchema);

@@ -39,6 +39,8 @@ const UpdateStockModal = ({ isModalOpen, handleCancel, handleUpdateStock, stocks
         form.resetFields();
         setSelectedItem(null);
     };
+    
+    
 
     // Handle delete item action
     const handleDeleteItem = () => {
@@ -144,6 +146,7 @@ const UpdateStockModal = ({ isModalOpen, handleCancel, handleUpdateStock, stocks
                         {selectedItem.quantityType}
                     </div>
                 )}
+
 
                 {/* Input for additional stock */}
                 <Form.Item

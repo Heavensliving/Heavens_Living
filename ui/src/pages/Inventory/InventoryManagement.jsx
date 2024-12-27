@@ -23,33 +23,6 @@ const InventoryManagement = () => {
   // const [sortOrder, setSortOrder] = useState("ascend"); 
 
 
-//   const fetchStocks = async () => {
-//     try {
-//         const res = await axios.get(`${API_BASE_URL}/stocks/get`, {
-//             headers: { Authorization: `Bearer ${admin.token}` },
-//         });
-
-//         // Check if the response is valid and contains data
-//         if (res.data) {
-//             if (res.data.length > 0) {
-//                 setStocks(res.data);
-//                 setFilteredStocks(res.data);
-//             } else {
-//                 message.info('No stock details found');
-//             }
-//         } else {
-//             message.info('No stock details found');
-//         }
-
-//     } catch (error) {
-//         if (!error.response) {
-//             // Network error or timeout
-//             message.error('Failed to fetch stock data');
-//         }
-//         console.error('Error fetching stock data:', error);
-//     }
-// };
-
 const fetchStocks = async () => {
   try {
       const res = await axios.get(`${API_BASE_URL}/stocks/get`, {

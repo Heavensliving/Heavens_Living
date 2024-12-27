@@ -15,15 +15,13 @@ const InventoryUsage = () => {
         headers: { Authorization: `Bearer ${admin.token}` },
       });
 
-      // Filter logs based on the admin's role
       let filteredLogs = res.data;
 
       if (admin.role === 'Property-Admin') {
-        // Only show logs that match the propertyName of the logged-in admin
         filteredLogs = res.data.filter(log =>
           log.propertyName.some(logProperty =>
             admin.properties.some(adminProperty =>
-              logProperty.id === adminProperty.id // Match based on property ID
+              logProperty.id === adminProperty.id
             )
           )
         );
@@ -43,30 +41,36 @@ const InventoryUsage = () => {
   const getActionText = (action) => {
     switch(action) {
       case 'update daily usage':
-        return 'Daily Usage'; // Display 'Daily Usage' for 'update daily usage'
+        return 'Daily Usage';
       case 'update stock':
-        return 'Stock Update'; // Display 'Stock Update' for 'update stock'
+        return 'Stock Update';
       case 'add stock':
-        return 'Add Stock'; // Display 'Add Stock' for 'add stock'
+        return 'Add Stock';
       default:
-        return action; // Default to original text
+        return action;
     }
   };
 
   const getActionColor = (action) => {
     switch(action) {
       case 'update daily usage':
-        return 'gold'; // Yellow color for 'update daily usage'
+        return 'gold';
       case 'update stock':
-        return 'green'; // Green color for 'update stock'
+        return 'green';
       case 'add stock':
-        return 'magenta'; // Magenta color for 'add stock'
+        return 'magenta';
       default:
-        return ''; // Default color
+        return '';
     }
   };
 
   const columns = [
+    {
+      title: 'Sl No',
+      dataIndex: 'slNo',
+      key: 'slNo',
+      render: (text, record, index) => index + 1,
+    },
     {
       title: 'Item Name',
       dataIndex: 'itemName',
@@ -93,7 +97,6 @@ const InventoryUsage = () => {
     },
   ];
 
-  // If the logged-in admin is a "Main-Admin", add the "Admin Name" column
   if (admin.role === 'Main-Admin') {
     columns.push({
       title: 'Admin Name',
@@ -104,7 +107,19 @@ const InventoryUsage = () => {
 
   return (
     <div>
-      <Table dataSource={logs} columns={columns} rowKey="_id" />
+      {/* Add dots and text */}
+      <div className="mb-2 flex items-center mt-3 ml-3">
+      <div className="bg-[#86198f] rounded-full w-2.5 h-2.5 mr-1.5" />
+      <span className="text-xs mr-3">Add Stock</span>
+      <div className="bg-green-500 rounded-full w-2.5 h-2.5 mx-1" />
+      <span className="text-xs mr-3">Update Stock</span>
+      <div className="bg-yellow-500 rounded-full w-2.5 h-2.5 mx-1" />
+      <span className="text-xs">Daily Usage</span>
+    </div>
+
+
+      {/* Table */}
+      <Table dataSource={logs} columns={columns} rowKey="_id" className="p-4" />
     </div>
   );
 };

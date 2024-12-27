@@ -15,6 +15,8 @@ const AddStockModal = ({ isModalOpen, handleCancel, handleAddStock }) => {
   const [isCategoryModalVisible, setIsCategoryModalVisible] = useState(false); 
   const [categories, setCategories] = useState([]);
 
+  const properties = admin?.properties || [];
+
   useEffect(() => {
     const fetchCategories = async () => {
       try {
@@ -215,6 +217,19 @@ const AddStockModal = ({ isModalOpen, handleCancel, handleAddStock }) => {
     >
       <InputNumber placeholder="Enter low alert quantity" style={{ width: '100%' }} />
     </Form.Item>
+    <Form.Item
+            label="Select Property"
+            name="myProperty" // The name should be 'myProperty' to store it in the backend
+            rules={[{ required: true, message: 'Please select a property!' }]}
+          >
+            <Select placeholder="Select a property">
+              {properties.map((property) => (
+                <Option key={property.id} value={property.name}>
+                  {property.name}
+                </Option>
+              ))}
+            </Select>
+          </Form.Item>
 
       <Form.Item>
         <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
@@ -247,6 +262,7 @@ const AddStockModal = ({ isModalOpen, handleCancel, handleAddStock }) => {
           rules={[{ required: true, message: 'Please enter a category name!' }]}>
           <Input placeholder="Enter new category name" />
         </Form.Item>
+
 
         <Form.Item>
           <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
