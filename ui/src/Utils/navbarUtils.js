@@ -158,6 +158,9 @@ const pageConfig = {
     '/inventory':{
       title:"Inventory Management"
     },
+    '/inventory-usage':{
+      title:"Inventory Usage"
+    },
     
     
     

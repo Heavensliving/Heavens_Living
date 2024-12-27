@@ -67,6 +67,7 @@ import InvestmentsTable from '../pages/Investment/InvestmentTable.jsx'
 import InvestmentForm from '../pages/Investment/InvestmentForm.jsx'
 import EditInvestmentForm from '../pages/Investment/EditInvestment.jsx'
 
+import InventoryUsage from '../pages/Inventory/InventoryUsage.jsx'
 
 const AdminRoute = () => {
     return (
@@ -140,6 +141,7 @@ const AdminRoute = () => {
                     <Route path='/editInvestment/:id' element={<EditInvestmentForm />} />
                     
                     
+                    <Route path="/inventory-usage" element={<InventoryUsage />} />
 
                 </Route>
 

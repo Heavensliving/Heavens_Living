@@ -6,6 +6,12 @@ const stockSchema = new mongoose.Schema({
   stockQty: { type: Number, required: true },
   usedQty: { type: Number, default: 0 },
   category: { type: String, required: false },
+  lowAlertQty: { type: Number, required: false },
+  adminName: { type: String, required: true },
+  propertyName: [{
+    id: { type: String, required: true },
+    name: { type: String, required: true }
+  }],
 });
 
 const Stock = mongoose.model('Stock', stockSchema);
