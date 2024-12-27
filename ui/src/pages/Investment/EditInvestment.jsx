@@ -2,11 +2,10 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-import { Form, Input, Button, Select, message } from 'antd';
-
-const { Option } = Select;
+import { Form, Input, Select, Button, Alert } from 'antd';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const { Option } = Select;
 
 const EditInvestment = () => {
   const { id } = useParams(); // Get the investment ID from the URL
@@ -50,57 +49,51 @@ const EditInvestment = () => {
     fetchProperties();
   }, [id, admin]);
 
-  const handleChange = (e) => {
-    const { id, value } = e.target;
-    setFormData((prevData) => ({ ...prevData, [id]: value }));
+  const handleChange = (field, value) => {
+    setFormData((prevData) => ({ ...prevData, [field]: value }));
   };
 
-  const handleSubmit = async (values) => {
+  const handleSubmit = async () => {
     try {
-      await axios.put(`${API_BASE_URL}/investment/update/${id}`, values, {
+      await axios.put(`${API_BASE_URL}/investment/update/${id}`, formData, {
         headers: { 'Authorization': `Bearer ${admin?.token}` },
       });
       setSuccessMessage('Investment updated successfully!');
-      message.success('Investment updated successfully!');
       navigate('/investment'); // Redirect to the investments list after successful update
     } catch (err) {
       setError('Failed to update investment');
-      message.error('Failed to update investment');
     }
   };
 
   return (
     <div className="max-w-md mx-auto p-4 bg-white rounded-lg shadow-md">
-      {error && <p className="text-red-500 mb-4">{error}</p>}
-      {successMessage && <p className="text-green-500 mb-4">{successMessage}</p>}
-      <Form
-        layout="vertical"
-        initialValues={formData}
-        onFinish={handleSubmit}
-        onFinishFailed={() => message.error('Please fill all required fields')}
-      >
+      {error && <Alert message={error} type="error" className="mb-4" />}
+      {successMessage && <Alert message={successMessage} type="success" className="mb-4" />}
+      <Form layout="vertical" onFinish={handleSubmit}>
         <Form.Item
           label="Investment Name"
-          name="name"
+          required
           rules={[{ required: true, message: 'Please enter the investment name' }]}
         >
-          <Input id="name" value={formData.name} onChange={handleChange} />
+          <Input
+            value={formData.name}
+            onChange={(e) => handleChange('name', e.target.value)}
+            placeholder="Enter investment name"
+          />
         </Form.Item>
 
         <Form.Item
           label="Property Name"
-          name="propertyId"
+          required
           rules={[{ required: true, message: 'Please select a property' }]}
         >
           <Select
-            id="propertyId"
-            value={formData.propertyId}
-            onChange={(value) => setFormData((prevData) => ({ ...prevData, propertyId: value }))}
+            value={formData.propertyName}
+            onChange={(value) => handleChange('propertyName', value)}
             placeholder="Select a property"
           >
-            <Option value="">Select a property</Option>
             {properties.map((property) => (
-              <Option key={property._id} value={property._id}>
+              <Option key={property._id} value={property.propertyName}>
                 {property.propertyName}
               </Option>
             ))}
@@ -109,23 +102,26 @@ const EditInvestment = () => {
 
         <Form.Item
           label="Investment Type"
-          name="type"
+          required
           rules={[{ required: true, message: 'Please enter the investment type' }]}
         >
-          <Input id="type" value={formData.type} onChange={handleChange} />
+          <Input
+            value={formData.type}
+            onChange={(e) => handleChange('type', e.target.value)}
+            placeholder="Enter investment type"
+          />
         </Form.Item>
 
         <Form.Item
           label="Amount"
-          name="amount"
+          required
           rules={[{ required: true, message: 'Please enter the amount' }]}
         >
           <Input
-            id="amount"
-            value={formData.amount}
-            onChange={handleChange}
             type="number"
-            min={0}
+            value={formData.amount}
+            onChange={(e) => handleChange('amount', e.target.value)}
+            placeholder="Enter amount"
           />
         </Form.Item>
 
