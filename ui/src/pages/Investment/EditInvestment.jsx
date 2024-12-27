@@ -1,92 +1,74 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
 
 
-const InvestmentForm = () => {
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
+const EditInvestment = () => {
+  const { id } = useParams(); // Get the investment ID from the URL
   const [formData, setFormData] = useState({
     name: '',
-    propertyName: '',
     propertyId: '',
     type: '',
     amount: '',
   });
+  const [properties, setProperties] = useState([]);
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
-  const [properties, setProperties] = useState([]);
-  const admin = useSelector((state) => state.auth.admin); //Admin properties
-  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL; // URL
-   const navigate = useNavigate()
+
+  const navigate = useNavigate();
+  const admin = useSelector((state) => state.auth.admin); // Access the admin from Redux
 
   useEffect(() => {
-    console.log(admin);
-    if (!admin) {
-      console.error("Admin prop is undefined. Please ensure it is passed correctly.");
-      return;
-    }
+    const fetchInvestment = async () => {
+      try {
+        const response = await axios.get(`${API_BASE_URL}/investment/${id}`, {
+          headers: { 'Authorization': `Bearer ${admin?.token}` },
+        });
+        setFormData(response.data.data);
+      } catch (err) {
+        setError('Failed to fetch investment details');
+      }
+    };
 
     const fetchProperties = async () => {
       try {
         const response = await axios.get(`${API_BASE_URL}/property`, {
-          headers: { Authorization: `Bearer ${admin.token}` }
+          headers: { 'Authorization': `Bearer ${admin?.token}` },
         });
-        console.log(response.data);
         setProperties(response.data);
-      } catch (error) {
-        console.error("Error fetching properties:", error);
+      } catch (err) {
+        setError('Failed to fetch properties');
       }
     };
 
+    fetchInvestment();
     fetchProperties();
-  }, [admin]);
+  }, [id, admin]);
 
   const handleChange = (e) => {
     const { id, value } = e.target;
     setFormData((prevData) => ({ ...prevData, [id]: value }));
   };
 
-  const handlePropertyChange = (e) => {
-    const selectedPropertyName = e.target.value;
-    const selectedProperty = properties.find(
-      (property) => property.propertyName === selectedPropertyName
-    );
-
-    setFormData((prevData) => ({
-      ...prevData,
-      propertyName: selectedPropertyName,
-      propertyId: selectedProperty ? selectedProperty._id : '',
-    }));
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (formData.amount <= 0) {
-      setError('Amount must be a positive number');
-      return;
-    }
-    setError('');
-    setSuccessMessage('');
-
     try {
-      const response = await axios.post(`${API_BASE_URL}/investment/add`, formData, {
-        headers: { Authorization: `Bearer ${admin.token}` }
+      await axios.put(`${API_BASE_URL}/investment/update/${id}`, formData, {
+        headers: { 'Authorization': `Bearer ${admin?.token}` },
       });
-      console.log(admin.token); // debug statement
-      console.log('Investment added:', response.data);
-      setSuccessMessage('Investment added successfully!');
-      // Optionally reset the form
-      setFormData({ name: '', propertyName: '', propertyId: '', type: '', amount: '' });
-      navigate('/investment')
-    } catch (error) {
-      console.error('Error adding investment:', error);
-      setError(error.response?.data?.message || 'Error adding investment. Please try again.');
+      setSuccessMessage('Investment updated successfully!');
+      navigate('/investment'); // Redirect to the investments list after successful update
+    } catch (err) {
+      setError('Failed to update investment');
     }
   };
 
   return (
     <div className="max-w-md mx-auto p-4 bg-white rounded-lg shadow-md">
-      <h2 className="text-2xl font-bold mb-4">Add New Investment</h2>
+      <h2 className="text-2xl font-bold mb-4">Edit Investment</h2>
       {error && <p className="text-red-500 mb-4">{error}</p>}
       {successMessage && <p className="text-green-500 mb-4">{successMessage}</p>}
       <form onSubmit={handleSubmit}>
@@ -103,17 +85,17 @@ const InvestmentForm = () => {
         </div>
 
         <div className="mb-4">
-          <label htmlFor="propertyName" className="block text-sm font-medium text-gray-700">Property Name</label>
+          <label className="block text-sm font-medium text-gray-700">Property Name</label>
           <select
-            id="propertyName"
-            value={formData.propertyName}
-            onChange={handlePropertyChange}
+            id="propertyId"
+            value={formData.propertyId}
+            onChange={handleChange}
             required
             className="mt-1 p-3 border border-gray-300 rounded-md w-full focus:ring-blue-500 focus:border-blue-500"
           >
             <option value="">Select a property</option>
             {properties.map((property) => (
-              <option key={property._id} value={property.propertyName}>
+              <option key={property._id} value={property._id}>
                 {property.propertyName}
               </option>
             ))}
@@ -145,11 +127,11 @@ const InvestmentForm = () => {
         </div>
 
         <div>
-          <button type="submit" className="w-full bg-blue-500 text-white font-bold py-2 rounded-md hover:bg-blue-600 transition duration-200">Add Investment</button>
+          <button type="submit" className="w-full bg-blue-500 text-white font-bold py-2 rounded-md hover:bg-blue-600 transition duration-200">Update Investment</button>
         </div>
       </form>
     </div>
   );
 };
 
-export default InvestmentForm;
+export default EditInvestment;

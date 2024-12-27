@@ -65,6 +65,7 @@ import Notification from '../pages/notification/Notification.jsx'
 import InventoryManagement from '../pages/Inventory/InventoryManagement.jsx'
 import InvestmentsTable from '../pages/Investment/InvestmentTable.jsx'
 import InvestmentForm from '../pages/Investment/InvestmentForm.jsx'
+import EditInvestmentForm from '../pages/Investment/EditInvestment.jsx'
 
 
 const AdminRoute = () => {
@@ -136,6 +137,7 @@ const AdminRoute = () => {
                     <Route path='/inventory' element={<InventoryManagement />} />
                     <Route path='/investment' element={<InvestmentsTable />} />
                     <Route path='/addInvestment' element={<InvestmentForm />} />
+                    <Route path='/editInvestment/:id' element={<EditInvestmentForm />} />
                     
                     
 
