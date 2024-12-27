@@ -2,7 +2,9 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useSelector } from 'react-redux';
+import { Form, Input, Button, Select, message } from 'antd';
 
+const { Option } = Select;
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -53,83 +55,86 @@ const EditInvestment = () => {
     setFormData((prevData) => ({ ...prevData, [id]: value }));
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async (values) => {
     try {
-      await axios.put(`${API_BASE_URL}/investment/update/${id}`, formData, {
+      await axios.put(`${API_BASE_URL}/investment/update/${id}`, values, {
         headers: { 'Authorization': `Bearer ${admin?.token}` },
       });
       setSuccessMessage('Investment updated successfully!');
+      message.success('Investment updated successfully!');
       navigate('/investment'); // Redirect to the investments list after successful update
     } catch (err) {
       setError('Failed to update investment');
+      message.error('Failed to update investment');
     }
   };
 
   return (
     <div className="max-w-md mx-auto p-4 bg-white rounded-lg shadow-md">
-      <h2 className="text-2xl font-bold mb-4">Edit Investment</h2>
       {error && <p className="text-red-500 mb-4">{error}</p>}
       {successMessage && <p className="text-green-500 mb-4">{successMessage}</p>}
-      <form onSubmit={handleSubmit}>
-        <div className="mb-4">
-          <label htmlFor="name" className="block text-sm font-medium text-gray-700">Investor Name</label>
-          <input
-            type="text"
-            id="name"
-            value={formData.name}
-            onChange={handleChange}
-            required
-            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring focus:ring-blue-500"
-          />
-        </div>
+      <Form
+        layout="vertical"
+        initialValues={formData}
+        onFinish={handleSubmit}
+        onFinishFailed={() => message.error('Please fill all required fields')}
+      >
+        <Form.Item
+          label="Investment Name"
+          name="name"
+          rules={[{ required: true, message: 'Please enter the investment name' }]}
+        >
+          <Input id="name" value={formData.name} onChange={handleChange} />
+        </Form.Item>
 
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700">Property Name</label>
-          <select
+        <Form.Item
+          label="Property Name"
+          name="propertyId"
+          rules={[{ required: true, message: 'Please select a property' }]}
+        >
+          <Select
             id="propertyId"
             value={formData.propertyId}
-            onChange={handleChange}
-            required
-            className="mt-1 p-3 border border-gray-300 rounded-md w-full focus:ring-blue-500 focus:border-blue-500"
+            onChange={(value) => setFormData((prevData) => ({ ...prevData, propertyId: value }))}
+            placeholder="Select a property"
           >
-            <option value="">Select a property</option>
+            <Option value="">Select a property</Option>
             {properties.map((property) => (
-              <option key={property._id} value={property._id}>
+              <Option key={property._id} value={property._id}>
                 {property.propertyName}
-              </option>
+              </Option>
             ))}
-          </select>
-        </div>
+          </Select>
+        </Form.Item>
 
-        <div className="mb-4">
-          <label htmlFor="type" className="block text-sm font-medium text-gray-700">Investment Type</label>
-          <input
-            type="text"
-            id="type"
-            value={formData.type}
-            onChange={handleChange}
-            required
-            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring focus:ring-blue-500"
-          />
-        </div>
+        <Form.Item
+          label="Investment Type"
+          name="type"
+          rules={[{ required: true, message: 'Please enter the investment type' }]}
+        >
+          <Input id="type" value={formData.type} onChange={handleChange} />
+        </Form.Item>
 
-        <div className="mb-4">
-          <label htmlFor="amount" className="block text-sm font-medium text-gray-700">Amount</label>
-          <input
-            type="number"
+        <Form.Item
+          label="Amount"
+          name="amount"
+          rules={[{ required: true, message: 'Please enter the amount' }]}
+        >
+          <Input
             id="amount"
             value={formData.amount}
             onChange={handleChange}
-            required
-            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring focus:ring-blue-500"
+            type="number"
+            min={0}
           />
-        </div>
+        </Form.Item>
 
-        <div>
-          <button type="submit" className="w-full bg-blue-500 text-white font-bold py-2 rounded-md hover:bg-blue-600 transition duration-200">Update Investment</button>
-        </div>
-      </form>
+        <Form.Item>
+          <Button type="primary" htmlType="submit" block>
+            Update Investment
+          </Button>
+        </Form.Item>
+      </Form>
     </div>
   );
 };

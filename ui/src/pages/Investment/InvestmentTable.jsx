@@ -3,8 +3,12 @@ import axios from 'axios';
 import { FaEdit, FaTrash } from 'react-icons/fa';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
+import { jsPDF } from 'jspdf';
+import { Table, Input, Button, Modal, Space } from 'antd';
 import ConfirmationModal from "../../components/reUsableComponet/ConfirmationModal";
+import { DatePicker } from 'antd';
 
+const { Column } = Table;
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const InvestmentsTable = () => {
@@ -86,6 +90,35 @@ const InvestmentsTable = () => {
     setInvestmentToDelete(null);
   };
 
+  const downloadPDF = () => {
+    const doc = new jsPDF();
+    doc.setFontSize(18);
+    doc.text("Investment Table", 14, 16);
+
+    const tableColumn = ["#", "Investment Name", "Property Name", "Investment Type", "Amount Invested", "Investment Date"];
+    const tableRows = filteredInvestments.map((investment, index) => [
+      index + 1,
+      investment.name,
+      investment.propertyName,
+      investment.type,
+      `$${investment.amount}`,
+      new Date(investment.createdAt).toLocaleDateString('en-GB'),
+    ]);
+
+    // Calculate total amount invested
+    const totalAmount = filteredInvestments.reduce((sum, investment) => sum + investment.amount, 0);
+    doc.text(`Total Amount Invested: $${totalAmount}`, 14, 270);
+
+    // Table generation
+    doc.autoTable({
+      startY: 30,
+      head: [tableColumn],
+      body: tableRows,
+    });
+
+    doc.save("investment_table.pdf");
+  };
+
   if (loading) return <div className="text-center py-4">Loading...</div>;
   if (error) return <div className="text-center py-4 text-red-500">{error}</div>;
 
@@ -99,61 +132,68 @@ const InvestmentsTable = () => {
         message="Are you sure you want to delete this investment?" 
       />
       <div className="flex justify-between mb-4">
-        <input
-          type="text"
-          placeholder="Search by name or property..."
-          className="px-4 py-2 border rounded shadow-sm"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
-        <input
-          type="date"
-          className="px-4 py-2 border rounded shadow-sm"
-          value={filterDate}
-          onChange={(e) => setFilterDate(e.target.value)}
-        />
-        <button
-          className="px-6 py-3 bg-green-500 text-white rounded shadow-md hover:bg-green-600 transition duration-200" 
-          onClick={() => navigate("/addInvestment")}
-        >
-          Add New
-        </button>
+        <Space>
+          <Input
+            placeholder="Search by name or property..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+          <DatePicker
+            onChange={(date, dateString) => setFilterDate(dateString)}
+            value={filterDate ? moment(filterDate, 'YYYY-MM-DD') : null}
+          />
+        </Space>
+        <div>
+          <Button
+            type="primary"
+            onClick={() => navigate("/addInvestment")}
+            style={{ marginRight: 8 }}
+          >
+            Add New
+          </Button>
+          <Button
+            type="default"
+            onClick={downloadPDF}
+          >
+            Download PDF
+          </Button>
+        </div>
       </div>
-      <div className="overflow-x-auto shadow-lg rounded-lg border border-gray-200">
-        <table className="min-w-full table-auto bg-white">
-          <thead className="bg-gray-200">
-            <tr>
-              <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 border-b">Investment Name</th>
-              <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 border-b">Property Name</th>
-              <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 border-b">Property ID</th>
-              <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 border-b">Investment Type</th>
-              <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 border-b">Amount Invested</th>
-              <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 border-b">Investment Date</th>
-              <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 border-b">Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredInvestments.map((investment) => (
-              <tr key={investment._id} className="hover:bg-gray-100 transition duration-200">
-                <td className="px-6 py-3 text-sm text-gray-700 border-b">{investment.name}</td>
-                <td className="px-6 py-3 text-sm text-gray-700 border-b">{investment.propertyName}</td>
-                <td className="px-6 py-3 text-sm text-gray-700 border-b">{investment.propertyId}</td>
-                <td className="px-6 py-3 text-sm text-gray-700 border-b">{investment.type}</td>
-                <td className="px-6 py-3 text-sm text-gray-700 border-b">${investment.amount}</td>
-                <td className="px-6 py-3 text-sm text-gray-700 border-b">{new Date(investment.createdAt).toLocaleDateString()}</td>
-                <td className="px-6 py-3 text-sm text-gray-700 border-b flex space-x-2">
-                  <button className="text-blue-500 hover:text-blue-700 transition duration-200" onClick={() => navigate(`/editInvestment/${investment._id}`)}>
-                    <FaEdit className="h-5 w-5" />
-                  </button>
-                  <button className="text-red-500 hover:text-red-700 transition duration-200" onClick={() => openModal(investment._id)}>
-                    <FaTrash className="h-5 w-5" />
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      <Table
+        dataSource={filteredInvestments}
+        rowKey="_id"
+        loading={loading}
+        pagination={false}
+      >
+        <Column title="#" dataIndex="index" render={(text, record, index) => index + 1} />
+        <Column title="Investment Name" dataIndex="name" />
+        <Column title="Property Name" dataIndex="propertyName" />
+        <Column title="Investment Type" dataIndex="type" />
+        <Column title="Amount Invested" dataIndex="amount" render={amount => `$${amount}`} />
+        <Column 
+          title="Investment Date" 
+          dataIndex="createdAt" 
+          render={createdAt => new Date(createdAt).toLocaleDateString()} 
+        />
+        <Column 
+          title="Action"
+          render={(text, record) => (
+            <Space size="middle">
+              <Button
+                type="link"
+                icon={<FaEdit />}
+                onClick={() => navigate(`/editInvestment/${record._id}`)}
+              />
+              <Button
+                type="link"
+                icon={<FaTrash />}
+                onClick={() => openModal(record._id)}
+                danger
+              />
+            </Space>
+          )}
+        />
+      </Table>
     </div>
   );
 };

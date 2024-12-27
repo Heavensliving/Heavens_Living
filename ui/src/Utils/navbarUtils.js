@@ -161,6 +161,16 @@ const pageConfig = {
     '/inventory-usage':{
       title:"Inventory Usage"
     },
+    '/investment':{
+      title:"Investment"
+    },
+    "/addInvestment":{
+      title:"Add Investment"
+    },
+    "/editInvestment/:id":{
+      title:"Edit Investment"
+    }
+    
     
     
     
