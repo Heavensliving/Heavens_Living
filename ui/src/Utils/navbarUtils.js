@@ -169,6 +169,9 @@ const pageConfig = {
     },
     "/editInvestment/:id":{
       title:"Edit Investment"
+    },
+    "/low-stock":{
+      title:"Low-Stock Details"
     }
     
     

@@ -1,13 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { Table, message, Tag } from 'antd';
+import { Table, message, Tag, Dropdown, Button, Menu, DatePicker, Space } from 'antd';
 import axios from 'axios';
 import { useSelector } from 'react-redux';
+import moment from 'moment';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const InventoryUsage = () => {
   const admin = useSelector((store) => store.auth.admin);
   const [logs, setLogs] = useState([]);
+  const [filteredLogs, setFilteredLogs] = useState([]);
+  const [filterCategory, setFilterCategory] = useState('All Items');
+  const [selectedDate, setSelectedDate] = useState(null);
 
   const fetchUsageLogs = async () => {
     try {
@@ -28,10 +32,23 @@ const InventoryUsage = () => {
       }
 
       setLogs(filteredLogs);
+      setFilteredLogs(filteredLogs);
     } catch (error) {
       console.error('Error fetching usage logs:', error);
       message.error('Failed to fetch usage logs');
     }
+  };
+
+  const lowStock = () => {
+    const lowStockItems = stocks.filter((stock) => {
+      const availableStock = stock.stockQty - stock.usedQty;
+      const lowAlertQty = stock.lowAlertQty || 0;
+
+      return availableStock <= lowAlertQty || availableStock === 0;
+    });
+
+    // Navigate to the LowStock page with the filtered low stock items
+    navigate('/low-stock', { state: { lowStockItems } });
   };
 
   useEffect(() => {
@@ -39,7 +56,7 @@ const InventoryUsage = () => {
   }, []);
 
   const getActionText = (action) => {
-    switch(action) {
+    switch (action) {
       case 'update daily usage':
         return 'Daily Usage';
       case 'update stock':
@@ -52,7 +69,7 @@ const InventoryUsage = () => {
   };
 
   const getActionColor = (action) => {
-    switch(action) {
+    switch (action) {
       case 'update daily usage':
         return 'gold';
       case 'update stock':
@@ -63,6 +80,55 @@ const InventoryUsage = () => {
         return '';
     }
   };
+
+  const handleFilter = (category) => {
+    setFilterCategory(category);
+    let filtered = logs;
+
+    if (category !== 'All Items') {
+      filtered = logs.filter(log => getActionText(log.action) === category);
+    }
+
+    if (selectedDate) {
+      filtered = filtered.filter(log => {
+        const logDate = moment(log.date).format('YYYY-MM-DD');
+        return logDate === selectedDate.format('YYYY-MM-DD');
+      });
+    }
+
+    setFilteredLogs(filtered);
+  };
+
+  const handleDateChange = (date) => {
+    setSelectedDate(date);
+
+    if (date) {
+      const filtered = logs.filter(log => {
+        const logDate = moment(log.date).format('YYYY-MM-DD');
+        return logDate === date.format('YYYY-MM-DD');
+      });
+
+      setFilteredLogs(filtered);
+    } else {
+      handleFilter(filterCategory);
+    }
+  };
+
+  const handleClearFilters = () => {
+    setFilterCategory('All Items');
+    setSelectedDate(null);
+    setFilteredLogs(logs);
+  };
+
+  const filterMenu = (
+    <Menu>
+      {['All Items', 'Daily Usage', 'Stock Update', 'Add Stock'].map((category) => (
+        <Menu.Item key={category} onClick={() => handleFilter(category)}>
+          {category}
+        </Menu.Item>
+      ))}
+    </Menu>
+  );
 
   const columns = [
     {
@@ -107,19 +173,45 @@ const InventoryUsage = () => {
 
   return (
     <div>
-      {/* Add dots and text */}
-      <div className="mb-2 flex items-center mt-3 ml-3">
-      <div className="bg-[#86198f] rounded-full w-2.5 h-2.5 mr-1.5" />
-      <span className="text-xs mr-3">Add Stock</span>
-      <div className="bg-green-500 rounded-full w-2.5 h-2.5 mx-1" />
-      <span className="text-xs mr-3">Update Stock</span>
-      <div className="bg-yellow-500 rounded-full w-2.5 h-2.5 mx-1" />
-      <span className="text-xs">Daily Usage</span>
-    </div>
+      <div className="flex items-center justify-between mb-2 mt-3">
+        <div className="flex items-center ml-3">
+          <div className="bg-[#86198f] rounded-full w-2.5 h-2.5 mr-1.5" />
+          <span className="text-xs mr-3">Add Stock</span>
+          <div className="bg-green-500 rounded-full w-2.5 h-2.5 mx-1" />
+          <span className="text-xs mr-3">Update Stock</span>
+          <div className="bg-yellow-500 rounded-full w-2.5 h-2.5 mx-1" />
+          <span className="text-xs">Daily Usage</span>
+        </div>
 
+        <div className="flex items-center mr-3">
+          <Space>
+            <DatePicker
+              onChange={handleDateChange}
+              value={selectedDate}
+              format="YYYY-MM-DD"
+              placeholder="Select a Date"
+            />
+          </Space>
 
-      {/* Table */}
-      <Table dataSource={logs} columns={columns} rowKey="_id" className="p-4" />
+          <Dropdown menu={filterMenu} placement="bottomRight" className="ml-3">
+            <Button type="default">
+              Filter: {filterCategory}
+            </Button>
+          </Dropdown>
+
+          <Button type="default" onClick={handleClearFilters} className="ml-3">
+            Clear Filters
+          </Button>
+        </div>
+      </div>
+
+      <Table
+        dataSource={filteredLogs}
+        columns={columns}
+        rowKey="_id"
+        className="p-4"
+        locale={{ emptyText: "No Data Found" }}
+      />
     </div>
   );
 };

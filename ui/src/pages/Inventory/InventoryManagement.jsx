@@ -194,6 +194,10 @@ const logUsage = async (itemName, action, qty) => {
       navigate('/inventory-usage');  // Navigate to InventoryUsage page
     };
 
+    const lowStock = () => {
+      navigate('/low-stock');  // Navigate to InventoryUsage page
+    };
+
   // Handle search
   const handleSearch = (value) => {
     setSearchTerm(value);
@@ -282,35 +286,42 @@ const logUsage = async (itemName, action, qty) => {
   return (
     <div className="p-4">
       <div className="flex justify-between items-center mb-5">
-      <Button type="link" className="p-0 text-gray-500 font-semibold" onClick={handleViewUsage}>
-        View Usage
-      </Button>
+      <div className="flex items-center space-x-4">
+        <Button type="link" className="p-0 text-gray-500 font-semibold" onClick={handleViewUsage}>
+          View Usage
+        </Button>
 
-
-        <div className="flex space-x-2">
-          <Button
-            type="primary"
-            className="bg-blue-500 border-blue-500 rounded-full px-5 py-2"
-            onClick={() => setIsAddModalOpen(true)}
-          >
-            Add Stock
-          </Button>
-          <Button
-            type="primary"
-            className="bg-green-500 border-green-500 rounded-full px-5 py-2"
-            onClick={() => setIsUpdateModalOpen(true)}
-          >
-            Update Stock
-          </Button>
-          <Button
-            type="primary"
-            className="bg-yellow-500 border-yellow-500 rounded-full px-5 py-2"
-            onClick={() => setIsDailyUsageModalOpen(true)}
-          >
-            Daily Usage
-          </Button>
-        </div>
+        {/* Low Stock button */}
+        <Button type="link" className="p-0 text-gray-500 font-semibold" onClick={lowStock}>
+          Low Stock
+        </Button>
       </div>
+
+      <div className="flex space-x-2">
+        <Button
+          type="primary"
+          className="bg-blue-500 border-blue-500 rounded-full px-5 py-2"
+          onClick={() => setIsAddModalOpen(true)}
+        >
+          Add Stock
+        </Button>
+        <Button
+          type="primary"
+          className="bg-green-500 border-green-500 rounded-full px-5 py-2"
+          onClick={() => setIsUpdateModalOpen(true)}
+        >
+          Update Stock
+        </Button>
+        <Button
+          type="primary"
+          className="bg-yellow-500 border-yellow-500 rounded-full px-5 py-2"
+          onClick={() => setIsDailyUsageModalOpen(true)}
+        >
+          Daily Usage
+        </Button>
+      </div>
+    </div>
+
 
       {/* Search and Sort Section */}
       <div className="flex justify-between items-center mb-5">
