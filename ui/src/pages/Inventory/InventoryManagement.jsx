@@ -23,32 +23,77 @@ const InventoryManagement = () => {
   // const [sortOrder, setSortOrder] = useState("ascend"); 
 
 
-  const fetchStocks = async () => {
-    try {
-        const res = await axios.get(`${API_BASE_URL}/stocks/get`, {
-            headers: { Authorization: `Bearer ${admin.token}` },
-        });
+//   const fetchStocks = async () => {
+//     try {
+//         const res = await axios.get(`${API_BASE_URL}/stocks/get`, {
+//             headers: { Authorization: `Bearer ${admin.token}` },
+//         });
 
-        // Check if the response is valid and contains data
-        if (res.data) {
-            if (res.data.length > 0) {
-                setStocks(res.data);
-                setFilteredStocks(res.data);
-            } else {
-                message.info('No stock details found');
-            }
-        } else {
-            message.info('No stock details found');
-        }
+//         // Check if the response is valid and contains data
+//         if (res.data) {
+//             if (res.data.length > 0) {
+//                 setStocks(res.data);
+//                 setFilteredStocks(res.data);
+//             } else {
+//                 message.info('No stock details found');
+//             }
+//         } else {
+//             message.info('No stock details found');
+//         }
 
-    } catch (error) {
-        if (!error.response) {
-            // Network error or timeout
-            message.error('Failed to fetch stock data');
-        }
-        console.error('Error fetching stock data:', error);
-    }
+//     } catch (error) {
+//         if (!error.response) {
+//             // Network error or timeout
+//             message.error('Failed to fetch stock data');
+//         }
+//         console.error('Error fetching stock data:', error);
+//     }
+// };
+
+const fetchStocks = async () => {
+  try {
+      const res = await axios.get(`${API_BASE_URL}/stocks/get`, {
+          headers: { Authorization: `Bearer ${admin.token}` },
+      });
+
+      // Check if the response is valid and contains data
+      if (res.data) {
+          let filteredData = [];
+
+          // Check admin role and filter accordingly
+          if (admin.role === 'Property-Admin') {
+              // Filter stocks based on properties match
+              filteredData = res.data.filter(stock => {
+                  return stock.propertyName.some(stockProperty =>
+                      admin.properties.some(adminProperty =>
+                          // Ensure comparison is correct (ObjectId or string matching)
+                          stockProperty.id === adminProperty.id
+                      )
+                  );
+              });
+          } else if (admin.role === 'Main-Admin') {
+              // If role is Main-Admin, show all data
+              filteredData = res.data;
+          }
+
+          if (filteredData.length > 0) {
+              setStocks(filteredData);
+              setFilteredStocks(filteredData);
+          } else {
+              message.info('No stock details found');
+          }
+      } else {
+          message.info('No stock details found');
+      }
+  } catch (error) {
+      if (!error.response) {
+          // Network error or timeout
+          message.error('Failed to fetch stock data');
+      }
+      console.error('Error fetching stock data:', error);
+  }
 };
+
 
 const fetchCategories = async () => {
   try {
@@ -92,9 +137,16 @@ const logUsage = async (itemName, action, qty) => {
 
 
   // Add Stock API handler
+
   const handleAddStock = async (values) => {
     try {
-      await axios.post(`${API_BASE_URL}/stocks/add`, values, {
+      const payload = {
+        ...values,
+        adminName: admin.adminName,
+        properties: admin.properties, // Include property names and IDs
+      };
+  
+      await axios.post(`${API_BASE_URL}/stocks/add`, payload, {
         headers: { Authorization: `Bearer ${admin.token}` },
       });
       message.success('Stock added successfully');
@@ -105,26 +157,35 @@ const logUsage = async (itemName, action, qty) => {
       message.error('Failed to add stock');
     }
   };
+  
 
   // Update Stock API handler
+
   const handleUpdateStock = async ({ itemId, additionalStock }) => {
     try {
-      await axios.patch(
-        `${API_BASE_URL}/stocks/update`,
-        { itemId, additionalStock },
-        { headers: { Authorization: `Bearer ${admin.token}` } }
-      );
+      const payload = {
+        itemId,
+        additionalStock,
+        adminName: admin.adminName,
+        properties: admin.properties, // Include property names and IDs
+      };
+  
+      await axios.patch(`${API_BASE_URL}/stocks/update`, payload, {
+        headers: { Authorization: `Bearer ${admin.token}` },
+      });
       message.success('Stock updated successfully');
-      fetchStocks(); // Refresh the stock data
+      fetchStocks();
       setIsUpdateModalOpen(false);
     } catch (error) {
       console.error(error);
       message.error('Failed to update stock');
     }
   };
+  
 
 
   // Daily Usage API handler
+
   const handleDailyUsage = async (itemId, dailyUsage) => {
     try {
       const selectedStock = stocks.find((item) => item._id === itemId);
@@ -133,20 +194,26 @@ const logUsage = async (itemName, action, qty) => {
         return;
       }
   
-      await axios.patch(
-        `${API_BASE_URL}/stocks/daily-usage`,
-        { itemId, dailyUsage }, // Send dailyUsage to the backend
-        { headers: { Authorization: `Bearer ${admin.token}` } }
-      );
+      const payload = {
+        itemId,
+        dailyUsage,
+        adminName: admin.adminName,
+        properties: admin.properties, // Include property names and IDs
+      };
+  
+      await axios.patch(`${API_BASE_URL}/stocks/daily-usage`, payload, {
+        headers: { Authorization: `Bearer ${admin.token}` },
+      });
   
       message.success('Daily usage updated successfully');
-      fetchStocks(); // Refresh stock data
-      setIsDailyUsageModalOpen(false); // Close the modal
+      fetchStocks();
+      setIsDailyUsageModalOpen(false);
     } catch (error) {
       console.error('Error updating daily usage:', error);
       message.error('Failed to update daily usage');
     }
   };
+  
 
 
     
@@ -218,12 +285,13 @@ const logUsage = async (itemName, action, qty) => {
       align: 'center',
       render: (text, record) => {
         const availableStock = record.stockQty - record.usedQty;
-        const percent = (availableStock / record.stockQty) * 100;
-       
-        const availableTextColor = percent < 20 ? 'text-red-500' : 'text-black'; // Red if below 20%
-  
+        const lowAlertQty = record.lowAlertQty || 0;
+    
+        // Determine color based on stock level
+        const availableTextColor = availableStock <= lowAlertQty ? 'red' : 'black';
+    
         return (
-          <span className={availableTextColor}>
+          <span style={{ color: availableTextColor }}>
             {availableStock} {record.quantityType}
           </span>
         );
@@ -279,14 +347,6 @@ const logUsage = async (itemName, action, qty) => {
           onChange={(e) => handleSearch(e.target.value)}
           className="mr-3 w-full sm:w-1/2 md:w-1/3 lg:w-1/4"
         />
-        {/* <Select
-          defaultValue={sortOrder}
-          onChange={handleSort}
-          className="w-36 sm:w-40 md:w-48"
-        >
-          <Select.Option value="ascend">Sort by Stock (Asc)</Select.Option>
-          <Select.Option value="descend">Sort by Stock (Desc)</Select.Option>
-        </Select> */}
 
         {/* Category Filter (Sort) */}
         <Select
