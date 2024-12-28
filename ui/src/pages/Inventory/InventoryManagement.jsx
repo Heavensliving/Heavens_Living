@@ -194,6 +194,10 @@ const logUsage = async (itemName, action, qty) => {
       navigate('/inventory-usage');  // Navigate to InventoryUsage page
     };
 
+    const lowStock = () => {
+      navigate('/low-stock');  // Navigate to InventoryUsage page
+    };
+
   // Handle search
   const handleSearch = (value) => {
     setSearchTerm(value);
@@ -202,6 +206,8 @@ const logUsage = async (itemName, action, qty) => {
     );
     setFilteredStocks(filteredData);
   };
+
+ 
 
   const columns = [
     {
@@ -222,10 +228,10 @@ const logUsage = async (itemName, action, qty) => {
       render: (stockQty, record) => {
         const availableStock = record.stockQty - record.usedQty; 
         const lowAlertQty = record.lowAlertQty || 0;
-    
+  
         let stockStatus = ''; // Default stock status
         let color = ''; // Color for the status
-    
+  
         // Determine the stock status and color based on lowAlertQty and availableStock
         if (availableStock === 0) {
           stockStatus = 'Out of Stock';
@@ -244,7 +250,6 @@ const logUsage = async (itemName, action, qty) => {
         );
       },
     },
-    
     {
       title: 'Used Qty',
       dataIndex: 'usedQty',
@@ -259,10 +264,10 @@ const logUsage = async (itemName, action, qty) => {
       render: (text, record) => {
         const availableStock = record.stockQty - record.usedQty;
         const lowAlertQty = record.lowAlertQty || 0;
-    
+  
         // Determine color based on stock level
         const availableTextColor = availableStock <= lowAlertQty ? 'red' : 'black';
-    
+  
         return (
           <span style={{ color: availableTextColor }}>
             {availableStock} {record.quantityType}
@@ -277,40 +282,58 @@ const logUsage = async (itemName, action, qty) => {
       align: 'center',
       render: (stockQty) => `${stockQty}`, // Display the stockQty as total added stock
     },
+    ...(admin.role === 'Main-Admin'
+      ? [
+          {
+            title: 'Property Name',
+            key: 'propertyName',
+            render: (text, record) => <span>{record.myProperty}</span>, // Display myProperty from the record
+          },
+        ]
+      : []),
   ];
+  
+  
 
   return (
     <div className="p-4">
       <div className="flex justify-between items-center mb-5">
-      <Button type="link" className="p-0 text-gray-500 font-semibold" onClick={handleViewUsage}>
-        View Usage
-      </Button>
+      <div className="flex items-center space-x-4">
+        <Button type="link" className="p-0 text-gray-500 font-semibold" onClick={handleViewUsage}>
+          View Usage
+        </Button>
 
-
-        <div className="flex space-x-2">
-          <Button
-            type="primary"
-            className="bg-blue-500 border-blue-500 rounded-full px-5 py-2"
-            onClick={() => setIsAddModalOpen(true)}
-          >
-            Add Stock
-          </Button>
-          <Button
-            type="primary"
-            className="bg-green-500 border-green-500 rounded-full px-5 py-2"
-            onClick={() => setIsUpdateModalOpen(true)}
-          >
-            Update Stock
-          </Button>
-          <Button
-            type="primary"
-            className="bg-yellow-500 border-yellow-500 rounded-full px-5 py-2"
-            onClick={() => setIsDailyUsageModalOpen(true)}
-          >
-            Daily Usage
-          </Button>
-        </div>
+        {/* Low Stock button */}
+        <Button type="link" className="p-0 text-gray-500 font-semibold" onClick={lowStock}>
+          Low Stock
+        </Button>
       </div>
+
+      <div className="flex space-x-2">
+        <Button
+          type="primary"
+          className="bg-blue-500 border-blue-500 rounded-full px-5 py-2"
+          onClick={() => setIsAddModalOpen(true)}
+        >
+          Add Stock
+        </Button>
+        <Button
+          type="primary"
+          className="bg-green-500 border-green-500 rounded-full px-5 py-2"
+          onClick={() => setIsUpdateModalOpen(true)}
+        >
+          Update Stock
+        </Button>
+        <Button
+          type="primary"
+          className="bg-yellow-500 border-yellow-500 rounded-full px-5 py-2"
+          onClick={() => setIsDailyUsageModalOpen(true)}
+        >
+          Daily Usage
+        </Button>
+      </div>
+    </div>
+
 
       {/* Search and Sort Section */}
       <div className="flex justify-between items-center mb-5">
