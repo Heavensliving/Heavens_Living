@@ -17,6 +17,8 @@ router.get('/payments/pendingPayments', verifyToken, feePaymentController.getPen
 // Route to get fee payments by student ID
 router.get('/:studentId', verifyToken, feePaymentController.getFeePaymentsByStudentId);
 
+router.get('/renter/:renterId', verifyToken, feePaymentController.getFeePaymentsByRenterId);
+
 // Route to edit a fee payment
 router.put('/:id', verifyToken, feePaymentController.editFeePayment);
 

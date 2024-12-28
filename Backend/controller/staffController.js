@@ -128,7 +128,7 @@ const deleteStaff = async (req, res) => {
             return res.status(404).json({ message: 'Property not found' });
         }
 
-        res.status(200).json({ message: 'Student deleted successfully and removed from property' });
+        res.status(200).json({ message: 'staff deleted successfully and removed from property' });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }

@@ -158,6 +158,9 @@ const pageConfig = {
     '/inventory':{
       title:"Inventory Management"
     },
+    '/dailyRentPayment':{
+      title:"Add Payment"
+    },
     '/inventory-usage':{
       title:"Inventory Usage"
     },

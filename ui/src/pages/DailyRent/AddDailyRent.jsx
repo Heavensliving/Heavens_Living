@@ -162,39 +162,41 @@ const AddDailyRent = () => {
 
   const handleChange = (e) => {
     const { name, type, files, value } = e.target;
-
+  
     // Update form data
     if (type === 'file') {
       setFormData({ ...formData, [name]: files[0] });
     } else {
       setFormData((prevData) => ({ ...prevData, [name]: value }));
     }
-
+  
     // Handle special cases
     if (name === 'roomType') {
       setRoomType(value);
     } else if (name === 'propertyId') {
-      const selectedProperty = properties.find(property => property._id === value);
-      setPgName(selectedProperty.propertyName);
+      const selectedProperty = properties.find((property) => property._id === value);
+      setPgName(selectedProperty?.propertyName || '');
     }
-
+  
     // Calculate and set the number of days dynamically
     if (name === 'checkIn' || name === 'checkOut') {
       const checkInDate = name === 'checkIn' ? new Date(value) : new Date(formData.checkIn);
       const checkOutDate = name === 'checkOut' ? new Date(value) : new Date(formData.checkOut);
-
-      if (checkInDate && checkOutDate && checkInDate <= checkOutDate) {
+  
+      if (checkInDate && checkOutDate) {
         const timeDiff = checkOutDate - checkInDate;
         const daysDiff = Math.ceil(timeDiff / (1000 * 60 * 60 * 24)); // Convert ms to days
+  
         setFormData((prevData) => ({
           ...prevData,
-          days: daysDiff > 0 ? daysDiff : '',
+          days: daysDiff >= 0 ? daysDiff || 1 : '', // Ensure daysDiff is at least 1 if dates are the same
         }));
       } else {
         setFormData((prevData) => ({ ...prevData, days: '' }));
       }
     }
   };
+  
 
 
   const uploadFile = (file) => {
@@ -314,7 +316,7 @@ const AddDailyRent = () => {
         <Input label="Check In Date" type="date" name="checkIn" value={formData.checkIn} onChange={handleChange} />
         <Input label="Check Out Date" type="date" name="checkOut" value={formData.checkOut} onChange={handleChange} />
         <Input label="No of days" type="number" name="days" value={formData.days} readOnly />
-        <Select
+        {/* <Select
           label="Payment Status"
           name="paymentStatus"
           value={formData.paymentStatus}
@@ -324,7 +326,7 @@ const AddDailyRent = () => {
             { value: 'Pending', label: 'Pending' }
           ]}
           required
-        />
+        /> */}
         <Input label="Photo" type="file" name="photo" onChange={handleChange} accept="image/*" />
         <Input label="Aadhar Front Image" type="file" name="adharFrontImage" onChange={handleChange} accept="image/*" />
         <Input label="Aadhar Back Image" type="file" name="adharBackImage" onChange={handleChange} accept="image/*" />
