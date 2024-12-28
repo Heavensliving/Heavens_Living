@@ -250,7 +250,7 @@ const deleteStudent = async (req, res) => {
       return res.status(400).json({ message: 'Invalid property ID' });
     }
 
-    if (role === 'propertyAdmin') {
+    if (role === 'Property-Admin') {
       const student = await Student.findByIdAndUpdate(
         id,
         { vacate: true }, // Mark as vacated

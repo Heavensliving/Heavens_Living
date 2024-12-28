@@ -12,12 +12,12 @@ const EmailVerificationSuccess = () => {
   const getStoreLink = () => {
     const userAgent = navigator.userAgent || navigator.vendor || window.opera;
     if (/android/i.test(userAgent)) {
-      return 'https://play.google.com/store/apps/details?id=com.yourapp'; // Replace with your Play Store URL
+      return 'https://play.google.com/store/apps/details?id=com.weronz.heavensliving'; // Replace with your Play Store URL
     }
     if (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) {
       return 'https://apps.apple.com/us/app/your-app-name/id1234567890'; // Replace with your App Store URL
     }
-    return 'https://play.google.com/store/apps/details?id=com.yourapp';
+    return 'https://play.google.com/store/apps/details?id=com.weronz.heavensliving';
   };
 
   return (

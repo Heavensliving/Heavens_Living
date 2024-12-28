@@ -12,7 +12,7 @@ const generateTicketId = () => {
 // Add maintenance record with unique ticketId
 const addMaintenance = async (req, res) => {
   try {
-    const { Name, issue, description, propertyId, studentId ,roomNo} = req.body;
+    const { Name, issue, issueImg, description, propertyId, studentId ,roomNo} = req.body;
 
     // Validate the received data if needed
     if (!Name || !issue || !description) {
@@ -25,6 +25,7 @@ const addMaintenance = async (req, res) => {
     const newMaintenance = new Maintanance({
       Name,
       issue,
+      issueImg,
       description,
       propertyId,
       studentId,

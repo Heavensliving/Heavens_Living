@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
-import axios from 'axios'; 
+import axios from 'axios';
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 import DetailModal from './DetailModal'; // Import the Modal component
 import { useSelector } from 'react-redux';
+import ImageModal from '../../components/reUsableComponet/ImageModal';
 
 const ResolvedHistory = () => {
   const admin = useSelector(store => store.auth.admin);
@@ -12,12 +13,15 @@ const ResolvedHistory = () => {
   const [selectedRecord, setSelectedRecord] = useState(null); // State for the selected record
   const [isModalOpen, setModalOpen] = useState(false); // State for modal visibility
   const [searchQuery, setSearchQuery] = useState(''); // State for the search query
+  const [isImgModalOpen, setIsImgModalOpen] = useState(false);
+  const [modalImageSrc, setModalImageSrc] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchResolvedRecords = async () => {
       try {
         const response = await axios.get(`${API_BASE_URL}/maintenance/get`,
-          {headers: { 'Authorization': `Bearer ${admin.token}` }}
+          { headers: { 'Authorization': `Bearer ${admin.token}` } }
         );
         // Filter records where the status is 'resolved'
         const resolvedRecords = response.data.filter(record => record.Status === 'resolved');
@@ -40,6 +44,20 @@ const ResolvedHistory = () => {
   const closeModal = () => {
     setModalOpen(false); // Close the modal
     setSelectedRecord(null); // Reset the selected record
+  };
+
+  const handleImgClick = (record) => {
+    if (record.issueImg) {
+      setModalImageSrc(record.issueImg);
+    } else {
+      setModalImageSrc("No image available currently.");
+    }
+    setIsImgModalOpen(true);
+  };
+
+  const closeImgModal = () => {
+    setIsImgModalOpen(false);
+    setModalImageSrc('');
   };
 
   // Filter records based on the search query
@@ -69,10 +87,11 @@ const ResolvedHistory = () => {
             <tr>
               <th className="p-2 text-sm font-bold text-gray-700">Sl No</th>
               <th className="p-2 text-sm font-bold text-gray-700">Issuer Name</th>
-              <th className="p-2 text-sm font-bold text-gray-700">Issue</th>
-              <th className="p-2 text-sm font-bold text-gray-700">Resolved By</th>
-              <th className="p-2 text-sm font-bold text-gray-700">Resolved Date</th>
-              <th className="p-2 text-sm font-bold text-gray-700">Status</th>
+              <th className="p-2 text-sm font-bold text-gray-700 text-center">Issue</th>
+              <th className="p-2 text-sm font-bold text-gray-700 text-center">Issue Image</th>
+              <th className="p-2 text-sm font-bold text-gray-700 text-center">Resolved By</th>
+              <th className="p-2 text-sm font-bold text-gray-700 text-center">Resolved Date</th>
+              <th className="p-2 text-sm font-bold text-gray-700 text-center">Status</th>
             </tr>
           </thead>
           <tbody>
@@ -92,10 +111,23 @@ const ResolvedHistory = () => {
                   <tr key={record._id} className="hover:bg-gray-100 cursor-pointer" onClick={() => handleRowClick(record)}>
                     <td className="p-2">{index + 1}</td>
                     <td className="p-2">{record.Name}</td>
-                    <td className="p-2">{record.issue}</td>
-                    <td className="p-2">{record.AssignedTo}</td>
-                    <td className="p-2">{formattedDate}</td>
-                    <td className="p-2 text-green-700">{record.Status}</td>
+                    <td className="p-2 text-center">{record.issue}</td>
+                    <td className="p-2 align-middle text-center">
+                      {record.issueImg ? (
+                        <img
+                          src={isLoading ? defaultImage : expense.billImg}
+                          className="max-w-[60px] max-h-[60px] object-contain mx-auto"
+                          alt="issue-img"
+                          onLoad={() => setIsLoading(false)}
+                          onClick={() => handleImgClick(expense)}
+                        />
+                      ) : (
+                        <span>-</span>
+                      )}
+                    </td>
+                    <td className="p-2 text-center">{record.AssignedTo}</td>
+                    <td className="p-2 text-center">{formattedDate}</td>
+                    <td className="p-2 text-green-700 text-center">{record.Status}</td>
                   </tr>
                 );
               })
@@ -104,6 +136,13 @@ const ResolvedHistory = () => {
         </table>
       </div>
       <DetailModal isOpen={isModalOpen} onClose={closeModal} record={selectedRecord} />
+      {/* Image Modal */}
+      <ImageModal
+        isOpen={isImgModalOpen}
+        onClose={closeImgModal}
+        imageSrc={modalImageSrc}
+        altText="&nbsp; No image available &nbsp;&nbsp;&nbsp;"
+      />
     </div>
   );
 };

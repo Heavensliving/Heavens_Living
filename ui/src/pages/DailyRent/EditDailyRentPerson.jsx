@@ -71,7 +71,8 @@ const EditDailyRentPerson = () => {
     branch: '',
     phase: '',
     property: '',
-    typeOfStay: ''
+    typeOfStay: '',
+    days: ''
   });
 
   const [properties, setProperties] = useState([]);
@@ -102,13 +103,14 @@ const EditDailyRentPerson = () => {
           { headers: { 'Authorization': `Bearer ${admin.token}` } }
         );
         const fetchedData = response.data;
+        console.log(fetchedData)
         setOldFiles({
           Adharfrontside: fetchedData.adharFrontImage,
           Adharbackside: fetchedData.adharBackImage,
           Photo: fetchedData.photo,
         });
 
-        if (fetchedData.dateOfBirth && fetchedData.checkIn && fetchedData.checkOut) {
+        if (fetchedData.dateOfBirth || fetchedData.checkIn || fetchedData.checkOut) {
           fetchedData.dateOfBirth = new Date(fetchedData.dateOfBirth).toISOString().split('T')[0];
           fetchedData.checkIn = new Date(fetchedData.checkIn).toISOString().split('T')[0];
           fetchedData.checkOut = new Date(fetchedData.checkOut).toISOString().split('T')[0];
@@ -135,7 +137,8 @@ const EditDailyRentPerson = () => {
           branch: fetchedData.branch || '',
           phase: fetchedData.phase || '',
           property: fetchedData.property || '',
-          typeOfStay: fetchedData.typeOfStay || ''
+          typeOfStay: fetchedData.typeOfStay || '',
+          days: fetchedData.days || ''
         });
       } catch (error) {
         console.error('Error fetching daily rent data:', error);
@@ -152,6 +155,22 @@ const EditDailyRentPerson = () => {
       setFormData({ ...formData, [name]: files[0] });
     } else {
       setFormData({ ...formData, [name]: value });
+    }
+    if (name === 'checkIn' || name === 'checkOut') {
+      const checkInDate = name === 'checkIn' ? new Date(value) : new Date(formData.checkIn);
+      const checkOutDate = name === 'checkOut' ? new Date(value) : new Date(formData.checkOut);
+  
+      if (checkInDate && checkOutDate) {
+        const timeDiff = checkOutDate - checkInDate;
+        const daysDiff = Math.ceil(timeDiff / (1000 * 60 * 60 * 24)); // Convert ms to days
+  
+        setFormData((prevData) => ({
+          ...prevData,
+          days: daysDiff >= 0 ? daysDiff || 1 : '', // Ensure daysDiff is at least 1 if dates are the same
+        }));
+      } else {
+        setFormData((prevData) => ({ ...prevData, days: '' }));
+      }
     }
   };
 
@@ -263,8 +282,9 @@ const EditDailyRentPerson = () => {
         />
         <Input label="Room Type" name="roomType" value={formData.roomType} onChange={handleChange} />
         <Input label="Room No" name="roomNo" value={formData.roomNo} onChange={handleChange} />
-          <Input label="Check In Date" type="date" name="checkIn" value={formData.checkIn} onChange={handleChange} />
-          <Input label="Check Out Date" type="date" name="checkOut" value={formData.checkOut} onChange={handleChange} />
+        <Input label="Check In Date" type="date" name="checkIn" value={formData.checkIn} onChange={handleChange} />
+        <Input label="Check Out Date" type="date" name="checkOut" value={formData.checkOut} onChange={handleChange} />
+        <Input label="No of days" type="number" name="days" value={formData.days} readOnly />
         <Input label="Type of Stay" name="typeOfStay" value={formData.typeOfStay} onChange={handleChange} />
         <Input label="Rent" type="number" name="DailyRent" value={formData.DailyRent} onChange={handleChange} />
         <Select
@@ -282,17 +302,17 @@ const EditDailyRentPerson = () => {
         <Input label="Aadhar Front Image" type="file" name="adharFrontImage" onChange={handleChange} accept="image/*" />
         <Input label="Aadhar Back Image" type="file" name="adharBackImage" onChange={handleChange} accept="image/*" />
         <ToastContainer />
-          <button
-            type="submit"
-            className={`w-full bg-side-bar text-white font-bold py-3 rounded-lg hover:bg-[#373082] transition duration-300 flex items-center justify-center ${loading ? ' cursor-not-allowed' : ''}`}
-            disabled={loading}
-          >
-            {loading ? (
-              <div className="spinner border-t-2 border-white border-solid rounded-full w-6 h-6 animate-spin"></div>
-            ) : (
-              'Update'
-            )}
-          </button>
+        <button
+          type="submit"
+          className={`w-full bg-side-bar text-white font-bold py-3 rounded-lg hover:bg-[#373082] transition duration-300 flex items-center justify-center ${loading ? ' cursor-not-allowed' : ''}`}
+          disabled={loading}
+        >
+          {loading ? (
+            <div className="spinner border-t-2 border-white border-solid rounded-full w-6 h-6 animate-spin"></div>
+          ) : (
+            'Update'
+          )}
+        </button>
       </form>
     </div>
   );

@@ -24,18 +24,18 @@ const addFeePayment = async (req, res) => {
       isMessPayment, // Field to differentiate payment type
       isDailyRent, // Field to handle daily rent payments
     } = req.body;
-
+    console.log(req.body)
     const student = _id;
 
-    if (transactionId){
+    if (transactionId) {
       const existingTransaction = await FeePayment.findOne({ transactionId });
 
       if (existingTransaction) {
-          return res.status(400).json({
-              message: "Transaction Id is already existed.",
-          });
+        return res.status(400).json({
+          message: "Transaction Id is already existed.",
+        });
       }
-    }    
+    }
 
     // Calculate balances
     let advanceBalance = 0;
@@ -52,6 +52,7 @@ const addFeePayment = async (req, res) => {
       amountPaid: payingAmount,
       pendingBalance: isMessPayment || isDailyRent ? null : balance,
       advanceBalance,
+      waveOffAmount,
       paymentDate: paidDate,
       paymentClearedMonthYear: feeClearedMonthYear,
       transactionId: transactionId || null,
@@ -61,7 +62,7 @@ const addFeePayment = async (req, res) => {
 
     if (isDailyRent) {
       // Handle daily rent payments
-      const dailyRentPerson = await DailyRent.findOne({OccupantId: studentId });
+      const dailyRentPerson = await DailyRent.findOne({ OccupantId: studentId });
       if (!dailyRentPerson) {
         return res.status(404).json({ message: 'Daily rent person not found' });
       }
@@ -75,10 +76,27 @@ const addFeePayment = async (req, res) => {
       const feePayment = new FeePayment(feePaymentData);
       await feePayment.save();
 
+      const updateData = {
+        $push: { payments: feePayment._id },
+        $inc: { payingAmount: payingAmount },
+      };
+
+      // Add totalAmount to updateData only if waveOffAmount has a value
+      if (waveOffAmount) {
+        updateData.totalAmount = totalAmountToPay;
+      }
+
+      const updatedPayingAmount = dailyRentPerson.payingAmount + payingAmount;
+      const totalAmount = waveOffAmount ? totalAmountToPay : dailyRentPerson.totalAmount;
+
+      if (updatedPayingAmount >= totalAmount) {
+        updateData.paymentStatus = "Paid"; 
+      }
+
       // Update daily rent person payments
       await DailyRent.findByIdAndUpdate(
         dailyRentPerson._id,
-        { $push: { payments: feePayment._id } },
+        updateData,
         { new: true }
       );
 
@@ -170,6 +188,24 @@ const getFeePaymentsByStudentId = async (req, res) => {
   } catch (error) {
     console.error('Error fetching fee payments by student ID:', error);
     res.status(500).json({ message: 'Error fetching fee payments by student ID', error });
+  }
+};
+
+const getFeePaymentsByRenterId = async (req, res) => {
+  try {
+    // console.log(req.params)
+    const { renterId } = req.params;
+    const feePayments = await FeePayment.find({ dailyRent: renterId });
+    // console.log(feePayments)
+
+    if (feePayments.length === 0) {
+      return res.status(404).json({ message: 'No fee payments found for this ID' });
+    }
+
+    res.status(200).json(feePayments);
+  } catch (error) {
+    console.error('Error fetching fee payments by renter ID:', error);
+    res.status(500).json({ message: 'Error fetching fee payments by renter ID', error });
   }
 };
 
@@ -267,7 +303,7 @@ const getPendingPayments = async (req, res) => {
         return {
           studentId: student.studentId,
           name: student.name,
-          room:student.roomNo,
+          room: student.roomNo,
           monthlyRent,
           unpaidMonths,
           pendingRentAmount,
@@ -355,7 +391,7 @@ const getTotalMonthlyRent = async (req, res) => {
   try {
     // Fetch all students from the database
     const students = await Student.find({ vacate: false }, 'monthlyRent'); // Only selecting monthlyRent field
-    const messPeople = await peopleModel.find({vacate: false}, 'monthlyRent');
+    const messPeople = await peopleModel.find({ vacate: false }, 'monthlyRent');
 
     const totalMonthlyRentStudents = students.reduce((acc, student) => {
       return acc + (student.monthlyRent || 0); // Default to 0 if monthlyRent is undefined
@@ -377,6 +413,7 @@ const feePaymentController = {
   addFeePayment,
   getAllFeePayments,
   getFeePaymentsByStudentId,
+  getFeePaymentsByRenterId,
   editFeePayment,
   deleteFeePayment,
   getPendingPayments,

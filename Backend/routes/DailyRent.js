@@ -11,6 +11,8 @@ router.get('/', verifyToken,  DailyRentController.getAllDailyRent);
 
 router.get('/:id', verifyToken,  DailyRentController.getDailyRentById);
 
+router.get('/renterId/:renterId', verifyToken,  DailyRentController.getDailyRentByGeneratedId);
+
 router.put('/update/:id', verifyToken,  DailyRentController.updateDailyRent);
 
 router.delete('/delete/:id', verifyToken,  DailyRentController.deleteDailyRent);

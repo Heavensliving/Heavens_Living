@@ -13,7 +13,6 @@ const generateOccupantId = () => {
 // Add a new DailyRent entry
 const addDailyRent = async (req, res) => {
   try {
-    console.log(req.body)
     const propertyId = req.body.propertyId;
     // Validate propertyId
     if (!propertyId || !mongoose.Types.ObjectId.isValid(propertyId)) {
@@ -32,6 +31,7 @@ const addDailyRent = async (req, res) => {
     // Extract phase and branch names
     const phaseName = property.phaseName;
     const branchName = property.branchName;
+    const totalAmount = (req.body.DailyRent * req.body.days)
     const room = await Rooms.findOne({ roomNumber: req.body.roomNo, property: propertyId });
     if (!room) {
       return res.status(404).json({ message: 'Room not found' });
@@ -48,6 +48,7 @@ const addDailyRent = async (req, res) => {
       branch: branchName,
       property: propertyId,
       room: room._id,
+      totalAmount: totalAmount
     });
     const savedDailyRent = await newDailyRent.save();
     room.dailyRent.push(newDailyRent._id);
@@ -89,13 +90,34 @@ const getDailyRentById = async (req, res) => {
   }
 };
 
+const getDailyRentByGeneratedId = async (req, res) => {
+  const { renterId } = req.params;
+  try {
+    const renter = await DailyRent.findOne({ OccupantId: renterId })
+      .populate('payments');
+    if (!renter) {
+      return res.status(404).json({ message: 'DailyRent entry not found' });
+    }
+    const latestPayment = renter.payments.length > 0 ? renter.payments[renter.payments.length - 1] : null;
+    const latestPaidDate = latestPayment ? new Date(latestPayment.paymentDate) : null;
+    const response = {
+      renter,
+      latestPaidDate
+    };
+    res.status(200).json(response);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+}
+
+
 // Update a DailyRent entry by ID
 const updateDailyRent = async (req, res) => {
   console.log('Request body:', req.body); // Log the request body
   const id = req.params.id
   const updatedData = req.body;
   try {
-    console.log("id",id)
+    console.log("id", id)
     const dailyRentEntry = await DailyRent.findById(id);
     console.log(dailyRentEntry)
     if (!dailyRentEntry) {
@@ -128,6 +150,22 @@ const updateDailyRent = async (req, res) => {
       }
     }
 
+    if (
+      updatedData.DailyRent !== dailyRentEntry.DailyRent ||
+      updatedData.checkIn !== undefined ||
+      updatedData.checkOut !== undefined ||
+      updatedData.days !== undefined
+    ) {
+      const rent = updatedData.rent || dailyRentEntry.rent;
+      const checkInDate = updatedData.checkIn ? new Date(updatedData.checkIn) : new Date(dailyRentEntry.checkIn);
+      const checkOutDate = updatedData.checkOut ? new Date(updatedData.checkOut) : new Date(dailyRentEntry.checkOut);
+      
+      const days = updatedData.days || Math.ceil((checkOutDate - checkInDate) / (1000 * 60 * 60 * 24));
+      
+      updatedData.totalAmount = rent * days;
+      console.log("Updated Total Amount:", updatedData.totalAmount);
+    }
+
     const updatedDailyRent = await DailyRent.findByIdAndUpdate(id, updatedData, { new: true }); // Add { new: true } to return the updated document
     if (!updatedDailyRent) {
       return res.status(404).json({ message: 'DailyRent entry not found' });
@@ -148,28 +186,28 @@ const deleteDailyRent = async (req, res) => {
     const dailyRentProperty = await DailyRent.findById(id);
     const propertyId = dailyRentProperty.property
 
-    if (role === 'propertyAdmin') {
+    if (role === 'Property-Admin') {
       const dailyrent = await DailyRent.findByIdAndUpdate(
         id,
         { vacate: true },
         { new: true }
-      );
+      )
       if (!dailyrent) {
         return res.status(404).json({ message: 'Daily rent not found' });
       }
-    
+
       if (dailyrent.room) {
         const room = await Rooms.findById(dailyrent.room);
         if (room) {
           room.dailyRent = room.dailyRent.filter(dailyRentId => dailyRentId.toString() !== id);
-    
+
           if (room.occupant > 0) {
             room.occupant -= 1;
           }
           if (room.vacantSlot < room.roomCapacity) {
             room.vacantSlot += 1;
           }
-    
+
           await room.save();
 
           await Property.findByIdAndUpdate(
@@ -179,9 +217,9 @@ const deleteDailyRent = async (req, res) => {
           );
         }
       }
-    
+
       return res.status(200).json({ message: 'Daily rent marked as vacated and room updated successfully', dailyrent });
-    }    
+    }
 
     const dailyrent = await DailyRent.findById(id);
     if (!dailyrent) {
@@ -230,6 +268,7 @@ module.exports = {
   addDailyRent,
   getAllDailyRent,
   getDailyRentById,
+  getDailyRentByGeneratedId,
   updateDailyRent,
   deleteDailyRent,
 };
