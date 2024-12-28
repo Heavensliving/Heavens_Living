@@ -274,7 +274,7 @@ const DailyRentPayment = () => {
                     >
                       <option value="" disabled>Select Collector</option>
                       {staffMembers.map((staff) => (
-                        <option key={staff._id} value={staff._id}>
+                        <option key={staff._id} value={staff.Name}>
                           {staff.Name}
                         </option>
                       ))}

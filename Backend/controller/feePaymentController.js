@@ -28,7 +28,7 @@ const addFeePayment = async (req, res) => {
     // console.log(req.body)
     const student = _id;
 
-    if (transactionId) {
+    if (transactionId && transactionId !== null || '-') {
       const existingTransaction = await FeePayment.findOne({ transactionId });
 
       if (existingTransaction) {
