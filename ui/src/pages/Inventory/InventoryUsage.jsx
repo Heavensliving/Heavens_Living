@@ -3,6 +3,8 @@ import { Table, message, Tag, Dropdown, Button, Menu, DatePicker, Space } from '
 import axios from 'axios';
 import { useSelector } from 'react-redux';
 import moment from 'moment';
+import jsPDF from 'jspdf';
+import 'jspdf-autotable';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -19,36 +21,24 @@ const InventoryUsage = () => {
         headers: { Authorization: `Bearer ${admin.token}` },
       });
 
-      let filteredLogs = res.data;
+      let allLogs = res.data;
 
       if (admin.role === 'Property-Admin') {
-        filteredLogs = res.data.filter(log =>
-          log.propertyName.some(logProperty =>
-            admin.properties.some(adminProperty =>
+        allLogs = res.data.filter((log) =>
+          log.propertyName.some((logProperty) =>
+            admin.properties.some((adminProperty) =>
               logProperty.id === adminProperty.id
             )
           )
         );
       }
 
-      setLogs(filteredLogs);
-      setFilteredLogs(filteredLogs);
+      setLogs(allLogs); // Store full data
+      setFilteredLogs(allLogs); // Use full data for filtering
     } catch (error) {
       console.error('Error fetching usage logs:', error);
       message.error('Failed to fetch usage logs');
     }
-  };
-
-  const lowStock = () => {
-    const lowStockItems = stocks.filter((stock) => {
-      const availableStock = stock.stockQty - stock.usedQty;
-      const lowAlertQty = stock.lowAlertQty || 0;
-
-      return availableStock <= lowAlertQty || availableStock === 0;
-    });
-
-    // Navigate to the LowStock page with the filtered low stock items
-    navigate('/low-stock', { state: { lowStockItems } });
   };
 
   useEffect(() => {
@@ -86,11 +76,11 @@ const InventoryUsage = () => {
     let filtered = logs;
 
     if (category !== 'All Items') {
-      filtered = logs.filter(log => getActionText(log.action) === category);
+      filtered = logs.filter((log) => getActionText(log.action) === category);
     }
 
     if (selectedDate) {
-      filtered = filtered.filter(log => {
+      filtered = filtered.filter((log) => {
         const logDate = moment(log.date).format('YYYY-MM-DD');
         return logDate === selectedDate.format('YYYY-MM-DD');
       });
@@ -103,7 +93,7 @@ const InventoryUsage = () => {
     setSelectedDate(date);
 
     if (date) {
-      const filtered = logs.filter(log => {
+      const filtered = logs.filter((log) => {
         const logDate = moment(log.date).format('YYYY-MM-DD');
         return logDate === date.format('YYYY-MM-DD');
       });
@@ -120,10 +110,48 @@ const InventoryUsage = () => {
     setFilteredLogs(logs);
   };
 
+  const handleDownloadPDF = () => {
+    const doc = new jsPDF();
+    doc.text('Inventory Usage Report', 14, 10);
+
+    const tableColumns = ['Sl No', 'Item Name', 'Action', 'Quantity', 'Date'];
+    if (admin.role === 'Main-Admin') {
+      tableColumns.push('Admin Name');
+    }
+
+    const tableRows = filteredLogs.map((log, index) => {
+      const row = [
+        index + 1,
+        log.itemName,
+        getActionText(log.action),
+        log.qty,
+        new Date(log.date).toLocaleString(),
+      ];
+      if (admin.role === 'Main-Admin') {
+        row.push(log.adminName);
+      }
+      return row;
+    });
+
+    doc.autoTable({
+      head: [tableColumns],
+      body: tableRows,
+      startY: 20,
+      theme: 'striped',
+      headStyles: { fillColor: [100, 100, 255] },
+    });
+
+    doc.save('Inventory_Usage_Report.pdf');
+  };
+
   const filterMenu = (
     <Menu>
       {['All Items', 'Daily Usage', 'Stock Update', 'Add Stock'].map((category) => (
-        <Menu.Item key={category} onClick={() => handleFilter(category)}>
+        <Menu.Item
+          key={category}
+          onClick={() => handleFilter(category)}
+          style={{ cursor: 'pointer' }}
+        >
           {category}
         </Menu.Item>
       ))}
@@ -184,6 +212,14 @@ const InventoryUsage = () => {
         </div>
 
         <div className="flex items-center mr-3">
+          <Button 
+            type="primary" 
+            onClick={handleDownloadPDF} 
+            className="mr-3" 
+            disabled={filteredLogs.length === 0}
+          >
+            Download Report
+          </Button>
           <Space>
             <DatePicker
               onChange={handleDateChange}
@@ -193,10 +229,8 @@ const InventoryUsage = () => {
             />
           </Space>
 
-          <Dropdown menu={filterMenu} placement="bottomRight" className="ml-3">
-            <Button type="default">
-              Filter: {filterCategory}
-            </Button>
+          <Dropdown overlay={filterMenu} placement="bottomRight" className="ml-3">
+            <Button type="default">Filter: {filterCategory}</Button>
           </Dropdown>
 
           <Button type="default" onClick={handleClearFilters} className="ml-3">
@@ -210,7 +244,8 @@ const InventoryUsage = () => {
         columns={columns}
         rowKey="_id"
         className="p-4"
-        locale={{ emptyText: "No Data Found" }}
+        pagination={false}
+        locale={{ emptyText: 'No Data Found' }}
       />
     </div>
   );

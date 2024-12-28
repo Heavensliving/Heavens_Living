@@ -207,6 +207,8 @@ const logUsage = async (itemName, action, qty) => {
     setFilteredStocks(filteredData);
   };
 
+ 
+
   const columns = [
     {
       title: 'Sl. No',
@@ -226,10 +228,10 @@ const logUsage = async (itemName, action, qty) => {
       render: (stockQty, record) => {
         const availableStock = record.stockQty - record.usedQty; 
         const lowAlertQty = record.lowAlertQty || 0;
-    
+  
         let stockStatus = ''; // Default stock status
         let color = ''; // Color for the status
-    
+  
         // Determine the stock status and color based on lowAlertQty and availableStock
         if (availableStock === 0) {
           stockStatus = 'Out of Stock';
@@ -248,7 +250,6 @@ const logUsage = async (itemName, action, qty) => {
         );
       },
     },
-    
     {
       title: 'Used Qty',
       dataIndex: 'usedQty',
@@ -263,10 +264,10 @@ const logUsage = async (itemName, action, qty) => {
       render: (text, record) => {
         const availableStock = record.stockQty - record.usedQty;
         const lowAlertQty = record.lowAlertQty || 0;
-    
+  
         // Determine color based on stock level
         const availableTextColor = availableStock <= lowAlertQty ? 'red' : 'black';
-    
+  
         return (
           <span style={{ color: availableTextColor }}>
             {availableStock} {record.quantityType}
@@ -281,7 +282,18 @@ const logUsage = async (itemName, action, qty) => {
       align: 'center',
       render: (stockQty) => `${stockQty}`, // Display the stockQty as total added stock
     },
+    ...(admin.role === 'Main-Admin'
+      ? [
+          {
+            title: 'Property Name',
+            key: 'propertyName',
+            render: (text, record) => <span>{record.myProperty}</span>, // Display myProperty from the record
+          },
+        ]
+      : []),
   ];
+  
+  
 
   return (
     <div className="p-4">
