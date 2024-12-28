@@ -150,8 +150,8 @@ const getMonthlyTotalExpense = async (req, res) => {
     const monthlyExpense = await Expense.aggregate([
       {
         $project: {
-          month: { $month: "$createdAt" }, // Extract the month
-          year: { $year: "$createdAt" },  // Extract the year
+          month: { $month: "$date" }, // Extract the month
+          year: { $year: "$date" },  // Extract the year
           amount: 1,                      // Include the amount field
         },
       },

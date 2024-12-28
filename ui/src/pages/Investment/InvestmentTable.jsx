@@ -4,13 +4,14 @@ import { FaEdit, FaTrash } from 'react-icons/fa';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { jsPDF } from 'jspdf';
-import { Table, Input, Button, Modal, Space } from 'antd';
+import { Table, Input, Button, Modal, Space, Select } from 'antd';
 import ConfirmationModal from "../../components/reUsableComponet/ConfirmationModal";
 import { DatePicker } from 'antd';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import CheckAuth from '../auth/CheckAuth';
 
 const { Column } = Table;
+const { Option } = Select;
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const InvestmentsTable = () => {
@@ -20,6 +21,7 @@ const InvestmentsTable = () => {
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterDate, setFilterDate] = useState('');
+  const [filterProperty, setFilterProperty] = useState('');
   const [totalExpense, setTotalExpense] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [investmentToDelete, setInvestmentToDelete] = useState(null);
@@ -66,8 +68,14 @@ const InvestmentsTable = () => {
       });
     }
 
+    if (filterProperty) {
+      updatedInvestments = updatedInvestments.filter(investment =>
+        investment.propertyName === filterProperty
+      );
+    }
+
     setFilteredInvestments(updatedInvestments);
-  }, [searchTerm, filterDate, investments]);
+  }, [searchTerm, filterDate, filterProperty, investments]);
 
   const handleDelete = async () => {
     if (investmentToDelete) {
@@ -125,6 +133,9 @@ const InvestmentsTable = () => {
   if (loading) return <div className="text-center py-4">Loading...</div>;
   if (error) return <div className="text-center py-4 text-red-500">{error}</div>;
 
+  // Get unique property names for the dropdown filter
+  const propertyNames = [...new Set(investments.map(investment => investment.propertyName))];
+
   // Group investments by property and calculate the total investment for each property
   const investmentByProperty = filteredInvestments.reduce((acc, investment) => {
     if (!acc[investment.propertyName]) {
@@ -160,6 +171,17 @@ const InvestmentsTable = () => {
             onChange={(date, dateString) => setFilterDate(dateString)}
             value={filterDate ? moment(filterDate, 'YYYY-MM-DD') : null}
           />
+          <Select
+            placeholder="Filter by Property"
+            value={filterProperty}
+            onChange={setFilterProperty}
+            style={{ width: 200 }}
+          >
+            <Option key="all" value="">All Properties</Option> {/* "All Properties" option */}
+            {propertyNames.map(property => (
+              <Option key={property} value={property}>{property}</Option>
+            ))}
+          </Select>
         </Space>
         <div>
           <Button
@@ -178,7 +200,7 @@ const InvestmentsTable = () => {
         </div>
       </div>
 
-      <div className="mb-6 flex flex-wrap items-center justify-between">
+      <div className="mb-6 flex flex-wrap items-center justify-between ml-8 mt-10">
         <ResponsiveContainer width="60%" height={300}>
           <LineChart data={chartData}>
             <CartesianGrid strokeDasharray="3 3" />

@@ -241,25 +241,26 @@ const StudentManagement = () => {
   useEffect(() => {
     if (!admin) return;
     const fetchStudents = async () => {
-      try {
-        const res = await axios.get(`${API_BASE_URL}/students`,
-          { headers: { 'Authorization': `Bearer ${admin.token}` } }
-        );
-        setStudents(res.data);
-        setLoading(false)
-      } catch (error) {
-        console.error('Error fetching students:', error);
-        setLoading(false)
-      }
+        try {
+            const res = await axios.get(`${API_BASE_URL}/students`, {
+                headers: { 'Authorization': `Bearer ${admin.token}` }
+            });
+            setStudents(res.data);
+            setLoading(false);
+        } catch (error) {
+            console.error('Error fetching students:', error);
+            setLoading(false);
+        }
     };
     fetchStudents();
-  }, [admin]);
+}, [admin]);
+
 
   // Persist filter states to localStorage whenever they are updated
-  useEffect(() => {
-    localStorage.setItem('searchQuery', searchQuery);
-    localStorage.setItem('sortOption', sortOption);
-    localStorage.setItem('propertySort', propertySort);
+    useEffect(() => {
+      localStorage.setItem('searchQuery', searchQuery);
+      localStorage.setItem('sortOption', sortOption);
+      localStorage.setItem('propertySort', propertySort);
   }, [searchQuery, sortOption, propertySort]);
 
   const filteredStudents = students.filter(student =>
@@ -322,6 +323,7 @@ const StudentManagement = () => {
     { value: 'Vacated', label: 'Vacated' },     
     { value: 'Incomplete', label: 'Incomplete Profiles' }          
   ];
+  
 
   const handleSortChange = (option) => {
     setSortOption(option);
@@ -333,7 +335,7 @@ const StudentManagement = () => {
 
   const sortedStudents = () => {
     let sorted = filteredStudents;
-  
+    
     if (sortOption === 'Pending') {
       sorted = filteredStudents.filter(student => student.paymentStatus === 'Pending' && student.vacate !== true); // Exclude vacated students
     } else if (sortOption === 'Paid') {
@@ -342,18 +344,18 @@ const StudentManagement = () => {
       sorted = filteredStudents.filter(student => student.currentStatus === 'checkedOut' && student.vacate !== true); // Only vacated students
     } else if (sortOption === 'Vacated') {
       sorted = filteredStudents.filter(student => student.vacate === true); // Only vacated students
-    }  else if (sortOption === 'All') {
+    } else if (sortOption === 'All') {
       sorted = filteredStudents.filter(student => student.vacate !== true); // Only vacated students
     } else if (sortOption === 'CheckedIn') {
       sorted = filteredStudents.filter(student => student.currentStatus === 'checkedIn' && student.vacate !== true);
     } else if (sortOption === 'Incomplete') {
       sorted = filteredStudents.filter(student => student.profileCompletionPercentage != '100' && student.vacate !== true);
     }
-
+  
     if (propertySort) {
       sorted = sorted.filter(student => student.pgName === propertySort);
     }
-
+  
     return sorted;
   };
   
@@ -382,6 +384,7 @@ const StudentManagement = () => {
         sortingOptions={sortingOptions}
         onSortChange={handleSortChange}
         addNewEntryPath="/add-student"
+        currentSortLabel={sortOption}  // Dynamically pass the current sorting option
       />
 
       {/* New field for sorting by pgName */}
