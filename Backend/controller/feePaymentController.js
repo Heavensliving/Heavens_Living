@@ -19,12 +19,13 @@ const addFeePayment = async (req, res) => {
       paidDate,
       waveOffReason,
       paymentMode,
+      collectedBy,
       transactionId,
       _id,
       isMessPayment, // Field to differentiate payment type
       isDailyRent, // Field to handle daily rent payments
     } = req.body;
-    console.log(req.body)
+    // console.log(req.body)
     const student = _id;
 
     if (transactionId) {
@@ -57,6 +58,7 @@ const addFeePayment = async (req, res) => {
       paymentClearedMonthYear: feeClearedMonthYear,
       transactionId: transactionId || null,
       paymentMode,
+      collectedBy,
       student,
     };
 

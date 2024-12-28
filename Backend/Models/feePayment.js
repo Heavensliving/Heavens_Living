@@ -18,6 +18,7 @@ const FeePaymentSchema = new mongoose.Schema({
     enum: ['Cash', 'Net Banking', 'UPI'],
     required: true 
   },
+  collectedBy: { type: String },
   dailyRent: { 
     type: mongoose.Schema.Types.ObjectId, 
     ref: 'DailyRent', 

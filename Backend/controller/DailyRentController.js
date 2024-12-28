@@ -113,24 +113,24 @@ const getDailyRentByGeneratedId = async (req, res) => {
 
 // Update a DailyRent entry by ID
 const updateDailyRent = async (req, res) => {
-  console.log('Request body:', req.body); // Log the request body
+  // console.log('Request body:', req.body); // Log the request body
   const id = req.params.id
   const updatedData = req.body;
   try {
-    console.log("id", id)
+    // console.log("id", id)
     const dailyRentEntry = await DailyRent.findById(id);
-    console.log(dailyRentEntry)
+    // console.log(dailyRentEntry)
     if (!dailyRentEntry) {
       return res.status(404).json({ message: 'dailyrent not found' });
     }
-    console.log("Room Number:", updatedData.roomNo);
-    console.log("Property ID:", updatedData.property);
+    // console.log("Room Number:", updatedData.roomNo);
+    // console.log("Property ID:", updatedData.property);
 
     if (updatedData.roomNo && updatedData.property) {
       const { roomNo, property } = updatedData;
-      console.log("Room Number and Property:", roomNo, property);
+      // console.log("Room Number and Property:", roomNo, property);
       const newRoom = await Rooms.findOne({ roomNumber: roomNo, property });
-      console.log("New Room:", newRoom);
+      // console.log("New Room:", newRoom);
 
       if (!newRoom) {
         return res.status(404).json({ message: 'Room not found for the given property and room number' });
@@ -152,18 +152,12 @@ const updateDailyRent = async (req, res) => {
 
     if (
       updatedData.DailyRent !== dailyRentEntry.DailyRent ||
-      updatedData.checkIn !== undefined ||
-      updatedData.checkOut !== undefined ||
-      updatedData.days !== undefined
+      updatedData.checkIn !== dailyRentEntry.checkIn ||
+      updatedData.checkOut !== dailyRentEntry.checkOut ||
+      updatedData.days !== dailyRentEntry.days
     ) {
-      const rent = updatedData.rent || dailyRentEntry.rent;
-      const checkInDate = updatedData.checkIn ? new Date(updatedData.checkIn) : new Date(dailyRentEntry.checkIn);
-      const checkOutDate = updatedData.checkOut ? new Date(updatedData.checkOut) : new Date(dailyRentEntry.checkOut);
-      
-      const days = updatedData.days || Math.ceil((checkOutDate - checkInDate) / (1000 * 60 * 60 * 24));
-      
-      updatedData.totalAmount = rent * days;
-      console.log("Updated Total Amount:", updatedData.totalAmount);
+      updatedData.totalAmount = updatedData.DailyRent *  updatedData.days;
+      // console.log("Updated Total Amount:", updatedData.totalAmount);
     }
 
     const updatedDailyRent = await DailyRent.findByIdAndUpdate(id, updatedData, { new: true }); // Add { new: true } to return the updated document
