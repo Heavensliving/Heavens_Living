@@ -128,7 +128,7 @@ const DailyRentPayment = () => {
     };
 
     try {
-      console.log(comprehensiveFormData); // debug statement Log to verify all data is present
+      // console.log(comprehensiveFormData); // debug statement Log to verify all data is present
       await axios.post(`${API_BASE_URL}/fee/add`, comprehensiveFormData,
         { headers: { 'Authorization': `Bearer ${admin.token}` } }
       );

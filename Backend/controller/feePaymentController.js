@@ -56,8 +56,8 @@ const addFeePayment = async (req, res) => {
       waveOffAmount,
       paymentDate: paidDate,
       paymentClearedMonthYear: feeClearedMonthYear,
-      transactionId: transactionId || null,
       paymentMode,
+      transactionId: paymentMode === "Cash" ? `CASH_${new Date().getTime()}` : req.body.transactionId,
       collectedBy,
       student,
     };

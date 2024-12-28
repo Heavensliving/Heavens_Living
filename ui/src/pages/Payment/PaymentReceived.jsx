@@ -109,7 +109,7 @@ const PaymentReceived = () => {
         transaction.amountPaid || 'N/A',
       ]),
     });
-    
+
     const finalY = doc.lastAutoTable.finalY || 0;
     doc.setFontSize(12);
     doc.text(`Total Amount: Rs.${totalAmount.toFixed(2)}`, 14, finalY + 10);
@@ -203,10 +203,11 @@ const PaymentReceived = () => {
           <tr>
             <th className="py-3 px-4 border">#</th>
             <th className="py-3 px-4 border">Name</th>
-            <th className="py-3 px-4 border">Occupant ID</th>
+            {/* <th className="py-3 px-4 border">Occupant ID</th> */}
             <th className="py-3 px-4 border">Monthly Rent</th>
-            <th className="py-3 px-4 border">Paid Date</th>
+            <th className="py-3 px-4 border">Payment Mode</th>
             <th className="py-3 px-4 border">Transaction ID</th>
+            <th className="py-3 px-4 border">Paid Date</th>
             <th className="py-3 px-4 border">Paid Amount</th>
           </tr>
         </thead>
@@ -216,11 +217,14 @@ const PaymentReceived = () => {
               <tr key={transaction.transactionId || index} className="hover:bg-gray-100 transition-colors">
                 <td className="py-2 px-4 border">{index + 1}</td>
                 <td className="py-2 px-4 border">{transaction.name || 'N/A'}</td>
-                <td className="py-2 px-4 border">{transaction.studentId || 'N/A'}</td>
-                <td className="py-2 px-4 border">{transaction.monthlyRent || 'N/A'}</td>
-                <td className="py-2 px-4 border">{transaction.paymentDate ? new Date(transaction.paymentDate).toLocaleDateString() : 'N/A'}</td>
-                <td className="py-2 px-4 border">{transaction.transactionId || 'N/A'}</td>
-                <td className="py-2 px-4 border">{transaction.amountPaid || 'N/A'}</td>
+                {/* <td className="py-2 px-4 border text-center">{transaction.studentId || 'N/A'}</td> */}
+                <td className="py-2 px-4 border text-center">{transaction.monthlyRent ? transaction.monthlyRent || 'N/A' : 'Daily Rent'}</td>
+                <td className="py-2 px-4 border text-center">{transaction.paymentMode || 'N/A'}</td>
+                <td className="py-2 px-4 border text-center">
+                  {transaction.paymentMode === 'Cash' ? `Collected By ${transaction.collectedBy}` : (transaction.transactionId || 'N/A')}
+                </td>
+                <td className="py-2 px-4 border text-center">{transaction.paymentDate ? new Date(transaction.paymentDate).toLocaleDateString() : 'N/A'}</td>
+                <td className="py-2 px-4 border text-center">{transaction.amountPaid || 'N/A'}</td>
               </tr>
             ))
           ) : (

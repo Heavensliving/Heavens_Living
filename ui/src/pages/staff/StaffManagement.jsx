@@ -54,6 +54,7 @@ const StaffManagement = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [propertySort, setPropertySort] = useState('');
+  const [sortOption, setSortOption] = useState('All');
 
   const handleRowClick = (id) => {
     navigate(`/staffs/${id}`);
@@ -118,6 +119,7 @@ const StaffManagement = () => {
     } else {
       const filteredStaffs = originalStaffs.filter(staff => staff.Status === sortValue);
       setStaffs(filteredStaffs);
+      setSortOption(sortValue);
     }
   };
 
@@ -172,6 +174,7 @@ const StaffManagement = () => {
         onSortChange={onSortChange}
         addNewEntryPath="/add-staff"
         addButtonLabel="Add Staff"
+        currentSortLabel={sortOption}
       />
 
       {/* Sort by Property Name */}

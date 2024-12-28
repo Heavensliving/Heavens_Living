@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { ref, deleteObject, getStorage } from "firebase/storage";
 import app from "../../firebase";
 import { useSelector } from "react-redux";
-import DailyRentTable from "./DailyRentTable";
+import DailyRentTable from "./DailyRentTable"; // Import the new table component
 import ConfirmationModal from "../../components/reUsableComponet/ConfirmationModal";
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 import CheckAuth from "../auth/CheckAuth";
@@ -75,7 +75,7 @@ const DailyRentPage = () => {
     }
   };
 
-  const filteredStudents = dailyRents.filter(dailyRent =>
+   const filteredStudents = dailyRents.filter(dailyRent =>
     dailyRent.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
@@ -91,23 +91,15 @@ const DailyRentPage = () => {
     { value: 'All', label: 'All' },
     { value: 'Pending', label: 'Pending' },
     { value: 'Paid', label: 'Paid' },
-    { value: 'Vacated', label: 'Vacated' }
+    { value: 'Vacated', label: 'Vacated' }          
   ];
 
   const handlePropertySortChange = (e) => {
-    const value = e.target.value;
-    setPropertySort(value);
-    localStorage.setItem('propertySort', value); // Save to localStorage
+    setPropertySort(e.target.value);
   };
 
   const handleSortChange = (option) => {
     setSortOption(option);
-    localStorage.setItem('sortOption', option); // Save to localStorage
-  };
-
-  const handleSearchChange = (e) => {
-    setSearchQuery(e.target.value);
-    localStorage.setItem('searchQuery', e.target.value); // Save to localStorage
   };
 
   const handleEdit = (id) => {
@@ -116,15 +108,6 @@ const DailyRentPage = () => {
 
   useEffect(() => {
     fetchDailyRents();
-
-    // Load filter settings from localStorage
-    const storedSearchQuery = localStorage.getItem('searchQuery');
-    const storedSortOption = localStorage.getItem('sortOption');
-    const storedPropertySort = localStorage.getItem('propertySort');
-
-    if (storedSearchQuery) setSearchQuery(storedSearchQuery);
-    if (storedSortOption) setSortOption(storedSortOption);
-    if (storedPropertySort) setPropertySort(storedPropertySort);
   }, []);
 
   const sortedStudents = () => {
@@ -159,10 +142,11 @@ const DailyRentPage = () => {
 
       <SearchAndSort
         searchQuery={searchQuery}
-        handleSearchChange={handleSearchChange}
+        handleSearchChange={(e) => setSearchQuery(e.target.value)}
         sortingOptions={sortingOptions}
         onSortChange={handleSortChange}
         addNewEntryPath="/AddDailyRent"
+        currentSortLabel={sortOption}
       />
 
       {/* New field for sorting by pgName */}
@@ -192,9 +176,21 @@ const DailyRentPage = () => {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onConfirm={ConfirmDeleteDailyRent}
-        title={admin?.role === "Property-Admin" ? "Confirm Vacate" : "Confirm Delete"}
-        message={admin?.role === "Property-Admin" ? `Are you sure you want to vacate this rent person?` : `Are you sure you want to delete this rent person?`}
-        confirmLabel={admin?.role === "Property-Admin" ? "Vacate" : "Delete"}
+        title={
+          admin?.role === "Property-Admin"
+            ? "Confirm Vacate"
+            : "Confirm Delete"
+        }
+        message={
+          admin?.role === "Property-Admin"
+            ? `Are you sure you want to vacate this rent person?`
+            : `Are you sure you want to delete this rent person?`
+        }
+        confirmLabel={
+          admin?.role === "Property-Admin"
+            ? "Vacate"
+            : "Delete"
+        }
       />
     </div>
   );
