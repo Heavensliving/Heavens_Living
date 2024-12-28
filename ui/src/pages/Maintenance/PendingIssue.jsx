@@ -1,25 +1,30 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import AssignStaffModal from './AssignStaffModal'; 
-import DetailModal from './DetailModal'; 
+import AssignStaffModal from './AssignStaffModal';
+import DetailModal from './DetailModal';
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 import { useSelector } from 'react-redux';
+import ImageModal from '../../components/reUsableComponet/ImageModal';
 
 const PendingIssue = () => {
   const admin = useSelector(store => store.auth.admin);
   const [records, setRecords] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [isModalOpen, setIsModalOpen] = useState(false); 
-  const [detailModalOpen, setDetailModalOpen] = useState(false); 
-  const [selectedRecord, setSelectedRecord] = useState(null); 
-  const [staffMembers, setStaffMembers] = useState([]); 
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [detailModalOpen, setDetailModalOpen] = useState(false);
+  const [selectedRecord, setSelectedRecord] = useState(null);
+  const [staffMembers, setStaffMembers] = useState([]);
+  const [isImgModalOpen, setIsImgModalOpen] = useState(false);
+  const [modalImageSrc, setModalImageSrc] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
+
   useEffect(() => {
 
     const fetchMaintenanceRecords = async () => {
       try {
         const response = await axios.get(`${API_BASE_URL}/maintenance/get`,
-          {headers: { 'Authorization': `Bearer ${admin.token}` }}
+          { headers: { 'Authorization': `Bearer ${admin.token}` } }
         );
         const unassignedRecords = response.data.filter(record => !record.AssignedTo);
         setRecords(unassignedRecords);
@@ -36,7 +41,7 @@ const PendingIssue = () => {
         const response = await axios.get(`${API_BASE_URL}/staff`, {
           headers: { 'Authorization': `Bearer ${admin.token}` }
         });
-    
+
         // Filter staff members based on status
         const onDutyStaff = response.data.filter(staff => staff.Status === 'On Duty');
         setStaffMembers(onDutyStaff);
@@ -44,7 +49,7 @@ const PendingIssue = () => {
         console.error('Error fetching staff members', err);
       }
     };
-    
+
     fetchMaintenanceRecords();
     fetchStaffMembers();
 
@@ -58,6 +63,20 @@ const PendingIssue = () => {
   const handleRowClick = (record) => {
     setSelectedRecord(record);
     setDetailModalOpen(true);
+  };
+
+  const handleImgClick = (record) => {
+    if (record.issueImg) {
+      setModalImageSrc(record.issueImg);
+    } else {
+      setModalImageSrc("No image available currently.");
+    }
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsImgModalOpen(false);
+    setModalImageSrc('');
   };
 
   const handleAssignStaff = async (staffId, timeNeeded) => {
@@ -74,8 +93,8 @@ const PendingIssue = () => {
         staffName,
         Timeneeded: timeNeeded,
       },
-      {headers: { 'Authorization': `Bearer ${admin.token}` }}
-    );
+        { headers: { 'Authorization': `Bearer ${admin.token}` } }
+      );
       window.location.reload();
       setIsModalOpen(false);
     } catch (err) {
@@ -97,8 +116,7 @@ const PendingIssue = () => {
       </div>
     );
   }
-
-
+  const defaultImage = 'https://jkfenner.com/wp-content/uploads/2019/11/default.jpg';
   return (
     <div className="bg-white shadow-md rounded-lg p-4 flex flex-col mb-2">
       <h2 className="text-lg font-bold text-gray-800 mb-2">Pending Issues</h2>
@@ -109,6 +127,7 @@ const PendingIssue = () => {
               <th className="p-2 text-sm font-bold text-gray-700">Sl No</th>
               <th className="p-2 text-sm font-bold text-gray-700">Issuer Name</th>
               <th className="p-2 text-sm font-bold text-gray-700">Issue</th>
+              <th className="p-2 text-sm font-bold text-gray-700">Issue Image</th>
               <th className="p-2 text-sm font-bold text-gray-700">Action</th>
             </tr>
           </thead>
@@ -121,20 +140,33 @@ const PendingIssue = () => {
               </tr>
             ) : (
               records.map((record, index) => (
-                <tr 
-                  key={record._id} 
-                  className="hover:bg-gray-100 cursor-pointer" 
+                <tr
+                  key={record._id}
+                  className="hover:bg-gray-100 cursor-pointer"
                   onClick={() => handleRowClick(record)}
                 >
                   <td className="p-2">{index + 1}</td>
                   <td className="p-2">{record.Name}</td>
                   <td className="p-2">{record.issue}</td>
+                  <td className="p-2 align-middle">
+                    {record.issueImg ? (
+                      <img
+                        src={isLoading ? defaultImage : expense.billImg}
+                        className="max-w-[60px] max-h-[60px] object-contain mx-auto"
+                        alt="issue-img"
+                        onLoad={() => setIsLoading(false)}
+                        onClick={() => handleImgClick(expense)}
+                      />
+                    ) : (
+                      <span>-</span>
+                    )}
+                  </td>
                   <td className="p-2">
                     <button
                       className="bg-green-500 text-white px-2 py-1 rounded"
-                      onClick={(e) => { 
+                      onClick={(e) => {
                         e.stopPropagation();
-                        handleAssignClick(record);
+                        handleAssignClick();
                       }}
                     >
                       Assign
@@ -159,6 +191,13 @@ const PendingIssue = () => {
         isOpen={detailModalOpen}
         onClose={() => setDetailModalOpen(false)}
         record={selectedRecord}
+      />
+      {/* Image Modal */}
+      <ImageModal
+        isOpen={isImgModalOpen}
+        onClose={closeModal}
+        imageSrc={modalImageSrc}
+        altText="&nbsp; No image available &nbsp;&nbsp;&nbsp;"
       />
     </div>
   );

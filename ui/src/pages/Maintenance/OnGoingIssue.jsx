@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useSelector } from 'react-redux';
 import DetailModal from './DetailModal';
+import ImageModal from '../../components/reUsableComponet/ImageModal';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -13,6 +14,9 @@ const OnGoingIssue = () => {
   const [selectedRecord, setSelectedRecord] = useState(null); // Track selected record for modal
   const [remark, setRemark] = useState(''); // State for remark input
   const [isModalOpen, setModalOpen] = useState(false);
+  const [isImgModalOpen, setIsImgModalOpen] = useState(false);
+  const [modalImageSrc, setModalImageSrc] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchMaintenanceRecords = async () => {
@@ -66,6 +70,20 @@ const OnGoingIssue = () => {
     setModalOpen(false);
   };
 
+  const handleImgClick = (record) => {
+    if (record.issueImg) {
+      setModalImageSrc(record.issueImg);
+    } else {
+      setModalImageSrc("No image available currently.");
+    }
+    setIsImgModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsImgModalOpen(false);
+    setModalImageSrc('');
+  };
+
   const handleSubmitRemark = async (skip = false) => {
     if (selectedRecord) {
       try {
@@ -101,7 +119,7 @@ const OnGoingIssue = () => {
       </div>
     );
   }
-
+  const defaultImage = 'https://jkfenner.com/wp-content/uploads/2019/11/default.jpg';
   return (
     <div className="bg-white shadow-md rounded-lg p-4 flex flex-col">
       <h2 className="text-lg font-bold text-gray-800 mb-2">Ongoing Issues</h2>
@@ -112,6 +130,7 @@ const OnGoingIssue = () => {
               <th className="p-2 text-sm font-bold text-gray-700">Sl No</th>
               <th className="p-2 text-sm font-bold text-gray-700">Issuer Name</th>
               <th className="p-2 text-sm font-bold text-gray-700">Issue</th>
+              <th className="p-2 text-sm font-bold text-gray-700">Issue Image</th>
               <th className="p-2 text-sm font-bold text-gray-700">Assigned To</th>
               <th className="p-2 text-sm font-bold text-gray-700">Time Needed</th>
               <th className="p-2 text-sm font-bold text-gray-700">Time Remaining</th>
@@ -134,6 +153,19 @@ const OnGoingIssue = () => {
                   <td className="p-2">{index + 1}</td>
                   <td className="p-2">{record.Name}</td>
                   <td className="p-2">{record.issue}</td>
+                  <td className="p-2 align-middle">
+                    {record.issueImg ? (
+                      <img
+                        src={isLoading ? defaultImage : expense.billImg}
+                        className="max-w-[60px] max-h-[60px] object-contain mx-auto"
+                        alt="issue-img"
+                        onLoad={() => setIsLoading(false)}
+                        onClick={() => handleImgClick(expense)}
+                      />
+                    ) : (
+                      <span>-</span>
+                    )}
+                  </td>
                   <td className="p-2">{record.AssignedTo}</td>
                   <td className="p-2">{record.Timeneeded} hours</td>
                   <td className="p-2 text-red-700">
@@ -163,6 +195,13 @@ const OnGoingIssue = () => {
           onSubmitRemark={handleSubmitRemark}
         />
       )}
+      {/* Image Modal */}
+      <ImageModal
+        isOpen={isImgModalOpen}
+        onClose={closeModal}
+        imageSrc={modalImageSrc}
+        altText="&nbsp; No image available &nbsp;&nbsp;&nbsp;"
+      />
     </div>
   );
 };

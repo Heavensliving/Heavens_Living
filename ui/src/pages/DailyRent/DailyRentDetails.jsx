@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { FaPhone, FaEnvelope, FaMapMarkerAlt, FaBriefcase, FaUserCheck, FaMoneyBill, FaCalendarAlt, FaClock } from 'react-icons/fa';
+import { FaPhone, FaEnvelope, FaMapMarkerAlt, FaUserCheck, FaMoneyBill, FaCalendarAlt, FaHome, FaDoorOpen, FaBed } from 'react-icons/fa';
 import { useSelector } from 'react-redux';
 import axios from 'axios';
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 import ProfileCircle from '../../components/reUsableComponet/ProfileCircle';
 import IdProof from '../../components/reUsableComponet/IdProof';
 import ImageModal from '../../components/reUsableComponet/ImageModal';
+import PaymentHistory from './PaymentHistory';
+import { faHome } from '@fortawesome/free-solid-svg-icons';
 
 // Reusable component for displaying information
 const InfoItem = ({ icon: Icon, label, value, className = '' }) => (
@@ -17,16 +19,18 @@ const InfoItem = ({ icon: Icon, label, value, className = '' }) => (
 
 const DailyRentDetails = () => {
   const admin = useSelector(store => store.auth.admin);
-  const { id } = useParams();
+  const { renterId } = useParams();
   const [dailyRent, setDailyRent] = useState({});
   const [modalOpen, setModalOpen] = useState(false);
   const [modalImage, setModalImage] = useState('');
+  const [isPaymentHistoryModalOpen, setIsPaymentHistoryModalOpen] = useState(false); // State for SalaryDetails modal
+  const [slideIn, setSlideIn] = useState(false);
   const [isLoadingImage, setIsLoadingImage] = useState(true); // Loading state for profile image
   const [isErrorImage, setIsErrorImage] = useState(false); // Error state for profile image
 
   useEffect(() => {
     if (admin?.token) {
-      axios.get(`${API_BASE_URL}/DailyRent/${id}`, {
+      axios.get(`${API_BASE_URL}/DailyRent/${renterId}`, {
         headers: {
           Authorization: `Bearer ${admin.token}`,
         },
@@ -34,7 +38,7 @@ const DailyRentDetails = () => {
         .then(res => setDailyRent(res.data))
         .catch(err => console.log(err));
     }
-  }, [admin?.token, id]);
+  }, [admin?.token, renterId]);
 
   useEffect(() => {
     const profileImageUrl = dailyRent.photo;
@@ -66,6 +70,8 @@ const DailyRentDetails = () => {
     joinDate: dailyRent.joinDate,
     roomType: dailyRent.roomType,
     roomNo: dailyRent.roomNo,
+    dob: new Date(dailyRent.dateOfBirth).toLocaleDateString(),
+    bloodG: dailyRent.bloodGroup,
     typeOfStay: dailyRent.typeOfStay,
     rentAmount: dailyRent.DailyRent,
     paymentDate: new Date(dailyRent.PaymentDate).toLocaleDateString(),
@@ -80,6 +86,12 @@ const DailyRentDetails = () => {
     setModalImage(imageSrc);
     setModalOpen(true);
   };
+
+  const handleTransactionClick = () => {
+    setIsPaymentHistoryModalOpen(true);
+    setSlideIn(true);
+  };
+
 
   return (
     <div className="min-h-screen bg-gray-100 p-4 flex justify-center">
@@ -109,6 +121,8 @@ const DailyRentDetails = () => {
                 <InfoItem icon={FaPhone} label="Contact" value={dailyRentData.contact} />
                 <InfoItem icon={FaEnvelope} label="Email" value={dailyRentData.email} />
                 <InfoItem icon={FaMapMarkerAlt} label="Address" value={dailyRentData.address} />
+                <InfoItem icon={FaMapMarkerAlt} label="DOB" value={dailyRentData.dob} />
+                <InfoItem icon={FaMapMarkerAlt} label="Blood Group" value={dailyRentData.bloodG} />
 
                 {/* ID Proof Section */}
                 <h4 className="text-lg font-semibold mt-6 mb-4 text-gray-700">ID Proof</h4>
@@ -131,21 +145,37 @@ const DailyRentDetails = () => {
 
             {/* Right Column - Payment Information */}
             <div className="bg-white p-6 rounded-lg shadow-md">
-              <h3 className="text-lg font-semibold mb-4 text-gray-700">Payment Information</h3>
+              <h3 className="text-lg font-semibold mb-4 text-gray-700">Stay Details</h3>
               <div className="space-y-4">
-                <InfoItem icon={FaMoneyBill} label="Rent Amount" value={`₹${dailyRentData.rentAmount}`} />
-                <InfoItem icon={FaCalendarAlt} label="Payment Date" value={dailyRentData.paymentDate} />
-                <InfoItem icon={FaUserCheck} label="Status"
-                  value={
-                    <span className={dailyRentData.status === "Active" ? "text-green-500" : "text-red-500"}>
-                      {dailyRentData.status}
-                    </span>
-                  }
-                />
+                <InfoItem icon={FaHome} label="PG/Hostel Name" value={`${dailyRentData.property}`} />
+                <InfoItem icon={FaHome} label="Stay Type" value={`${dailyRentData.typeOfStay}`} />
+                <InfoItem icon={FaBed} label="Daily Rent" value={`₹${dailyRentData.rentAmount}`} />
+                <InfoItem icon={FaDoorOpen} label="Room Type" value={`${dailyRentData.roomType}`} />
+                <InfoItem icon={FaBed} label="Room Number" value={`${dailyRentData.roomNo}`} />
+              </div>
+              <div className="ml-auto flex items-center space-x-8 mt-4 relative">
+                <h2
+                  className="text-lg font-bold text-gray-800 cursor-pointer underline"
+                  onClick={handleTransactionClick}
+                >
+                  Transaction History
+                </h2>
               </div>
             </div>
           </div>
         </div>
+
+        {/* PaymentHistory Modal */}
+        {isPaymentHistoryModalOpen && (
+          <PaymentHistory
+            onClose={() => {
+              setIsPaymentHistoryModalOpen(false);
+              setSlideIn(false);
+            }}
+            slideIn={slideIn}
+          />
+        )}
+
 
         {/* Modal for Image */}
         <ImageModal

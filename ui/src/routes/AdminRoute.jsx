@@ -50,7 +50,6 @@ import CommissionTable from '../pages/Payment/CommissionTable.jsx'
 import PendingPaymentsPage from '../pages/Payment/PendingPaymentsPage.jsx'
 import WaveOffPaymentsPage from '../pages/Payment/WaveOffPaymentsPage.jsx'
 import AddonPage from '../pages/messManagement/AddonPage.jsx'
-import MessOnlyPayment from '../pages/Payment/MessOnlyPayment.jsx'
 import RoomAllocation from '../pages/rooms/RoomAllocation.jsx'
 import AddRoom from '../pages/rooms/AddRoom.jsx'
 import EditRoom from '../pages/rooms/EditRoom.jsx'
@@ -63,6 +62,8 @@ import OrderHistory from '../pages/cafeOrders/OrderHistory.jsx'
 import QRScanner from '../pages/messManagement/QRScanner.jsx'
 import Notification from '../pages/notification/Notification.jsx'
 import InventoryManagement from '../pages/Inventory/InventoryManagement.jsx'
+import DailyRentPayment from '../pages/Payment/DailyRentPayment.jsx'
+import MessOnlyPayment from '../pages/Payment/messOnlyPayment.jsx'
 
 const AdminRoute = () => {
     return (
@@ -116,7 +117,7 @@ const AdminRoute = () => {
                     <Route path='history' element={<History />} />
                     <Route path="/dailyRent" element={<DailyRentPage />} />
                     <Route path="/AddDailyRent" element={<AddDailyRent />} />
-                    <Route path="/dailyRent/:id" element={<DailyRentDetails />} />
+                    <Route path="/dailyRent/:renterId" element={<DailyRentDetails />} />
                     <Route path="/dailyRent/edit/:id" element={<EditDailyRentPerson />} />
                     <Route path="/payments" element={<PaymentDashboard />} />
                     <Route path='/feePayment' element={<FeePayment />} />
@@ -131,7 +132,7 @@ const AdminRoute = () => {
                     <Route path='/addonPage' element={<AddonPage />} />
                     <Route path='/notification' element={<Notification />} />
                     <Route path='/inventory' element={<InventoryManagement />} />
-
+                    <Route path='/dailyRentPayment' element={<DailyRentPayment />} />
                 </Route>
 
             </Routes>

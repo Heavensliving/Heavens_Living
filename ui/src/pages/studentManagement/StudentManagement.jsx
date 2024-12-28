@@ -101,7 +101,8 @@ const StudentManagement = () => {
     { value: 'Pending', label: 'Pending' },
     { value: 'Paid', label: 'Paid' },
     { value: 'CheckedOut', label: 'Checked Out' },  
-    { value: 'Vacated', label: 'Vacated' }          
+    { value: 'Vacated', label: 'Vacated' },     
+    { value: 'Incomplete', label: 'Incomplete Profiles' }          
   ];
   
 
@@ -128,6 +129,8 @@ const StudentManagement = () => {
       sorted = filteredStudents.filter(student => student.vacate !== true); // Only vacated students
     } else if (sortOption === 'CheckedIn') {
       sorted = filteredStudents.filter(student => student.currentStatus === 'checkedIn' && student.vacate !== true);
+    } else if (sortOption === 'Incomplete') {
+      sorted = filteredStudents.filter(student => student.profileCompletionPercentage != '100' && student.vacate !== true);
     }
 
     if (propertySort) {
@@ -188,17 +191,17 @@ const StudentManagement = () => {
         onClose={() => setIsModalOpen(false)}
         onConfirm={confirmDelete}
         title={
-          admin?.role === "propertyAdmin"
+          admin?.role === "Property-Admin"
             ? "Confirm Vacate"
             : "Confirm Delete"
         }
         message={
-          admin?.role === "propertyAdmin"
+          admin?.role === "Property-Admin"
             ? `Are you sure you want to vacate this student?`
             : `Are you sure you want to delete this student?`
         }
         confirmLabel={
-          admin?.role === "propertyAdmin"
+          admin?.role === "Property-Admin"
             ? "Vacate"
             : "Delete"
         }

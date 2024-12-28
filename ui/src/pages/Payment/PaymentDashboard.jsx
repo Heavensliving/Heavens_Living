@@ -500,6 +500,16 @@ const PaymentDashboard = () => {
               >
                 Student & Workers
               </li>
+                  <li
+                    onClick={() =>
+                      navigate("/dailyRentPayment", {
+                        state: { paymentType: "Daily Rent" },
+                      })
+                    }
+                    className="cursor-pointer px-4 py-2 bg-yellow-100 text-yellow-600 rounded-md hover:bg-yellow-200"
+                  >
+                    Daily Rent
+                  </li>
               <li
                 onClick={() =>
                   navigate("/messOnlyPayment", {
@@ -509,16 +519,6 @@ const PaymentDashboard = () => {
                 className="cursor-pointer px-4 py-2 bg-green-100 text-green-600 rounded-md hover:bg-green-200"
               >
                 Mess Only
-              </li>
-              <li
-                onClick={() =>
-                  navigate("/messOnlyPayment", {
-                    state: { paymentType: "Daily Rent" },
-                  })
-                }
-                className="cursor-pointer px-4 py-2 bg-yellow-100 text-yellow-600 rounded-md hover:bg-yellow-200"
-              >
-                Daily Rent
               </li>
             </ul>
           </div>
