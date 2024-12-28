@@ -8,6 +8,7 @@ const SearchAndSort = ({
   onSortChange,
   addNewEntryPath,
   addButtonLabel = 'Add New Entry',
+  currentSortLabel = 'All',  // Default to 'All' if no sort is applied
 }) => {
   const navigate = useNavigate();
 
@@ -28,6 +29,7 @@ const SearchAndSort = ({
           <select
             onChange={(e) => onSortChange(e.target.value)}
             className="border rounded-full py-2 pl-4 pr-8 focus:outline-none focus:ring-2 focus:ring-blue-500 w-32 appearance-none"
+            value={currentSortLabel}  // Dynamically bind the current sort option
           >
             <option value="" disabled>Filter by...</option>
             {sortingOptions.map((option) => (
