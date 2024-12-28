@@ -64,6 +64,12 @@ import Notification from '../pages/notification/Notification.jsx'
 import InventoryManagement from '../pages/Inventory/InventoryManagement.jsx'
 import DailyRentPayment from '../pages/Payment/DailyRentPayment.jsx'
 import MessOnlyPayment from '../pages/Payment/messOnlyPayment.jsx'
+import InvestmentsTable from '../pages/Investment/InvestmentTable.jsx'
+import InvestmentForm from '../pages/Investment/InvestmentForm.jsx'
+import EditInvestmentForm from '../pages/Investment/EditInvestment.jsx'
+
+import InventoryUsage from '../pages/Inventory/InventoryUsage.jsx'
+import LowStock from '../pages/Inventory/LowStock.jsx'
 
 const AdminRoute = () => {
     return (
@@ -133,6 +139,13 @@ const AdminRoute = () => {
                     <Route path='/notification' element={<Notification />} />
                     <Route path='/inventory' element={<InventoryManagement />} />
                     <Route path='/dailyRentPayment' element={<DailyRentPayment />} />
+                    <Route path='/investment' element={<InvestmentsTable />} />
+                    <Route path='/addInvestment' element={<InvestmentForm />} />
+                    <Route path='/editInvestment/:id' element={<EditInvestmentForm />} />
+                    <Route path="/inventory-usage" element={<InventoryUsage />} />
+                    <Route path="/low-stock" element={<LowStock />} />
+
+
                 </Route>
 
             </Routes>

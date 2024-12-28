@@ -26,10 +26,21 @@ const UpdateStockModal = ({ isModalOpen, handleCancel, handleUpdateStock, stocks
             message.error('Please select an item to update');
             return;
         }
-        handleUpdateStock({ itemId: selectedItem._id, additionalStock: values.additionalStock });
+
+        const additionalStock = values.additionalStock;
+
+        // Validate if additionalStock is a valid positive number
+        if (isNaN(additionalStock) || additionalStock <= 0) {
+            message.error('Please enter a positive number to add stock.');
+            return;
+        }
+
+        handleUpdateStock({ itemId: selectedItem._id, additionalStock });
         form.resetFields();
         setSelectedItem(null);
     };
+    
+    
 
     // Handle delete item action
     const handleDeleteItem = () => {
@@ -43,12 +54,12 @@ const UpdateStockModal = ({ isModalOpen, handleCancel, handleUpdateStock, stocks
                     await axios.delete(`${API_BASE_URL}/stocks/delete/${selectedItem._id}`, {
                         headers: { Authorization: `Bearer ${admin.token}` },
                     });
-    
+
                     message.success(`${selectedItem.itemName} has been deleted successfully.`);
-    
+
                     // Reload the page
                     window.location.reload();
-    
+
                     // Close the modal and reset state
                     form.resetFields();
                     setSelectedItem(null);
@@ -61,7 +72,6 @@ const UpdateStockModal = ({ isModalOpen, handleCancel, handleUpdateStock, stocks
         });
     };
 
-    
     return (
         <Modal
             title="Update Stock"
@@ -137,16 +147,26 @@ const UpdateStockModal = ({ isModalOpen, handleCancel, handleUpdateStock, stocks
                     </div>
                 )}
 
+
                 {/* Input for additional stock */}
                 <Form.Item
                     label="Add Stock Quantity"
                     name="additionalStock"
                     rules={[
                         { required: true, message: 'Please enter the quantity to add' },
-                        { type: 'number', min: 1, message: 'Quantity must be at least 1' },
+                        { type: 'number', min: 0, message: 'Quantity cannot be negative' },
                     ]}
                 >
-                    <InputNumber min={1} style={{ width: '100%' }} placeholder="Enter quantity to add" />
+                    <InputNumber
+                        min={0}
+                        style={{ width: '100%' }}
+                        placeholder="Enter quantity to add"
+                        onChange={(value) => {
+                            if (value < 0) {
+                                message.error('Quantity cannot be negative');
+                            }
+                        }}
+                    />
                 </Form.Item>
             </Form>
         </Modal>

@@ -161,6 +161,23 @@ const pageConfig = {
     '/dailyRentPayment':{
       title:"Add Payment"
     },
+    '/inventory-usage':{
+      title:"Inventory Usage"
+    },
+    '/investment':{
+      title:"Investment"
+    },
+    "/addInvestment":{
+      title:"Add Investment"
+    },
+    "/editInvestment/:id":{
+      title:"Edit Investment"
+    },
+    "/low-stock":{
+      title:"Low-Stock Details"
+    }
+    
+    
     
     
     

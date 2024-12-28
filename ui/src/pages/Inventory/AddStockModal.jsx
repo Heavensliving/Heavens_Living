@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Modal, Form, Input, Button, Select, message } from 'antd';
+import { Modal, Form, Input, Button, Select, message, InputNumber } from 'antd';
 import { PlusCircleOutlined, DeleteOutlined } from '@ant-design/icons'; 
 import axios from 'axios'; 
 import { useSelector } from 'react-redux';
@@ -14,6 +14,8 @@ const AddStockModal = ({ isModalOpen, handleCancel, handleAddStock }) => {
   const [categoryForm] = Form.useForm(); 
   const [isCategoryModalVisible, setIsCategoryModalVisible] = useState(false); 
   const [categories, setCategories] = useState([]);
+
+  const properties = admin?.properties || [];
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -206,6 +208,29 @@ const AddStockModal = ({ isModalOpen, handleCancel, handleAddStock }) => {
         <Input placeholder="Enter stock quantity" type="number" />
       </Form.Item>
 
+      <Form.Item
+      label="Low Alert Quantity"
+      name="lowAlertQty"
+      rules={[
+        { required: true, message: 'Please enter the low alert quantity!' },
+      ]}
+    >
+      <InputNumber placeholder="Enter low alert quantity" style={{ width: '100%' }} />
+    </Form.Item>
+    <Form.Item
+            label="Select Property"
+            name="myProperty" // The name should be 'myProperty' to store it in the backend
+            rules={[{ required: true, message: 'Please select a property!' }]}
+          >
+            <Select placeholder="Select a property">
+              {properties.map((property) => (
+                <Option key={property.id} value={property.name}>
+                  {property.name}
+                </Option>
+              ))}
+            </Select>
+          </Form.Item>
+
       <Form.Item>
         <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
           <Button type="default" onClick={handleClose} style={{ marginRight: '10px' }}>
@@ -237,6 +262,7 @@ const AddStockModal = ({ isModalOpen, handleCancel, handleAddStock }) => {
           rules={[{ required: true, message: 'Please enter a category name!' }]}>
           <Input placeholder="Enter new category name" />
         </Form.Item>
+
 
         <Form.Item>
           <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
