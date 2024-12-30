@@ -1,20 +1,19 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
+import { getStorage, ref, uploadBytesResumable, getDownloadURL, deleteObject } from "firebase/storage";
 import app from '../../firebase';
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 import CheckAuth from "../auth/CheckAuth";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { FaPlus } from "react-icons/fa";
-import CategoryForm from "./CategoryForm";
 
 const storage = getStorage(app);
 
-const ExpenseForm = () => {
+const EditExpense = () => {
   const admin = useSelector((store) => store.auth.admin);
+  const { id } = useParams();
   const [formData, setFormData] = useState({
     title: "",
     type: "",
@@ -32,21 +31,32 @@ const ExpenseForm = () => {
   // const [properties, setProperties] = useState([]);
   const [staffMembers, setStaffMembers] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [categories, setCategories] = useState([]);
+  const [oldFile, setOldFile] = useState({
+    billImg: '',
+});
+  // const [expenses, setExpenses] = useState([]);
 
   useEffect(() => {
     if (!admin) return;
-    // const fetchProperties = async () => {
-    //   try {
-    //     const response = await axios.get(`${API_BASE_URL}/property`, {
-    //       headers: { Authorization: `Bearer ${admin.token}` },
-    //     });
-    //     setProperties(response.data);
-    //   } catch (error) {
-    //     console.error("Error fetching properties:", error);
-    //   }
-    // };
+    const fetchexpenses = async () => {
+      try {
+        const response = await axios.get(`${API_BASE_URL}/expense/${id}`, {
+          headers: { Authorization: `Bearer ${admin.token}`},
+        });
+        const expense = response.data.result
+        setOldFile({
+          billImg: expense.billImg,
+      });
+        setFormData({
+          ...expense,
+          date: expense.date ? new Date(expense.date).toISOString().split('T')[0] : '',
+        });
+        // console.log(response.data.result)
+      } catch (error) {
+        console.error("Error fetching properties:", error);
+      }
+    };
 
     const fetchStaffMembers = async () => {
       if (!admin) return;
@@ -66,15 +76,12 @@ const ExpenseForm = () => {
         const response = await axios.get(`${API_BASE_URL}/expense/categories`, {
           headers: { Authorization: `Bearer ${admin.token}` },
         });
-        // console.log(response.data)
         setCategories(response.data);
       } catch (err) {
-        console.error("Error fetching category", err);
+        console.error("Error fetching staff members:", err);
       }
     };
-
-
-    // fetchProperties();
+    fetchexpenses();
     fetchStaffMembers();
     fetchCategories();
   }, [admin]);
@@ -108,7 +115,6 @@ const ExpenseForm = () => {
     }
   };
 
-
   const uploadFile = (file) => {
     // console.log(file); // Check file details like name, size, etc.
     if (!file || file.size === 0) {
@@ -134,38 +140,46 @@ const ExpenseForm = () => {
       );
     });
   };
-
+  const deleteOldFile = async (fileURL) => {
+    // console.log(fileURL.billImg)
+        if (!fileURL) return Promise.resolve();  // If no file to delete, skip
+        const fileRef = ref(storage, fileURL.billImg);
+        try {
+          // console.log(fileRef)
+            await deleteObject(fileRef);
+        } catch (error) {
+            console.error('Error deleting file:', error);
+        }
+    };
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-
     try {
-      // Upload the file if `billImg` exists in `formData`
+      deleteOldFile(oldFile);
       if (formData.billImg) {
         const downloadURL = await uploadFile(formData.billImg);
         formData.billImg = downloadURL; // Replace the file object with the URL
       }
       // Prepare and send the data
-      const response = await axios.post(
-        `${API_BASE_URL}/expense/addExpense`,
+      const response = await axios.put(
+        `${API_BASE_URL}/expense/edit/${id}`,
         formData,
         {
           headers: { Authorization: `Bearer ${admin.token}` },
         }
       );
 
-      toast.success('Expense Added Successfully!', { autoClose: 500 });
+      toast.success('Expense Updated Successfully!', { autoClose: 500 });
       setTimeout(() => {
         navigate("/expenses");
         setLoading(false);
       }, 1000);
     } catch (error) {
-      console.error("Error adding expense:", error);
-      toast.error('Failed to add expense', { autoClose: 500 });
+      console.error("Error updating expense:", error);
+      toast.error('Failed to update expense', { autoClose: 500 });
       setLoading(false);
     }
   };
-
 
   const renderInput = (label, name, type, value, onChange, extraProps = {}) => (
     <div>
@@ -247,12 +261,6 @@ const ExpenseForm = () => {
               <div>
                 <label className="block text-gray-700 mb-2 flex items-center">
                   Category
-                  <span
-                    className="ml-3 text-side-bar cursor-pointer border rounded-md p-1 text-sm hover:text-[#373082] flex items-center"
-                    onClick={() => setIsModalOpen(true)}
-                  >
-                    <FaPlus />
-                  </span>
                 </label>
                 <select
                   name="category"
@@ -361,12 +369,8 @@ const ExpenseForm = () => {
         </form>
       </div>
       <ToastContainer />
-      <CategoryForm
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-      />
     </div>
   );
 };
 
-export default CheckAuth(ExpenseForm);
+export default CheckAuth(EditExpense);

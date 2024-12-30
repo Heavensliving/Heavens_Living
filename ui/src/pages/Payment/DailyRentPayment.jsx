@@ -82,13 +82,13 @@ const DailyRentPayment = () => {
     }
   };
 
-  useEffect(()=>{
+  useEffect(() => {
     const fetchStaffMembers = async () => {
       try {
         const response = await axios.get(`${API_BASE_URL}/staff`, {
           headers: { 'Authorization': `Bearer ${admin.token}` }
         });
-  
+
         // Filter staff members based on status
         const onDutyStaff = response.data.filter(staff => staff.Status === 'On Duty');
         setStaffMembers(onDutyStaff);
@@ -97,7 +97,7 @@ const DailyRentPayment = () => {
       }
     };
     fetchStaffMembers()
-  },[])
+  }, [])
 
   // Dynamically update total amount to pay when waveOffAmount changes
   useEffect(() => {
@@ -242,9 +242,9 @@ const DailyRentPayment = () => {
             {isRenterDataFetched && (
               <>
                 <h1 className="w-full text-lg font-semibold mt-4 text-center mb-4">Make Payment</h1>
-                <InputField label="Total Amount to Pay" name="totalAmount" type="number" value={totalAmount} onChange={(e) => setTotalAmountToPay(e.target.value)} disabled />
-                <InputField label="Wave-Off Amount" name="waveOffAmount" type="number" value={waveOffAmount} onChange={(e) => setWaveOffAmount(e.target.value)}/>
-                <InputField label="Amount Paying" name="paidAmount" type="number" value={payingAmount} onChange={(e) => setPayingAmount(e.target.value)} required/>
+                <InputField label={"Total Amount to Pay"} name="totalAmount" type="number" value={totalAmount} onChange={(e) => setTotalAmountToPay(e.target.value)} disabled />
+                <InputField label="Wave-Off Amount" name="waveOffAmount" type="number" value={waveOffAmount} onChange={(e) => setWaveOffAmount(e.target.value)} />
+                <InputField label="Amount Paying" name="paidAmount" type="number" value={payingAmount} onChange={(e) => setPayingAmount(e.target.value)} required />
                 <div className="w-full md:w-1/2 px-2 mb-4">
                   <label className="block text-gray-700 mb-2">Payment Mode</label>
                   <select
@@ -289,6 +289,9 @@ const DailyRentPayment = () => {
                   />
                 )}
                 <InputField label="Paid Date" name="paidDate" type="date" value={paidDate} onChange={(e) => setPaidDate(e.target.value)} required />
+                <span className="text-xs text-red-400 font-normal block mt-1 text-center mx-auto">
+                  The "Total Amount" is automatically calculated based on Check-In and Check-Out dates. Any adjustment can be reflected in the "Wave-Off Amount" field.
+                </span>
               </>
             )}
           </div>

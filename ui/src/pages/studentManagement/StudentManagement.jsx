@@ -103,7 +103,7 @@
 //     { value: 'CheckedOut', label: 'Checked Out' },  
 //     { value: 'Vacated', label: 'Vacated' }          
 //   ];
-  
+
 
 //   const handleSortChange = (option) => {
 //     setSortOption(option);
@@ -115,7 +115,7 @@
 
 //   const sortedStudents = () => {
 //     let sorted = filteredStudents;
-  
+
 //     if (sortOption === 'Pending') {
 //       sorted = filteredStudents.filter(student => student.paymentStatus === 'Pending' && student.vacate !== true); // Exclude vacated students
 //     } else if (sortOption === 'Paid') {
@@ -144,7 +144,7 @@
 //       </div>
 //     );
 //   }
-  
+
 //   return (
 //     <div className="flex flex-col h-screen p-4 bg-gray-100">
 //       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 mb-6">
@@ -219,7 +219,7 @@ import SearchAndSort from '../../components/reUsableComponet/SearchAndSort';
 import { FaUser, FaDollarSign, FaCheckCircle, FaSignInAlt, FaSignOutAlt } from 'react-icons/fa';
 import axios from 'axios';
 import { ref, deleteObject, getStorage } from 'firebase/storage';
-const API_BASE_URL =import.meta.env.VITE_API_BASE_URL;
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 import { useSelector } from 'react-redux';
 import CheckAuth from '../auth/CheckAuth';
 // eslint-disable-next-line no-unused-vars
@@ -235,32 +235,32 @@ const StudentManagement = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState(localStorage.getItem('searchQuery') || '');
   const [sortOption, setSortOption] = useState(localStorage.getItem('sortOption') || 'All');
-  const [propertySort, setPropertySort] = useState(localStorage.getItem('propertySort') || ''); 
+  const [propertySort, setPropertySort] = useState(localStorage.getItem('propertySort') || '');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!admin) return;
     const fetchStudents = async () => {
-        try {
-            const res = await axios.get(`${API_BASE_URL}/students`, {
-                headers: { 'Authorization': `Bearer ${admin.token}` }
-            });
-            setStudents(res.data);
-            setLoading(false);
-        } catch (error) {
-            console.error('Error fetching students:', error);
-            setLoading(false);
-        }
+      try {
+        const res = await axios.get(`${API_BASE_URL}/students`, {
+          headers: { 'Authorization': `Bearer ${admin.token}` }
+        });
+        setStudents(res.data);
+        setLoading(false);
+      } catch (error) {
+        console.error('Error fetching students:', error);
+        setLoading(false);
+      }
     };
     fetchStudents();
-}, [admin]);
+  }, [admin]);
 
 
   // Persist filter states to localStorage whenever they are updated
-    useEffect(() => {
-      localStorage.setItem('searchQuery', searchQuery);
-      localStorage.setItem('sortOption', sortOption);
-      localStorage.setItem('propertySort', propertySort);
+  useEffect(() => {
+    localStorage.setItem('searchQuery', searchQuery);
+    localStorage.setItem('sortOption', sortOption);
+    localStorage.setItem('propertySort', propertySort);
   }, [searchQuery, sortOption, propertySort]);
 
   const filteredStudents = students.filter(student =>
@@ -302,9 +302,9 @@ const StudentManagement = () => {
       await axios.delete(`${API_BASE_URL}/students/delete/${deleteStudentId}`, {
         params: { propertyId },
         headers: {
-           'Authorization': `Bearer ${admin.token}`,
-           'Role': admin.role 
-          } 
+          'Authorization': `Bearer ${admin.token}`,
+          'Role': admin.role
+        }
       });
       setStudents((prevStudents) => prevStudents.filter((student) => student._id !== deleteStudentId));
 
@@ -319,11 +319,12 @@ const StudentManagement = () => {
     { value: 'All', label: 'All' },
     { value: 'Pending', label: 'Pending' },
     { value: 'Paid', label: 'Paid' },
-    { value: 'CheckedOut', label: 'Checked Out' },  
-    { value: 'Vacated', label: 'Vacated' },     
-    { value: 'Incomplete', label: 'Incomplete Profiles' }          
+    { value: 'CheckedIn', label: 'Checked In' },
+    { value: 'CheckedOut', label: 'Checked Out' },
+    { value: 'Vacated', label: 'Vacated' },
+    { value: 'Incomplete', label: 'Incomplete Profiles' }
   ];
-  
+
 
   const handleSortChange = (option) => {
     setSortOption(option);
@@ -335,13 +336,15 @@ const StudentManagement = () => {
 
   const sortedStudents = () => {
     let sorted = filteredStudents;
-    
+
     if (sortOption === 'Pending') {
       sorted = filteredStudents.filter(student => student.paymentStatus === 'Pending' && student.vacate !== true); // Exclude vacated students
     } else if (sortOption === 'Paid') {
       sorted = filteredStudents.filter(student => student.paymentStatus === 'Paid' && student.vacate !== true); // Exclude vacated students
     } else if (sortOption === 'CheckedOut') {
       sorted = filteredStudents.filter(student => student.currentStatus === 'checkedOut' && student.vacate !== true); // Only vacated students
+    } else if (sortOption === 'CheckedIn') {
+      sorted = filteredStudents.filter(student => student.currentStatus === 'checkedIn' && student.vacate !== true);
     } else if (sortOption === 'Vacated') {
       sorted = filteredStudents.filter(student => student.vacate === true); // Only vacated students
     } else if (sortOption === 'All') {
@@ -351,14 +354,14 @@ const StudentManagement = () => {
     } else if (sortOption === 'Incomplete') {
       sorted = filteredStudents.filter(student => student.profileCompletionPercentage != '100' && student.vacate !== true);
     }
-  
+
     if (propertySort) {
       sorted = sorted.filter(student => student.pgName === propertySort);
     }
-  
+
     return sorted;
   };
-  
+
 
   if (loading) {
     return (
@@ -367,15 +370,15 @@ const StudentManagement = () => {
       </div>
     );
   }
-  
+
   return (
     <div className="flex flex-col h-screen p-4 bg-gray-100">
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 mb-6">
-        <MetricCard title="Total Students" value={totalStudents} icon={<FaUser />} color="bg-blue-500" onClick={() => setSortOption('All')}/>
+        <MetricCard title="Total Students" value={totalStudents} icon={<FaUser />} color="bg-blue-500" onClick={() => setSortOption('All')} />
         <MetricCard title="Payment Pending" value={paymentPending} icon={<FaDollarSign />} color="bg-red-500" onClick={() => setSortOption('Pending')} />
-        <MetricCard title="Payment Completed" value={paymentCompleted} icon={<FaCheckCircle />} color="bg-green-500" onClick={() => setSortOption('Paid')}/>
-        <MetricCard title="Checked In" value={checkedIn} icon={<FaSignInAlt />} color="bg-yellow-500" onClick={() => setSortOption('CheckedIn')}/>
-        <MetricCard title="Checked Out" value={checkedOut} icon={<FaSignOutAlt />} color="bg-gray-500" onClick={() => setSortOption('CheckedOut')}/>
+        <MetricCard title="Payment Completed" value={paymentCompleted} icon={<FaCheckCircle />} color="bg-green-500" onClick={() => setSortOption('Paid')} />
+        <MetricCard title="Checked In" value={checkedIn} icon={<FaSignInAlt />} color="bg-yellow-500" onClick={() => setSortOption('CheckedIn')} />
+        <MetricCard title="Checked Out" value={checkedOut} icon={<FaSignOutAlt />} color="bg-gray-500" onClick={() => setSortOption('CheckedOut')} />
       </div>
 
       <SearchAndSort
@@ -404,7 +407,7 @@ const StudentManagement = () => {
       </div>
 
       <main className="flex-1 bg-white p-4 rounded-lg shadow ">
-        <StudentTable students={sortedStudents()} onRowClick={handleRowClick}  onStatusChange={handleStatusChange} onDelete={handleDelete} admin={admin}/>
+        <StudentTable students={sortedStudents()} onRowClick={handleRowClick} onStatusChange={handleStatusChange} onDelete={handleDelete} admin={admin} />
       </main>
 
       <ConfirmationModal

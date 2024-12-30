@@ -192,19 +192,19 @@ function EditStaff() {
 
     const formFields = [
         { name: 'Name', label: 'Name', type: 'text', placeholder: 'Staff Name', required: true },
-        { name: 'Address', label: 'Address', type: 'text', placeholder: 'Address', required: true },
+        { name: 'Address', label: 'Address', type: 'text', placeholder: 'Address', required: false },
         { name: 'Contactnumber', label: 'Contact Number', type: 'number', placeholder: 'Contact Number', required: true },
         { name: 'Email', label: 'Email', type: 'email', placeholder: 'Email (optional)', required: false },
-        { name: 'DOB', label: 'Date of Birth', type: 'date', placeholder: 'Date of Birth', required: true },
+        { name: 'DOB', label: 'Date of Birth', type: 'date', placeholder: 'Date of Birth', required: false },
         { name: 'Type', label: 'Job Role', type: 'text', placeholder: 'Type', required: true },
-        { name: 'Salary', label: 'Salary', type: 'text', placeholder: 'Salary', required: true },
+        { name: 'Salary', label: 'Salary', type: 'text', placeholder: 'Salary', required: false },
         {
             name: 'PaySchedule',
             label: 'Pay Schedule',
             type: 'select',
             options: ['Daily Pay', 'Weekly', 'Bi-weekly', 'Semi-monthly', 'Monthly'],
             placeholder: 'Schedule',
-            required: true
+            required: false
         },
         {
             name: 'propertyName',
@@ -220,9 +220,9 @@ function EditStaff() {
             type: 'select',
             options: ['On Duty', 'Off Duty'], // Added status options
             placeholder: 'Select Status',
-            required: true
+            required: false
         },
-        { name: 'joinDate', label: 'Join Date', type: 'date', placeholder: 'Join Date', required: true },
+        { name: 'joinDate', label: 'Join Date', type: 'date', placeholder: 'Join Date', required: false },
         { name: 'Photo', label: 'Photo', type: 'file', placeholder: 'Upload Photo', accept: 'image/*' },
         { name: 'Adharfrontside', label: 'Aadhar Front', type: 'file', placeholder: 'Upload Aadhar Front', accept: 'image/*' },
         { name: 'Adharbackside', label: 'Aadhar Back', type: 'file', placeholder: 'Upload Aadhar Back', accept: 'image/*' },

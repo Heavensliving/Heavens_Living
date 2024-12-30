@@ -1,6 +1,6 @@
 const Expense = require('../Models/expensePay');
 const Property = require('../Models/Add_property');
-const Staff = require('../Models/Add_staff'); 
+const Staff = require('../Models/Add_staff');
 
 // Add new expense
 const addExpense = async (req, res) => {
@@ -101,6 +101,50 @@ const getTotalExpenseByFilter = async (req, res) => {
   }
 };
 
+const getExpenseById = async (req, res, next) => {
+  const expenseId = req.params.id;
+  let result;
+  try {
+    result = await Expense.findById(expenseId);
+    if (!result)
+      return res.status(404).json({ message: 'expense not exist.' });
+
+  } catch (err) {
+    return res.status(500).json({ message: "Error occured in fetching the expense" })
+  }
+  return res.status(200).json({ result });
+}
+
+const editExpense = async (req, res) => {
+  try {
+    const { staff } = req.body;
+    const updatedData = req.body;
+    const expenseData = await Expense.findById(req.params.id);
+
+    if (!expenseData) {
+      return res.status(404).json({ message: 'Expense not found' });
+    }
+    if (staff && staff !== expenseData.staff.toString()) {
+      await Expense.findOneAndUpdate(
+        { propertyId: expenseData.propertyId },
+        { $pull: { staff: expenseData.staff } }
+      );
+    }
+
+    // Update the expense data
+    const updatedExpense = await Expense.findByIdAndUpdate(
+      req.params.id,
+      updatedData,
+      { new: true }
+    );
+
+    res.status(200).json(updatedExpense);
+  } catch (error) {
+    res.status(500).json({ message: 'Error updating expense', error });
+  }
+};
+
+
 // Get expenses by property name
 const getExpensesByProperty = async (req, res) => {
   try {
@@ -139,7 +183,7 @@ const getExpensesByStaff = async (req, res) => {
       return res.status(404).json({ error: "No expenses found for the provided staff ID" });
     }
 
-    res.status(200).json(expenses );
+    res.status(200).json(expenses);
   } catch (error) {
     console.error("Error fetching expenses by staff ID:", error);
     res.status(500).json({ error: "Error fetching expenses by staff ID" });
@@ -188,7 +232,8 @@ const expenseController = {
   getAllExpenses,
   getExpensesByStaff,
   getMonthlyTotalExpense,
-
+  getExpenseById,
+  editExpense,
 };
 
 module.exports = expenseController;

@@ -175,6 +175,9 @@ const pageConfig = {
     },
     "/low-stock":{
       title:"Low-Stock Details"
+    },
+    "/editExpense/:id":{
+      title:"Edit Expense"
     }
     
     
