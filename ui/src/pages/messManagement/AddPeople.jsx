@@ -78,8 +78,8 @@ function AddPeople() {
       valid = false;
     }
 
-    if (totalDays < 15) {
-      errors.timePeriod = "Time period must be at least 15 days.";
+    if (totalDays < 10) {
+      errors.timePeriod = "Time period must be at least 10 days.";
       valid = false;
     }
 
