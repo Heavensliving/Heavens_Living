@@ -62,7 +62,7 @@ const ResolvedHistory = () => {
 
   // Filter records based on the search query
   const filteredRecords = records.filter(record =>
-    record.Name.toLowerCase().includes(searchQuery.toLowerCase())
+    record.Name.toLowerCase().includes(searchQuery.trim().toLowerCase())
   );
 
   if (loading) return <p>Loading...</p>;

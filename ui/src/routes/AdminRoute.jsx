@@ -146,7 +146,7 @@ const AdminRoute = () => {
                     <Route path='/editInvestment/:id' element={<EditInvestmentForm />} />
                     <Route path="/inventory-usage" element={<InventoryUsage />} />
                     <Route path="/low-stock" element={<LowStock />} />
-
+                    
 
                 </Route>
 

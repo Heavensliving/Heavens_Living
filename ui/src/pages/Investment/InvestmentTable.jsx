@@ -51,8 +51,8 @@ const InvestmentsTable = () => {
 
     if (searchTerm) {
       updatedInvestments = updatedInvestments.filter(investment =>
-        investment.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        investment.propertyName.toLowerCase().includes(searchTerm.toLowerCase())
+        investment.name.toLowerCase().includes(searchTerm.trim().toLowerCase()) ||
+        investment.propertyName.toLowerCase().includes(searchTerm.trim().toLowerCase())
       );
     }
 
