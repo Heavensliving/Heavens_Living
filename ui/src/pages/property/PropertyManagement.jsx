@@ -55,10 +55,10 @@ function PropertyManagement() {
       setErrorMessage('Failed to fetch phases.');
     }
   };
-
   const filteredProperties = properties.filter(property =>
-    property.propertyName.toLowerCase().includes(searchQuery.toLowerCase())
+    property.propertyName.toLowerCase().includes(searchQuery.trim().toLowerCase())
   );
+  
 
   if (loading) {
     return (

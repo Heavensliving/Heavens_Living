@@ -17,10 +17,10 @@ const storage = getStorage();
 const DailyRentPage = () => {
   const admin = useSelector((store) => store.auth.admin);
   const [dailyRents, setDailyRents] = useState([]);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [sortOption, setSortOption] = useState('All');
+  const [searchQuery, setSearchQuery] = useState(localStorage.getItem('searchQuery') || '');
+  const [sortOption, setSortOption] = useState(localStorage.getItem('sortOption') || 'All');
+  const [propertySort, setPropertySort] = useState(localStorage.getItem('propertySort') || '');
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [propertySort, setPropertySort] = useState('');
   const [selectedRentId, setSelectedRentId] = useState(null);
   const navigate = useNavigate();
 
@@ -109,6 +109,11 @@ const DailyRentPage = () => {
   useEffect(() => {
     fetchDailyRents();
   }, []);
+    useEffect(() => {
+      localStorage.setItem('searchQuery', searchQuery);
+      localStorage.setItem('sortOption', sortOption);
+      localStorage.setItem('propertySort', propertySort);
+    }, [searchQuery, sortOption, propertySort]);
 
   const sortedStudents = () => {
     let sorted = filteredStudents;
@@ -146,6 +151,7 @@ const DailyRentPage = () => {
         sortingOptions={sortingOptions}
         onSortChange={handleSortChange}
         addNewEntryPath="/AddDailyRent"
+        currentSortLabel={sortOption}
       />
 
       {/* New field for sorting by pgName */}
@@ -196,3 +202,5 @@ const DailyRentPage = () => {
 };
 
 export default CheckAuth(DailyRentPage);
+
+

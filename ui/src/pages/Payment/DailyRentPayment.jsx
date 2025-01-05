@@ -37,6 +37,7 @@ const DailyRentPayment = () => {
   const [totalAmountToPay, setTotalAmountToPay] = useState('');
   const [totalAmount, setTotalAmount] = useState('');
   const [paymentMode, setPaymentMode] = useState('');
+  const [collectedBy, setCollectedBy] = useState('');
   const [waveOffAmount, setWaveOffAmount] = useState('');
   const [payingAmount, setPayingAmount] = useState('');
   const [transactionId, setTransactionId] = useState('');
@@ -44,6 +45,7 @@ const DailyRentPayment = () => {
   const [paidDate, setPaidDate] = useState('');
   const [isRenterDataFetched, setIsRenterDataFetched] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [staffMembers, setStaffMembers] = useState([]);
 
   const handleRenterIdChange = (e) => {
     setFormData({ renterId: e.target.value });
@@ -80,12 +82,29 @@ const DailyRentPayment = () => {
     }
   };
 
+  useEffect(() => {
+    const fetchStaffMembers = async () => {
+      try {
+        const response = await axios.get(`${API_BASE_URL}/staff`, {
+          headers: { 'Authorization': `Bearer ${admin.token}` }
+        });
+
+        // Filter staff members based on status
+        const onDutyStaff = response.data.filter(staff => staff.Status === 'On Duty');
+        setStaffMembers(onDutyStaff);
+      } catch (err) {
+        console.error('Error fetching staff members', err);
+      }
+    };
+    fetchStaffMembers()
+  }, [])
+
   // Dynamically update total amount to pay when waveOffAmount changes
   useEffect(() => {
     if (paymentData.renter && (paymentData.renter.totalAmount - paymentData.renter.payingAmount) !== undefined) {
       const newTotal = Math.max(paymentData.renter && (paymentData.renter.totalAmount - paymentData.renter.payingAmount) - waveOffAmount, 0);
       setTotalAmount(newTotal);
-      setTotalAmountToPay(newTotal+paymentData.renter.payingAmount)
+      setTotalAmountToPay(newTotal + paymentData.renter.payingAmount)
     }
   }, [waveOffAmount, paymentData.renter && (paymentData.renter.totalAmount - paymentData.renter.payingAmount)]);
 
@@ -103,6 +122,7 @@ const DailyRentPayment = () => {
       paidDate,
       totalAmountToPay,
       paymentMode,
+      collectedBy,
       isMessPayment: paymentType !== "Daily Rent",
       isDailyRent: paymentType === "Daily Rent",
     };
@@ -222,9 +242,9 @@ const DailyRentPayment = () => {
             {isRenterDataFetched && (
               <>
                 <h1 className="w-full text-lg font-semibold mt-4 text-center mb-4">Make Payment</h1>
-                <InputField label="Total Amount to Pay" name="totalAmount" type="number" value={totalAmount} onChange={(e) => setTotalAmountToPay(e.target.value)} disabled />
+                <InputField label={"Total Amount to Pay"} name="totalAmount" type="number" value={totalAmount} onChange={(e) => setTotalAmountToPay(e.target.value)} disabled />
                 <InputField label="Wave-Off Amount" name="waveOffAmount" type="number" value={waveOffAmount} onChange={(e) => setWaveOffAmount(e.target.value)} />
-                <InputField label="Amount Paying" name="paidAmount" type="number" value={payingAmount} onChange={(e) => setPayingAmount(e.target.value)} />
+                <InputField label="Amount Paying" name="paidAmount" type="number" value={payingAmount} onChange={(e) => setPayingAmount(e.target.value)} required />
                 <div className="w-full md:w-1/2 px-2 mb-4">
                   <label className="block text-gray-700 mb-2">Payment Mode</label>
                   <select
@@ -234,15 +254,33 @@ const DailyRentPayment = () => {
                     value={paymentMode} // Bind the value to paymentMode
                     onChange={(e) => setPaymentMode(e.target.value)} // Update paymentMode
                   >
-                    <option value="">Select Payment Mode</option>
+                    <option value="" disabled>Select Payment Mode</option>
                     <option value="Cash">Cash</option>
                     <option value="Net Banking">Net Banking</option>
                     <option value="UPI">UPI</option>
                   </select>
                 </div>
 
-                {/* Conditionally render Transaction ID only if payment mode is not "Cash" */}
-                {paymentMode !== "Cash" && (
+                {/* Conditionally render Transaction ID or Collected By dropdown based on Payment Mode */}
+                {paymentMode === "Cash" ? (
+                  <div className="w-full md:w-1/2 px-2 mb-4">
+                    <label className="block text-gray-700 mb-2">Collected By</label>
+                    <select
+                      name="collectedBy"
+                      className="w-full p-2 border rounded-md"
+                      required
+                      value={collectedBy} // Bind the value to collectedBy
+                      onChange={(e) => setCollectedBy(e.target.value)} // Update collectedBy
+                    >
+                      <option value="" disabled>Select Collector</option>
+                      {staffMembers.map((staff) => (
+                        <option key={staff._id} value={staff.Name}>
+                          {staff.Name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                ) : (
                   <InputField
                     label="Transaction ID"
                     name="transactionID"
@@ -251,6 +289,9 @@ const DailyRentPayment = () => {
                   />
                 )}
                 <InputField label="Paid Date" name="paidDate" type="date" value={paidDate} onChange={(e) => setPaidDate(e.target.value)} required />
+                <span className="text-xs text-red-400 font-normal block mt-1 text-center mx-auto">
+                  The "Total Amount" is automatically calculated based on Check-In and Check-Out dates. Any adjustment can be reflected in the "Wave-Off Amount" field.
+                </span>
               </>
             )}
           </div>

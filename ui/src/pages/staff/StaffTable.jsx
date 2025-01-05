@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom';
 const API_BASE_URL =import.meta.env.VITE_API_BASE_URL;
 import ConfirmationModal from '../../components/reUsableComponet/ConfirmationModal';
 
-const StaffTable = ({ staffs, onRowClick, onDeleteClick, searchTerm }) => {
+const StaffTable = ({ staffs, onRowClick, onDeleteClick, searchQuery }) => {
   const admin = useSelector((store) => store.auth.admin);
   const navigate = useNavigate();
 
@@ -26,10 +26,10 @@ const StaffTable = ({ staffs, onRowClick, onDeleteClick, searchTerm }) => {
     () =>
       localStaffs.filter(
         (staff) =>
-          staff.Name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          staff.StaffId.toLowerCase().includes(searchTerm.toLowerCase())
+          staff.Name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          staff.StaffId.toLowerCase().includes(searchQuery.toLowerCase())
       ),
-    [localStaffs, searchTerm]
+    [localStaffs, searchQuery]
   );
 
   // Handle status toggle

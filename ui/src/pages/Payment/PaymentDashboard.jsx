@@ -226,7 +226,7 @@ const PaymentDashboard = () => {
         (sum, expense) => sum + (expense.amount || 0),
         0
       );
-      const profitLoss = totalReceived - totalExpenses+totalWaveOff+totalCommission;
+      const profitLoss = totalReceived - (totalExpenses+totalWaveOff+totalCommission);
 
       // Generate PDF
       const doc = new jsPDF();
@@ -443,7 +443,7 @@ const PaymentDashboard = () => {
             <p>Expense</p>
           </div>
           <div className="p-4 bg-gray-100 text-gray-500 rounded-md ">
-                <p className="text-lg font-semibold">₹{total-(totalExpense-totalCommission-totalWaveOff) || 0}</p>{" "}
+                <p className="text-lg font-semibold">₹{total-(totalExpense+totalCommission+totalWaveOff) || 0}</p>{" "}
                 {/* Total Deposit */}
                 <p>Balance</p>
               </div>

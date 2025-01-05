@@ -6,7 +6,7 @@ const DailyRent = require('../Models/DailyRentModel');
 
 // Function to add a fee payment
 const addFeePayment = async (req, res) => {
-  console.log(req.body);
+  // console.log(req.body);
   try {
     const {
       name,
@@ -19,15 +19,16 @@ const addFeePayment = async (req, res) => {
       paidDate,
       waveOffReason,
       paymentMode,
+      collectedBy,
       transactionId,
       _id,
       isMessPayment, // Field to differentiate payment type
       isDailyRent, // Field to handle daily rent payments
     } = req.body;
-    console.log(req.body)
+    // console.log(req.body)
     const student = _id;
 
-    if (transactionId) {
+    if (transactionId && transactionId !== null || '-') {
       const existingTransaction = await FeePayment.findOne({ transactionId });
 
       if (existingTransaction) {
@@ -55,8 +56,9 @@ const addFeePayment = async (req, res) => {
       waveOffAmount,
       paymentDate: paidDate,
       paymentClearedMonthYear: feeClearedMonthYear,
-      transactionId: transactionId || null,
       paymentMode,
+      transactionId: paymentMode === "Cash" ? `CASH_${new Date().getTime()}` : req.body.transactionId,
+      collectedBy,
       student,
     };
 
@@ -249,7 +251,7 @@ const deleteFeePayment = async (req, res) => {
 const getPendingPayments = async (req, res) => {
   try {
     // Find students and mess people with a payment status of "Pending"
-    const students = await Student.find({ paymentStatus: 'Pending' });
+    const students = await Student.find({ paymentStatus: 'Pending', vacate: false });
     const messPeople = await peopleModel.find({ paymentStatus: 'Pending' });
 
     if (students.length === 0 && messPeople.length === 0) {
@@ -303,6 +305,8 @@ const getPendingPayments = async (req, res) => {
         return {
           studentId: student.studentId,
           name: student.name,
+          contact:student.contactNo,
+          joinDate:student.joinDate,
           room: student.roomNo,
           monthlyRent,
           unpaidMonths,

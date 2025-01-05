@@ -70,6 +70,7 @@ import EditInvestmentForm from '../pages/Investment/EditInvestment.jsx'
 
 import InventoryUsage from '../pages/Inventory/InventoryUsage.jsx'
 import LowStock from '../pages/Inventory/LowStock.jsx'
+import EditExpense from '../pages/Payment/EditExpense.jsx'
 
 const AdminRoute = () => {
     return (
@@ -129,6 +130,7 @@ const AdminRoute = () => {
                     <Route path='/feePayment' element={<FeePayment />} />
                     <Route path='/messOnlyPayment' element={<MessOnlyPayment />} />
                     <Route path='/AddExpense' element={<ExpenseForm />} />
+                    <Route path='/editExpense/:id' element={<EditExpense />} />
                     <Route path='/paymentReceived' element={<PaymentReceived />} />
                     <Route path='/expenses' element={<ExpenseTable />} />
                     <Route path='/AddCommission' element={<CommissionForm />} />
@@ -144,7 +146,7 @@ const AdminRoute = () => {
                     <Route path='/editInvestment/:id' element={<EditInvestmentForm />} />
                     <Route path="/inventory-usage" element={<InventoryUsage />} />
                     <Route path="/low-stock" element={<LowStock />} />
-
+                    
 
                 </Route>
 

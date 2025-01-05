@@ -18,23 +18,31 @@ const PendingPaymentsPage = () => {
 
   useEffect(() => {
     if (!admin) return;
+  
     const fetchPendingPayments = async () => {
       try {
         const response = await axios.get(
           `${API_BASE_URL}/fee/payments/pendingPayments`,
           { headers: { 'Authorization': `Bearer ${admin.token}` } }
         );
-        // console.log(response.data) // debug statement
-        setPendingPayments(response.data);
+
+        const today = new Date().setHours(0, 0, 0, 0);
+
+        const filteredPayments = response.data.filter((payment) => {
+          const joinDate = new Date(payment.joinDate).setHours(0, 0, 0, 0);
+          return joinDate <= today; 
+        });
+  
+        setPendingPayments(filteredPayments);
       } catch (error) {
-        setError(`${error}`,"Error fetching pending payments");
+        setError(`${error}`, "Error fetching pending payments");
       } finally {
         setLoading(false);
       }
     };
-
+  
     fetchPendingPayments();
-  }, [admin.token]);
+  }, [admin.token]);  
 
   const filteredTransactions = pendingPayments.filter(payment => {
     const matchesSearch = searchTerm
@@ -172,9 +180,9 @@ const PendingPaymentsPage = () => {
           <table className="min-w-full bg-white border border-gray-300 rounded-lg shadow-md">
             <thead className="bg-gray-300 text-black">
               <tr>
-              <th className="py-3 px-4 border text-left text-sm text-center">#</th>
-                <th className="py-3 px-4 border text-left text-sm text-center">Name</th>
-                <th className="py-3 px-4 border text-left text-sm text-center">Student ID</th>
+              <th className="py-3 px-4 border text-left text-sm">#</th>
+                <th className="py-3 px-4 border text-left text-sm">Name</th>
+                <th className="py-3 px-4 border text-left text-sm text-center">Contact No</th>
                 <th className="py-3 px-4 border text-left text-sm text-center">Room</th>
                 <th className="py-3 px-4 border text-left text-sm text-center">Rent</th>
                 <th className="py-3 px-4 border text-left text-sm text-center">Last Paid</th>
@@ -186,20 +194,20 @@ const PendingPaymentsPage = () => {
               {filteredTransactions.map((payment,index) => (
                 <tr
                   key={payment.studentId}
-                  className="hover:bg-gray-100 transition-colors text-center"
+                  className="hover:bg-gray-100 transition-colors"
                 >
                    <td className="py-2 px-4 border text-sm">{index + 1 || "N/A"}</td>
                   <td className="py-2 px-4 border text-sm">{payment.name || "N/A"}</td>
-                  <td className="py-2 px-4 border text-sm">{payment.studentId || "N/A"}</td>
-                  <td className="py-2 px-4 border text-sm">{payment.room || "N/A"}</td>
-                  <td className="py-2 px-4 border text-sm">{payment.monthlyRent || "N/A"}</td>
-                  <td className="py-2 px-4 border text-sm">
+                  <td className="py-2 px-4 border text-sm text-center">{payment.contact || "N/A"}</td>
+                  <td className="py-2 px-4 border text-sm text-center">{payment.room || "N/A"}</td>
+                  <td className="py-2 px-4 border text-sm text-center">{payment.monthlyRent || "N/A"}</td>
+                  <td className="py-2 px-4 border text-sm text-center">
                     {payment.lastPaidDate
                       ? new Date(payment.lastPaidDate).toLocaleDateString()
                       : "-"}
                   </td>
-                  <td className="py-2 px-4 border text-sm">{payment.paymentClearedMonthYear || "-"}</td>
-                  <td className="py-2 px-4 border text-sm">{payment.pendingRentAmount || payment.monthlyRent}</td>
+                  <td className="py-2 px-4 border text-sm text-center">{payment.paymentClearedMonthYear || "-"}</td>
+                  <td className="py-2 px-4 border text-sm text-center">{payment.pendingRentAmount || payment.monthlyRent}</td>
                 </tr>
               ))}
             </tbody>

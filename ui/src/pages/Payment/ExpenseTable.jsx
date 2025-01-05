@@ -6,8 +6,11 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 import { useSelector } from 'react-redux';
 import CheckAuth from '../auth/CheckAuth';
 import ImageModal from '../../components/reUsableComponet/ImageModal';
+import { FaEdit } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
 
 const ExpenseTable = () => {
+  const navigate = useNavigate();
   const admin = useSelector(store => store.auth.admin);
   const [expenses, setExpenses] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -245,6 +248,7 @@ const ExpenseTable = () => {
             <th className="py-3 px-4 border">Property</th>
             <th className="py-3 px-4 border">Transaction ID</th>
             <th className="py-3 px-4 border">Bill</th>
+            <th className="py-3 px-4 border">Action</th>
           </tr>
         </thead>
         <tbody>
@@ -286,6 +290,9 @@ const ExpenseTable = () => {
                       <span>-</span>
                     )}
                   </td>
+                  <td className="py-2 px-4 border text-center cursor-pointer">
+                    <FaEdit className="m-auto text-center"  onClick={() => navigate(`/editExpense/${expense._id}`)}/>
+                  </td>
                 </tr>
               );
             })
@@ -297,7 +304,6 @@ const ExpenseTable = () => {
             </tr>
           )}
         </tbody>
-
       </table>
 
       {/* Image Modal */}
