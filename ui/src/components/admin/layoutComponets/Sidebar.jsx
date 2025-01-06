@@ -17,9 +17,12 @@ const links = [
 
 const Sidebar = () => {
     return (
+        <>
+
         <div className='flex'>
+
             <div
-                className={`fixed h-full left-0 bg-side-bar text-white transform transition-transform z-40 
+                className={`fixed h-full left-0 bg-side-bar text-white transform transition-transform z-40
                             w-16 md:w-60 lg:w-60`} // Always 16 on small screens, 60 on md and lg
             >
                 {/* Logo and Name Section */}
@@ -49,6 +52,7 @@ const Sidebar = () => {
                 </ul>
             </div>
         </div>
+        </>
     );
 };
 
