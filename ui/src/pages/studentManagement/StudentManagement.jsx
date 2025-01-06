@@ -264,8 +264,8 @@ const StudentManagement = () => {
   }, [searchQuery, sortOption, propertySort]);
 
   const filteredStudents = students.filter(student =>
-    student.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    student.studentId.toLowerCase().includes(searchQuery.toLowerCase())
+    student.name.toLowerCase().includes(searchQuery.trim().toLowerCase()) ||
+    student.studentId.toLowerCase().includes(searchQuery.trim().toLowerCase())
   );
 
   const totalStudents = students.filter(student => student.vacate == false).length;
