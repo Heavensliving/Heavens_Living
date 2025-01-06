@@ -57,30 +57,57 @@ const StaffManagement = () => {
   const [propertySort, setPropertySort] = useState(localStorage.getItem('propertySort') || '');
   const [sortOption, setSortOption] = useState(localStorage.getItem('sortOption') || 'All');
 
-  useEffect(() => {
-    // Apply saved filters from local storage on initial load
-    const applySavedFilters = () => {
-      let filteredStaffs = originalStaffs;
+  const applyFilters = () => {
+    let filteredStaffs = originalStaffs;
+    // Apply search filter (trim only during filtering)
+  const trimmedSearchQuery = searchQuery.trim();
+  if (trimmedSearchQuery) {
+    filteredStaffs = filteredStaffs.filter(staff =>
+      staff.Name && staff.Name.toLowerCase().includes(trimmedSearchQuery.toLowerCase())
+    );
+  }
+
+   // Apply property filter
+   if (propertySort) {
+    filteredStaffs = filteredStaffs.filter(staff => staff.property === propertySort);
+  }
+
+  // Apply status filter
+  if (sortOption !== 'All') {
+    filteredStaffs = filteredStaffs.filter(staff => staff.Status === sortOption);
+  }
+
+  return filteredStaffs;
+};
+useEffect(() => {
+  const filtered = applyFilters();
+  setStaffs(filtered);
+}, [originalStaffs, searchQuery, propertySort, sortOption]);
+
+  // useEffect(() => {
+  //   // Apply saved filters from local storage on initial load
+  //   const applySavedFilters = () => {
+  //     let filteredStaffs = originalStaffs;
   
-      if (searchQuery) {
-        filteredStaffs = filteredStaffs.filter(staff =>
-          staff.Name && staff.Name.toLowerCase().includes(searchQuery.toLowerCase())
-        );
-      }
+  //     if (searchQuery) {
+  //       filteredStaffs = filteredStaffs.filter(staff =>
+  //         staff.Name && staff.Name.toLowerCase().includes(searchQuery.trimStart().toLowerCase())
+  //       );
+  //     }
   
-      if (propertySort) {
-        filteredStaffs = filteredStaffs.filter(staff => staff.property === propertySort);
-      }
+  //     if (propertySort) {
+  //       filteredStaffs = filteredStaffs.filter(staff => staff.property === propertySort);
+  //     }
   
-      if (sortOption !== 'All') {
-        filteredStaffs = filteredStaffs.filter(staff => staff.Status === sortOption);
-      }
+  //     if (sortOption !== 'All') {
+  //       filteredStaffs = filteredStaffs.filter(staff => staff.Status === sortOption);
+  //     }
   
-      setStaffs(filteredStaffs);
-    };
+  //     setStaffs(filteredStaffs);
+  //   };
   
-    applySavedFilters();
-  }, [originalStaffs, searchQuery, propertySort, sortOption]);
+  //   applySavedFilters();
+  // }, [originalStaffs, searchQuery, propertySort, sortOption]);
   
   const handleRowClick = (id) => {
     // Save selected staff ID to local storage before navigation
@@ -127,7 +154,7 @@ const StaffManagement = () => {
   };
 
   const handleSearchChange = (e) => {
-    const value = e.target.value;
+    const value = e.target.value.trim();
     setSearchQuery(value);
     localStorage.setItem('searchQuery', value);
   };
