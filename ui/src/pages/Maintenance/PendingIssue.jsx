@@ -56,6 +56,7 @@ const PendingIssue = () => {
   }, []);
 
   const handleAssignClick = (record) => {
+    console.log(record)
     setSelectedRecord(record);
     setIsModalOpen(true);
   };
@@ -89,6 +90,7 @@ const PendingIssue = () => {
     const staffName = selectedStaffMember.Name;
 
     try {
+      console.log(selectedRecord)
       await axios.put(`${API_BASE_URL}/maintenance/assign/${selectedRecord._id}`, {
         staffName,
         Timeneeded: timeNeeded,
@@ -166,7 +168,7 @@ const PendingIssue = () => {
                       className="bg-green-500 text-white px-2 py-1 rounded"
                       onClick={(e) => {
                         e.stopPropagation();
-                        handleAssignClick();
+                        handleAssignClick(record);
                       }}
                     >
                       Assign

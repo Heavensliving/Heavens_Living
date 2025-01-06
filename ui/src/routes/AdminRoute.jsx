@@ -71,6 +71,7 @@ import EditInvestmentForm from '../pages/Investment/EditInvestment.jsx'
 import InventoryUsage from '../pages/Inventory/InventoryUsage.jsx'
 import LowStock from '../pages/Inventory/LowStock.jsx'
 import EditExpense from '../pages/Payment/EditExpense.jsx'
+import PettyCash from '../pages/Payment/PettyCash.jsx'
 
 const AdminRoute = () => {
     return (
@@ -146,6 +147,7 @@ const AdminRoute = () => {
                     <Route path='/editInvestment/:id' element={<EditInvestmentForm />} />
                     <Route path="/inventory-usage" element={<InventoryUsage />} />
                     <Route path="/low-stock" element={<LowStock />} />
+                    <Route path="/pettycash" element={<PettyCash/>} />
 
 
                 </Route>

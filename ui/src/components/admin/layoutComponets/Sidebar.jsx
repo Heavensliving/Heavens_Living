@@ -3,6 +3,7 @@ import { FaHome, FaUserGraduate, FaUsers, FaBuilding, FaUtensils, FaMoneyBill, F
 import { NavLink } from 'react-router-dom';
 import logo1 from '../../../assets/hAsset 4.png';
 import logo2 from '../../../assets/h-whiteAsset 2.png';
+import { useSelector } from 'react-redux';
 
 const links = [
     { path: '/', label: 'Dashboard', icon: <FaHome /> },
@@ -16,6 +17,13 @@ const links = [
 ];
 
 const Sidebar = () => {
+    const admin = useSelector(store => store.auth.admin);
+    const filteredLinks = links.filter(link => {
+        if (admin?.role === 'Property-Admin' && link.path === '/investment') {
+            return false; // Exclude Investment link for Property-Admin
+        }
+        return true;
+    });
     return (
         <div className='flex'>
             <div
@@ -31,7 +39,7 @@ const Sidebar = () => {
 
                 {/* Links Section */}
                 <ul className="flex flex-col items-center sm:items-start space-y-4 mt-6">
-                    {links.map((link) => (
+                    {filteredLinks.map((link) => (
                         <li key={link.path} className="w-full">
                             <NavLink
                                 to={link.path}

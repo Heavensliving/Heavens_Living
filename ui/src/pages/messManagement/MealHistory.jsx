@@ -22,8 +22,9 @@ const MessOrderHistory = () => {
         const response = await axios.get(`${API_BASE_URL}/messOrder/`, {
           headers: { 'Authorization': `Bearer ${admin.token}` }
         });
-        setOrders(response.data.reverse());
-        setFilteredOrders(response.data);
+        const filteredData = response.data.filter(order => order.status === "true");
+        setOrders(filteredData.reverse());
+        setFilteredOrders(filteredData);
       } catch (err) {
         setError('Error fetching orders');
       } finally {

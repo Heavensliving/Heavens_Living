@@ -31,7 +31,10 @@ const DailyRentPayment = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const paymentType = location.state?.paymentType || '';
-  const [formData, setFormData] = useState('');
+  // const [formData, setFormData] = useState('');
+  const [formData, setFormData] = useState({
+    renterId: location.state?.studentId || ''  // Initialize with passed studentId if available
+  });
   const [studentId, setStudentId] = useState('');
   const [paymentData, setPaymentData] = useState('');
   const [totalAmountToPay, setTotalAmountToPay] = useState('');
@@ -46,6 +49,7 @@ const DailyRentPayment = () => {
   const [isRenterDataFetched, setIsRenterDataFetched] = useState(false);
   const [loading, setLoading] = useState(false);
   const [staffMembers, setStaffMembers] = useState([]);
+  const [manualStaffName, setManualStaffName] = useState('');
 
   const handleRenterIdChange = (e) => {
     setFormData({ renterId: e.target.value });
@@ -69,6 +73,7 @@ const DailyRentPayment = () => {
         { headers: { 'Authorization': `Bearer ${admin.token}` } }
       );
       const data = await response.data;
+      // console.log(data)
       setPaymentData(data)
       setErrorMessage('');
       setIsRenterDataFetched(true);
@@ -111,7 +116,7 @@ const DailyRentPayment = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true)
-
+    const finalCollectedBy = collectedBy === 'manual' ? manualStaffName : collectedBy;
     // Construct formData with all necessary fields
     const comprehensiveFormData = {
       ...paymentData, // Includes fetched student details like name, pgName, etc.
@@ -122,7 +127,8 @@ const DailyRentPayment = () => {
       paidDate,
       totalAmountToPay,
       paymentMode,
-      collectedBy,
+      collectedBy: finalCollectedBy,
+      property: paymentData.renter.pgName,
       isMessPayment: paymentType !== "Daily Rent",
       isDailyRent: paymentType === "Daily Rent",
     };
@@ -273,6 +279,7 @@ const DailyRentPayment = () => {
                       onChange={(e) => setCollectedBy(e.target.value)} // Update collectedBy
                     >
                       <option value="" disabled>Select Collector</option>
+                      <option value="manual" className='bg-gray-100 text-red-500 font-bold'>Enter manually</option>
                       {staffMembers.map((staff) => (
                         <option key={staff._id} value={staff.Name}>
                           {staff.Name}
@@ -287,6 +294,19 @@ const DailyRentPayment = () => {
                     value={transactionId}
                     onChange={(e) => setTransactionId(e.target.value)}
                   />
+                )}
+                {collectedBy === 'manual' && (
+                  <div className="w-full md:w-1/2 px-2 mb-4">
+                    <label className="block text-gray-700 mb-2">Enter Staff Name</label>
+                    <input
+                      type="text"
+                      className="w-full p-2 border rounded-md"
+                      placeholder="Enter staff name"
+                      value={manualStaffName} // Bind to manualStaffName state
+                      onChange={(e) => setManualStaffName(e.target.value)} // Update manualStaffName
+                      required
+                    />
+                  </div>
                 )}
                 <InputField label="Paid Date" name="paidDate" type="date" value={paidDate} onChange={(e) => setPaidDate(e.target.value)} required />
                 <span className="text-xs text-red-400 font-normal block mt-1 text-center mx-auto">

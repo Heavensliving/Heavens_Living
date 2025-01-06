@@ -22,6 +22,10 @@ const ExpenseForm = () => {
     otherReason: "",
     paymentMethod: "",
     amount: "",
+    salaryMonth: "",
+    leaveTaken: "",
+    transactionId: "",
+    handledBy: '',
     date: "",
     propertyName: "",
     propertyId: "",
@@ -34,19 +38,20 @@ const ExpenseForm = () => {
   const [loading, setLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [categories, setCategories] = useState([]);
+  const [pettyCash, setPettyCash] = useState([]);
 
   useEffect(() => {
     if (!admin) return;
-    // const fetchProperties = async () => {
-    //   try {
-    //     const response = await axios.get(`${API_BASE_URL}/property`, {
-    //       headers: { Authorization: `Bearer ${admin.token}` },
-    //     });
-    //     setProperties(response.data);
-    //   } catch (error) {
-    //     console.error("Error fetching properties:", error);
-    //   }
-    // };
+    const fetchPettyCash = async () => {
+      try {
+        const response = await axios.get(`${API_BASE_URL}/expense/pettycash/get`, {
+          headers: { Authorization: `Bearer ${admin.token}` },
+        });
+        setPettyCash(response.data);
+      } catch (error) {
+        console.error("Error fetching Petty Cash:", error);
+      }
+    };
 
     const fetchStaffMembers = async () => {
       if (!admin) return;
@@ -73,10 +78,10 @@ const ExpenseForm = () => {
       }
     };
 
-
     // fetchProperties();
     fetchStaffMembers();
     fetchCategories();
+    fetchPettyCash();
   }, [admin]);
 
   const navigate = useNavigate();
@@ -84,29 +89,40 @@ const ExpenseForm = () => {
   const handleChange = (e) => {
     const { name, value, files } = e.target;
 
-    if (name === 'propertyName') {
-      const selectedProperty = admin.properties.find(
-        (property) => property.name === value
-      );
-      setFormData((prevData) => ({
-        ...prevData,
-        propertyName: value,
-        propertyId: selectedProperty?.id || '', // Set the propertyId based on selected property
-      }));
-    } else if (name === 'billImg' && files && files[0]) {
-      // If the field is a file input and we have a file, update the form data with the file
-      setFormData((prevData) => ({
-        ...prevData,
-        [name]: files[0],  // Save the file in formData
-      }));
-      // console.log('Selected file:', files[0]);  // Optionally log the file for debugging
-    } else {
-      setFormData((prevData) => ({
-        ...prevData,
-        [name]: value,
-      }));
-    }
+    setFormData((prevData) => {
+      const updatedData = { ...prevData, [name]: value };
+
+      // Reset dependent fields
+      if (name === "type") {
+        updatedData.category = "";
+        updatedData.staff = "";
+        updatedData.otherReason = "";
+      }
+
+      if (name === "category") {
+        updatedData.staff = ""; // Clear staff if category changes
+      }
+
+      if (name === "paymentMethod") {
+        updatedData.transactionId = "";
+        updatedData.handledBy = "";
+      }
+
+      if (name === "propertyName") {
+        const selectedProperty = admin.properties.find(
+          (property) => property.name === value
+        );
+        updatedData.propertyId = selectedProperty?.id || "";
+      }
+
+      if (name === "billImg" && files && files[0]) {
+        updatedData[name] = files[0]; // Handle file input
+      }
+
+      return updatedData;
+    });
   };
+
 
 
   const uploadFile = (file) => {
@@ -136,6 +152,7 @@ const ExpenseForm = () => {
   };
 
   const handleSubmit = async (e) => {
+    console.log(formData);
     e.preventDefault();
     setLoading(true);
 
@@ -153,7 +170,6 @@ const ExpenseForm = () => {
           headers: { Authorization: `Bearer ${admin.token}` },
         }
       );
-
       toast.success('Expense Added Successfully!', { autoClose: 500 });
       setTimeout(() => {
         navigate("/expenses");
@@ -161,10 +177,12 @@ const ExpenseForm = () => {
       }, 1000);
     } catch (error) {
       console.error("Error adding expense:", error);
-      toast.error('Failed to add expense', { autoClose: 500 });
+      const errorMessage = error.response?.data?.error || "Something went wrong!";
+      toast.error(errorMessage, { autoClose: 3000 });
       setLoading(false);
     }
   };
+
 
 
   const renderInput = (label, name, type, value, onChange, extraProps = {}) => (
@@ -277,19 +295,55 @@ const ExpenseForm = () => {
 
             {/* Conditionally Render Staff Member Dropdown */}
             {formData.category === "Salary" && (
-              <div>
-                {renderSelect(
-                  "Staff Member",
-                  "staff",
-                  formData.staff,
-                  handleChange,
-                  staffMembers.map((staff) => ({
-                    value: staff._id,
-                    label: staff.Name,
-                  })),
-                  { required: true }
-                )}
-              </div>
+              <>
+                <div>
+                  {renderSelect(
+                    "Staff Member",
+                    "staff",
+                    formData.staff,
+                    handleChange,
+                    staffMembers.map((staff) => ({
+                      value: staff._id,
+                      label: staff.Name,
+                    })),
+                    { required: true }
+                  )}
+                </div>
+
+                {/* Month & Year Selection in One Field */}
+                <div>
+                  <label htmlFor="salaryMonthYear" className="block text-sm font-medium text-gray-700">
+                    Select Salary Month & Year
+                  </label>
+                  <input
+                    type="month"
+                    id="salaryMonth"
+                    name="salaryMonth"
+                    value={formData.salaryMonth || ""}
+                    onChange={handleChange}
+                    className="mt-1 p-2 w-full border rounded-md"
+                    required
+                  />
+                </div>
+
+                {/* Leave Taken Input Field */}
+                <div>
+                  <label htmlFor="leaveTaken" className="block text-sm font-medium text-gray-700">
+                    Leave Taken
+                  </label>
+                  <input
+                    type="number"
+                    id="leaveTaken"
+                    name="leaveTaken"
+                    value={formData.leaveTaken || ""}
+                    onChange={handleChange}
+                    onWheel={(e) => e.target.blur()}
+                    className="mt-1 p-2 w-full border rounded-md"
+                    placeholder="Enter number of leaves taken"
+                    required
+                  />
+                </div>
+              </>
             )}
             {renderInput("Other Reason", "otherReason", "text", formData.otherReason, handleChange)}
             {renderInput("Amount", "amount", "number", formData.amount, handleChange, {
@@ -300,12 +354,32 @@ const ExpenseForm = () => {
               "paymentMethod",
               formData.paymentMethod,
               handleChange,
-              ["UPI", "Bank Transfer", "Cash"],
+              ["UPI", "Bank Transfer", "Cash", "Petty Cash"],
               { required: true }
             )}
 
+            {formData.paymentMethod === "Petty Cash" && (
+              <div>
+                <label className="block text-gray-700 mb-2">Handled By</label>
+                <select
+                  id="handledBy"
+                  name="handledBy"
+                  value={formData.handledBy}
+                  onChange={handleChange}
+                  required
+                  className="w-full p-2 border rounded-md"
+                >
+                  <option value="" disabled>Select Handled By</option>
+                  {pettyCash.map((cash) => (
+                    <option key={cash._id} value={cash.staff}>
+                      {cash.staff}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
             {/* Conditionally render Transaction ID */}
-            {formData.paymentMethod !== "Cash" &&
+            {formData.paymentMethod !== "Cash" && formData.paymentMethod !== "Petty Cash" &&
               renderInput(
                 "Transaction ID",
                 "transactionId",

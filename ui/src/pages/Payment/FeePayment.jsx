@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { FaSearch } from 'react-icons/fa';
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
@@ -56,7 +56,7 @@ const FeePayment = () => {
     generateMonthYearOptions();
   }, []);
 
-  const [formData, setFormData] = useState('');
+  // const [formData, setFormData] = useState('');
   const [studentId, setStudentId] = useState('');
   const [paymentData, setPaymentData] = useState('');
   const [totalAmountToPay, setTotalAmountToPay] = useState('');
@@ -73,6 +73,12 @@ const FeePayment = () => {
   const [loading, setLoading] = useState(false);
   const [staffMembers, setStaffMembers] = useState([]);
   const [collectedBy, setCollectedBy] = useState('');
+  const [manualStaffName, setManualStaffName] = useState('');
+
+  const location = useLocation();
+  const [formData, setFormData] = useState({
+    studentId: location.state?.studentId || ''  // Initialize with passed studentId if available
+  });
 
   const handleStudentIdChange = (e) => {
     setFormData({ studentId: e.target.value });
@@ -136,8 +142,9 @@ const FeePayment = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true)
-
+    const finalCollectedBy = collectedBy === 'manual' ? manualStaffName : collectedBy;
     // Construct formData with all necessary fields
+    const today = new Date().toISOString().split('T')[0];
     const comprehensiveFormData = {
       ...paymentData, // Includes fetched student details like name, pgName, etc.
       studentId,
@@ -149,7 +156,9 @@ const FeePayment = () => {
       feeClearedMonthYear: monthYear, // The selected month/year
       totalAmountToPay,
       paymentMode,
-      collectedBy
+      collectedBy: finalCollectedBy,
+      property: paymentData.pgName,
+      ...(waveOffAmount && { waveOffDate: today }),
     };
 
     try {
@@ -215,7 +224,16 @@ const FeePayment = () => {
             )}{paymentData.pgName && (
               <InputField label="PG Name" name="pgName" value={paymentData.pgName || ''} required disabled />
             )}{paymentData.joinDate && (
-              <InputField label="Join Date" name="joinDate" value={paymentData.joinDate || ''} disabled />
+              <InputField
+                label="Join Date"
+                name="joinDate"
+                value={
+                  paymentData.joinDate 
+                    ? (paymentData.joinDate)// Format as DD/MM/YYYY
+                    : 'Invalid Date'
+                }
+                disabled
+              />
             )}{paymentData.monthlyRent && (
               <InputField label="Monthly Rent" name="monthlyRent" type="number" value={paymentData.monthlyRent || ''} required disabled />
             )}{paymentData.advanceBalance && (
@@ -242,7 +260,8 @@ const FeePayment = () => {
                 <InputField label="Wave-Off Amount" name="waveOffAmount" type="number" value={waveOffAmount} onChange={(e) => setWaveOffAmount(e.target.value)} />
                 <InputField label="Wave-Off Reason" name="waveOffReason" value={waveOffReason} onChange={(e) => setWaveOffReason(e.target.value)} />
                 <InputField label="Total Amount to Pay" name="totalAmount" type="number" value={totalAmountToPay} onChange={(e) => setTotalAmountToPay(e.target.value)} disabled />
-                <InputField label="Amount Paying" name="payingAmount" type="number" value={payingAmount} onChange={(e) => setPayingAmount(e.target.value)} required/>
+                <InputField label="Amount Paying" name="payingAmount" type="number" value={payingAmount} onChange={(e) => setPayingAmount(e.target.value)} required />
+                <InputField label="Paid Date" name="paidDate" type="date" value={paidDate} onChange={(e) => setPaidDate(e.target.value)} required />
                 <div className="w-full md:w-1/2 px-2 mb-4">
                   <label className="block text-gray-700 mb-2">Payment Mode</label>
                   <select
@@ -267,9 +286,17 @@ const FeePayment = () => {
                       className="w-full p-2 border rounded-md"
                       required
                       value={collectedBy} // Bind the value to collectedBy
-                      onChange={(e) => setCollectedBy(e.target.value)} // Update collectedBy
+                      // onChange={(e) => setCollectedBy(e.target.value)} // Update collectedBy
+                      onChange={(e) => {
+                        setCollectedBy(e.target.value); // Update collectedBy
+                        // Reset manual name if switching back from "manual" to other options
+                        if (e.target.value !== 'manual') {
+                          setManualStaffName(''); // Clear manual input if another option is selected
+                        }
+                      }}
                     >
                       <option value="" disabled>Select Collector</option>
+                      <option value="manual" className='bg-gray-100 text-red-500 font-bold'>Enter manually</option>
                       {staffMembers.map((staff) => (
                         <option key={staff._id} value={staff.Name}>
                           {staff.Name}
@@ -285,6 +312,19 @@ const FeePayment = () => {
                     onChange={(e) => setTransactionId(e.target.value)}
                     required
                   />
+                )}
+                {collectedBy === 'manual' && (
+                  <div className="w-full md:w-1/2 px-2 mb-4">
+                    <label className="block text-gray-700 mb-2">Enter Staff Name</label>
+                    <input
+                      type="text"
+                      className="w-full p-2 border rounded-md"
+                      placeholder="Enter staff name"
+                      value={manualStaffName} // Bind to manualStaffName state
+                      onChange={(e) => setManualStaffName(e.target.value)} // Update manualStaffName
+                      required
+                    />
+                  </div>
                 )}
                 <div className="w-full md:w-1/2 px-2 mb-4">
                   <label className="block text-gray-700 mb-2">Fee Cleared Month/Year</label>
@@ -302,7 +342,6 @@ const FeePayment = () => {
                     ))}
                   </select>
                 </div>
-                <InputField label="Paid Date" name="paidDate" type="date" value={paidDate} onChange={(e) => setPaidDate(e.target.value)} required />
               </>
             )}
           </div>

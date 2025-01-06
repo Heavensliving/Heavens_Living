@@ -21,6 +21,7 @@ const EditExpense = () => {
     otherReason: "",
     paymentMethod: "",
     amount: "",
+    transactionId: "",
     date: "",
     propertyName: "",
     propertyId: "",
@@ -34,20 +35,32 @@ const EditExpense = () => {
   const [categories, setCategories] = useState([]);
   const [oldFile, setOldFile] = useState({
     billImg: '',
-});
+  });
   // const [expenses, setExpenses] = useState([]);
+  const [pettyCash, setPettyCash] = useState([]);
 
   useEffect(() => {
     if (!admin) return;
+    const fetchPettyCash = async () => {
+      try {
+        const response = await axios.get(`${API_BASE_URL}/expense/pettycash/get`, {
+          headers: { Authorization: `Bearer ${admin.token}` },
+        });
+        setPettyCash(response.data);
+      } catch (error) {
+        console.error("Error fetching Petty Cash:", error);
+      }
+    };
+
     const fetchexpenses = async () => {
       try {
         const response = await axios.get(`${API_BASE_URL}/expense/${id}`, {
-          headers: { Authorization: `Bearer ${admin.token}`},
+          headers: { Authorization: `Bearer ${admin.token}` },
         });
         const expense = response.data.result
         setOldFile({
           billImg: expense.billImg,
-      });
+        });
         setFormData({
           ...expense,
           date: expense.date ? new Date(expense.date).toISOString().split('T')[0] : '',
@@ -84,6 +97,7 @@ const EditExpense = () => {
     fetchexpenses();
     fetchStaffMembers();
     fetchCategories();
+    fetchPettyCash();
   }, [admin]);
 
   const navigate = useNavigate();
@@ -141,25 +155,34 @@ const EditExpense = () => {
     });
   };
   const deleteOldFile = async (fileURL) => {
-    // console.log(fileURL.billImg)
-        if (!fileURL) return Promise.resolve();  // If no file to delete, skip
-        const fileRef = ref(storage, fileURL.billImg);
-        try {
-          // console.log(fileRef)
-            await deleteObject(fileRef);
-        } catch (error) {
-            console.error('Error deleting file:', error);
-        }
-    };
+    console.log(fileURL.billImg)
+    if (!fileURL.billImg) return Promise.resolve();  // If no file to delete, skip
+    const fileRef = ref(storage, fileURL.billImg);
+    try {
+      // console.log(fileRef)
+      await deleteObject(fileRef);
+    } catch (error) {
+      console.error('Error deleting file:', error);
+    }
+  };
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+
     try {
-      deleteOldFile(oldFile);
-      if (formData.billImg) {
+      // If the file has changed, delete the old file and upload the new one
+      if (formData.billImg && formData.billImg !== oldFile.billImg) {
+        // Delete the old file
+        await deleteOldFile(oldFile);
+
+        // Upload the new file
         const downloadURL = await uploadFile(formData.billImg);
         formData.billImg = downloadURL; // Replace the file object with the URL
+      } else {
+        // If the file hasn't changed, keep the old file URL
+        formData.billImg = oldFile.billImg;
       }
+
       // Prepare and send the data
       const response = await axios.put(
         `${API_BASE_URL}/expense/edit/${id}`,
@@ -176,10 +199,14 @@ const EditExpense = () => {
       }, 1000);
     } catch (error) {
       console.error("Error updating expense:", error);
-      toast.error('Failed to update expense', { autoClose: 500 });
+
+      // Display backend error message in toast
+      const errorMessage = error.response?.data?.error || "Failed to update expense";
+      toast.error(errorMessage, { autoClose: 500 });
       setLoading(false);
     }
   };
+
 
   const renderInput = (label, name, type, value, onChange, extraProps = {}) => (
     <div>
@@ -231,6 +258,7 @@ const EditExpense = () => {
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Title and Type */}
           <div className="grid grid-cols-2 gap-4">
+            {/* Title and Type */}
             {renderInput("Title", "title", "text", formData.title, handleChange, { required: true })}
             {renderSelect(
               "Type",
@@ -240,10 +268,8 @@ const EditExpense = () => {
               ["PG", "Mess", "Others"],
               { required: true }
             )}
-          </div>
 
-          {/* Category and Payment Method */}
-          <div className="grid grid-cols-2 gap-4">
+            {/* Category */}
             {formData.type === "Others" ? (
               <div>
                 <label className="block text-gray-700 mb-2">Category</label>
@@ -251,7 +277,7 @@ const EditExpense = () => {
                   type="text"
                   name="category"
                   value={formData.category}
-                  onChange={(e) => handleChange(e)}
+                  onChange={handleChange}
                   className="w-full p-2 border rounded-md"
                   placeholder="Enter category"
                   required
@@ -259,13 +285,11 @@ const EditExpense = () => {
               </div>
             ) : (
               <div>
-                <label className="block text-gray-700 mb-2 flex items-center">
-                  Category
-                </label>
+                <label className="block text-gray-700 mb-2">Category</label>
                 <select
                   name="category"
                   value={formData.category}
-                  onChange={(e) => handleChange(e)}
+                  onChange={handleChange}
                   className="w-full p-2 border rounded-md"
                   required
                 >
@@ -283,78 +307,71 @@ const EditExpense = () => {
               </div>
             )}
 
-            {/* Conditionally Render Staff Member Dropdown */}
-            {formData.category === "Salary" && (
-              <div>
-                {renderSelect(
-                  "Staff Member",
-                  "staff",
-                  formData.staff,
-                  handleChange,
-                  staffMembers.map((staff) => ({
-                    value: staff._id,
-                    label: staff.Name,
-                  })),
-                  { required: true }
-                )}
-              </div>
-            )}
-            {renderInput("Other Reason", "otherReason", "text", formData.otherReason, handleChange)}
-            {renderInput("Amount", "amount", "number", formData.amount, handleChange, {
-              required: true,
-            })}
+            {/* Conditional fields based on payment method */}
+            {renderInput("Amount", "amount", "number", formData.amount, handleChange, { required: true })}
             {renderSelect(
               "Payment Method",
               "paymentMethod",
               formData.paymentMethod,
               handleChange,
-              ["UPI", "Bank Transfer", "Cash"],
+              ["UPI", "Bank Transfer", "Cash", "Petty Cash"],
               { required: true }
             )}
 
-            {/* Conditionally render Transaction ID */}
-            {formData.paymentMethod !== "Cash" &&
-              renderInput(
-                "Transaction ID",
-                "transactionId",
-                "text",
-                formData.transactionId,
-                handleChange,
-                { required: true }
-              )
-            }
-            {renderInput("Date", "date", "date", formData.date, handleChange, { required: true })}
-            <div>
-              <label htmlFor="propertyName" className="block text-gray-700 mb-2">Property</label>
-              <select
-                id="propertyName"
-                name="propertyName"
-                value={formData.propertyName}
-                onChange={handleChange}
-                required
-                className="w-full p-2 border rounded-md"
-              >
-                <option value="" disabled>Select Property</option>
-                {admin.properties.map((property) => (
-                  <option key={property.id} value={property.name}>
-                    {property.name}
-                  </option>
-                ))}
-              </select>
-            </div>
+            {/* Display transaction ID if payment method is UPI or Bank Transfer */}
+            {(formData.paymentMethod === "UPI" || formData.paymentMethod === "Bank Transfer") && (
+              renderInput("Transaction ID", "transactionId", "text", formData.transactionId, handleChange, {
+                required: true,
+              })
+            )}
 
+            {/* Display handledBy if payment method is Petty Cash */}
+            {formData.paymentMethod === "Petty Cash" && (
+              <div>
+                <label className="block text-gray-700 mb-2">Handled By</label>
+                <select
+                  id="handledBy"
+                  name="handledBy"
+                  value={formData.handledBy}
+                  onChange={handleChange}
+                  required
+                  className="w-full p-2 border rounded-md"
+                >
+                  <option value="" disabled>
+                    Select Handled By
+                  </option>
+                  {pettyCash.map((cash) => (
+                    <option key={cash._id} value={cash.staff}>
+                      {cash.staff}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+
+            {renderInput("Date", "date", "date", formData.date, handleChange, { required: true })}
+
+            {/* Bill Image */}
             <div>
               <label className="block text-gray-700 mb-2">Bill</label>
               <input
                 type="file"
                 name="billImg"
-                onChange={(e) => handleChange(e)}
+                onChange={handleChange}
                 className="w-full p-2 border rounded-md"
               />
+              {formData.billImg && typeof formData.billImg === "string" && (
+                <div className="mt-4">
+                  <img
+                    src={formData.billImg}
+                    alt="Bill Preview"
+                    className="w-32 h-32 object-cover border rounded-md text-center mx-auto"
+                  />
+                  <p className="text-sm text-gray-500 mt-2 text-center">Current Bill Image</p>
+                </div>
+              )}
             </div>
-
           </div>
-
           <button
             type="submit"
             className={`w-full bg-side-bar text-white font-bold py-3 rounded-lg hover:bg-[#373082] transition duration-300 flex items-center justify-center ${loading ? ' cursor-not-allowed' : ''}`}

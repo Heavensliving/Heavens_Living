@@ -19,8 +19,6 @@ function AddPeople() {
     monthlyRent: '',
     months: 0,
     days: 0,
-    password: '',
-    confirmPassword: '',
     propertyName: '',
     propertyId: '',
     paymentStatus: 'Pending',  // Added paymentStatus field
@@ -73,15 +71,10 @@ function AddPeople() {
 
     const totalDays = parseInt(formData.months) * 30 + parseInt(formData.days);
 
-    if (formData.password !== formData.confirmPassword) {
-      errors.password = "Passwords don't match!";
-      valid = false;
-    }
-
-    if (totalDays < 15) {
-      errors.timePeriod = "Time period must be at least 15 days.";
-      valid = false;
-    }
+    // if (totalDays < 15) {
+    //   errors.timePeriod = "Time period must be at least 15 days.";
+    //   valid = false;
+    // }
 
     setErrors(errors);
     return valid;
@@ -125,14 +118,13 @@ function AddPeople() {
         monthlyRent: '',
         months: 0,
         days: 0,
-        password: '',
-        confirmPassword: '',
         propertyName: '',
         propertyId: '',
         paymentStatus: 'Pending', // Reset payment status to default
       });
       // navigate('/mess');
     } catch (error) {
+      setLoading(false);
       console.error('Error:', error.response ? error.response.data : error.message);
       setApiError('An error occurred while submitting the form. Please try again.');
     }
@@ -287,33 +279,6 @@ function AddPeople() {
             {errors.timePeriod && (
               <p className="text-red-500 mt-2">{errors.timePeriod}</p>
             )}
-          </div>
-
-          {/* Password */}
-          <div>
-            <label className="block mb-2 font-bold">Password</label>
-            <input
-              type="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              className="p-3 border border-gray-300 rounded-lg w-full"
-              required
-            />
-          </div>
-
-          {/* Confirm Password */}
-          <div>
-            <label className="block mb-2 font-bold">Confirm Password</label>
-            <input
-              type="password"
-              name="confirmPassword"
-              value={formData.confirmPassword}
-              onChange={handleChange}
-              className="p-3 border border-gray-300 rounded-lg w-full"
-              required
-            />
-            {errors.password && <p className="text-red-500">{errors.password}</p>}
           </div>
 
           {/* Payment Status */}

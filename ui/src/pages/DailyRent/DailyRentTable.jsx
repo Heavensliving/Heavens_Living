@@ -1,7 +1,9 @@
 import { useState } from "react";
-import { FaCopy, FaEdit, FaTrash } from "react-icons/fa";
+import { FaCopy, FaDollarSign, FaEdit, FaTrash } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 
 const DailyRentTable = ({ dailyRents, onRowClick, onEdit, onDelete, admin }) => {
+  const navigate = useNavigate();
   const [copiedId, setCopiedId] = useState(null); // Track the copied ID
 
   const handleCopy = (id) => {
@@ -22,7 +24,7 @@ const DailyRentTable = ({ dailyRents, onRowClick, onEdit, onDelete, admin }) => 
           <tr className="bg-gray-100 border-b">
             <th className="py-2 px-4">#</th>
             <th className="py-2 px-4">Name</th>
-            <th className="py-2 px-4 text-center">ID</th>
+            {/* <th className="py-2 px-4 text-center">ID</th> */}
             <th className="py-2 px-4 text-center">Room</th>
             <th className="py-2 px-4 text-center">Check In</th>
             <th className="py-2 px-4 text-center">Check Out</th>
@@ -30,7 +32,7 @@ const DailyRentTable = ({ dailyRents, onRowClick, onEdit, onDelete, admin }) => 
             <th className="py-2 px-4 text-center">Daily Rent</th>
             <th className="py-2 px-4 text-center">Total Rent</th>
             <th className="py-2 px-4 text-center">Payment</th>
-            <th className="py-2 px-4">Actions</th>
+            <th className="py-2 px-4 text-center">Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -66,25 +68,7 @@ const DailyRentTable = ({ dailyRents, onRowClick, onEdit, onDelete, admin }) => 
                       <div className="text-xs text-red-600">Vacated</div>
                     )}
                   </td>
-                  <td className="py-2 px-4 flex items-center relative text-center">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleCopy(dailyRent.OccupantId);
-                      }}
-                      className="ml-2 text-gray-500 hover:underline relative group"
-                      title="Copy ID"
-                    >
-                      <FaCopy />
-                    </button>
-                    <span className="ml-2">{dailyRent.OccupantId}</span>
-                    {/* Tooltip */}
-                    {copiedId === dailyRent.OccupantId && (
-                      <div className="absolute top-0 left-8 bg-green-500 text-white text-xs rounded px-2 py-1">
-                        Copied!
-                      </div>
-                    )}
-                  </td>
+
                   <td className="py-2 px-4 text-center">{dailyRent.roomNo}</td>
                   <td className="py-2 px-4 text-center">
                     {new Date(dailyRent.checkIn).toLocaleDateString()}
@@ -98,8 +82,8 @@ const DailyRentTable = ({ dailyRents, onRowClick, onEdit, onDelete, admin }) => 
                   <td className="py-4 px-4 text-center text-xs md:text-sm">
                     <span
                       className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${dailyRent.paymentStatus === "Paid"
-                          ? "bg-green-100 text-green-800"
-                          : "bg-red-100 text-red-800"
+                        ? "bg-green-100 text-green-800"
+                        : "bg-red-100 text-red-800"
                         }`}
                     >
                       {dailyRent.paymentStatus === "Paid"
@@ -107,33 +91,48 @@ const DailyRentTable = ({ dailyRents, onRowClick, onEdit, onDelete, admin }) => 
                         : `Pending - ${dailyRent.totalAmount - dailyRent.payingAmount}`}
                     </span>
                   </td>
-                  <td className="py-2 px-4 flex space-x-4 ">
-                    <FaEdit
-                      className={`${allowRowClick ? 'text-blue-500' : 'text-gray-400'
-                        } hover:text-blue-600 `}
+                  <td className="py-4 px-4 flex space-x-4 ">
+                    <button
                       onClick={(e) => {
-                        if (allowRowClick) {
-                          e.stopPropagation();
-                          onEdit(dailyRent._id);
-                        }
+                        e.stopPropagation();
+                        console.log(dailyRent.OccupantId)
+                        navigate('/dailyRentPayment', { state: { studentId: dailyRent.OccupantId } });
                       }}
-                      style={{
-                        cursor: allowRowClick ? 'pointer' : 'not-allowed',
-                      }}
-                    />
-                    <FaTrash
-                      className={`${allowRowClick ? 'text-red-500' : 'text-gray-400'
-                        } hover:text-red-600`}
-                      onClick={(e) => {
-                        if (allowRowClick) {
-                          e.stopPropagation();
-                          onDelete(dailyRent._id);
-                        }
-                      }}
-                      style={{
-                        cursor: allowRowClick ? 'pointer' : 'not-allowed',
-                      }}
-                    />
+                      className="bg-green-500 text-white text-xs px-3 py-1 rounded hover:bg-green-600"
+                    >
+                      <FaDollarSign />
+                    </button>
+                    <button className="bg-blue-500 text-white text-xs px-3 py-1 rounded hover:bg-blue-600">
+                      <FaEdit
+                        className={`${allowRowClick ? 'text-white' : 'text-gray-400'
+                          } `}
+                        onClick={(e) => {
+                          if (allowRowClick) {
+                            e.stopPropagation();
+                            onEdit(dailyRent._id);
+                          }
+                        }}
+                        style={{
+                          cursor: allowRowClick ? 'pointer' : 'not-allowed',
+                        }}
+                      />
+                    </button>
+                    <button className="bg-red-500 text-white text-xs px-3 py-1 rounded hover:bg-red-600">
+                      <FaTrash
+                        className={`${allowRowClick ? 'text-white' : 'text-gray-400'
+                          }`}
+                        onClick={(e) => {
+                          if (allowRowClick) {
+                            e.stopPropagation();
+                            onDelete(dailyRent._id);
+                          }
+                        }}
+                        style={{
+                          cursor: allowRowClick ? 'pointer' : 'not-allowed',
+                        }}
+                      />
+                    </button>
+
                   </td>
                 </tr>
               );

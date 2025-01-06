@@ -277,7 +277,12 @@ const ExpenseTable = () => {
                     {new Date(expense.date).toLocaleDateString('en-GB')}
                   </td>
                   <td className="py-2 px-4 border text-center">{expense.propertyName}</td>
-                  <td className="py-2 px-4 border text-center">{expense.transactionId}</td>
+                  <td className="py-2 px-4 border text-center">
+  {expense.paymentMethod === 'Petty Cash'
+    ? `Handled by ${expense.handledBy}`
+    : expense.transactionId || '-'}
+</td>
+
                   <td className={`py-2 px-4 border text-center ${expense.billImg ? 'cursor-pointer' : ''}`}>
                     {expense.billImg ? (
                       <img

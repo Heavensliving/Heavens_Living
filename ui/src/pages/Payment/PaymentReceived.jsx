@@ -13,7 +13,16 @@ const PaymentReceived = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedMonth, setSelectedMonth] = useState('');
   const [selectedYear, setSelectedYear] = useState('');
-  const [filterOption, setFilterOption] = useState('totalReceived'); // New state for filter option
+  const [propertyFilter, setPropertyFilter] = useState(() => {
+    if (admin?.role === 'Main-Admin') {
+      return 'totalReceived';
+    } else if (admin?.properties?.length > 0) {
+      return admin.properties[0].name; // Use the first property as the default
+    } else {
+      return ''; // Default to an empty string if no properties are available
+    }
+  });
+  const [additionalFilter, setAdditionalFilter] = useState('totalReceived');
 
   useEffect(() => {
     const fetchTransactions = async () => {
@@ -32,6 +41,15 @@ const PaymentReceived = () => {
     fetchTransactions();
   }, [admin]);
 
+  const adminProperties = admin?.properties || [];
+  const defaultProperty = adminProperties.length > 0 ? adminProperties[0].name : '';
+
+  useEffect(() => {
+    if (defaultProperty && !propertyFilter) {
+      setPropertyFilter(defaultProperty); // Set default property on initial render
+    }
+  }, [defaultProperty]);
+
   const filteredTransactions = transactions.filter(transaction =>
     transaction.name?.toLowerCase().includes(searchTerm.trim().toLowerCase()) ||
     transaction.studentId?.toLowerCase().includes(searchTerm.trim().toLowerCase()) ||
@@ -48,15 +66,20 @@ const PaymentReceived = () => {
 
   // Apply additional filtering based on the selected filter option
   const finalFilteredTransactions = furtherFilteredTransactions.filter(transaction => {
-    if (filterOption === 'dailyRent') {
-      return transaction.studentId.startsWith('HVNDR');
-    } else if (filterOption === 'messOnly') {
-      return transaction.studentId.startsWith('HVNMP');
-    } else if (filterOption === 'occupants') {
-      return transaction.studentId.startsWith('HVNS');
-    }
-    return true; // For 'totalReceived', show all
+    const propertyMatches =
+      propertyFilter === 'totalReceived' ||
+      transaction.property === propertyFilter;
+    // console.log('Current Property Filter:', propertyFilter);
+    // console.log('Transaction Property:', transaction.property);
+    const additionalFilterMatches =
+      additionalFilter === 'totalReceived' ||
+      (additionalFilter === 'dailyRent' && transaction.studentId.startsWith('HVNDR')) ||
+      (additionalFilter === 'messOnly' && transaction.studentId.startsWith('HVNMP')) ||
+      (additionalFilter === 'occupants' && transaction.studentId.startsWith('HVNS'));
+
+    return propertyMatches && additionalFilterMatches;
   });
+
 
   const totalAmount = transactions.reduce(
     (acc, transaction) => acc + (transaction.amountPaid || 0),
@@ -163,21 +186,33 @@ const PaymentReceived = () => {
             ))}
           </select>
         </div>
-      </div>
-
-      {/* Filter Dropdown */}
-      <div className="mb-4">
-        <label className="block text-lg mb-1">Select Filter:</label>
-        <select
-          value={filterOption}
-          onChange={(e) => setFilterOption(e.target.value)}
-          className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-400"
-        >
-          <option value="totalReceived">Total Received</option>
-          <option value="dailyRent">Daily Rent</option>
-          <option value="messOnly">Mess Only</option>
-          <option value="occupants">Occupants</option>
-        </select>
+        <div className="mb-4">
+          <label className="block text-lg mb-1">Select Property:</label>
+          <select
+            value={propertyFilter}
+            onChange={(e) => setPropertyFilter(e.target.value)}
+            className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-400"
+          >
+            {admin.role === 'Main-Admin' && <option value="totalReceived">All Properties</option>}
+            {admin.properties.map((property) => (
+              <option key={property.id} value={property.name}>
+                {property.name}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="mb-4">
+          <label className="block text-lg mb-1">Select Filter:</label>
+          <select
+            value={additionalFilter}
+            onChange={(e) => setAdditionalFilter(e.target.value)}
+            className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-400">
+            <option value="totalReceived">Total Received</option>
+            <option value="dailyRent">Daily Rent</option>
+            <option value="messOnly">Mess Only</option>
+            <option value="occupants">Occupants</option>
+          </select>
+        </div>
       </div>
 
       <div className="flex flex-col mb-4">

@@ -26,6 +26,7 @@ const PaymentDashboard = () => {
   const [reportYear, setReportYear] = useState(new Date().getFullYear());
   const [isGenerating, setIsGenerating] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [pendingPayments, setPendingPayments] = useState([]);
   const navigate = useNavigate();
 
   const openModal = () => setShowModal(true);
@@ -38,7 +39,22 @@ const PaymentDashboard = () => {
         const feeResponse = await axios.get(`${API_BASE_URL}/fee`, {
           headers: { Authorization: `Bearer ${admin.token}` },
         });
-        const totalAmount = feeResponse.data.reduce(
+        const today = new Date();
+        const currentMonth = today.getMonth(); // Get the current month (0-11)
+        const currentYear = today.getFullYear(); // Get the current year (e.g., 2025)
+        // Filter transactions that match the current month and year
+        const currentMonthTransactions = feeResponse.data.filter(
+          (transaction) => {
+            const paymentDate = new Date(transaction.paymentDate);
+            return paymentDate.getMonth() === currentMonth && paymentDate.getFullYear() === currentYear;
+          }
+        );
+
+        const totalReceivedAmount = feeResponse.data.reduce(
+          (acc, transaction) => acc + (transaction.amountPaid || 0),
+          0
+        );
+        const totalAmount = currentMonthTransactions.reduce(
           (acc, transaction) => acc + (transaction.amountPaid || 0),
           0
         );
@@ -49,11 +65,11 @@ const PaymentDashboard = () => {
             return acc + (effectiveAmountPaid > 0 ? effectiveAmountPaid : 0); // Ensure no negative values are added
           },
           0
-        );        
-        const messPeopleTransactions = feeResponse.data.filter(
+        );
+        const messPeopleTransactions = currentMonthTransactions.filter(
           (transaction) => transaction.messPeople
         );
-        const dailyRentTransactions = feeResponse.data.filter(
+        const dailyRentTransactions = currentMonthTransactions.filter(
           (transaction) => transaction.dailyRent
         );
 
@@ -65,7 +81,7 @@ const PaymentDashboard = () => {
           (acc, transaction) => acc + (transaction.amountPaid || 0),
           0
         );
-        setTotal(totalAmount)
+        setTotal(totalReceivedAmount)
         setTotalReceived(totalAmount - (messPeopleTotal + dailyRentTotal));
         setTotalAmountWithoutAdvance(totalAmountWithOutAdvance - (messPeopleTotal + dailyRentTotal));
         setTotalReceivedMess(messPeopleTotal);
@@ -176,12 +192,41 @@ const PaymentDashboard = () => {
       }
     };
 
+    const fetchPendingPayments = async () => {
+      try {
+        const response = await axios.get(
+          `${API_BASE_URL}/fee/payments/pendingPayments`,
+          { headers: { 'Authorization': `Bearer ${admin.token}` } }
+        );
+
+        const today = new Date().setHours(0, 0, 0, 0);
+        const filteredPayments = response.data.filter((payment) => {
+          const joinDate = new Date(payment.joinDate).setHours(0, 0, 0, 0);
+          return joinDate <= today;
+        });
+        // Sum all the pendingRentAmount values
+        const totalPendingRentAmount = filteredPayments.reduce((total, payment) => {
+          return total + (payment.pendingRentAmount || 0); // Use 0 as a fallback in case pendingRentAmount is undefined
+        }, 0);
+
+        // Store the sum along with the filtered payments
+        setPendingPayments(totalPendingRentAmount);
+        // setPendingPayments(filteredPayments);
+        // console.log(filteredPayments)
+      } catch (error) {
+        setError(`${error}`, "Error fetching pending payments");
+      } finally {
+        setLoading(false);
+      }
+    };
+
     fetchTotals();
     fetchTotalMonthlyRent();
     fetchTotalExpense();
     fetchTotalCommission();
     fetchTotalDeposit();
     fetchTotalWaveOff();
+    fetchPendingPayments();
   }, [admin.token]);
 
   const generateMonthlyReport = async () => {
@@ -226,7 +271,7 @@ const PaymentDashboard = () => {
         (sum, expense) => sum + (expense.amount || 0),
         0
       );
-      const profitLoss = totalReceived - totalExpenses+totalWaveOff+totalCommission;
+      const profitLoss = totalReceived - totalExpenses + totalWaveOff + totalCommission;
 
       // Generate PDF
       const doc = new jsPDF();
@@ -334,8 +379,8 @@ const PaymentDashboard = () => {
       setIsGenerating(false);
     }
   };
-
-  const paymentPending = totalMonthlyRent - totalAmountWithoutAdvance;
+  // console.log(totalAmountWithoutAdvance)
+  const paymentPending = totalMonthlyRent - totalAmountWithoutAdvance - totalWaveOff;
   const paymentPendingDisplay = paymentPending < 0 ? 0 : paymentPending;
   const paymentPendingMess = totalMonthlyRentMess - totalReceivedMess;
   const paymentPendingDisplayMess =
@@ -364,28 +409,36 @@ const PaymentDashboard = () => {
           <div className="flex flex-wrap justify-center gap-4">
             <button
               onClick={openModal}
-              className="px-4 py-2 bg-green-500 text-white rounded-md"
+              className="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600"
             >
               Add Payment
             </button>
             <button
               onClick={() => navigate("/AddExpense")}
-              className="px-4 py-2 bg-orange-500 text-white rounded-md"
+              className="px-4 py-2 bg-orange-500 text-white rounded-md hover:bg-orange-600"
             >
               Add Expense
             </button>
             <button
               onClick={() => navigate("/AddCommission")}
-              className="px-4 py-2 bg-red-500 text-white rounded-md"
+              className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600"
             >
               Add Commission
             </button>
             <button
-              onClick={() => setShowReportModal(true)}
-              className="px-4 py-2 bg-side-bar text-white rounded-md hover:bg-[#373082]"
+              onClick={() => navigate('/pettycash')}
+              className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
             >
-              Download Report
+              Add Petty Cash
             </button>
+            {admin.role !== 'Property-Admin' && (
+              <button
+                onClick={() => setShowReportModal(true)}
+                className="px-4 py-2 bg-side-bar text-white rounded-md hover:bg-[#373082]"
+              >
+                Download Report
+              </button>
+            )}
           </div>
         </div>
 
@@ -406,12 +459,12 @@ const PaymentDashboard = () => {
             className="p-4 bg-red-100 text-red-500 rounded-md cursor-pointer"
             onClick={() => navigate("/paymentPending")}
           >
-            <p className="text-lg font-semibold">₹{paymentPendingDisplay}</p>
+            <p className="text-lg font-semibold">₹{pendingPayments}</p>
             <p>Payment Pending</p>
           </div>
           <div
             className="p-4 bg-yellow-100 text-yellow-500 rounded-md"
-            // onClick={() => navigate("/expenses")}
+          // onClick={() => navigate("/expenses")}
           >
             <p className="text-lg font-semibold">₹{totalMonthlyRentMess}</p>
             <p>Monthly Rent</p>
@@ -419,7 +472,7 @@ const PaymentDashboard = () => {
           </div>
           <div
             className="p-4 bg-green-100 text-green-500 rounded-md"
-            // onClick={() => navigate("/paymentReceived")}
+          // onClick={() => navigate("/paymentReceived")}
           >
             <p className="text-lg font-semibold">₹{totalReceivedMess || 0}</p>
             <p>Payment Received</p>
@@ -427,7 +480,7 @@ const PaymentDashboard = () => {
           </div>
           <div
             className="p-4 bg-red-100 text-red-500 rounded-md"
-            // onClick={() => navigate("/paymentPending")}
+          // onClick={() => navigate("/paymentPending")}
           >
             <p className="text-lg font-semibold">
               ₹{paymentPendingDisplayMess || 0}
@@ -442,11 +495,13 @@ const PaymentDashboard = () => {
             <p className="text-lg font-semibold ">₹{totalExpense}</p>
             <p>Expense</p>
           </div>
-          <div className="p-4 bg-gray-100 text-gray-500 rounded-md ">
-                <p className="text-lg font-semibold">₹{total-(totalExpense-totalCommission-totalWaveOff) || 0}</p>{" "}
-                {/* Total Deposit */}
-                <p>Balance</p>
-              </div>
+          {admin.role !== 'Property-Admin' && (
+            <div className="p-4 bg-gray-100 text-gray-500 rounded-md ">
+              <p className="text-lg font-semibold">₹{total - (totalExpense - totalCommission - totalWaveOff) || 0}</p>{" "}
+              {/* Total Deposit */}
+              <p>Balance</p>
+            </div>
+          )}
           <div
             className="p-4 bg-gray-100 text-gray-500 rounded-md cursor-pointer"
             onClick={() => navigate("/commissions")}
@@ -464,7 +519,7 @@ const PaymentDashboard = () => {
           {/* Conditionally render based on admin role */}
           {admin.role !== 'Property-Admin' && (
             <>
-            <div className="p-4 bg-gray-100 text-gray-500 rounded-md ">
+              <div className="p-4 bg-gray-100 text-gray-500 rounded-md ">
                 <p className="text-lg font-semibold">₹{totalNonRefundableDeposit || 0}</p>{" "}
                 {/* Total Deposit */}
                 <p>Non Refundable Deposit</p>
@@ -500,16 +555,16 @@ const PaymentDashboard = () => {
               >
                 Student & Workers
               </li>
-                  <li
-                    onClick={() =>
-                      navigate("/dailyRentPayment", {
-                        state: { paymentType: "Daily Rent" },
-                      })
-                    }
-                    className="cursor-pointer px-4 py-2 bg-yellow-100 text-yellow-600 rounded-md hover:bg-yellow-200"
-                  >
-                    Daily Rent
-                  </li>
+              <li
+                onClick={() =>
+                  navigate("/dailyRentPayment", {
+                    state: { paymentType: "Daily Rent" },
+                  })
+                }
+                className="cursor-pointer px-4 py-2 bg-yellow-100 text-yellow-600 rounded-md hover:bg-yellow-200"
+              >
+                Daily Rent
+              </li>
               <li
                 onClick={() =>
                   navigate("/messOnlyPayment", {

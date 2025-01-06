@@ -3,7 +3,53 @@ const Student = require('../Models/Add_student');
 const FeePayment = require('../Models/feePayment'); // Ensure the path is correct
 const peopleModel = require('../Models/AddPeople');
 const DailyRent = require('../Models/DailyRentModel');
+const nodemailer = require('nodemailer');
+const fs = require('fs');
+const generatePaymentReceipt = require('../utils/generatePaymentReceipt');
 
+let receiptCounter = 0; // Initial counter, starts at 1
+
+const generateReceiptNumber = () => {
+  // Format the number with leading zeros (e.g., "HVNS01", "HVNS02", ...)
+  const formattedNumber = `HVNS${String(receiptCounter).padStart(2, '0')}`;
+  
+  // Increment the counter for the next receipt number
+  receiptCounter++;
+
+  return formattedNumber;
+};
+
+// Function to send email with PDF attachment
+const sendPaymentReceiptEmail = async (email, pdfBuffer, studentName, transactionId, payingAmount) => {
+  const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: 'heavensliving@gmail.com',
+      pass: 'pcuk cpfn ygav twjd',
+    },
+  });
+
+  const mailOptions = {
+    from: 'heavensliving@gmail.com',
+    to: email,
+    subject: `Thank you for your payment, ${studentName}! Your Receipt is Attached`,
+    text: `Dear ${studentName},\n\nThank you for making the payment. We have received your payment and the receipt is attached.\n\nReceipt Details:\n\nAmount Paid: ${payingAmount}\nTransaction ID: ${transactionId}\n\nIf you have any questions or concerns, feel free to contact us.\n\nBest regards,\nHeavens Living Team`,
+    attachments: [
+      {
+        filename: 'payment_receipt.pdf',
+        content: pdfBuffer,
+      },
+    ],
+  };
+
+
+  try {
+    const info = await transporter.sendMail(mailOptions);
+    console.log('Email sent:', info.response);
+  } catch (error) {
+    console.error('Error sending email:', error);
+  }
+};
 // Function to add a fee payment
 const addFeePayment = async (req, res) => {
   // console.log(req.body);
@@ -16,18 +62,26 @@ const addFeePayment = async (req, res) => {
       payingAmount,
       feeClearedMonthYear,
       waveOffAmount,
+      waveOffDate,
       paidDate,
       waveOffReason,
       paymentMode,
       collectedBy,
+      property,
       transactionId,
       _id,
       isMessPayment, // Field to differentiate payment type
       isDailyRent, // Field to handle daily rent payments
     } = req.body;
-    // console.log(req.body)
+    // console.log(req.body.property)
     const student = _id;
 
+    const studentData = await Student.findById(student);
+    console.log(studentData)
+
+    if (!student) {
+      return res.status(404).json({ message: 'Student not found' });
+    }
     if (transactionId && transactionId !== null || '-') {
       const existingTransaction = await FeePayment.findOne({ transactionId });
 
@@ -54,11 +108,13 @@ const addFeePayment = async (req, res) => {
       pendingBalance: isMessPayment || isDailyRent ? null : balance,
       advanceBalance,
       waveOffAmount,
+      waveOffDate,
       paymentDate: paidDate,
       paymentClearedMonthYear: feeClearedMonthYear,
       paymentMode,
       transactionId: paymentMode === "Cash" ? `CASH_${new Date().getTime()}` : req.body.transactionId,
       collectedBy,
+      property,
       student,
     };
 
@@ -92,7 +148,7 @@ const addFeePayment = async (req, res) => {
       const totalAmount = waveOffAmount ? totalAmountToPay : dailyRentPerson.totalAmount;
 
       if (updatedPayingAmount >= totalAmount) {
-        updateData.paymentStatus = "Paid"; 
+        updateData.paymentStatus = "Paid";
       }
 
       // Update daily rent person payments
@@ -137,8 +193,27 @@ const addFeePayment = async (req, res) => {
     feePaymentData.totalAmountToPay = totalAmountToPay;
     feePaymentData.paymentClearedMonthYear = feeClearedMonthYear;
     feePaymentData.waveOff = waveOffAmount;
+    feePaymentData.waveOffDate = waveOffDate;
     feePaymentData.waveOffReason = waveOffReason;
     feePaymentData.student = _id;
+
+    const receiptNumber = generateReceiptNumber();
+
+    // Generate the PDF asynchronously
+    const pdfBuffer = await generatePaymentReceipt(studentData, {
+      payingAmount,
+      totalAmountToPay,
+      waveOffAmount,
+      balance,
+      paidDate,
+      feeClearedMonthYear,
+      transactionId,
+      paymentMode,
+      receiptNumber
+    });
+
+    // Send the email with the attached PDF
+    await sendPaymentReceiptEmail(studentData.email, pdfBuffer, studentData.name, transactionId, payingAmount);
 
     // Save the fee payment record
     const feePayment = new FeePayment(feePaymentData);
@@ -284,8 +359,17 @@ const getPendingPayments = async (req, res) => {
             unpaidMonths--;
           }
         } else {
-          unpaidMonths = (today.getFullYear() - joinDate.getFullYear()) * 12 + (today.getMonth() - joinDate.getMonth());
-          if (today.getDate() < joinDate.getDate()) {
+          // unpaidMonths = (today.getFullYear() - joinDate.getFullYear()) * 12 + (today.getMonth() - joinDate.getMonth());
+          // if (today.getDate() < joinDate.getDate()) {
+          //   unpaidMonths--;
+          // }
+          // unpaidMonths = 2
+          const joinYear = joinDate.getFullYear();
+          const joinMonth = joinDate.getMonth(); // Months are zero-based in JavaScript
+          const joinDay = joinDate.getDate();
+
+          unpaidMonths = (today.getFullYear() - joinYear) * 12 + (today.getMonth() - joinMonth) + 1; // Add 1 to make it inclusive
+          if (today.getDate() < joinDay) {
             unpaidMonths--;
           }
         }
@@ -305,8 +389,8 @@ const getPendingPayments = async (req, res) => {
         return {
           studentId: student.studentId,
           name: student.name,
-          contact:student.contactNo,
-          joinDate:student.joinDate,
+          contact: student.contactNo,
+          joinDate: student.joinDate,
           room: student.roomNo,
           monthlyRent,
           unpaidMonths,
@@ -315,6 +399,7 @@ const getPendingPayments = async (req, res) => {
           waveOffAmount,
           lastPaidDate: latestPayment ? latestPayment.paymentDate : null,
           paymentClearedMonthYear: latestPayment ? latestPayment.paymentClearedMonthYear : null,
+          propertyName: student.pgName
         };
       }),
 
@@ -369,6 +454,7 @@ const getPendingPayments = async (req, res) => {
           waveOffAmount,
           lastPaidDate: latestPayment ? latestPayment.paymentDate : null,
           paymentClearedMonthYear: latestPayment ? latestPayment.paymentClearedMonthYear : null,
+          property: person.propertyName
         };
       }),
     ]);
@@ -394,10 +480,14 @@ const getWaveOffPayments = async (req, res) => {
 const getTotalMonthlyRent = async (req, res) => {
   try {
     // Fetch all students from the database
-    const students = await Student.find({ vacate: false }, 'monthlyRent'); // Only selecting monthlyRent field
+    const students = await Student.find({ vacate: false }, 'monthlyRent joinDate'); // Only selecting monthlyRent field
     const messPeople = await peopleModel.find({ vacate: false }, 'monthlyRent');
 
-    const totalMonthlyRentStudents = students.reduce((acc, student) => {
+    const eligibleStudents = students.filter(student =>
+      new Date(student.joinDate) <= new Date()
+    )
+
+    const totalMonthlyRentStudents = eligibleStudents.reduce((acc, student) => {
       return acc + (student.monthlyRent || 0); // Default to 0 if monthlyRent is undefined
     }, 0);
 

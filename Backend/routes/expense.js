@@ -50,7 +50,12 @@ router.get('/', verifyToken, expenseController.getAllExpenses);
 
 router.get('/:id', verifyToken, expenseController.getExpenseById);
 
+router.post('/pettycash', verifyToken, expenseController.addPettyCash)
+
+router.get('/pettycash/get', verifyToken, expenseController.getPettyCash);
+
 router.put('/edit/:id', verifyToken, expenseController.editExpense);
+
 
 
 

@@ -269,8 +269,14 @@ const StudentManagement = () => {
   );
 
   const totalStudents = students.filter(student => student.vacate == false).length;
-  const paymentPending = students.filter(student => student.paymentStatus === 'Pending' && student.vacate == false).length;
+  // const paymentPending = students.filter(student => student.paymentStatus === 'Pending' && student.vacate == false).length;
   const paymentCompleted = students.filter(student => student.paymentStatus === 'Paid' && student.vacate == false).length;
+  const paymentPending = students.filter(student => 
+    student.paymentStatus === 'Pending' && 
+    student.vacate === false && 
+    new Date(student.joinDate) <= new Date()
+  ).length;
+  
   const checkedIn = students.filter(student => student.currentStatus === 'checkedIn' && student.vacate == false).length;
   const checkedOut = students.filter(student => student.currentStatus === 'checkedOut' && student.vacate == false).length;
 
@@ -372,7 +378,7 @@ const StudentManagement = () => {
   }
 
   return (
-    <div className="flex flex-col h-screen p-4 bg-gray-100">
+    <div className="flex flex-col p-4 bg-gray-100">
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 mb-6">
         <MetricCard title="Total Students" value={totalStudents} icon={<FaUser />} color="bg-blue-500" onClick={() => setSortOption('All')} />
         <MetricCard title="Payment Pending" value={paymentPending} icon={<FaDollarSign />} color="bg-red-500" onClick={() => setSortOption('Pending')} />

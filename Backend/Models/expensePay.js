@@ -23,12 +23,23 @@ const expenseSchema = new mongoose.Schema({
   },
   transactionId: {
     type: String,
-    default: '-',
     required: false,
   },
   amount: {
     type: Number,
     required: true
+  },
+  salaryMonth: {
+    type: String,
+    required: false
+  },
+  leaveTaken: {
+    type: Number,
+    required: false
+  },
+  handledBy: {
+    type: String,
+    required: false
   },
   date: {
     type: Date,
@@ -49,8 +60,8 @@ const expenseSchema = new mongoose.Schema({
   staff: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Staff',
-    required:false,
-}
+    required: false,
+  }
 }, { timestamps: true });
 
 const Expense = mongoose.model('Expense', expenseSchema);

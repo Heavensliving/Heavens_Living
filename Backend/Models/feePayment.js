@@ -11,14 +11,16 @@ const FeePaymentSchema = new mongoose.Schema({
   paymentClearedMonthYear: { type: String, required: false },
   paymentDate: { type: Date, required: true },
   waveOff: { type: Number, default: 0 },
+  waveOffDate: { type: Date, required: false },
   waveOffReason: { type: String, default:'' },
-  transactionId: { type: String, required: false, default:'-' },
+  transactionId: { type: String, required: false },
   paymentMode: { 
     type: String, 
     enum: ['Cash', 'Net Banking', 'UPI'],
     required: true 
   },
   collectedBy: { type: String },
+  property: {type:String},
   dailyRent: { 
     type: mongoose.Schema.Types.ObjectId, 
     ref: 'DailyRent', 

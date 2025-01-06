@@ -99,7 +99,7 @@ const getStudentById = async (req, res, next) => {
   const studentId = req.params.id;
   let result;
   try {
-    result = await Student.findById(studentId).select('-password'); 
+    result = await Student.findById(studentId).select('-password');
     if (!result)
       return res.status(404).json({ message: 'Student with the given ID does not exist.' });
 
@@ -118,7 +118,7 @@ const editStudent = async (req, res) => {
       updatedData.password = await bcrypt.hash(updatedData.password, 10);
     }
 
-    console.log("Updated Data:", updatedData); // Debugging log
+    // console.log("Updated Data:", updatedData); // Debugging log
 
     // Find the current student
     const student = await Student.findById(id);
@@ -141,14 +141,14 @@ const editStudent = async (req, res) => {
     }
 
     // Debug the roomNumber and property fields
-    console.log("Room Number:", updatedData.roomNo);
-    console.log("Property ID:", updatedData.property);
+    // console.log("Room Number:", updatedData.roomNo);
+    // console.log("Property ID:", updatedData.property);
 
     if (updatedData.roomNo && updatedData.property) {
       const { roomNo, property } = updatedData;
-      console.log("Room Number and Property:", roomNo, property);
+      // console.log("Room Number and Property:", roomNo, property);
       const newRoom = await Rooms.findOne({ roomNumber: roomNo, property });
-      console.log("New Room:", newRoom);
+      // console.log("New Room:", newRoom);
 
       if (!newRoom) {
         return res.status(404).json({ message: 'Room not found for the given property and room number' });
@@ -169,7 +169,7 @@ const editStudent = async (req, res) => {
     }
 
     if (updatedData.paymentStatus && updatedData.paymentStatus === 'Paid') {
-      console.log('here', updatedData.status)
+      // console.log('here', updatedData.status)
       updatedData.isBlocked = false; // Set isBlocked to false if status is 'paid'
     }
 
@@ -399,8 +399,13 @@ const getStudentByStudentId = async (req, res) => {
     }
 
     const { name, monthlyRent, pgName, _id } = student;
-    const joinDate = new Date(student.joinDate);
-    const joinDay = joinDate.getDate(); // Get the exact join day
+    // const joinDate = new Date(student.joinDate);
+    // const joinDay = joinDate.getDate(); // Get the exact join day
+    const joinDateObj = new Date(student.joinDate); // Parse as Date object
+    const joinDate = joinDateObj.toISOString().slice(0, 10).split('-').reverse().join('-'); // Format as string
+    const joinDay = joinDateObj.getUTCDate(); // Correct day in UTC
+    // console.log('join date', joinDate); // Should now correctly log 6
+
 
     // Get the latest payment document
     const latestPayment = student.payments.length > 0 ? student.payments[student.payments.length - 1] : null;
@@ -410,7 +415,7 @@ const getStudentByStudentId = async (req, res) => {
     const waveOffAmount = latestPayment ? latestPayment.waveOff || 0 : 0;
     let advanceBalance = latestPayment ? latestPayment.advanceBalance || '' : '';
     let pendingBalance = latestPayment ? latestPayment.pendingBalance || '' : '';
-    console.log(pendingBalance)
+    console.log(advanceBalance)
 
     const today = new Date();
     let unpaidMonths = 0;
@@ -427,21 +432,44 @@ const getStudentByStudentId = async (req, res) => {
         unpaidMonths--;
       }
     } else {
-      // If no cleared date, calculate unpaid months from the original join date
-      unpaidMonths = 1
-      // (today.getFullYear() - joinDate.getFullYear()) * 12 + (today.getMonth() - joinDate.getMonth());
-      // if (today.getDate() < joinDate.getDate()) {
-      //   unpaidMonths--;
-      // }
+      // unpaidMonths = 1
+      // Calculate unpaid months from joinDate
+      const joinYear = joinDateObj.getFullYear();
+      const joinMonth = joinDateObj.getMonth(); // Months are zero-based in JavaScript
+      const joinDay = joinDateObj.getDate();
+
+      unpaidMonths = (today.getFullYear() - joinYear) * 12 + (today.getMonth() - joinMonth) + 1; // Add 1 to make it inclusive
+      if (today.getDate() < joinDay) {
+        unpaidMonths--;
+      }
+    }
+
+    const dateOfPayment = student.dateOfPayment ? new Date(student.dateOfPayment) : null; // Extract dateOfPayment from student document
+
+    const todayDate = new Date(); // Get today's date
+    todayDate.setUTCHours(0, 0, 0, 0); // Set to UTC midnight
+
+    if (dateOfPayment) {
+      dateOfPayment.setUTCHours(0, 0, 0, 0); // Normalize to UTC midnight
+    }
+
+    // Check if dateOfPayment is valid and greater than or equal to today
+    let adjustedWaveOffAmount = waveOffAmount; // Default to include waveOffAmount
+    if (dateOfPayment && todayDate >= dateOfPayment) {
+      // console.log('Date of Payment:', dateOfPayment);
+      // console.log('Today Date:', todayDate);
+      adjustedWaveOffAmount = 0; // Ignore waveOffAmount if payment date is today or in the future
     }
 
     // Calculate total due rent for unpaid months
     let totalRentDue = unpaidMonths * monthlyRent;
 
     // Account for any payments, wave-offs, and advance balance
-    let pendingRentAmount = totalRentDue + (latestPayment ? latestPayment.pendingBalance : '') - waveOffAmount - advanceBalance;
-    console.log(pendingRentAmount)
+    // let pendingRentAmount = totalRentDue + (latestPayment ? latestPayment.pendingBalance : '') - waveOffAmount - advanceBalance;
+    // console.log(pendingRentAmount)
 
+    let pendingRentAmount = totalRentDue + (latestPayment ? latestPayment.pendingBalance : '') - adjustedWaveOffAmount - advanceBalance;
+    console.log(pendingRentAmount)
     // Adjust for pending amount or excess advance balance
     if (pendingRentAmount < 0) {
       // advanceBalance = Math.abs(pendingRentAmount);
@@ -454,7 +482,7 @@ const getStudentByStudentId = async (req, res) => {
       name,
       monthlyRent,
       pgName,
-      joinDate: joinDate.toLocaleDateString(),
+      joinDate: joinDate,
       latestPaidDate: latestPaidDate ? latestPaidDate.toLocaleDateString() : null,
       feeClearedMonthYear,
       unpaidMonths,

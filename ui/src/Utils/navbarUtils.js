@@ -178,6 +178,9 @@ const pageConfig = {
     },
     "/editExpense/:id":{
       title:"Edit Expense"
+    },
+    "/pettycash":{
+      title:"Add Petty Cash"
     }
     
     

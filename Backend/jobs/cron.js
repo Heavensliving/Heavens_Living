@@ -36,7 +36,7 @@ cron.schedule('0 0 * * *', async () => {
         // If `dateOfPayment` is not set, update it to the next month's same date
         if (!dateOfPayment) {
           await Student.findByIdAndUpdate(_id, {
-            paymentStatus: 'Pending',
+            paymentStatus: paymentStatus === 'Paid' ? 'Paid' : 'Pending',
             pendingSince: today,
             isBlocked: false, // Reset blocking status when a new due date is handled
             dateOfPayment: today, // Set dateOfPayment to the current due date (same day of the next month)
