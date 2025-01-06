@@ -271,7 +271,7 @@ const PaymentDashboard = () => {
         (sum, expense) => sum + (expense.amount || 0),
         0
       );
-      const profitLoss = totalReceived - totalExpenses + totalWaveOff + totalCommission;
+      const profitLoss = totalReceived - (totalExpenses+totalWaveOff+totalCommission);
 
       // Generate PDF
       const doc = new jsPDF();
@@ -495,13 +495,11 @@ const PaymentDashboard = () => {
             <p className="text-lg font-semibold ">₹{totalExpense}</p>
             <p>Expense</p>
           </div>
-          {admin.role !== 'Property-Admin' && (
-            <div className="p-4 bg-gray-100 text-gray-500 rounded-md ">
-              <p className="text-lg font-semibold">₹{total - (totalExpense - totalCommission - totalWaveOff) || 0}</p>{" "}
-              {/* Total Deposit */}
-              <p>Balance</p>
-            </div>
-          )}
+          <div className="p-4 bg-gray-100 text-gray-500 rounded-md ">
+                <p className="text-lg font-semibold">₹{total-(totalExpense+totalCommission+totalWaveOff) || 0}</p>{" "}
+                {/* Total Deposit */}
+                <p>Balance</p>
+              </div>
           <div
             className="p-4 bg-gray-100 text-gray-500 rounded-md cursor-pointer"
             onClick={() => navigate("/commissions")}

@@ -65,7 +65,7 @@ function ManagePeople() {
 
   // Filter people based on search term
   const filteredPeople = people.filter((person) =>
-    person.name.toLowerCase().includes(searchTerm.toLowerCase())
+    person.name.toLowerCase().includes(searchTerm.trim().toLowerCase())
   );
 
   return (

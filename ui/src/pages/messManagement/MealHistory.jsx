@@ -40,7 +40,7 @@ const MessOrderHistory = () => {
       setFilteredOrders(orders);
     } else {
       setFilteredOrders(
-        orders.filter(order => order.orderId.toLowerCase().includes(searchQuery.toLowerCase()))
+        orders.filter(order => order.orderId.toLowerCase().includes(searchQuery.trim().toLowerCase()))
       );
     }
   }, [searchQuery, orders]);
