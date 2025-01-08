@@ -83,7 +83,7 @@ const Navbar = () => {
                 </div>
 
                 <div className="flex items-center space-x-2">
-                    {isHomePage && (
+                    {/* {isHomePage && (
                         <div className="relative hidden md:flex flex-grow mx-4">
                             <input
                                 type="text"
@@ -94,7 +94,7 @@ const Navbar = () => {
                                 <FaSearch className="h-5 w-5" />
                             </span>
                         </div>
-                    )}
+                    )} */}
                     <button className="relative p-2 bg-white rounded-full shadow" onClick={() => navigate('/notification')}>
                         <FaBell className="h-6 w-6 text-gray-400" />
                     </button>

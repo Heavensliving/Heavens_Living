@@ -415,7 +415,7 @@ const ExpenseForm = () => {
                 type="file"
                 name="billImg"
                 accept="image/*"
-                capture="environment"
+                // capture="environment"
                 onChange={(e) => handleChange(e)}
                 className="w-full p-2 border rounded-md"
               />
