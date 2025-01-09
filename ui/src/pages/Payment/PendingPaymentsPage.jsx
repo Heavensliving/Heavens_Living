@@ -116,7 +116,6 @@ const PendingPaymentsPage = () => {
   
     return matchesSearch && !isClearedLater && propertyMatches && joinDateMatches;
   });
-  
 
   // Calculate the total pending rent amount for the filtered transactions
   const totalPendingRentAmount = filteredTransactions.reduce((total, payment) => {
@@ -146,9 +145,10 @@ const PendingPaymentsPage = () => {
     const tableData = filteredTransactions.map((payment, index) => [
       index + 1,
       payment.name || "N/A",
-      payment.studentId || "N/A",
+      payment.contact || "N/A",
       payment.room || "N/A",
       payment.monthlyRent || "N/A",
+      payment.joinDate ? new Date(payment.joinDate).toLocaleDateString() : '-',
       payment.lastPaidDate ? new Date(payment.lastPaidDate).toLocaleDateString() : '-',
       payment.paymentClearedMonthYear || "-",
       payment.pendingRentAmount || payment.monthlyRent,
@@ -157,7 +157,7 @@ const PendingPaymentsPage = () => {
     doc.autoTable({
       startY: 40,
       head: [
-        ['#', 'Name', 'Student ID', 'room', 'Rent Amount', 'Last Paid Date', 'Cleared Month', 'Total Due Amount'],
+        ['#', 'Name', 'Contact', 'room', 'Rent Amount', 'Join Date', 'Last Paid Date', 'Cleared Month', 'Total Due Amount'],
       ],
       body: tableData,
     });
@@ -302,7 +302,7 @@ const PendingPaymentsPage = () => {
               <tr>
                 <th className="py-3 px-4 border text-left text-sm">#</th>
                 <th className="py-3 px-4 border text-left text-sm">Name</th>
-                <th className="py-3 px-4 border text-left text-sm text-center">Contact No</th>
+                <th className="py-3 px-4 border text-left text-sm text-center">Contact</th>
                 <th className="py-3 px-4 border text-left text-sm text-center">Room</th>
                 <th className="py-3 px-4 border text-left text-sm text-center">Rent</th>
                 <th className="py-3 px-4 border text-left text-sm text-center">Join Date</th>

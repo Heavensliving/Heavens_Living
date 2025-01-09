@@ -46,20 +46,20 @@ const StudentTable = ({ students, onRowClick, onDelete, onStatusChange, admin })
 
   const downloadPDF = (students) => {
     const doc = new jsPDF();
-  
+
     // Set font and size for the title
     doc.setFont("helvetica", "bold");
     doc.setFontSize(16);
-  
+
     // Calculate center position for the title
     const title = "Residents Details";
     const pageWidth = doc.internal.pageSize.width;
     const textWidth = doc.getTextWidth(title);
     const xPosition = (pageWidth - textWidth) / 2;
-  
+
     // Add centered title
     doc.text(title, xPosition, 20); // Adjusted Y position to make room for the table
-  
+
     // Prepare table data
     const tableData = students.map((student, index) => [
       index + 1,
@@ -72,25 +72,25 @@ const StudentTable = ({ students, onRowClick, onDelete, onStatusChange, admin })
     ]);
 
     doc.autoTable({
-      startY: 30, 
+      startY: 30,
       head: [["#", "Name", "Contact", "Room", "Join Date", "Monthly Rent", "Payment Status"]],
       body: tableData,
       theme: "grid",
       columnStyles: {
-        0: { halign: "left" }, 
-        1: { halign: "left" }, 
-        2: { halign: "center" }, 
-        3: { halign: "center" }, 
-        4: { halign: "center" }, 
-        5: { halign: "center" }, 
-        6: { halign: "center" }, 
+        0: { halign: "left" },
+        1: { halign: "left" },
+        2: { halign: "center" },
+        3: { halign: "center" },
+        4: { halign: "center" },
+        5: { halign: "center" },
+        6: { halign: "center" },
       },
     });
-  
+
     // Save the PDF
     doc.save("Flora_Inn.pdf");
   };
-  
+
   return (
     <>
       <div className="flex justify-center my-2">
@@ -105,7 +105,7 @@ const StudentTable = ({ students, onRowClick, onDelete, onStatusChange, admin })
         <thead className="bg-white text-blue-800">
           <tr className="border-b border-gray-300">
             <th className="py-2 px-2 font-normal text-xs md:text-sm">#</th>
-            <th className="py-2 px-2 font-normal text-xs md:text-sm">Name</th>
+            <th className="py-2 px-2 font-normal text-xs md:text-sm text-start">Name</th>
             {/* <th className="py-2 px-2 font-normal text-xs md:text-sm">ID</th> */}
             <th className="py-2 px-2 font-normal text-xs md:text-sm">Contact</th>
             <th className="py-2 px-2 font-normal text-xs md:text-sm">Join Date</th>
@@ -132,15 +132,13 @@ const StudentTable = ({ students, onRowClick, onDelete, onStatusChange, admin })
                     : ""
                   }`}
                 onClick={() => {
-
                   onRowClick(student._id);
-
                 }}
               >
-                <td className="py-4 px-4 text-center text-gray-700 font-medium text-xs md:text-sm">
+                <td className="py-2 px-2 text-center text-gray-700 font-medium text-xs md:text-sm">
                   {index + 1}
                 </td>
-                <td className="py-4 px-4 text-gray-700 font-medium text-xs md:text-sm">
+                <td className="py-2 px-2 text-gray-700 font-medium text-xs md:text-sm text-start">
                   {student.name}{" "}
                   {student.vacate && (
                     <span className="text-sm text-red-600 font-bold">
@@ -156,16 +154,16 @@ const StudentTable = ({ students, onRowClick, onDelete, onStatusChange, admin })
                 {/* <td className="py-4 px-4 text-center text-gray-700 font-medium text-xs md:text-sm">
                   {student.studentId}
                 </td> */}
-                <td className="py-4 px-4 text-center text-gray-700 font-medium text-xs md:text-sm">
+                <td className="py-2 px-2 text-center text-gray-700 font-medium text-xs md:text-sm">
                   {student.contactNo}
                 </td>
-                <td className="py-4 px-4 text-center text-gray-700 font-medium text-xs md:text-sm">
+                <td className="py-2 px-2 text-center text-gray-700 font-medium text-xs md:text-sm">
                   {new Date(student.joinDate).toISOString().slice(0, 10).split('-').reverse().join('-')}
                 </td>
-                <td className="py-4 px-4 text-center text-gray-700 font-medium text-xs md:text-sm">
+                <td className="py-2 px-2 text-center text-gray-700 font-medium text-xs md:text-sm">
                   {student.roomNo}
                 </td>
-                <td className="py-4 px-4 text-center text-xs md:text-sm">
+                <td className="py-2 px-2 text-center text-xs md:text-sm">
                   <span
                     className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${student.paymentStatus === "Paid"
                       ? "bg-green-100 text-green-800"
@@ -254,7 +252,6 @@ const StudentTable = ({ students, onRowClick, onDelete, onStatusChange, admin })
                       >
                         <FaTrash />
                       </button>
-
                     </>
                   )}
                 </td>

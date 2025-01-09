@@ -44,7 +44,7 @@ const DailyRentTable = ({ dailyRents, onRowClick, onEdit, onDelete, admin }) => 
             </tr>
           ) : (
             dailyRents.map((dailyRent, index) => {
-              const rowClass = dailyRent.vacate ? "bg-red-100" : "hover:bg-gray-50";
+              const rowClass = dailyRent.vacate ? "bg-red-100 cursor-pointer hover:bg-red-200" : "cursor-pointer hover:bg-gray-50";
 
               const allowRowClick =
                 (isPropertyAdmin && !dailyRent.vacate) || isMainAdmin;
@@ -52,13 +52,11 @@ const DailyRentTable = ({ dailyRents, onRowClick, onEdit, onDelete, admin }) => 
               return (
                 <tr
                   key={dailyRent._id}
-                  className={`border-b ${rowClass} ${allowRowClick ? 'cursor-pointer' : 'cursor-not-allowed'
+                  className={`border-b ${rowClass}
                     }`}
                   onClick={(e) => {
-                    if (allowRowClick) {
                       e.stopPropagation();
                       onRowClick(dailyRent._id);
-                    }
                   }}
                 >
                   <td className="py-2 px-4">{index + 1}</td>
@@ -104,17 +102,13 @@ const DailyRentTable = ({ dailyRents, onRowClick, onEdit, onDelete, admin }) => 
                     </button>
                     <button className="bg-blue-500 text-white text-xs px-3 py-1 rounded hover:bg-blue-600">
                       <FaEdit
-                        className={`${allowRowClick ? 'text-white' : 'text-gray-400'
+                        className={` 'text-white cursor-pointer' 
                           } `}
                         onClick={(e) => {
-                          if (allowRowClick) {
                             e.stopPropagation();
                             onEdit(dailyRent._id);
-                          }
                         }}
-                        style={{
-                          cursor: allowRowClick ? 'pointer' : 'not-allowed',
-                        }}
+                        
                       />
                     </button>
                     <button className="bg-red-500 text-white text-xs px-3 py-1 rounded hover:bg-red-600">

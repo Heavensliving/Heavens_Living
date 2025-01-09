@@ -53,18 +53,18 @@ const StaffManagement = () => {
 
   const [deleteStaffId, setDeleteStaffId] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState(localStorage.getItem('searchQuery') || '');
-  const [propertySort, setPropertySort] = useState(localStorage.getItem('propertySort') || '');
-  const [sortOption, setSortOption] = useState(localStorage.getItem('sortOption') || 'All');
+  const [searchQuery, setSearchQuery] = useState(localStorage.getItem('staffSearchQuery') || '');
+  const [propertySort, setPropertySort] = useState(localStorage.getItem('staffPropertySort') || '');
+  const [sortOption, setSortOption] = useState(localStorage.getItem('staffSortOption') || 'All');
 
   useEffect(() => {
     // Apply saved filters from local storage on initial load
     const applySavedFilters = () => {
       let filteredStaffs = originalStaffs;
   
-      if (searchQuery) {
+      if (searchQuery.trim()) {
         filteredStaffs = filteredStaffs.filter(staff =>
-          staff.Name && staff.Name.toLowerCase().includes(searchQuery.trimStart().toLowerCase())
+          staff.Name && staff.Name.toLowerCase().includes(searchQuery.trim().toLowerCase())
         );
       }
   
@@ -129,12 +129,12 @@ const StaffManagement = () => {
   const handleSearchChange = (e) => {
     const value = e.target.value;
     setSearchQuery(value);
-    localStorage.setItem('searchQuery', value);
+    localStorage.setItem('staffSearchQuery', value);
   };
 
   const onSortChange = (sortValue) => {
     setSortOption(sortValue);
-    localStorage.setItem('sortOption', sortValue);
+    localStorage.setItem('staffSortOption', sortValue);
 
     if (sortValue === 'All') {
       setStaffs(originalStaffs);
@@ -147,7 +147,7 @@ const StaffManagement = () => {
   const handlePropertySortChange = (e) => {
     const selectedProperty = e.target.value;
     setPropertySort(selectedProperty);
-    localStorage.setItem('propertySort', selectedProperty);
+    localStorage.setItem('staffPropertySort', selectedProperty);
 
     if (selectedProperty === '') {
       setStaffs(originalStaffs);
