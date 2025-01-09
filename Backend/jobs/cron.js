@@ -59,7 +59,7 @@ cron.schedule('0 0 * * *', async () => {
         const pendingDate = new Date(pendingSince);
         const daysPending = Math.floor((today - pendingDate) / (1000 * 60 * 60 * 24));
 
-        if (daysPending > 7 && !isBlocked) {
+        if (daysPending > 6 && !isBlocked) {
           await Student.findByIdAndUpdate(_id, { isBlocked: true });
           console.log(`Blocked ${student.name} due to non-payment.`);
         }
