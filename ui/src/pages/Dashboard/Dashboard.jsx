@@ -40,34 +40,7 @@ const Dashboard = () => {
             </div>
           </div>
 
-          {/* Calendar Section */}
-          <div className="bg-white p-4 rounded-lg shadow h-[500px]"> {/* Same fixed height */}
-            <h2 className="text-lg font-semibold mb-4 text-center sm:text-left">
-              Calendar - {monthName}
-            </h2>
-            <div className="grid grid-cols-7 gap-2 h-[calc(100%-3rem)]"> {/* Adjust for header space */}
-              {daysOfWeek.map((day, index) => (
-                <div key={index} className="font-bold text-center">
-                  {day}
-                </div>
-              ))}
-              {Array.from({ length: firstDayOfMonth }).map((_, index) => (
-                <div key={index} className="text-center"></div>
-              ))}
-              {calendarDays.map((day) => (
-                <div
-                  key={day}
-                  className={`p-2 text-center rounded-full ${
-                    day === currentDate 
-                      ? "bg-green-500 text-white" 
-                      : "hover:bg-gray-200"
-                  }`}
-                >
-                  {day}
-                </div>
-              ))}
-            </div>
-          </div>
+         
         </div>
       </main>
     </div>
@@ -75,3 +48,36 @@ const Dashboard = () => {
 };
 
 export default CheckAuth(Dashboard);
+
+
+
+
+ {/* Calendar Section */}
+ 
+//  <div className="bg-white p-4 rounded-lg shadow h-[500px]"> {/* Same fixed height */}
+//  <h2 className="text-lg font-semibold mb-4 text-center sm:text-left">
+//    Calendar - {monthName}
+//  </h2>
+//  <div className="grid grid-cols-7 gap-2 h-[calc(100%-3rem)]"> {/* Adjust for header space */}
+//    {daysOfWeek.map((day, index) => (
+//      <div key={index} className="font-bold text-center">
+//        {day}
+//      </div>
+//    ))}
+//    {Array.from({ length: firstDayOfMonth }).map((_, index) => (
+//      <div key={index} className="text-center"></div>
+//    ))}
+//    {calendarDays.map((day) => (
+//      <div
+//        key={day}
+//        className={`p-2 text-center rounded-full ${
+//          day === currentDate 
+//            ? "bg-green-500 text-white" 
+//            : "hover:bg-gray-200"
+//        }`}
+//      >
+//        {day}
+//      </div>
+//    ))}
+//  </div>
+// </div>
