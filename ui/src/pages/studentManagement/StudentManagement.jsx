@@ -257,11 +257,11 @@ const StudentManagement = () => {
 
 
   // Persist filter states to localStorage whenever they are updated
-  useEffect(() => {
-    localStorage.setItem('searchQuery', searchQuery);
-    localStorage.setItem('sortOption', sortOption);
-    localStorage.setItem('propertySort', propertySort);
-  }, [searchQuery, sortOption, propertySort]);
+  // useEffect(() => {
+  //   localStorage.setItem('searchQuery', searchQuery);
+  //   localStorage.setItem('sortOption', sortOption);
+  //   localStorage.setItem('propertySort', propertySort);
+  // }, [searchQuery, sortOption, propertySort]);
 
   const filteredStudents = students.filter(student =>
     student.name.toLowerCase().includes(searchQuery.toLowerCase()) ||

@@ -67,10 +67,10 @@ function EditPeople() {
     }
 
     // Validate total time period
-    if (totalDays < 15) {
-      errors.timePeriod = "Time period must be at least 15 days.";
-      valid = false;
-    }
+    // if (totalDays < 1) {
+    //   errors.timePeriod = "Time period must be at least 15 days.";
+    //   valid = false;
+    // }
 
     setErrors(errors);
     return valid;

@@ -111,11 +111,32 @@ const getPersonById = async (req, res) => {
     res.status(500).json({ message: 'Error fetching person', error: error.message });
   }
 };
+const getPeopleRentByGeneratedId = async (req, res) => {
+  const { renterId } = req.params;
+  try {
+    const renter = await DailyRent.findOne({ OccupantId: renterId })
+      .populate('payments');
+    if (!renter) {
+      return res.status(404).json({ message: 'DailyRent entry not found' });
+    }
+    const latestPayment = renter.payments.length > 0 ? renter.payments[renter.payments.length - 1] : null;
+    const latestPaidDate = latestPayment ? new Date(latestPayment.paymentDate) : null;
+    const response = {
+      renter,
+      latestPaidDate
+    };
+    res.status(200).json(response);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+}
+
 
 module.exports = {
   addPeople,
   getAllPeople,
   updatePerson,
   deletePerson,
-  getPersonById
+  getPersonById,
+  getPeopleRentByGeneratedId
 };
