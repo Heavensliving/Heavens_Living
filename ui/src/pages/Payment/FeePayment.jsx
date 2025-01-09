@@ -9,7 +9,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 // eslint-disable-next-line react/prop-types
-const InputField = ({ label, name, type = 'text', value, onChange, required = false, disabled = false }) => (
+const InputField = ({ label, name, type = 'text', value, onChange, required = false, disabled = false, style }) => (
   <div className="w-full md:w-1/2 px-2 mb-4">
     <label className="block text-gray-700 mb-2">{label}</label>
     <input
@@ -22,6 +22,7 @@ const InputField = ({ label, name, type = 'text', value, onChange, required = fa
       required={required}
       disabled={disabled}
       onWheel={(e) => e.target.blur()}
+      style={style}
     />
   </div>
 );
@@ -246,7 +247,10 @@ const FeePayment = () => {
               <InputField label="Last Paid Date" name="lastPaidDate" value={paymentData.latestPaidDate || ''} disabled />
             )}
             {isStudentDataFetched && (
-              <InputField label="Rent Status" name="rentStatus" type="text" disabled
+              <InputField label="Rent Status" name="rentStatus" type="text" disabled  style={{
+                color: paymentData.pendingRentAmount ? 'red' : 'green',
+                fontWeight: 'bold',
+              }}
                 value={
                   paymentData.pendingRentAmount
                     ? `Pending due: ${paymentData.pendingRentAmount}`

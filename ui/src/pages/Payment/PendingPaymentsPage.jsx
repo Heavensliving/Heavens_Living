@@ -17,8 +17,16 @@ const PendingPaymentsPage = () => {
   const [selectedJYear, setSelectedJYear] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [propertyFilter, setPropertyFilter] = useState('');
-
+  // const [propertyFilter, setPropertyFilter] = useState('');
+   const [propertyFilter, setPropertyFilter] = useState(() => {
+      if (admin?.role === 'Main-Admin') {
+        return 'totalReceived';
+      } else if (admin?.properties?.length > 0) {
+        return admin.properties[0].name; // Use the first property as the default
+      } else {
+        return ''; // Default to an empty string if no properties are available
+      }
+    });
 
   useEffect(() => {
     if (!admin) return;
@@ -47,6 +55,14 @@ const PendingPaymentsPage = () => {
 
     fetchPendingPayments();
   }, [admin.token]);
+  const adminProperties = admin?.properties || [];
+  const defaultProperty = adminProperties.length > 0 ? adminProperties[0].name : '';
+
+   useEffect(() => {
+      if (defaultProperty && !propertyFilter) {
+        setPropertyFilter(defaultProperty); // Set default property on initial render
+      }
+    }, [defaultProperty]);
 
   // const filteredTransactions = pendingPayments.filter(payment => {
   //   const matchesSearch = searchTerm
