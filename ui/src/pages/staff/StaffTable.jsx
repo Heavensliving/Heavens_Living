@@ -135,7 +135,7 @@ const StaffTable = ({ staffs, onRowClick, onDeleteClick, searchQuery }) => {
             ))
           ) : (
             <tr>
-              <td colSpan="7" className="py-4 text-gray-500">
+              <td colSpan="7" className="py-4 text-gray-500 text-center">
                 No data found
               </td>
             </tr>

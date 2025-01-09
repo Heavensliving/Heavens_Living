@@ -12,6 +12,8 @@ const MessOrderHistory = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [mealFilter, setMealFilter] = useState('');
+  const [dateFilter, setDateFilter] = useState('');
   const [currentPage, setCurrentPage] = useState(1); // Track current page
   const [ordersPerPage] = useState(10); // Number of orders per page
 
@@ -36,14 +38,37 @@ const MessOrderHistory = () => {
 
   // Filter orders based on search query
   useEffect(() => {
-    if (searchQuery === '') {
+    if (searchQuery === '' && !mealFilter && !dateFilter) {
+      // If no filters are applied, show all orders
       setFilteredOrders(orders);
     } else {
-      setFilteredOrders(
-        orders.filter(order => order.orderId.toLowerCase().includes(searchQuery.trim().toLowerCase()))
-      );
+      let filtered = [...orders];
+
+      // Search Filter
+      if (searchQuery !== '') {
+        filtered = filtered.filter(order =>
+          order.orderId.toLowerCase().includes(searchQuery.trim().toLowerCase()) ||
+          order.name.toLowerCase().includes(searchQuery.trim().toLowerCase())
+        );
+      }
+
+      // Meal Filter
+      if (mealFilter) {
+        filtered = filtered.filter(order => order.mealType === mealFilter);
+      }
+
+      // Date Filter
+      if (dateFilter) {
+        filtered = filtered.filter(order =>
+          new Date(order.bookingDate).toLocaleDateString('en-CA') === dateFilter
+        );
+      }
+
+      // Update the filtered orders state
+      setFilteredOrders(filtered);
     }
-  }, [searchQuery, orders]);
+  }, [searchQuery, orders, mealFilter, dateFilter]);
+
 
   // Pagination Logic
   const indexOfLastOrder = currentPage * ordersPerPage;
@@ -59,6 +84,15 @@ const MessOrderHistory = () => {
   const handleSearchChange = (e) => {
     setSearchQuery(e.target.value); // Update search query state on input change
   };
+
+  const handleMealFilterChange = e => {
+    setMealFilter(e.target.value);
+  };
+
+  const handleDateFilterChange = e => {
+    setDateFilter(e.target.value);
+  };
+
 
   if (loading) {
     return (
@@ -77,16 +111,50 @@ const MessOrderHistory = () => {
 
   return (
     <div className="bg-white shadow-md rounded-lg p-4">
-      {/* Search Input */}
-      <div className="mb-4">
-        <input
-          type="text"
-          placeholder="Search by Order ID"
-          value={searchQuery}
-          onChange={handleSearchChange}
-          className="p-2 border border-gray-300 rounded w-full focus:outline-none focus:ring-2 focus:ring-side-bar"
-        />
-      </div>
+     {/* Search and Filter Row */}
+<div className="mb-4 flex flex-wrap sm:flex-nowrap gap-4">
+  {/* Search Input */}
+  <div className="w-full sm:w-1/3">
+    <label htmlFor="search" className="block text-sm font-medium text-gray-700">Search</label>
+    <input
+      id="search"
+      type="text"
+      placeholder="Search by Name or Order ID"
+      value={searchQuery}
+      onChange={handleSearchChange}
+      className="p-2 border border-gray-300 rounded w-full focus:outline-none focus:ring-2 focus:ring-side-bar"
+    />
+  </div>
+
+  {/* Meal Filter */}
+  <div className="w-full sm:w-1/3">
+    <label htmlFor="mealFilter" className="block text-sm font-medium text-gray-700">Meal Type</label>
+    <select
+      id="mealFilter"
+      value={mealFilter}
+      onChange={handleMealFilterChange}
+      className="p-2 border border-gray-300 rounded w-full focus:outline-none focus:ring-2 focus:ring-side-bar"
+    >
+      <option value="">Filter by Meal</option>
+      <option value="Breakfast">Breakfast</option>
+      <option value="Lunch">Lunch</option>
+      <option value="Dinner">Dinner</option>
+    </select>
+  </div>
+
+  {/* Date Filter */}
+  <div className="w-full sm:w-1/3">
+    <label htmlFor="dateFilter" className="block text-sm font-medium text-gray-700">Date</label>
+    <input
+      id="dateFilter"
+      type="date"
+      value={dateFilter}
+      onChange={handleDateFilterChange}
+      className="p-2 border border-gray-300 rounded w-full focus:outline-none focus:ring-2 focus:ring-side-bar"
+    />
+  </div>
+</div>
+
 
       <table className="min-w-full text-left border-collapse">
         <thead>
