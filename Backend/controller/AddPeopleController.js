@@ -132,27 +132,6 @@ const getPeopleRentByGeneratedId = async (req, res) => {
 }
 
 
-const getPeopleRentByGeneratedId = async (req, res) => {
-  const { renterId } = req.params;
-  try {
-    const renter = await peopleModel.findOne({ studentId: renterId })
-      .populate('payments');
-    if (!renter) {
-      return res.status(404).json({ message: 'Mess only entry not found' });
-    }
-    const latestPayment = renter.payments.length > 0 ? renter.payments[renter.payments.length - 1] : null;
-    const latestPaidDate = latestPayment ? new Date(latestPayment.paymentDate) : null;
-    const response = {
-      renter,
-      latestPaidDate
-    };
-    res.status(200).json(response);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-}
-
-
 module.exports = {
   addPeople,
   getAllPeople,
@@ -160,6 +139,4 @@ module.exports = {
   deletePerson,
   getPersonById,
   getPeopleRentByGeneratedId
-  getPersonById,
-  getPeopleRentByGeneratedId,
 };
