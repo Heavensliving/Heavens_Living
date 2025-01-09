@@ -65,16 +65,16 @@ const StaffTable = ({ staffs, onRowClick, onDeleteClick, searchQuery }) => {
 
   return (
     <>
-      <table className="w-full text-center min-w-full">
+      <table className="w-full min-w-full">
         <thead className="border-b">
           <tr className="text-gray-600 border-b">
-            <th className="py-4">#</th>
-            <th className="py-4">Name</th>
-            <th className="py-4">ID</th>
-            <th className="py-4">Job Role</th>
-            <th className="py-4">Contact</th>
-            <th className="py-4">Status</th>
-            <th className="py-4">Action</th>
+            <th className="py-4 text-start">#</th>
+            <th className="py-4 text-start">Name</th>
+            <th className="py-4 text-center">Contact</th>
+            {/* <th className="py-4">ID</th> */}
+            <th className="py-4 text-center">Job Role</th>
+            <th className="py-4 text-center">Status</th>
+            <th className="py-4 text-center">Action</th>
           </tr>
         </thead>
         <tbody>
@@ -87,10 +87,10 @@ const StaffTable = ({ staffs, onRowClick, onDeleteClick, searchQuery }) => {
               >
                 <td className="py-4">{index + 1}</td>
                 <td className="py-4">{staff.Name || 'N/A'}</td>
-                <td className="py-4">{staff.StaffId || 'N/A'}</td>
-                <td className="py-4">{staff.Type || 'N/A'}</td>
-                <td className="py-4">{staff.Contactnumber || 'N/A'}</td>
-                <td className="py-4 px-4 text-center text-xs md:text-sm">
+                <td className="py-4 text-center">{staff.Contactnumber || 'N/A'}</td>
+                {/* <td className="py-4">{staff.StaffId || 'N/A'}</td> */}
+                <td className="py-4 text-center">{staff.Type || 'N/A'}</td>
+                <td className="py-4 px-4 text-center text-xs md:text-sm text-center">
                   <span
                     className={`inline-block px-2 py-1 rounded-full text-sm font-medium ${staff.Status === 'On Duty' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
                       }`}

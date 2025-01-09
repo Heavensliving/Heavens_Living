@@ -129,8 +129,8 @@ const DailyRentPayment = () => {
       paymentMode,
       collectedBy: finalCollectedBy,
       property: paymentData.renter.pgName,
-      isMessPayment: paymentType !== "Daily Rent",
-      isDailyRent: paymentType === "Daily Rent",
+      isMessPayment: paymentType === "Daily Rent",
+      isDailyRent: paymentType !== "Daily Rent",
     };
 
     try {
@@ -215,7 +215,7 @@ const DailyRentPayment = () => {
             )}
 
             {paymentData.renter && paymentData.renter.totalAmount && (
-              <InputField label="Total Rent" name="totalAmount" value={paymentData.renter.totalAmount} disabled />
+              <InputField label="Total Rent" name="totalAmount" value={paymentData.renter.totalAmount || ''} disabled />
             )}
 
             {paymentData.renter && paymentData.renter.payingAmount !== 0 && (
@@ -228,7 +228,7 @@ const DailyRentPayment = () => {
             )}
 
             {paymentData.latestPaidDate && (
-              <InputField label="Last Paid Date" name="lastPaidDate" value={new Date(paymentData.latestPaidDate).toLocaleDateString('en-GB') || ''} disabled />
+              <InputField label="Last Paid Date" name="lastPaidDate" value={new Date(paymentData.latestPaidDate || '').toLocaleDateString('en-GB') || ''} disabled />
             )}
             {isRenterDataFetched && (
               <InputField
@@ -248,7 +248,7 @@ const DailyRentPayment = () => {
             {isRenterDataFetched && (
               <>
                 <h1 className="w-full text-lg font-semibold mt-4 text-center mb-4">Make Payment</h1>
-                <InputField label={"Total Amount to Pay"} name="totalAmount" type="number" value={totalAmount} onChange={(e) => setTotalAmountToPay(e.target.value)} disabled />
+                <InputField label={"Total Amount to Pay"} name="totalAmount" type="number" value={totalAmount || 0} onChange={(e) => setTotalAmountToPay(e.target.value)} disabled />
                 <InputField label="Wave-Off Amount" name="waveOffAmount" type="number" value={waveOffAmount} onChange={(e) => setWaveOffAmount(e.target.value)} />
                 <InputField label="Amount Paying" name="paidAmount" type="number" value={payingAmount} onChange={(e) => setPayingAmount(e.target.value)} required />
                 <div className="w-full md:w-1/2 px-2 mb-4">

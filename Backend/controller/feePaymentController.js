@@ -12,7 +12,7 @@ let receiptCounter = 0; // Initial counter, starts at 1
 const generateReceiptNumber = () => {
   // Format the number with leading zeros (e.g., "HVNS01", "HVNS02", ...)
   const formattedNumber = `HVNS${String(receiptCounter).padStart(2, '0')}`;
-  
+
   // Increment the counter for the next receipt number
   receiptCounter++;
 
@@ -73,15 +73,12 @@ const addFeePayment = async (req, res) => {
       isMessPayment, // Field to differentiate payment type
       isDailyRent, // Field to handle daily rent payments
     } = req.body;
-    // console.log(req.body.property)
+    console.log(req.body)
     const student = _id;
 
     const studentData = await Student.findById(student);
     console.log(studentData)
-
-    if (!student) {
-      return res.status(404).json({ message: 'Student not found' });
-    }
+    
     if (transactionId && transactionId !== null || '-') {
       const existingTransaction = await FeePayment.findOne({ transactionId });
 
@@ -375,9 +372,23 @@ const getPendingPayments = async (req, res) => {
         }
 
         const monthlyRent = student.monthlyRent || 0;
+
+        const dateOfPayment = student.dateOfPayment ? new Date(student.dateOfPayment) : null; // Extract dateOfPayment from student document
+
+        const todayDate = new Date(); // Get today's date
+        todayDate.setUTCHours(0, 0, 0, 0); // Set to UTC midnight
+
+        if (dateOfPayment) {
+          dateOfPayment.setUTCHours(0, 0, 0, 0); // Normalize to UTC midnight
+        }
+
+        let adjustedWaveOffAmount = waveOffAmount;
+        if (dateOfPayment && todayDate >= dateOfPayment) {
+          adjustedWaveOffAmount = 0;
+        }
         const totalRentDue = unpaidMonths * monthlyRent;
 
-        let pendingRentAmount = totalRentDue + (latestPayment ? latestPayment.pendingBalance || 0 : 0) - waveOffAmount - advanceBalance;
+        let pendingRentAmount = totalRentDue + (latestPayment ? latestPayment.pendingBalance || 0 : 0) - adjustedWaveOffAmount - advanceBalance;
 
         if (pendingRentAmount < 0) {
           advanceBalance = Math.abs(pendingRentAmount);

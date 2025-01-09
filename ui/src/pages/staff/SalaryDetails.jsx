@@ -114,7 +114,7 @@
 // export default SalaryDetails;
 
 import React, { useEffect, useState } from 'react';
-import { FiCheckCircle, FiAlertTriangle } from 'react-icons/fi';
+import { FiCheckCircle } from 'react-icons/fi';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
@@ -127,26 +127,38 @@ const SalaryDetails = ({ onClose, slideIn }) => {
     // State variables
     const [expenses, setExpenses] = useState([]);
     const [totalSalaryPaid, setTotalSalaryPaid] = useState(0);
-    const [monthlySalary, setMonthlySalary] = useState(0);  // Store fixed monthly salary
+    const [monthlySalary, setMonthlySalary] = useState(0);  
     const [pendingSalary, setPendingSalary] = useState(0);
 
     useEffect(() => {
         if (staffId) {
             // Fetch Salary Transactions
-            axios.get(`${API_BASE_URL}/expense/staff/${staffId}`, {
+            axios.get(`${API_BASE_URL}/expense/salary-overview/${staffId}`, {
                 headers: { Authorization: `Bearer ${admin.token}` },
             })
                 .then((response) => {
-                    if (response.data.length > 0) {
-                        const salaryTransactions = response.data.filter(expense => expense.category === "Salary");
+                    console.log(response.data)
+                    if (response.data.transactions.length > 0) {
+                        const salaryTransactions = response.data.transactions.filter(expense => expense.category === "Salary");
                         setExpenses(salaryTransactions.reverse());
 
                         // Calculate total salary paid
                         const totalAmount = salaryTransactions.reduce((sum, expense) => sum + (expense.amount || 0), 0);
                         setTotalSalaryPaid(totalAmount);
+                    } else {
+                        setExpenses([]);  // No salary transactions found
+                        setTotalSalaryPaid(0); // No salary paid
                     }
                 })
-                .catch((error) => console.error('Error fetching salary data:', error));
+                .catch((error) => {
+                    if (error.response && error.response.status === 404) {
+                        console.warn('No salary records found.');
+                        setExpenses([]);
+                        setTotalSalaryPaid(0);
+                    } else {
+                        console.error('Error fetching salary data:', error);
+                    }
+                });
 
             // Fetch Staff's Monthly Salary
             axios.get(`${API_BASE_URL}/staff/${staffId}`, {
@@ -240,4 +252,3 @@ const SalaryDetails = ({ onClose, slideIn }) => {
 };
 
 export default SalaryDetails;
-
