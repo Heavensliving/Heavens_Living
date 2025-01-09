@@ -340,7 +340,6 @@ const ExpenseForm = () => {
                     onWheel={(e) => e.target.blur()}
                     className="mt-1 p-2 w-full border rounded-md"
                     placeholder="Enter number of leaves taken"
-                    required
                   />
                 </div>
               </>

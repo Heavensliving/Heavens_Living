@@ -46,6 +46,8 @@ router.get('/monthlyExpense', verifyToken, expenseController.getMonthlyTotalExpe
 
 router.get('/staff/:staffId', verifyToken, expenseController.getExpensesByStaff);
 
+router.get('/salary-overview/:staffId', verifyToken, expenseController.getSalaryOverview);
+
 router.get('/', verifyToken, expenseController.getAllExpenses);
 
 router.get('/:id', verifyToken, expenseController.getExpenseById);

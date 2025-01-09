@@ -15,6 +15,8 @@ router.delete("/delete-person/:id", verifyToken, AddPeopleController.deletePerso
 
 router.get("/get-people/:id", verifyToken, AddPeopleController.getPersonById)
 
+router.get('/:renterId',verifyToken, AddPeopleController.getPeopleRentByGeneratedId);
+
 
 
 module.exports =router;

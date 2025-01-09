@@ -233,9 +233,9 @@ const StudentManagement = () => {
   const [students, setStudents] = useState([]);
   const [deleteStudentId, setDeleteStudentId] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState(localStorage.getItem('searchQuery') || '');
-  const [sortOption, setSortOption] = useState(localStorage.getItem('sortOption') || 'All');
-  const [propertySort, setPropertySort] = useState(localStorage.getItem('propertySort') || '');
+  const [searchQuery, setSearchQuery] = useState(localStorage.getItem('studentSearchQuery') || '');
+  const [sortOption, setSortOption] = useState(localStorage.getItem('studentSortOption') || 'All');
+  const [propertySort, setPropertySort] = useState(localStorage.getItem('studentPropertySort') || '');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -258,25 +258,25 @@ const StudentManagement = () => {
 
   // Persist filter states to localStorage whenever they are updated
   useEffect(() => {
-    localStorage.setItem('searchQuery', searchQuery);
-    localStorage.setItem('sortOption', sortOption);
-    localStorage.setItem('propertySort', propertySort);
+    localStorage.setItem('studentSearchQuery', searchQuery);
+    localStorage.setItem('studentSortOption', sortOption);
+    localStorage.setItem('studentPropertySort', propertySort);
   }, [searchQuery, sortOption, propertySort]);
 
   const filteredStudents = students.filter(student =>
-    student.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    student.studentId.toLowerCase().includes(searchQuery.toLowerCase())
+    student.name.toLowerCase().includes(searchQuery.trim().toLowerCase()) ||
+    student.studentId.toLowerCase().includes(searchQuery.trim().toLowerCase())
   );
 
   const totalStudents = students.filter(student => student.vacate == false).length;
   // const paymentPending = students.filter(student => student.paymentStatus === 'Pending' && student.vacate == false).length;
   const paymentCompleted = students.filter(student => student.paymentStatus === 'Paid' && student.vacate == false).length;
-  const paymentPending = students.filter(student => 
-    student.paymentStatus === 'Pending' && 
-    student.vacate === false && 
+  const paymentPending = students.filter(student =>
+    student.paymentStatus === 'Pending' &&
+    student.vacate === false &&
     new Date(student.joinDate) <= new Date()
   ).length;
-  
+
   const checkedIn = students.filter(student => student.currentStatus === 'checkedIn' && student.vacate == false).length;
   const checkedOut = students.filter(student => student.currentStatus === 'checkedOut' && student.vacate == false).length;
 
@@ -343,22 +343,29 @@ const StudentManagement = () => {
   const sortedStudents = () => {
     let sorted = filteredStudents;
 
-    if (sortOption === 'Pending') {
-      sorted = filteredStudents.filter(student => student.paymentStatus === 'Pending' && student.vacate !== true); // Exclude vacated students
-    } else if (sortOption === 'Paid') {
-      sorted = filteredStudents.filter(student => student.paymentStatus === 'Paid' && student.vacate !== true); // Exclude vacated students
-    } else if (sortOption === 'CheckedOut') {
-      sorted = filteredStudents.filter(student => student.currentStatus === 'checkedOut' && student.vacate !== true); // Only vacated students
-    } else if (sortOption === 'CheckedIn') {
-      sorted = filteredStudents.filter(student => student.currentStatus === 'checkedIn' && student.vacate !== true);
-    } else if (sortOption === 'Vacated') {
-      sorted = filteredStudents.filter(student => student.vacate === true); // Only vacated students
-    } else if (sortOption === 'All') {
-      sorted = filteredStudents.filter(student => student.vacate !== true); // Only vacated students
-    } else if (sortOption === 'CheckedIn') {
-      sorted = filteredStudents.filter(student => student.currentStatus === 'checkedIn' && student.vacate !== true);
-    } else if (sortOption === 'Incomplete') {
-      sorted = filteredStudents.filter(student => student.profileCompletionPercentage != '100' && student.vacate !== true);
+    switch (sortOption) {
+      case 'Pending':
+        sorted = sorted.filter(student => student.paymentStatus === 'Pending' && !student.vacate);
+        break;
+      case 'Paid':
+        sorted = sorted.filter(student => student.paymentStatus === 'Paid' && !student.vacate);
+        break;
+      case 'CheckedOut':
+        sorted = sorted.filter(student => student.currentStatus === 'checkedOut' && !student.vacate);
+        break;
+      case 'CheckedIn':
+        sorted = sorted.filter(student => student.currentStatus === 'checkedIn' && !student.vacate);
+        break;
+      case 'Vacated':
+        sorted = sorted.filter(student => student.vacate);
+        break;
+      case 'Incomplete':
+        sorted = sorted.filter(student => student.profileCompletionPercentage !== '100' && !student.vacate);
+        break;
+      case 'All':
+      default:
+        sorted = sorted.filter(student => !student.vacate);
+        break;
     }
 
     if (propertySort) {
@@ -367,7 +374,6 @@ const StudentManagement = () => {
 
     return sorted;
   };
-
 
   if (loading) {
     return (

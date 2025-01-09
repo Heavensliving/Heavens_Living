@@ -15,7 +15,7 @@ const EmailVerificationSuccess = () => {
       return 'https://play.google.com/store/apps/details?id=com.weronz.heavensliving'; // Replace with your Play Store URL
     }
     if (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) {
-      return 'https://apps.apple.com/us/app/your-app-name/id1234567890'; // Replace with your App Store URL
+      return 'https://apps.apple.com/in/app/heavens-living/id6740050954'; // Replace with your App Store URL
     }
     return 'https://play.google.com/store/apps/details?id=com.weronz.heavensliving';
   };

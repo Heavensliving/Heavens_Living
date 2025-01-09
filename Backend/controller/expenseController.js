@@ -14,7 +14,7 @@ const addExpense = async (req, res) => {
       paymentMethod,
       amount,
       salaryMonth,
-      numberOfLeave,
+      leaveTaken,
       handledBy,
       date,
       propertyId,
@@ -84,7 +84,7 @@ const addExpense = async (req, res) => {
       paymentMethod,
       amount,
       salaryMonth,
-      numberOfLeave,
+      leaveTaken,
       handledBy,
       date,
       propertyId,
@@ -262,6 +262,70 @@ const getExpensesByStaff = async (req, res) => {
     res.status(500).json({ error: "Error fetching expenses by staff ID" });
   }
 };
+
+const getSalaryOverview = async (req, res) => {
+  try {
+    const { staffId } = req.params;
+
+    if (!staffId) {
+      return res.status(400).json({ error: "Staff ID is required" });
+    }
+
+    // Fetch staff details to get the monthly salary
+    const staff = await Staff.findById(staffId);
+    if (!staff) {
+      return res.status(404).json({ error: "Staff not found" });
+    }
+
+    const monthlySalary = staff.Salary || 0;
+
+    // Fetch salary transactions for the staff
+    const salaryTransactions = await Expense.find({
+      staff: staffId,
+      category: "Salary"
+    });
+
+    if (salaryTransactions.length === 0) {
+      return res.status(404).json({ error: "No salary transactions found" });
+    }
+
+    // Calculate total salary paid
+    const totalSalaryPaid = salaryTransactions.reduce((sum, transaction) => sum + (transaction.amount || 0), 0);
+
+    // Get the latest salary transaction for leave taken
+    const latestTransaction = salaryTransactions[salaryTransactions.length-1];
+    console.log("here",latestTransaction)
+    const leaveTaken = latestTransaction?.leaveTaken || 0;
+
+    // Calculate leave deduction (assuming salaryMonth is 30 days)
+    const perDaySalary = monthlySalary / 30;
+    const leaveDeduction = leaveTaken * perDaySalary;
+
+    // Calculate net salary due after deductions
+    const netSalaryDue = Math.max(monthlySalary - leaveDeduction, 0);
+
+    // Determine pending or advance salary
+    let pendingSalary = Math.max(netSalaryDue - totalSalaryPaid, 0);
+    let advanceSalary = Math.max(totalSalaryPaid - netSalaryDue, 0);
+
+    res.status(200).json({
+      staffId,
+      monthlySalary,
+      totalSalaryPaid,
+      leaveTaken,
+      leaveDeduction,
+      netSalaryDue,
+      pendingSalary,
+      advanceSalary,
+      transactions: salaryTransactions.reverse() // Returning the transactions as well
+    });
+
+  } catch (error) {
+    console.error("Error fetching salary overview:", error);
+    res.status(500).json({ error: "Error fetching salary overview" });
+  }
+};
+
 const getMonthlyTotalExpense = async (req, res) => {
   try {
     const monthlyExpense = await Expense.aggregate([
@@ -346,7 +410,8 @@ const expenseController = {
   getExpenseById,
   editExpense,
   addPettyCash,
-  getPettyCash
+  getPettyCash,
+  getSalaryOverview
 };
 
 module.exports = expenseController;
