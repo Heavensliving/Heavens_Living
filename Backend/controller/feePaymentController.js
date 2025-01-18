@@ -73,13 +73,13 @@ const addFeePayment = async (req, res) => {
       isMessPayment, // Field to differentiate payment type
       isDailyRent, // Field to handle daily rent payments
     } = req.body;
-    console.log(req.body)
+    // console.log(req.body)
     const student = _id;
 
     const studentData = await Student.findById(student);
-    console.log(studentData)
+    // console.log(studentData)
     
-    if (transactionId && transactionId !== null || '-') {
+    if (transactionId && transactionId.trim() !== "") {
       const existingTransaction = await FeePayment.findOne({ transactionId });
 
       if (existingTransaction) {

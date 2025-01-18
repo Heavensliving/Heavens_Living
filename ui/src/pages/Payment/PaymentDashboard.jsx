@@ -46,9 +46,11 @@ const PaymentDashboard = () => {
         const currentMonthTransactions = feeResponse.data.filter(
           (transaction) => {
             const paymentDate = new Date(transaction.paymentDate);
+            // console.log(paymentDate.getMonth(), paymentDate.getFullYear())
             return paymentDate.getMonth() === currentMonth && paymentDate.getFullYear() === currentYear;
           }
         );
+        console.log(currentMonthTransactions.length)
 
         const totalReceivedAmount = feeResponse.data.reduce(
           (acc, transaction) => acc + (transaction.amountPaid || 0),

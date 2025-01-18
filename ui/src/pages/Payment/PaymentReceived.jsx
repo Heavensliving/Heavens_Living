@@ -55,7 +55,7 @@ const PaymentReceived = () => {
     transaction.studentId?.toLowerCase().includes(searchTerm.trim().toLowerCase()) ||
     transaction.transactionId?.toLowerCase().includes(searchTerm.trim().toLowerCase())
   );
-
+console.log(filteredTransactions.length)
   const furtherFilteredTransactions = filteredTransactions.filter(transaction => {
     const date = new Date(transaction.paymentDate);
     const monthMatches = selectedMonth ? date.getMonth() + 1 === parseInt(selectedMonth) : true;
@@ -135,7 +135,7 @@ const PaymentReceived = () => {
 
     const finalY = doc.lastAutoTable.finalY || 0;
     doc.setFontSize(12);
-    doc.text(`Total Amount: Rs.${totalAmount.toFixed(2)}`, 14, finalY + 10);
+    doc.text(`Total Amount: Rs.${filteredTotalAmount.toFixed(2)}`, 14, finalY + 10);
 
     doc.save('transactions.pdf');
   };
