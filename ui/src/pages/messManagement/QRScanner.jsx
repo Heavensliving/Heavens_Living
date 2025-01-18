@@ -66,7 +66,7 @@ const QRScanner = () => {
             const response = await axios.put(
                 `${API_BASE_URL}/messOrder/bookingStatus`,
                 { orderId },
-                // { headers: { Authorization: `Bearer ${admin.token}` } }
+                { headers: { Authorization: `Bearer ${admin.token}` } }
             );
 
             if (response.status === 200) {
