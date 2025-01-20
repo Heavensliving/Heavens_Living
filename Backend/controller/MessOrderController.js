@@ -212,7 +212,6 @@ const MessOrderController = {
   getOrder,
   addAdonOrder,
   getStudentByOrderId,
-
 };
 
 module.exports = MessOrderController;

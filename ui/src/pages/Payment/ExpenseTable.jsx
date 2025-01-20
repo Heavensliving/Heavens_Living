@@ -278,11 +278,10 @@ const ExpenseTable = () => {
                   </td>
                   <td className="py-2 px-4 border text-center">{expense.propertyName}</td>
                   <td className="py-2 px-4 border text-center">
-  {expense.paymentMethod === 'Petty Cash'
-    ? `Handled by ${expense.handledBy}`
-    : expense.transactionId || '-'}
-</td>
-
+                    {expense.paymentMethod === 'Petty Cash'
+                      ? `Handled by ${expense.handledBy}`
+                      : expense.transactionId || '-'}
+                  </td>
                   <td className={`py-2 px-4 border text-center ${expense.billImg ? 'cursor-pointer' : ''}`}>
                     {expense.billImg ? (
                       <img
@@ -296,7 +295,7 @@ const ExpenseTable = () => {
                     )}
                   </td>
                   <td className="py-2 px-4 border text-center cursor-pointer">
-                    <FaEdit className="m-auto text-center"  onClick={() => navigate(`/editExpense/${expense._id}`)}/>
+                    <FaEdit className="m-auto text-center" onClick={() => navigate(`/editExpense/${expense._id}`)} />
                   </td>
                 </tr>
               );

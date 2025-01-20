@@ -78,6 +78,12 @@ console.log(filteredTransactions.length)
       (additionalFilter === 'occupants' && transaction.studentId.startsWith('HVNS'));
 
     return propertyMatches && additionalFilterMatches;
+  })
+  .sort((a, b) => {
+    // Ensure we handle null or undefined dates gracefully
+    const dateA = new Date(a.paymentDate || 0);
+    const dateB = new Date(b.paymentDate || 0);
+    return dateB - dateA; // Sort by descending date
   });
 
 
