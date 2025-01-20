@@ -14,6 +14,7 @@ const AddonPage = () => {
   const [ordersPerPage] = useState(8);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState(''); // New state for search input
+  const [selectedDate, setSelectedDate] = useState('');
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -29,8 +30,12 @@ const AddonPage = () => {
             const orderDate = new Date(order.deliverDate);
             return !isNaN(orderDate) && orderDate.toISOString().split('T')[0] === today;
           });
+          const adOnsOrders = response.data.filter(order => {
+            if (!order.deliverDate || !order.adOns || order.adOns.length === 0) return false;
+            return true;
+          });
 
-          setOrders(todayOrders.reverse());
+          setOrders(adOnsOrders.reverse());
 
           const summary = todayOrders.reduce((acc, order) => {
             order.adOns.forEach(addon => {
@@ -76,10 +81,14 @@ const AddonPage = () => {
     setSearchQuery(e.target.value);
     setCurrentPage(1); // Reset to the first page on a new search
   };
+  const filteredOrders = orders.filter(order => {
+    const matchesSearch = order.orderId?.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesDate = selectedDate
+      ? new Date(order.deliverDate).toISOString().split('T')[0] === selectedDate
+      : true;
 
-  const filteredOrders = orders.filter(order =>
-    order.orderId?.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+    return matchesSearch && matchesDate;
+  });
 
   const indexOfLastOrder = currentPage * ordersPerPage;
   const indexOfFirstOrder = indexOfLastOrder - ordersPerPage;
@@ -129,17 +138,30 @@ const AddonPage = () => {
         </div>
       )}
 
-      {/* Search Bar */}
-      <div className="mb-4">
-        <input
-          type="text"
-          placeholder="Search by Order ID"
-          value={searchQuery}
-          onChange={handleSearchChange}
-          className="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-side-bar w-full"
-        />
-      </div>
+      {/* Search Bar and Date Filter */}
+      <div className="flex items-center justify-between mb-4">
+        {/* Search Box */}
+        <div className="w-1/2 pr-2">
+          <input
+            type="text"
+            placeholder="Search by Order ID"
+            value={searchQuery}
+            onChange={handleSearchChange}
+            className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-side-bar"
+          />
+        </div>
 
+        {/* Date Filter */}
+        <div className="w-1/2 pl-2">
+          <input
+            type="date"
+            value={selectedDate} // Add selectedDate to your state
+            onChange={(e) => setSelectedDate(e.target.value)} // Update selectedDate on change
+            className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-side-bar"
+          />
+        </div>
+      </div>
+      
       {currentOrders.length > 0 ? (
         <div className="overflow-x-auto">
           <table className="w-full table-auto border-collapse border border-gray-300">
