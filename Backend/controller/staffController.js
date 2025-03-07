@@ -146,6 +146,7 @@ const status = async (req, res) => {
 
         const newStatus = staff.Status === 'On Duty' ? 'Off Duty' : 'On Duty';
         staff.Status = newStatus;
+        staff.deleted = true;
 
         await staff.save();
 

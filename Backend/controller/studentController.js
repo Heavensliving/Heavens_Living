@@ -415,7 +415,7 @@ const getStudentByStudentId = async (req, res) => {
     const waveOffAmount = latestPayment ? latestPayment.waveOff || 0 : 0;
     let advanceBalance = latestPayment ? latestPayment.advanceBalance || '' : '';
     let pendingBalance = latestPayment ? latestPayment.pendingBalance || '' : '';
-    console.log(advanceBalance)
+    console.log("advance", advanceBalance)
 
     const today = new Date();
     let unpaidMonths = 0;
@@ -462,14 +462,21 @@ const getStudentByStudentId = async (req, res) => {
     }
 
     // Calculate total due rent for unpaid months
-    let totalRentDue = unpaidMonths * monthlyRent;
+    // let totalRentDue = unpaidMonths * monthlyRent;
+    let totalRentDue = Math.max(0, unpaidMonths) * monthlyRent;
+    console.log("totalRentDue", totalRentDue)
 
     // Account for any payments, wave-offs, and advance balance
     // let pendingRentAmount = totalRentDue + (latestPayment ? latestPayment.pendingBalance : '') - waveOffAmount - advanceBalance;
     // console.log(pendingRentAmount)
 
-    let pendingRentAmount = totalRentDue + (latestPayment ? latestPayment.pendingBalance : '') - adjustedWaveOffAmount - advanceBalance;
-    console.log(pendingRentAmount)
+    // let pendingRentAmount = totalRentDue + (latestPayment ? latestPayment.pendingBalance : '') - adjustedWaveOffAmount - advanceBalance;
+    let pendingRentAmount =
+      (latestPayment && latestPayment.pendingBalance > latestPayment.monthlyRent ? 0 : totalRentDue) +
+      (latestPayment ? latestPayment.pendingBalance || 0 : 0) -
+      adjustedWaveOffAmount -
+      advanceBalance;
+    console.log("pendingRentAmount", pendingRentAmount)
     // Adjust for pending amount or excess advance balance
     if (pendingRentAmount < 0) {
       // advanceBalance = Math.abs(pendingRentAmount);
@@ -486,6 +493,7 @@ const getStudentByStudentId = async (req, res) => {
       latestPaidDate: latestPaidDate ? latestPaidDate.toLocaleDateString() : null,
       feeClearedMonthYear,
       unpaidMonths,
+      pendingAddOns: student.pendingAddOns ? student.pendingAddOns : 0,
       pendingRentAmount,
       advanceBalance,
       pendingBalance,

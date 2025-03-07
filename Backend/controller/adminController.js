@@ -62,6 +62,9 @@ exports.login = async (req, res) => {
                 .status(404)
                 .json({ errors: [{ field: "email", message: "You are not registered in the system." }] });
         }
+        if (admin.deleted) {
+            return res.status(403).json({ message: 'Your account has been deleted and cannot be accessed.' });
+        }
 
         // Validate password
         const isPasswordValid = await bcrypt.compare(password, admin.password);
@@ -72,7 +75,7 @@ exports.login = async (req, res) => {
         }
 
         // Generate JWT token
-        const token = jwt.sign({ adminId: admin._id }, JWT_SECRET, { expiresIn: '24h' });
+        const token = jwt.sign({ adminId: admin._id }, JWT_SECRET, { expiresIn: '7d' });
         const adminName = admin.name;
         const role = admin.role;
         const properties = admin.properties;

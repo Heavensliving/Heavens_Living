@@ -24,6 +24,7 @@ const MessOrderSchema = new mongoose.Schema({
     default: []
   },
   totalPrice: { type: Number, required: false, default: 0 },
+  paymentType: { type: String, required: false },
   student: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Student'

@@ -73,12 +73,18 @@ const addFeePayment = async (req, res) => {
       isMessPayment, // Field to differentiate payment type
       isDailyRent, // Field to handle daily rent payments
     } = req.body;
-    // console.log(req.body)
+    console.log(req.body)
     const student = _id;
 
-    const studentData = await Student.findById(student);
+    const studentData = await Student.findById(student)
+      .populate('payments');
+
+    // Get the latest payment document
+    const latestPayment = studentData.payments.length > 0 ? studentData.payments[studentData.payments.length - 1] : null;
+    const previousAdvance = latestPayment ? latestPayment.advanceBalance : 0;
+    console.log(latestPayment)
     // console.log(studentData)
-    
+
     if (transactionId && transactionId.trim() !== "") {
       const existingTransaction = await FeePayment.findOne({ transactionId });
 
@@ -103,7 +109,7 @@ const addFeePayment = async (req, res) => {
       monthlyRent,
       amountPaid: payingAmount,
       pendingBalance: isMessPayment || isDailyRent ? null : balance,
-      advanceBalance,
+      advanceBalance: previousAdvance + advanceBalance,
       waveOffAmount,
       waveOffDate,
       paymentDate: paidDate,
@@ -388,7 +394,12 @@ const getPendingPayments = async (req, res) => {
         }
         const totalRentDue = unpaidMonths * monthlyRent;
 
-        let pendingRentAmount = totalRentDue + (latestPayment ? latestPayment.pendingBalance || 0 : 0) - adjustedWaveOffAmount - advanceBalance;
+        // let pendingRentAmount = totalRentDue + (latestPayment ? latestPayment.pendingBalance || 0 : 0) - adjustedWaveOffAmount - advanceBalance;
+        let pendingRentAmount =
+          (latestPayment && latestPayment.pendingBalance > latestPayment.monthlyRent ? 0 : totalRentDue) +
+          (latestPayment ? latestPayment.pendingBalance || 0 : 0) -
+          adjustedWaveOffAmount -
+          advanceBalance;
 
         if (pendingRentAmount < 0) {
           advanceBalance = Math.abs(pendingRentAmount);

@@ -2,6 +2,7 @@ const cron = require('node-cron');
 const Student = require('../Models/Add_student');
 const MessOrder = require('../Models/MessOrderModel');
 const moment = require('moment');
+const FeePayment = require('../Models/feePayment');
 
 cron.schedule('0 0 * * *', async () => {
   try {
@@ -19,6 +20,11 @@ cron.schedule('0 0 * * *', async () => {
         continue;
       }
 
+      // Fetch latest payment for the student
+      const latestPayment = await FeePayment.findOne({ student: _id })
+        .sort({ createdAt: -1 })
+        .lean();
+
       const joinDateObj = new Date(joinDate);
       let nextDueDate;
 
@@ -35,23 +41,69 @@ cron.schedule('0 0 * * *', async () => {
       if (today >= nextDueDate) {
         // If `dateOfPayment` is not set, update it to the next month's same date
         if (!dateOfPayment) {
-          await Student.findByIdAndUpdate(_id, {
-            paymentStatus: paymentStatus === 'Paid' ? 'Paid' : 'Pending',
-            pendingSince: today,
-            isBlocked: false, // Reset blocking status when a new due date is handled
-            dateOfPayment: today, // Set dateOfPayment to the current due date (same day of the next month)
-          });
+          let shouldSetPending = true;
 
-          console.log(`${student.name}'s status set to Pending for due date ${today.toISOString().slice(0, 10)}.`);
+          // Check latest payment details
+          if (latestPayment) {
+            let { advanceBalance = 0, paymentClearedMonthYear } = latestPayment;
+
+            if (paymentClearedMonthYear) {
+              const [clearedMonth, clearedYear] = paymentClearedMonthYear.split(', ').map(str => str.trim());
+              const clearedYearInt = parseInt(clearedYear, 10);
+
+              if (advanceBalance > 0 && (clearedYearInt > todayYear || (clearedYearInt === todayYear && clearedMonth !== todayMonth))) {
+                shouldSetPending = false; // Future cleared month means no pending
+              }
+
+              if (advanceBalance > 0 && clearedYearInt === todayYear && clearedMonth === todayMonth) {
+                shouldSetPending = false; // Already cleared for this month
+              }
+            }
+          }
+
+          if (shouldSetPending) {
+            await Student.findByIdAndUpdate(_id, {
+              paymentStatus: 'Pending',
+              pendingSince: today,
+              isBlocked: false,
+              dateOfPayment: today,
+            });
+
+            console.log(`${student.name}'s status set to Pending for due date ${today.toISOString().slice(0, 10)}.`);
+          } else {
+            await Student.findByIdAndUpdate(_id, { dateOfPayment: today });
+            console.log(`${student.name}'s dateOfPayment updated to ${today.toISOString().slice(0, 10)} (no pending needed).`);
+          }
         } else {
-          // If `dateOfPayment` is already set, just update the payment status to Pending
-          await Student.findByIdAndUpdate(_id, {
-            paymentStatus: 'Pending',
-            pendingSince: today,
-          });
+          let shouldSetPending = true;
 
-          console.log(`${student.name}'s status set to Pending for due date ${nextDueDate.toISOString().slice(0, 10)}.`);
+          if (latestPayment) {
+            let { advanceBalance = 0, paymentClearedMonthYear } = latestPayment;
+
+            if (paymentClearedMonthYear) {
+              const [clearedMonth, clearedYear] = paymentClearedMonthYear.split(', ').map(str => str.trim());
+              const clearedYearInt = parseInt(clearedYear, 10);
+
+              if (advanceBalance > 0 && (clearedYearInt > todayYear || (clearedYearInt === todayYear && clearedMonth !== todayMonth))) {
+                shouldSetPending = false;
+              }
+
+              if (advanceBalance > 0 && clearedYearInt === todayYear && clearedMonth === todayMonth) {
+                shouldSetPending = false;
+              }
+            }
+          }
+
+          if (shouldSetPending) {
+            await Student.findByIdAndUpdate(_id, {
+              paymentStatus: 'Pending',
+              pendingSince: today,
+            });
+
+            console.log(`${student.name}'s status set to Pending for due date ${nextDueDate.toISOString().slice(0, 10)}.`);
+          }
         }
+
       }
 
       // Blocking after 7 days of Pending
@@ -85,9 +137,12 @@ cron.schedule('0 0 * * *', async () => {  // Runs daily at midnight
 
     const deleteOlderThan = moment().subtract(3, 'days').toDate(); // Get date 3 days ago
     const deletedOrders = await MessOrder.deleteMany({
-      deliverDate: { $lt: deleteOlderThan },  // Delete orders where bookingDate is older than 3 days
+      deliverDate: { $lt: deleteOlderThan }, // Orders older than 3 days
+      $or: [
+        { totalPrice: { $exists: false } }, // If totalPrice does not exist
+        { totalPrice: 0 }, // OR If totalPrice is 0
+      ],
     });
-
     console.log(`${deletedOrders.deletedCount} orders deleted that were older than 3 days.`);
 
     console.log('Order cleanup completed.');
@@ -95,3 +150,28 @@ cron.schedule('0 0 * * *', async () => {  // Runs daily at midnight
     console.error('Error during order cleanup:', error);
   }
 });
+
+
+
+
+// if (today >= nextDueDate) {
+//   // If `dateOfPayment` is not set, update it to the next month's same date
+//   if (!dateOfPayment) {
+//     await Student.findByIdAndUpdate(_id, {
+//       paymentStatus: 'Pending',
+//       pendingSince: today,
+//       isBlocked: false, // Reset blocking status when a new due date is handled
+//       dateOfPayment: today, // Set dateOfPayment to the current due date (same day of the next month)
+//     });
+
+//     console.log(`${student.name}'s status set to Pending for due date ${today.toISOString().slice(0, 10)}.`);
+//   } else {
+//     // If `dateOfPayment` is already set, just update the payment status to Pending
+//     await Student.findByIdAndUpdate(_id, {
+//       paymentStatus: 'Pending',
+//       pendingSince: today,
+//     });
+
+//     console.log(`${student.name}'s status set to Pending for due date ${nextDueDate.toISOString().slice(0, 10)}.`);
+//   }
+// }

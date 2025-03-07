@@ -3,7 +3,7 @@ import axios from 'axios';
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 import { useSelector } from 'react-redux';
 import { FiChevronLeft, FiChevronRight } from 'react-icons/fi';
-
+import { FaCheckCircle } from 'react-icons/fa';
 const AddonPage = () => {
   const admin = useSelector(store => store.auth.admin);
   const [orders, setOrders] = useState([]);
@@ -14,7 +14,39 @@ const AddonPage = () => {
   const [ordersPerPage] = useState(8);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState(''); // New state for search input
+  const [selectedStatus, setSelectedStatus] = useState('');
   const [selectedDate, setSelectedDate] = useState('');
+  const [selectedOrder, setSelectedOrder] = useState(null);
+  const [showModal, setShowModal] = useState(false);
+  const [showAddToRentOnly, setShowAddToRentOnly] = useState(false);
+
+
+  const handleMarkDelivered = (order) => {
+    setSelectedOrder(order);
+    setShowModal(true);
+  };
+
+  const updateOrderStatus = async (orderId, paymentType) => {
+    try {
+      const response = await axios.put(`${API_BASE_URL}/messOrder/AddOnsStatus/${orderId}`, {
+        bookingStatus: "Delivered",
+        paymentType,
+      }, { headers: { 'Authorization': `Bearer ${admin.token}` } },);
+
+      if (response.status === 200) {
+        setOrders((prevOrders) =>
+          prevOrders.map((order) =>
+            order._id === orderId ? { ...order, bookingStatus: "Delivered", paymentType } : order
+          )
+        );
+      }
+
+    } catch (error) {
+      console.error("Error updating order:", error);
+    } finally {
+      setShowModal(false);
+    }
+  };
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -36,6 +68,7 @@ const AddonPage = () => {
           });
 
           setOrders(adOnsOrders.reverse());
+          console.log(adOnsOrders.reverse())
 
           const summary = todayOrders.reduce((acc, order) => {
             order.adOns.forEach(addon => {
@@ -82,12 +115,19 @@ const AddonPage = () => {
     setCurrentPage(1); // Reset to the first page on a new search
   };
   const filteredOrders = orders.filter(order => {
-    const matchesSearch = order.orderId?.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesSearch = order.name?.toLowerCase().includes(searchQuery.toLowerCase());
+
     const matchesDate = selectedDate
       ? new Date(order.deliverDate).toISOString().split('T')[0] === selectedDate
       : true;
 
-    return matchesSearch && matchesDate;
+    const matchesStatus = selectedStatus ? order.bookingStatus === selectedStatus : true;
+
+    const matchesAddToRent = showAddToRentOnly
+      ? order.paymentType === "AddToRent"
+      : true;
+
+    return matchesSearch && matchesStatus && matchesAddToRent && matchesDate;
   });
 
   const indexOfLastOrder = currentPage * ordersPerPage;
@@ -138,17 +178,30 @@ const AddonPage = () => {
         </div>
       )}
 
-      {/* Search Bar and Date Filter */}
+      {/* Search Bar and Status Filter */}
       <div className="flex items-center justify-between mb-4">
         {/* Search Box */}
         <div className="w-1/2 pr-2">
           <input
             type="text"
-            placeholder="Search by Order ID"
+            placeholder="Search by Name"
             value={searchQuery}
             onChange={handleSearchChange}
             className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-side-bar"
           />
+        </div>
+
+        {/* Status Filter */}
+        <div className="w-1/3 pl-2">
+          <select
+            value={selectedStatus}
+            onChange={(e) => setSelectedStatus(e.target.value)}
+            className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-side-bar"
+          >
+            <option value="">All Orders</option>
+            <option value="Pending">Pending</option>
+            <option value="Delivered">Delivered</option>
+          </select>
         </div>
 
         {/* Date Filter */}
@@ -160,8 +213,21 @@ const AddonPage = () => {
             className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-side-bar"
           />
         </div>
+
+        {/* Pending Add-Ons Filter */}
+        <div className="w-1/3 pl-2 flex items-center">
+          <button
+            onClick={() => setShowAddToRentOnly(!showAddToRentOnly)}
+            className={`px-4 py-2 rounded-md border w-full transition ${showAddToRentOnly
+                ? "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+              }`}
+          >
+            {showAddToRentOnly ? "Show All Orders" : "Pending Amount"}
+          </button>
+        </div>
       </div>
-      
+
       {currentOrders.length > 0 ? (
         <div className="overflow-x-auto">
           <table className="w-full table-auto border-collapse border border-gray-300">
@@ -175,6 +241,7 @@ const AddonPage = () => {
                 <th className="border p-2">Date</th>
                 <th className="border p-2">Add-ons</th>
                 <th className="border p-2">Status</th>
+                <th className="border p-2">Action</th>
               </tr>
             </thead>
             <tbody>
@@ -190,15 +257,57 @@ const AddonPage = () => {
                     {new Date(order.deliverDate).toLocaleDateString()}
                   </td>
                   <td className="border border-gray-300 p-2">
-                    {order.adOns.map(addon => (
+                    {order.adOns.map((addon) => (
                       <div key={addon.name}>{`${addon.name} (${addon.quantity})`}</div>
                     ))}
                   </td>
+
+                  {/* Booking Status with Conditional Colors */}
                   <td
-                    className={`border p-2 ${order.bookingStatus === 'Pending' ? 'text-yellow-500' : 'text-green-500'
-                      }`}
+                    className={`border p-2 
+          ${order.bookingStatus === "Pending" ? "text-yellow-500" :
+                        order.paymentType === "AddToRent" ? "text-purple-500" :
+                          "text-green-500"}`}
                   >
                     {order.bookingStatus}
+                  </td>
+
+                  {/* Action Button with Conditional Colors */}
+                  <td className="border border-gray-300 p-2 text-center">
+                    {order.bookingStatus !== "Delivered" ? (
+                      <button
+                        onClick={() => {
+                          if (order.paymentType !== "Paid") {
+                            handleMarkDelivered(order);
+                          }
+                        }}
+                        className={`flex items-center justify-center w-full transition 
+      ${order.paymentType === "Paid"
+                            ? "text-gray-400 cursor-not-allowed" // ❌ Disabled (Gray)
+                            : order.paymentType === "AddToRent"
+                              ? "text-purple-500 hover:text-purple-700 cursor-pointer" // ✅ Clickable (Purple)
+                              : "text-blue-500 hover:text-blue-700 cursor-pointer" // ✅ Clickable (Blue)
+                          }`}
+                        disabled={order.paymentType === "Paid"} // ❌ Disabled for "Paid"
+                      >
+                        <FaCheckCircle size={20} />
+                      </button>
+                    ) : (
+                      <div className="flex items-center justify-center w-full">
+                        <FaCheckCircle
+                          onClick={() => {
+                            if (order.paymentType !== "Paid") {
+                              handleMarkDelivered(order);
+                            }
+                          }}
+                          size={20}
+                          className={`cursor-pointer ${order.paymentType === "AddToRent"
+                            ? "text-purple-500 hover:text-purple-700" // ✅ Clickable (Purple)
+                            : "text-green-500 cursor-not-allowed" // ❌ Disabled (Green)
+                            }`}
+                        />
+                      </div>
+                    )}
                   </td>
                 </tr>
               ))}
@@ -239,6 +348,37 @@ const AddonPage = () => {
           </button>
         </div>
       )}
+
+      {showModal && selectedOrder && (
+        <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg">
+            <h2 className="text-lg font-semibold mb-4">Payment Confirmation</h2>
+            <p>Has the payment for add-ons been received?</p>
+
+            <div className="flex justify-between mt-4">
+              <button
+                onClick={() => updateOrderStatus(selectedOrder._id, "Paid")}
+                className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+              >
+                Paid
+              </button>
+              <button
+                onClick={() => updateOrderStatus(selectedOrder._id, "AddToRent")}
+                className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+              >
+                Add to Rent
+              </button>
+              <button
+                onClick={() => setShowModal(false)}
+                className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 };

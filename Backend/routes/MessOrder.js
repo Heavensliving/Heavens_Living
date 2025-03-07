@@ -19,6 +19,8 @@ router.delete('/delete-order/:id', verifyToken, MessOrderController.deleteOrder)
 // Route for updating an order's status
 router.put('/bookingStatus', verifyToken, MessOrderController.updateOrderStatus)
 
+router.put('/AddOnsStatus/:orderId', verifyToken, MessOrderController.updateAddOnsStatus)
+
 router.get('/user/orders', verifyToken, MessOrderController.getOrder)
 
 router.get('/order/:orderId', verifyToken, MessOrderController.getStudentByOrderId);

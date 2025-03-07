@@ -41,6 +41,7 @@ const studentSchema = new mongoose.Schema({
   isBlocked: { type: Boolean, default: false },
   profileCompletionPercentage: { type: String, required: true, default: '10' },
   category: { type: String, enum: ['Basic', 'Standard', 'Premium'], default: 'Basic' },
+  pendingAddOns: { type: Number, required: false, default: 0 },
   room: { type: mongoose.Schema.Types.ObjectId, ref: 'Rooms' },
   maintenance: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Maintanance' }],
   messOrders: [{ type: mongoose.Schema.Types.ObjectId, ref: 'MessOrder' }],

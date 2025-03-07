@@ -3,7 +3,7 @@ const fs = require('fs');
 const path = require('path');
 
 const generatePaymentReceipt = async (studentData, paymentDetails) => {
-  console.log(studentData);
+  // console.log("paymentData", paymentDetails)
   const doc = new PDFDocument({ size: 'A4', margin: 50 });
   const pdfChunks = [];
 

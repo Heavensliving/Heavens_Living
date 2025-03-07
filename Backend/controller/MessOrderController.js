@@ -45,7 +45,16 @@ const addOrder = async (req, res) => {
 
     // Update Property and Student documents
     await Property.findByIdAndUpdate(property, { $push: { messOrders: savedOrder._id } });
-    await Student.findByIdAndUpdate(student, { $push: { messOrders: savedOrder._id } });
+
+    const studentUpdate = { $push: { messOrders: savedOrder._id } };
+
+    // If totalPrice > 0, update pendingAddOns field in Student document
+    if (totalPrice > 0) {
+      studentUpdate.$inc = { pendingAddOns: totalPrice };
+    }
+
+    await Student.findByIdAndUpdate(student, studentUpdate);
+    // await Student.findByIdAndUpdate(student, { $push: { messOrders: savedOrder._id } });
 
     res.status(201).json(savedOrder);
     return savedOrder;
@@ -173,6 +182,34 @@ const updateOrderStatus = async (req, res) => {
   }
 };
 
+const updateAddOnsStatus = async (req, res) => {
+  try {
+    const { orderId } = req.params;
+    const { bookingStatus, paymentType } = req.body;
+    console.log(req.body)
+
+    // Find the order and update it
+    const updatedOrder = await MessOrder.findByIdAndUpdate(
+      orderId,
+      { bookingStatus, paymentType },
+      { new: true }
+    );
+
+    if (!updatedOrder) {
+      return res.status(404).json({ message: "Order not found" });
+    }
+
+    if (paymentType === "Paid" && updatedOrder.student) {
+      await Student.findByIdAndUpdate(updatedOrder.student, { pendingAddOns: 0 });
+    }
+
+    res.status(200).json({ message: "Order updated successfully", updatedOrder });
+  } catch (error) {
+    console.error("Error updating order:", error);
+    res.status(500).json({ message: "Error updating order", error });
+  }
+};
+
 const getStudentByOrderId = async (req, res) => {
   const { orderId } = req.params;
 
@@ -209,6 +246,7 @@ const MessOrderController = {
   getOrderById,
   deleteOrder,
   updateOrderStatus,
+  updateAddOnsStatus,
   getOrder,
   addAdonOrder,
   getStudentByOrderId,

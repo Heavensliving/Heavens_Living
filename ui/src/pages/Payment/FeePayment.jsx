@@ -32,12 +32,33 @@ const FeePayment = () => {
   const navigate = useNavigate();
 
   // Function to generate month/year options
+  // const generateMonthYearOptions = () => {
+  //   const options = [];
+  //   const currentDate = new Date();
+
+  //   // Generate the past 12 months
+  //   for (let i = 0; i < 12; i++) {
+  //     const month = currentDate.getMonth() - i;
+  //     const year = currentDate.getFullYear() + Math.floor(month / 12); // Adjust year when going back over December
+  //     const adjustedDate = new Date(year, (month + 12) % 12); // Correct month for each iteration
+
+  //     // Format month as full name and year as YYYY
+  //     const formattedMonth = adjustedDate.toLocaleString('default', { month: 'long' });
+  //     const formattedYear = adjustedDate.getFullYear();
+
+  //     options.push({
+  //       label: `${formattedMonth}, ${formattedYear}`, // Format as "November, 2024"
+  //       value: `${formattedMonth}, ${formattedYear}`,
+  //     });
+  //   }
+  //   setMonthYearOptions(options);
+  // };
   const generateMonthYearOptions = () => {
     const options = [];
     const currentDate = new Date();
 
-    // Generate the past 12 months
-    for (let i = 0; i < 12; i++) {
+    // Generate the past 6 months
+    for (let i = 6; i > 0; i--) {
       const month = currentDate.getMonth() - i;
       const year = currentDate.getFullYear() + Math.floor(month / 12); // Adjust year when going back over December
       const adjustedDate = new Date(year, (month + 12) % 12); // Correct month for each iteration
@@ -51,6 +72,23 @@ const FeePayment = () => {
         value: `${formattedMonth}, ${formattedYear}`,
       });
     }
+
+    // Generate the current month and next 5 months (total 6 future months)
+    for (let i = 0; i < 6; i++) {
+      const month = currentDate.getMonth() + i;
+      const year = currentDate.getFullYear() + Math.floor(month / 12); // Adjust year when moving forward
+      const adjustedDate = new Date(year, month % 12); // Correct month for each iteration
+
+      // Format month as full name and year as YYYY
+      const formattedMonth = adjustedDate.toLocaleString('default', { month: 'long' });
+      const formattedYear = adjustedDate.getFullYear();
+
+      options.push({
+        label: `${formattedMonth}, ${formattedYear}`, // Format as "March, 2025"
+        value: `${formattedMonth}, ${formattedYear}`,
+      });
+    }
+
     setMonthYearOptions(options);
   };
   useEffect(() => {
@@ -229,7 +267,7 @@ const FeePayment = () => {
                 label="Join Date"
                 name="joinDate"
                 value={
-                  paymentData.joinDate 
+                  paymentData.joinDate
                     ? (paymentData.joinDate)// Format as DD/MM/YYYY
                     : 'Invalid Date'
                 }
@@ -245,9 +283,20 @@ const FeePayment = () => {
               <InputField label="Payment Cleared Month, Year" name="latestMonth" value={paymentData.feeClearedMonthYear || ''} disabled />
             )}{paymentData.latestPaidDate && (
               <InputField label="Last Paid Date" name="lastPaidDate" value={paymentData.latestPaidDate || ''} disabled />
+            )}{paymentData.pendingAddOns > 0 && (
+              <InputField 
+                label="Pending Add-Ons Amount"  
+                name="pendingAddOns" 
+                value={paymentData.pendingAddOns} 
+                disabled 
+                style={{
+                  color: 'red',
+                  fontWeight: 'bold',
+                }} 
+              />
             )}
             {isStudentDataFetched && (
-              <InputField label="Rent Status" name="rentStatus" type="text" disabled  style={{
+              <InputField label="Rent Status" name="rentStatus" type="text" disabled style={{
                 color: paymentData.pendingRentAmount ? 'red' : 'green',
                 fontWeight: 'bold',
               }}
