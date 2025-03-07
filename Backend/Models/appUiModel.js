@@ -7,7 +7,7 @@ const appUiSchema = new mongoose.Schema({
     mainContainerImage:{type:String, required:false},
     showContainer:{type:Boolean, required:false},
     homeBodyBGColor:{type:String, required:false},
-    containerHeight:{type:String, required:false},
+    containerHeight:{type:Number, required:false},
     emergencyMessageEnable:{type:Boolean, required:false},
     emergencyMessageText:{type:String, required:false},
     emergencyMessageIcon:{type:String, required:false},
