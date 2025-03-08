@@ -396,7 +396,7 @@ const getPendingPayments = async (req, res) => {
 
         // let pendingRentAmount = totalRentDue + (latestPayment ? latestPayment.pendingBalance || 0 : 0) - adjustedWaveOffAmount - advanceBalance;
         let pendingRentAmount =
-          (latestPayment && latestPayment.pendingBalance > latestPayment.monthlyRent ? 0 : totalRentDue) +
+          (latestPayment && latestPayment.pendingBalance >= latestPayment.monthlyRent ? 0 : totalRentDue) +
           (latestPayment ? latestPayment.pendingBalance || 0 : 0) -
           adjustedWaveOffAmount -
           advanceBalance;
