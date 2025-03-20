@@ -76,8 +76,18 @@ const addFeePayment = async (req, res) => {
     console.log(req.body)
     const student = _id;
 
-    const studentData = await Student.findById(student)
-      .populate('payments');
+     // First, check if the student exists in the Student collection
+     let studentData = await Student.findById(student).populate("payments");
+
+     // If studentData is null, check in the DailyRent collection
+     if (!studentData) {
+       studentData = await DailyRent.findOne({ OccupantId: studentId });
+     }
+ 
+     // If still no data is found, return an error
+     if (!studentData) {
+       return res.status(404).json({ message: "Student or daily rent record not found" });
+     }
 
     // Get the latest payment document
     const latestPayment = studentData.payments.length > 0 ? studentData.payments[studentData.payments.length - 1] : null;
@@ -124,6 +134,7 @@ const addFeePayment = async (req, res) => {
     if (isDailyRent) {
       // Handle daily rent payments
       const dailyRentPerson = await DailyRent.findOne({ OccupantId: studentId });
+      console.log(dailyRentPerson)
       if (!dailyRentPerson) {
         return res.status(404).json({ message: 'Daily rent person not found' });
       }
