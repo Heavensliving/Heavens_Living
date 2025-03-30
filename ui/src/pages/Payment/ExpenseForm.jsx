@@ -10,6 +10,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { FaPlus } from "react-icons/fa";
 import CategoryForm from "./CategoryForm";
+import { v4 as uuidv4 } from 'uuid'; // Import this at the top
 
 const storage = getStorage(app);
 
@@ -132,8 +133,15 @@ const ExpenseForm = () => {
       return Promise.reject("Invalid file");
     }
     return new Promise((resolve, reject) => {
-      const storageRef = ref(storage, 'expense-bill/' + file.name);
+      // Generate a unique filename (timestamp + original extension)
+      const fileExtension = file.name.split('.').pop(); // Get file extension
+      const uniqueFileName = `expense-bill/${Date.now()}_${uuidv4()}.${fileExtension}`;
+
+      // Upload to Firebase Storage
+      const storageRef = ref(storage, uniqueFileName);
       const uploadTask = uploadBytesResumable(storageRef, file);
+      // const storageRef = ref(storage, 'expense-bill/' + file.name);
+      // const uploadTask = uploadBytesResumable(storageRef, file);
 
       uploadTask.on(
         'state_changed',
