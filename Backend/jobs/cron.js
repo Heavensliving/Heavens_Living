@@ -10,6 +10,8 @@ cron.schedule('0 0 * * *', async () => {
 
     const students = await Student.find();
     const today = new Date();
+    const todayYear = today.getFullYear();
+    const todayMonth = today.getMonth(); // Note: Months are zero-indexed (0 for January, 1 for February, etc.)
 
     for (const student of students) {
       const { joinDate, paymentStatus, pendingSince, isBlocked, dateOfPayment, _id } = student;

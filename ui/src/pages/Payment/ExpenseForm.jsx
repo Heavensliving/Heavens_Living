@@ -10,7 +10,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { FaPlus } from "react-icons/fa";
 import CategoryForm from "./CategoryForm";
-import { v4 as uuidv4 } from 'uuid'; // Import this at the top
+import { v4 as uuidv4 } from 'uuid'; // Import UUID for unique names
 
 const storage = getStorage(app);
 
