@@ -8,6 +8,7 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 import CheckAuth from "../auth/CheckAuth";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { v4 as uuidv4 } from 'uuid';
 
 const storage = getStorage(app);
 
@@ -136,8 +137,14 @@ const EditExpense = () => {
       return Promise.reject("Invalid file");
     }
     return new Promise((resolve, reject) => {
-      const storageRef = ref(storage, 'expense-bill/' + file.name);
+      const fileExtension = file.name.split('.').pop(); // Get file extension
+      const uniqueFileName = `expense-bill/${Date.now()}_${uuidv4()}.${fileExtension}`;
+
+      // Upload to Firebase Storage
+      const storageRef = ref(storage, uniqueFileName);
       const uploadTask = uploadBytesResumable(storageRef, file);
+      // const storageRef = ref(storage, 'expense-bill/' + file.name);
+      // const uploadTask = uploadBytesResumable(storageRef, file);
 
       uploadTask.on(
         'state_changed',
