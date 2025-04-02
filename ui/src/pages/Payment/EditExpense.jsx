@@ -143,8 +143,6 @@ const EditExpense = () => {
       // Upload to Firebase Storage
       const storageRef = ref(storage, uniqueFileName);
       const uploadTask = uploadBytesResumable(storageRef, file);
-      // const storageRef = ref(storage, 'expense-bill/' + file.name);
-      // const uploadTask = uploadBytesResumable(storageRef, file);
 
       uploadTask.on(
         'state_changed',
