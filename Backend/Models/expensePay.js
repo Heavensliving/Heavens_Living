@@ -41,6 +41,10 @@ const expenseSchema = new mongoose.Schema({
     type: String,
     required: false
   },
+  pettyCashType: {
+    type: String,
+    required: false
+  },
   date: {
     type: Date,
     required: true

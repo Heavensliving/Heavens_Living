@@ -58,6 +58,8 @@ router.get('/pettycash/get', verifyToken, expenseController.getPettyCash);
 
 router.put('/edit/:id', verifyToken, expenseController.editExpense);
 
+router.delete("/delete/:id", expenseController.deleteExpense);
+
 
 
 

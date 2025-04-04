@@ -50,7 +50,7 @@ const PettyCash = () => {
                 navigate("/payments");
                 setLoading(false);
             }, 1000);
-            
+
         } catch (error) {
             console.error("Error adding Petty Cash:", error);
             toast.error('Failed to add Petty Cash', { autoClose: 500 });
@@ -65,7 +65,12 @@ const PettyCash = () => {
                 const response = await axios.get(`${API_BASE_URL}/staff`, {
                     headers: { Authorization: `Bearer ${admin.token}` },
                 });
-                setStaffMembers(response.data);
+                // Filter for only "On Duty" staff members
+                const onDutyStaff = response.data.filter(
+                    (staff) => staff.Status === "On Duty"
+                );
+
+                setStaffMembers(onDutyStaff);
             } catch (err) {
                 console.error('Error fetching staff members:', err);
             }

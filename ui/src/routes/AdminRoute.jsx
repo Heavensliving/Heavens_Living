@@ -86,6 +86,7 @@ const AdminRoute = () => {
                 <Route path="/cafe-order-panel" element={<CafeOrders />} />
                 <Route path="/cafe-order-history" element={<OrderHistory />} />
                 <Route path="/qr-scanner" element={<QRScanner />} />
+                <Route path='/expenses' element={<ExpenseTable />} />
                 <Route element={<AdminLayout />}>
                     <Route path="/" element={<Dashboard />} />
                     <Route path="/students" element={<StudentManagement />} />
@@ -133,7 +134,6 @@ const AdminRoute = () => {
                     <Route path='/AddExpense' element={<ExpenseForm />} />
                     <Route path='/editExpense/:id' element={<EditExpense />} />
                     <Route path='/paymentReceived' element={<PaymentReceived />} />
-                    <Route path='/expenses' element={<ExpenseTable />} />
                     <Route path='/AddCommission' element={<CommissionForm />} />
                     <Route path='/commissions' element={<CommissionTable />} />
                     <Route path='/paymentPending' element={<PendingPaymentsPage />} />

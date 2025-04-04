@@ -11,6 +11,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import { FaPlus } from "react-icons/fa";
 import CategoryForm from "./CategoryForm";
 import { v4 as uuidv4 } from 'uuid'; // Import UUID for unique names
+import Resizer from "react-image-file-resizer";
 
 const storage = getStorage(app);
 
@@ -27,6 +28,7 @@ const ExpenseForm = () => {
     leaveTaken: "",
     transactionId: "",
     handledBy: '',
+    pettyCashType: "",
     date: "",
     propertyName: "",
     propertyId: "",
@@ -49,6 +51,7 @@ const ExpenseForm = () => {
           headers: { Authorization: `Bearer ${admin.token}` },
         });
         setPettyCash(response.data);
+        console.log(response.data)
       } catch (error) {
         console.error("Error fetching Petty Cash:", error);
       }
@@ -124,51 +127,58 @@ const ExpenseForm = () => {
     });
   };
 
-
-
   const uploadFile = (file) => {
-    // console.log(file); // Check file details like name, size, etc.
-    if (!file || file.size === 0) {
-      console.log("Invalid file or file is empty");
-      return Promise.reject("Invalid file");
-    }
     return new Promise((resolve, reject) => {
-      // Generate a unique filename (timestamp + original extension)
-      const fileExtension = file.name.split('.').pop(); // Get file extension
-      const uniqueFileName = `expense-bill/${Date.now()}_${uuidv4()}.${fileExtension}`;
+      if (!file || file.size === 0) {
+        return reject("Invalid file");
+      }
 
-      // Upload to Firebase Storage
-      const storageRef = ref(storage, uniqueFileName);
-      const uploadTask = uploadBytesResumable(storageRef, file);
+      // ✅ Compress image before upload (Reduces file size)
+      Resizer.imageFileResizer(
+        file,
+        800, // Max width
+        800, // Max height
+        "JPEG", // Format
+        80, // Quality (0 to 100)
+        0, // Rotation
+        (compressedFile) => {
+          // ✅ Upload compressed file
+          const fileExtension = file.name.split('.').pop();
+          const uniqueFileName = `expense-bill/${Date.now()}_${uuidv4()}.${fileExtension}`;
+          const storageRef = ref(storage, uniqueFileName);
+          const uploadTask = uploadBytesResumable(storageRef, compressedFile);
 
-      uploadTask.on(
-        'state_changed',
-        (snapshot) => {
-          // console.log('Bytes Transferred:', snapshot.bytesTransferred);
-          // console.log('Total Bytes:', snapshot.totalBytes);
-          const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-          console.log(`Upload is ${progress}% done`);
+          uploadTask.on(
+            "state_changed",
+            (snapshot) => {
+              const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+              console.log(`Upload is ${progress}% done`);
+            },
+            (error) => reject(error),
+            () => {
+              getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => resolve(downloadURL));
+            }
+          );
         },
-        (error) => reject(error),
-        () => {
-          getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => resolve(downloadURL));
-        }
+        "file" // Output format
       );
     });
   };
 
   const handleSubmit = async (e) => {
-    console.log(formData);
     e.preventDefault();
     setLoading(true);
 
     try {
-      // Upload the file if `billImg` exists in `formData`
-      if (formData.billImg) {
+      // ✅ Ensure `billImg` is a string (URL) or undefined
+      if (formData.billImg instanceof File) {
         const downloadURL = await uploadFile(formData.billImg);
-        formData.billImg = downloadURL; // Replace the file object with the URL
+        formData.billImg = downloadURL; // Convert file object to URL
+      } else {
+        formData.billImg = undefined; // Ensure it's not an empty object
       }
-      // Prepare and send the data
+
+      // ✅ Send data to the backend
       const response = await axios.post(
         `${API_BASE_URL}/expense/addExpense`,
         formData,
@@ -176,6 +186,7 @@ const ExpenseForm = () => {
           headers: { Authorization: `Bearer ${admin.token}` },
         }
       );
+
       toast.success('Expense Added Successfully!', { autoClose: 500 });
       setTimeout(() => {
         navigate("/expenses");
@@ -184,12 +195,10 @@ const ExpenseForm = () => {
     } catch (error) {
       console.error("Error adding expense:", error);
       const errorMessage = error.response?.data?.error || "Something went wrong!";
-      toast.error(errorMessage, { autoClose: 3000 });
+      toast.error(errorMessage, { autoClose: 5000 });
       setLoading(false);
     }
   };
-
-
 
   const renderInput = (label, name, type, value, onChange, extraProps = {}) => (
     <div>
@@ -351,9 +360,7 @@ const ExpenseForm = () => {
               </>
             )}
             {renderInput("Other Reason", "otherReason", "text", formData.otherReason, handleChange)}
-            {renderInput("Amount", "amount", "number", formData.amount, handleChange, {
-              required: true,
-            })}
+            {/* Step 1: Payment Method */}
             {renderSelect(
               "Payment Method",
               "paymentMethod",
@@ -363,38 +370,106 @@ const ExpenseForm = () => {
               { required: true }
             )}
 
+            {/* Step 2: Petty Cash Flow */}
             {formData.paymentMethod === "Petty Cash" && (
-              <div>
-                <label className="block text-gray-700 mb-2">Handled By</label>
-                <select
-                  id="handledBy"
-                  name="handledBy"
-                  value={formData.handledBy}
-                  onChange={handleChange}
-                  required
-                  className="w-full p-2 border rounded-md"
-                >
-                  <option value="" disabled>Select Handled By</option>
-                  {pettyCash.map((cash) => (
-                    <option key={cash._id} value={cash.staff}>
-                      {cash.staff}
-                    </option>
-                  ))}
-                </select>
-              </div>
+              <>
+                {/* Handled By */}
+                <div>
+                  <label className="block text-gray-700 mb-2">Handled By</label>
+                  <select
+                    id="handledBy"
+                    name="handledBy"
+                    value={formData.handledBy}
+                    onChange={handleChange}
+                    required
+                    className="w-full p-2 border rounded-md"
+                  >
+                    <option value="" disabled>Select Handled By</option>
+                    {pettyCash.map((cash) => (
+                      <option key={cash._id} value={cash.staff}>
+                        {cash.staff}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Available Amount + Spent Via */}
+                {formData.handledBy && (
+                  <>
+                    <div className="mt-2">
+                      <label className="block text-gray-700 mb-2">Available Amount</label>
+                      <input
+                        type="text"
+                        value={
+                          pettyCash.find((cash) => cash.staff === formData.handledBy)?.amount || 0
+                        }
+                        disabled
+                        className="w-full p-2 border rounded-md bg-gray-100"
+                      />
+                    </div>
+
+                    {renderSelect(
+                      "Spent via",
+                      "pettyCashType",
+                      formData.pettyCashType || "",
+                      handleChange,
+                      ["Cash", "UPI"],
+                      { required: true }
+                    )}
+
+                    {/* Show Amount only after pettyCashType is selected */}
+                    {formData.pettyCashType && renderInput(
+                      "Amount",
+                      "amount",
+                      "number",
+                      formData.amount,
+                      handleChange,
+                      { required: true }
+                    )}
+
+                    {/* Show Transaction ID only if pettyCashType is UPI */}
+                    {formData.pettyCashType === "UPI" &&
+                      renderInput(
+                        "Transaction ID",
+                        "transactionId",
+                        "text",
+                        formData.transactionId,
+                        handleChange,
+                        { required: true }
+                      )}
+                  </>
+                )}
+              </>
             )}
-            {/* Conditionally render Transaction ID */}
-            {formData.paymentMethod !== "Cash" && formData.paymentMethod !== "Petty Cash" &&
-              renderInput(
-                "Transaction ID",
-                "transactionId",
-                "text",
-                formData.transactionId,
-                handleChange,
-                { required: true }
-              )
-            }
+
+            {/* Step 3: Show Amount + Transaction ID for other methods */}
+            {formData.paymentMethod !== "Cash" &&
+              formData.paymentMethod !== "Petty Cash" && (
+                <>
+                  {renderInput("Amount", "amount", "number", formData.amount, handleChange, {
+                    required: true,
+                  })}
+
+                  {renderInput(
+                    "Transaction ID",
+                    "transactionId",
+                    "text",
+                    formData.transactionId,
+                    handleChange,
+                    { required: true }
+                  )}
+                </>
+              )}
+
+            {/* Step 4: If Cash, show Amount only */}
+            {formData.paymentMethod === "Cash" &&
+              renderInput("Amount", "amount", "number", formData.amount, handleChange, {
+                required: true,
+              })}
+
+            {/* Date + Property */}
             {renderInput("Date", "date", "date", formData.date, handleChange, { required: true })}
+
             <div>
               <label htmlFor="propertyName" className="block text-gray-700 mb-2">Property</label>
               <select

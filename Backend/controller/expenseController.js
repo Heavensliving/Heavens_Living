@@ -16,6 +16,7 @@ const addExpense = async (req, res) => {
       salaryMonth,
       leaveTaken,
       handledBy,
+      pettyCashType,
       date,
       propertyId,
       propertyName,
@@ -23,76 +24,77 @@ const addExpense = async (req, res) => {
       transactionId,
       billImg,
     } = req.body;
-    const transactionID = paymentMethod === "Cash"
-    ? `CASH_${new Date().getTime()}`
-    : paymentMethod === "Petty Cash"
-    ? `PETTYCASH_${new Date().getTime()}`
-    : transactionId;
-    
-    // console.log(req.body)
-    // Validate required fields
+
+    // ✅ Generate Transaction ID dynamically
+    let transactionID = transactionId;
+    if (paymentMethod === "Cash") {
+      transactionID = `CASH_${Date.now()}`;
+    } else if (paymentMethod === "Petty Cash") {
+      if (!pettyCashType) {
+        return res.status(400).json({ error: "pettyCashType is required when using Petty Cash." });
+      }
+      transactionID = pettyCashType === "Cash" ? `PETTYCASH_${Date.now()}` : transactionId;
+      if (pettyCashType === "UPI" && !transactionId) {
+        return res.status(400).json({ error: "Transaction ID is required for UPI petty cash." });
+      }
+    }
+
+    // ✅ Validate required fields in one step
     if (!title || !type || !category || !amount || !date || !propertyId) {
       return res.status(400).json({ error: "Missing required fields." });
     }
 
-    const property = await Property.findById(propertyId);
-    if (!property) {
-      return res.status(400).json({ error: "Invalid property ID." });
+    const amountNumber = parseFloat(amount);
+    if (isNaN(amountNumber) || amountNumber <= 0) {
+      return res.status(400).json({ error: "Invalid amount value." });
     }
 
-    const existingExpense = await Expense.findOne({ transactionId:transactionID });
-    if (existingExpense) {
-      return res.status(400).json({ error: "Transaction ID already exists." });
-    }
+    // ✅ Run database queries in parallel to reduce execution time
+    const [property, existingExpense, pettyCashHandler] = await Promise.all([
+      Property.findById(propertyId),
+      Expense.findOne({ transactionId: transactionID }),
+      paymentMethod.toLowerCase() === "petty cash" ? PettycashSchema.findOne({ staff: handledBy }) : null,
+    ]);
 
+    if (!property) return res.status(400).json({ error: "Invalid property ID." });
+    if (existingExpense) return res.status(400).json({ error: "Transaction ID already exists." });
     if (category.toLowerCase() === "salary" && !staff) {
       return res.status(400).json({ error: "Staff ID is required for salary payments." });
     }
 
+    // ✅ Deduct from petty cash (if applicable)
     if (paymentMethod.toLowerCase() === "petty cash") {
-
-      if (!handledBy) {
-        console.log("HandledBy is missing.");
-        return res.status(400).json({ error: "HandledBy is required for petty cash payments." });
-      }
-
-      const pettyCashHandler = await PettycashSchema.findOne({ staff: handledBy });
-
+      if (!handledBy) return res.status(400).json({ error: "HandledBy is required for petty cash payments." });
       if (!pettyCashHandler) {
         return res.status(400).json({ error: `No petty cash record found for ${handledBy}.` });
       }
-
-      const amountNumber = parseFloat(amount);
-      if (isNaN(amountNumber)) {
-        return res.status(400).json({ error: "Invalid amount value." });
-      }
-
       if (pettyCashHandler.amount < amountNumber) {
-        return res.status(400).json({
-          error: `${handledBy} does not have sufficient funds in petty cash. Available amount: ${pettyCashHandler.amount}.`,
-        });
+        return res.status(400).json({ error: `${handledBy} does not have sufficient funds in petty cash.` });
       }
-
       pettyCashHandler.amount -= amountNumber;
-      await pettyCashHandler.save();
+      await pettyCashHandler.save(); // Update petty cash
     }
+
+    // ✅ Create and save the new expense
     const newExpense = new Expense({
       title,
       type,
       category,
-      otherReason: otherReason || undefined, // Optional field
+      otherReason: otherReason || undefined,
       paymentMethod,
       amount,
       salaryMonth,
       leaveTaken,
       handledBy,
+      pettyCashType: pettyCashType || undefined,
       date,
       propertyId,
       propertyName,
-      staff: staff || undefined, // Optional field
+      staff: staff || undefined,
       transactionId,
       billImg: billImg || undefined,
     });
+
     await newExpense.save();
 
     res.status(201).json({ message: "Expense added successfully.", expense: newExpense });
@@ -101,8 +103,6 @@ const addExpense = async (req, res) => {
     res.status(500).json({ error: "Internal server error." });
   }
 };
-
-
 
 // Get total expense
 const getTotalExpense = async (req, res) => {
@@ -153,70 +153,63 @@ const getExpenseById = async (req, res, next) => {
 const editExpense = async (req, res) => {
   try {
     const { paymentMethod, handledBy, amount } = req.body;
-    const updatedData = req.body;
+    const updatedData = { ...req.body };
 
     const expenseData = await Expense.findById(req.params.id);
-
     if (!expenseData) {
       return res.status(404).json({ message: "Expense not found" });
     }
 
-    // Handle changes in petty cash if paymentMethod or handledBy changes
+    const prevAmount = parseFloat(expenseData.amount);
+    const newAmount = parseFloat(amount);
+
+    if (isNaN(newAmount)) {
+      return res.status(400).json({ error: "Invalid amount value." });
+    }
+
+    // 🔹 **CASE 1: If previous payment was Petty Cash, refund the old handler**
     if (expenseData.paymentMethod.toLowerCase() === "petty cash") {
-      const pettyCashHandler = await PettycashSchema.findOne({ staff: expenseData.handledBy });
-      if (pettyCashHandler) {
-        pettyCashHandler.amount += expenseData.amount - expenseData.amount; // Add back the previous amount
-        await pettyCashHandler.save();
+      const prevHandler = await PettycashSchema.findOne({ staff: expenseData.handledBy });
+      if (prevHandler) {
+        prevHandler.amount += prevAmount; // Refund previous amount
+        await prevHandler.save();
       }
     }
 
-    if (paymentMethod && paymentMethod.toLowerCase() === "petty cash") {
-      const newPettyCashHandler = await PettycashSchema.findOne({ staff: handledBy });
+    // 🔹 **CASE 2: If new payment method is Petty Cash, deduct from new handler**
+    if (paymentMethod.toLowerCase() === "petty cash") {
+      const newHandler = await PettycashSchema.findOne({ staff: handledBy });
 
-      if (!newPettyCashHandler) {
+      if (!newHandler) {
         return res.status(400).json({ error: `No petty cash record found for ${handledBy}.` });
       }
 
-      const amountNumber = parseFloat(amount);
-      if (isNaN(amountNumber)) {
-        return res.status(400).json({ error: "Invalid amount value." });
-      }
-
-      if (newPettyCashHandler.amount < amountNumber) {
+      if (newHandler.amount < newAmount) {
         return res.status(400).json({
-          error: `${handledBy} does not have sufficient funds in petty cash. Available amount: ${newPettyCashHandler.amount}.`,
+          error: `${handledBy} does not have sufficient funds in petty cash. Available: ₹${newHandler.amount}.`,
         });
       }
 
-      newPettyCashHandler.amount -= amountNumber; // Deduct the new amount
-      await newPettyCashHandler.save();
+      newHandler.amount -= newAmount; // Deduct new amount
+      await newHandler.save();
     }
 
-    // If paymentMethod does not involve petty cash, adjust petty cash amount accordingly
-    if (
-      expenseData.paymentMethod.toLowerCase() === "petty cash" &&
-      paymentMethod.toLowerCase() !== "petty cash"
-    ) {
-      const pettyCashHandler = await PettycashSchema.findOne({ staff: expenseData.handledBy });
-      if (pettyCashHandler) {
-        pettyCashHandler.amount += expenseData.amount; // Add back previous petty cash amount
-        await pettyCashHandler.save();
-      }
+    // 🔹 **CASE 3: If payment method is changed to Cash or Petty Cash (via Cash), remove transaction ID**
+    if (paymentMethod.toLowerCase() === "cash" || (paymentMethod.toLowerCase() === "petty cash" && req.body.pettyCashType === "Cash")) {
+      updatedData.transactionId = undefined; // Remove transaction ID
     }
 
-    // Update the expense data
+    // Update the expense in the database
     const updatedExpense = await Expense.findByIdAndUpdate(req.params.id, updatedData, {
       new: true,
     });
 
-    res.status(200).json(updatedExpense);
+    res.status(200).json({ message: "Expense updated successfully", updatedExpense });
   } catch (error) {
     console.error("Error updating expense:", error.message || error);
     res.status(500).json({ message: "Error updating expense", error });
   }
 };
-
-
 
 // Get expenses by property name
 const getExpensesByProperty = async (req, res) => {
@@ -293,8 +286,8 @@ const getSalaryOverview = async (req, res) => {
     const totalSalaryPaid = salaryTransactions.reduce((sum, transaction) => sum + (transaction.amount || 0), 0);
 
     // Get the latest salary transaction for leave taken
-    const latestTransaction = salaryTransactions[salaryTransactions.length-1];
-    console.log("here",latestTransaction)
+    const latestTransaction = salaryTransactions[salaryTransactions.length - 1];
+    console.log("here", latestTransaction)
     const leaveTaken = latestTransaction?.leaveTaken || 0;
 
     // Calculate leave deduction (assuming salaryMonth is 30 days)
@@ -396,7 +389,37 @@ const getPettyCash = async (req, res) => {
   }
 };
 
+const deleteExpense = async (req, res) => {
+  try {
+    const { id } = req.params;
 
+    // Find the expense by ID
+    const expense = await Expense.findById(id);
+    if (!expense) {
+      return res.status(404).json({ error: "Expense not found." });
+    }
+
+    // If the expense was made using Petty Cash, refund the amount
+    if (expense.paymentMethod.toLowerCase() === "petty cash") {
+      if (expense.handledBy) {
+        const pettyCashHandler = await PettycashSchema.findOne({ staff: expense.handledBy });
+
+        if (pettyCashHandler) {
+          pettyCashHandler.amount += parseFloat(expense.amount);
+          await pettyCashHandler.save();
+        }
+      }
+    }
+
+    // Delete the expense from the database
+    await Expense.findByIdAndDelete(id);
+
+    res.status(200).json({ message: "Expense deleted successfully." });
+  } catch (error) {
+    console.error("Error deleting expense:", error.message || error);
+    res.status(500).json({ error: "Internal server error." });
+  }
+};
 
 // Exporting the functions using const
 const expenseController = {
@@ -411,7 +434,8 @@ const expenseController = {
   editExpense,
   addPettyCash,
   getPettyCash,
-  getSalaryOverview
+  getSalaryOverview,
+  deleteExpense,
 };
 
 module.exports = expenseController;
