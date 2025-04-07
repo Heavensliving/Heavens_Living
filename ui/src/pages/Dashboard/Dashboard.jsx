@@ -3,8 +3,11 @@ import StatsSection from "./StatSection";
 import FinanceChart from "./FinanceChart";
 import CheckAuth from "../auth/CheckAuth";
 import InsightSection from "./InsightSection";
+import { useSelector } from "react-redux";
 
 const Dashboard = () => {
+  const admin = useSelector(store => store.auth.admin);
+
   const today = new Date();
   const currentDate = today.getDate();
   const currentMonth = today.getMonth();
@@ -32,7 +35,9 @@ const Dashboard = () => {
         <InsightSection />
 
         {/* Stack vertically on all screens */}
+        {admin?.role === "Main-Admin" && (
         <div className="flex flex-col gap-6 mt-6">
+          
           {/* Finance Graph Section */}
           <div className="bg-white p-4 rounded-lg shadow h-[500px]"> {/* Fixed height */}
             <div className="h-full w-full">
@@ -40,8 +45,8 @@ const Dashboard = () => {
             </div>
           </div>
 
-         
         </div>
+          )}
       </main>
     </div>
   );

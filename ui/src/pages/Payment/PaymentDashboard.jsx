@@ -427,12 +427,14 @@ const PaymentDashboard = () => {
             >
               Add Commission
             </button>
+            {admin?.role === "Main-Admin" && (
             <button
               onClick={() => navigate('/pettycash')}
               className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
             >
               Add Petty Cash
             </button>
+              )}
             {admin.role !== 'Property-Admin' && (
               <button
                 onClick={() => setShowReportModal(true)}
@@ -497,11 +499,13 @@ const PaymentDashboard = () => {
             <p className="text-lg font-semibold ">₹{totalExpense}</p>
             <p>Expense</p>
           </div>
+          {admin?.role === "Main-Admin" && (
           <div className="p-4 bg-gray-100 text-gray-500 rounded-md ">
                 <p className="text-lg font-semibold">₹{total-(totalExpense+totalCommission+totalWaveOff) || 0}</p>{" "}
                 {/* Total Deposit */}
                 <p>Balance</p>
               </div>
+                )}
           <div
             className="p-4 bg-gray-100 text-gray-500 rounded-md cursor-pointer"
             onClick={() => navigate("/commissions")}
