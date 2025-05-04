@@ -9,7 +9,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 // eslint-disable-next-line react/prop-types
-const InputField = ({ label, name, type = 'text', value, onChange, required = false, disabled = false }) => (
+const InputField = ({ label, name, type = 'text', value, onChange, style, required = false, disabled = false }) => (
   <div className="w-full md:w-1/2 px-2 mb-4">
     <label className="block text-gray-700 mb-2">{label}</label>
     <input
@@ -22,6 +22,7 @@ const InputField = ({ label, name, type = 'text', value, onChange, required = fa
       required={required}
       disabled={disabled}
       onWheel={(e) => e.target.blur()}
+      style={style}
     />
   </div>
 );
@@ -30,18 +31,15 @@ const DailyRentPayment = () => {
   const admin = useSelector(store => store.auth.admin);
   const navigate = useNavigate();
   const location = useLocation();
-  const paymentType = location.state?.paymentType || '';
-  // const [formData, setFormData] = useState('');
   const [formData, setFormData] = useState({
     renterId: location.state?.studentId || ''  // Initialize with passed studentId if available
   });
-  const [studentId, setStudentId] = useState('');
   const [paymentData, setPaymentData] = useState('');
-  const [totalAmountToPay, setTotalAmountToPay] = useState('');
   const [totalAmount, setTotalAmount] = useState('');
   const [paymentMode, setPaymentMode] = useState('');
   const [collectedBy, setCollectedBy] = useState('');
   const [waveOffAmount, setWaveOffAmount] = useState('');
+  const [remarks, setRemarks] = useState('');
   const [payingAmount, setPayingAmount] = useState('');
   const [transactionId, setTransactionId] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
@@ -67,13 +65,12 @@ const DailyRentPayment = () => {
     }
 
     const renterId = formData.renterId;
-    setStudentId(renterId)
     try {
       const response = await axios.get(`${API_BASE_URL}/DailyRent/renterId/${renterId}`,
         { headers: { 'Authorization': `Bearer ${admin.token}` } }
       );
       const data = await response.data;
-      // console.log(data)
+      console.log(data)
       setPaymentData(data)
       setErrorMessage('');
       setIsRenterDataFetched(true);
@@ -106,12 +103,11 @@ const DailyRentPayment = () => {
 
   // Dynamically update total amount to pay when waveOffAmount changes
   useEffect(() => {
-    if (paymentData.renter && (paymentData.renter.totalAmount - paymentData.renter.payingAmount) !== undefined) {
-      const newTotal = Math.max(paymentData.renter && (paymentData.renter.totalAmount - paymentData.renter.payingAmount) - waveOffAmount, 0);
+    if (paymentData.renter && (paymentData.renter.pendingRent) !== undefined) {
+      const newTotal = Math.max(paymentData.renter && (paymentData.renter.pendingRent) - waveOffAmount, 0);
       setTotalAmount(newTotal);
-      setTotalAmountToPay(newTotal + paymentData.renter.payingAmount)
     }
-  }, [waveOffAmount, paymentData.renter && (paymentData.renter.totalAmount - paymentData.renter.payingAmount)]);
+  }, [waveOffAmount, paymentData.renter && (paymentData.renter.pendingRent)]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -119,23 +115,21 @@ const DailyRentPayment = () => {
     const finalCollectedBy = collectedBy === 'manual' ? manualStaffName : collectedBy;
     // Construct formData with all necessary fields
     const comprehensiveFormData = {
-      ...paymentData, // Includes fetched student details like name, pgName, etc.
-      studentId,
-      waveOffAmount,
-      payingAmount,
+      name: paymentData.renter.name, // Includes fetched student details like name, pgName, etc.
+      renterId: paymentData.renter._id,
+      waveOff: waveOffAmount,
+      amountPaid:payingAmount,
       transactionId,
       paidDate,
-      totalAmountToPay,
       paymentMode,
       collectedBy: finalCollectedBy,
       property: paymentData.renter.pgName,
-      isMessPayment: paymentType === "Daily Rent",
-      isDailyRent: paymentType !== "Daily Rent",
+      remarks
     };
 
     try {
-      // console.log(comprehensiveFormData); // debug statement Log to verify all data is present
-      await axios.post(`${API_BASE_URL}/fee/add`, comprehensiveFormData,
+      console.log(comprehensiveFormData); // debug statement Log to verify all data is present
+      await axios.post(`${API_BASE_URL}/fee/addDailyRent`, comprehensiveFormData,
         { headers: { 'Authorization': `Bearer ${admin.token}` } }
       );
 
@@ -214,18 +208,18 @@ const DailyRentPayment = () => {
               <InputField label="No. of Days" name="days" value={paymentData.renter.days || ''} disabled />
             )}
 
-            {paymentData.renter && paymentData.renter.totalAmount && (
-              <InputField label="Total Rent" name="totalAmount" value={paymentData.renter.totalAmount || ''} disabled />
+            {paymentData.renter && paymentData.renter.totalRent && (
+              <InputField label="Total Amount to pay" name="totalAmount" value={paymentData.renter.totalRent || ''} disabled />
             )}
 
-            {paymentData.renter && paymentData.renter.payingAmount !== 0 && (
+            {/* {paymentData.renter && paymentData.renter.payingAmount !== 0 && (
               <InputField
                 label="Total Amount Paid"
                 name="payingAmount"
                 value={paymentData.renter.payingAmount === 0 ? "" : paymentData.renter.payingAmount}
                 disabled
               />
-            )}
+            )} */}
 
             {paymentData.latestPaidDate && (
               <InputField label="Last Paid Date" name="lastPaidDate" value={new Date(paymentData.latestPaidDate || '').toLocaleDateString('en-GB') || ''} disabled />
@@ -235,12 +229,16 @@ const DailyRentPayment = () => {
                 label="Rent Status"
                 name="rentStatus"
                 type="text"
+                style={{
+                  color: paymentData.renter.pendingRent ? 'red' : 'green',
+                  fontWeight: 'bold',
+                }}
                 disabled
                 value={
-                  paymentData.renter.totalAmount
-                    ? paymentData.renter.totalAmount === paymentData.renter.payingAmount
+                  paymentData.renter.pendingRent
+                    ? paymentData.renter.pendingRent === 0
                       ? 'Cleared'
-                      : `Pending due: ${paymentData.renter.totalAmount - paymentData.renter.payingAmount}`
+                      : `Pending due: ${paymentData.renter.pendingRent}`
                     : 'Cleared'
                 }
               />
@@ -309,6 +307,7 @@ const DailyRentPayment = () => {
                   </div>
                 )}
                 <InputField label="Paid Date" name="paidDate" type="date" value={paidDate} onChange={(e) => setPaidDate(e.target.value)} required />
+                <InputField label="Remarks" name="remarks" type="text" value={remarks} onChange={(e) => setRemarks(e.target.value)} />
                 <span className="text-xs text-red-400 font-normal block mt-1 text-center mx-auto">
                   The "Total Amount" is automatically calculated based on Check-In and Check-Out dates. Any adjustment can be reflected in the "Wave-Off Amount" field.
                 </span>

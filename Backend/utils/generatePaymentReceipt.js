@@ -49,7 +49,7 @@ const generatePaymentReceipt = async (studentData, paymentDetails) => {
       .fontSize(12)
       .text(`Name: ${studentData.name}`)
       .text(`Contact No.: ${studentData.contactNo}`)
-      .text(`Fee Cleared Month: ${paymentDetails.feeClearedMonthYear}`)
+      .text(`Fee Cleared Month: ${paymentDetails.clearedTill}`)
       .moveDown();
 
     // **Payment Details Table**
@@ -78,10 +78,9 @@ const generatePaymentReceipt = async (studentData, paymentDetails) => {
 
     const tableData = [
       ['Description', `Amount(Rs)`],
-      ['Total Amount Payable', paymentDetails.totalAmountToPay],
       ['Amount Paid', paymentDetails.payingAmount],
       ['Wave Off Amount', paymentDetails.waveOffAmount || '0'],
-      ['Remaining Balance', paymentDetails.balance],
+      ['Remaining Balance', paymentDetails.dueAmount],
     ];
 
     // **Draw Table Borders & Cells**

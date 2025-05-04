@@ -466,7 +466,7 @@ const PaymentDashboard = () => {
             <p className="text-lg font-semibold">₹{pendingPayments}</p>
             <p>Payment Pending</p>
           </div>
-          <div
+          {/* <div
             className="p-4 bg-yellow-100 text-yellow-500 rounded-md"
           // onClick={() => navigate("/expenses")}
           >
@@ -491,7 +491,7 @@ const PaymentDashboard = () => {
             </p>
             <p>Payment Pending</p>
             <span>(Mess Only)</span>
-          </div>
+          </div> */}
           <div
             className="p-4 bg-gray-100 text-gray-500 rounded-md cursor-pointer"
             onClick={() => navigate("/expenses")}
@@ -569,7 +569,7 @@ const PaymentDashboard = () => {
               >
                 Daily Rent
               </li>
-              <li
+              {/* <li
                 onClick={() =>
                   navigate("/messOnlyPayment", {
                     state: { paymentType: "Mess Only" },
@@ -578,7 +578,7 @@ const PaymentDashboard = () => {
                 className="cursor-pointer px-4 py-2 bg-green-100 text-green-600 rounded-md hover:bg-green-200"
               >
                 Mess Only
-              </li>
+              </li> */}
             </ul>
           </div>
         </div>

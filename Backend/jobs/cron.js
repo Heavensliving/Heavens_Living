@@ -2,133 +2,100 @@ const cron = require('node-cron');
 const Student = require('../Models/Add_student');
 const MessOrder = require('../Models/MessOrderModel');
 const moment = require('moment');
-const FeePayment = require('../Models/feePayment');
 
 cron.schedule('0 0 * * *', async () => {
-  try {
-    console.log('Running daily payment status and blocking check...');
 
+  try {
+    // Find all students
     const students = await Student.find();
+
     const today = new Date();
-    const todayYear = today.getFullYear();
-    const todayMonth = today.getMonth(); // Note: Months are zero-indexed (0 for January, 1 for February, etc.)
 
     for (const student of students) {
-      const { joinDate, paymentStatus, pendingSince, isBlocked, dateOfPayment, _id } = student;
 
-      // Ensure joinDate is valid
-      if (!joinDate || isNaN(new Date(joinDate))) {
-        console.warn(`Invalid joinDate for student ${student.name}. Skipping...`);
-        continue;
-      }
-
-      // Fetch latest payment for the student
-      const latestPayment = await FeePayment.findOne({ student: _id })
-        .sort({ createdAt: -1 })
-        .lean();
-
-      const joinDateObj = new Date(joinDate);
+      const joinDateObj = new Date(student.joinDate);
       let nextDueDate;
 
-      if (dateOfPayment) {
+      if (student.dateOfPayment) {
         // Calculate next due date based on the existing `dateOfPayment`
-        const lastPaymentDate = new Date(dateOfPayment);
+        const lastPaymentDate = new Date(student.dateOfPayment);
         nextDueDate = new Date(lastPaymentDate.getFullYear(), lastPaymentDate.getMonth() + 1, lastPaymentDate.getDate());
       } else {
         // If there is no `dateOfPayment`, calculate the first due date (same day join date)
         nextDueDate = new Date(joinDateObj.getFullYear(), joinDateObj.getMonth(), joinDateObj.getDate());
       }
 
-      // Ensure nextDueDate is in the past or today
+      let remainingRent = student.monthlyRent; // Full rent due this month
+
       if (today >= nextDueDate) {
-        // If `dateOfPayment` is not set, update it to the next month's same date
-        if (!dateOfPayment) {
-          let shouldSetPending = true;
 
-          // Check latest payment details
-          if (latestPayment) {
-            let { advanceBalance = 0, paymentClearedMonthYear } = latestPayment;
-
-            if (paymentClearedMonthYear) {
-              const [clearedMonth, clearedYear] = paymentClearedMonthYear.split(', ').map(str => str.trim());
-              const clearedYearInt = parseInt(clearedYear, 10);
-
-              if (advanceBalance > 0 && (clearedYearInt > todayYear || (clearedYearInt === todayYear && clearedMonth !== todayMonth))) {
-                shouldSetPending = false; // Future cleared month means no pending
-              }
-
-              if (advanceBalance > 0 && clearedYearInt === todayYear && clearedMonth === todayMonth) {
-                shouldSetPending = false; // Already cleared for this month
-              }
-            }
-          }
-
-          if (shouldSetPending) {
-            await Student.findByIdAndUpdate(_id, {
-              paymentStatus: 'Pending',
-              pendingSince: today,
-              isBlocked: false,
-              dateOfPayment: today,
-            });
-
-            console.log(`${student.name}'s status set to Pending for due date ${today.toISOString().slice(0, 10)}.`);
-          } else {
-            await Student.findByIdAndUpdate(_id, { dateOfPayment: today });
-            console.log(`${student.name}'s dateOfPayment updated to ${today.toISOString().slice(0, 10)} (no pending needed).`);
-          }
-        } else {
-          let shouldSetPending = true;
-
-          if (latestPayment) {
-            let { advanceBalance = 0, paymentClearedMonthYear } = latestPayment;
-
-            if (paymentClearedMonthYear) {
-              const [clearedMonth, clearedYear] = paymentClearedMonthYear.split(', ').map(str => str.trim());
-              const clearedYearInt = parseInt(clearedYear, 10);
-
-              if (advanceBalance > 0 && (clearedYearInt > todayYear || (clearedYearInt === todayYear && clearedMonth !== todayMonth))) {
-                shouldSetPending = false;
-              }
-
-              if (advanceBalance > 0 && clearedYearInt === todayYear && clearedMonth === todayMonth) {
-                shouldSetPending = false;
-              }
-            }
-          }
-
-          if (shouldSetPending) {
-            await Student.findByIdAndUpdate(_id, {
-              paymentStatus: 'Pending',
-              pendingSince: today,
-            });
-
-            console.log(`${student.name}'s status set to Pending for due date ${nextDueDate.toISOString().slice(0, 10)}.`);
-          }
+        // Scenario 1: Full rent can be covered by balance
+        if (student.accountBalance >= remainingRent) {
+          student.accountBalance -= remainingRent;
+          remainingRent = 0; // Rent fully covered
+          console.log(`Deducted full rent ₹${student.monthlyRent} from balance for ${student.name}`);
+        }
+        // Scenario 2: Partial amount in balance, rest goes to pending rent    
+        else if (student.accountBalance > 0) {
+          remainingRent -= student.accountBalance; // Reduce remaining rent by balance amount
+          console.log(`Deducted ₹${student.accountBalance} from balance for ${student.name}, remaining rent: ₹${remainingRent}`);
+          student.accountBalance = 0; // Balance used up
         }
 
-      }
-
-      // Blocking after 7 days of Pending
-      if (paymentStatus === 'Pending' && pendingSince) {
-        const pendingDate = new Date(pendingSince);
-        const daysPending = Math.floor((today - pendingDate) / (1000 * 60 * 60 * 24));
-
-        if (daysPending > 6 && !isBlocked) {
-          await Student.findByIdAndUpdate(_id, { isBlocked: true });
-          console.log(`Blocked ${student.name} due to non-payment.`);
+        // Scenario 3: Remaining rent (if any) should be added to pending rent
+        if (remainingRent > 0) {
+          student.pendingRent += remainingRent;
+          student.paymentStatus = "Pending";
+          student.dateOfPayment = today;
+          if (!student.pendingSince) {
+            student.pendingSince = today; // Store the date when payment became pending
+          }
+          console.log(`Updated pending rent for ${student.name}: ₹${student.pendingRent}`);
         }
-      }
 
-      // Update `dateOfPayment` for the next cycle
-      if (today >= nextDueDate) {
-        await Student.findByIdAndUpdate(_id, { dateOfPayment: today });
-        console.log(`${student.name}'s dateOfPayment updated to ${today.toISOString().slice(0, 10)}.`);
+        await student.save();
       }
     }
-
-    console.log('Daily payment status and blocking check completed.');
   } catch (error) {
-    console.error('Error during daily payment status and blocking check:', error);
+    console.error("Error updating rent:", error);
+  }
+});
+
+
+// ========== CRON JOB 2: Block Overdue Students ==========
+cron.schedule('0 0 * * *', async () => {
+  console.log("Checking students for overdue payments...");
+
+  try {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const students = await Student.find({ paymentStatus: "Pending" });
+
+    for (const student of students) {
+      if (student.pendingSince) {
+        const dueDate = new Date(student.pendingSince);
+        const daysPending = Math.floor((today - dueDate) / (1000 * 60 * 60 * 24));
+
+        // if (student.extendDate) {
+        //   const extendDate = new Date(student.extendDate);
+        //   extendDate.setHours(0, 0, 0, 0);
+
+        //   if (extendDate >= today) {
+        //     console.log(`Skipping block for ${student.name}, extend date valid until ${student.extendDate}`);
+        //     continue;
+        //   }
+        // }
+
+        if (daysPending > 5) {
+          student.isBlocked = true;
+          console.log(`Blocked ${student.name} for overdue payment (₹${student.pendingRent}) for ${daysPending} days.`);
+          await student.save();
+        }
+      }
+    }
+  } catch (error) {
+    console.error("Error in overdue blocking job:", error);
   }
 });
 
@@ -152,28 +119,3 @@ cron.schedule('0 0 * * *', async () => {  // Runs daily at midnight
     console.error('Error during order cleanup:', error);
   }
 });
-
-
-
-
-// if (today >= nextDueDate) {
-//   // If `dateOfPayment` is not set, update it to the next month's same date
-//   if (!dateOfPayment) {
-//     await Student.findByIdAndUpdate(_id, {
-//       paymentStatus: 'Pending',
-//       pendingSince: today,
-//       isBlocked: false, // Reset blocking status when a new due date is handled
-//       dateOfPayment: today, // Set dateOfPayment to the current due date (same day of the next month)
-//     });
-
-//     console.log(`${student.name}'s status set to Pending for due date ${today.toISOString().slice(0, 10)}.`);
-//   } else {
-//     // If `dateOfPayment` is already set, just update the payment status to Pending
-//     await Student.findByIdAndUpdate(_id, {
-//       paymentStatus: 'Pending',
-//       pendingSince: today,
-//     });
-
-//     console.log(`${student.name}'s status set to Pending for due date ${nextDueDate.toISOString().slice(0, 10)}.`);
-//   }
-// }

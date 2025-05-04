@@ -8,33 +8,34 @@ const FeePaymentSchema = new mongoose.Schema({
   amountPaid: { type: Number, default: 0 },
   pendingBalance: { type: Number, default: 0 },
   advanceBalance: { type: Number, default: 0 },
-  paymentClearedMonthYear: { type: String, required: false },
+  fullyClearedRentMonths: [{ type: String, required: true }],
+  rentMonth: { type: String },
   paymentDate: { type: Date, required: true },
   waveOff: { type: Number, default: 0 },
-  waveOffDate: { type: Date, required: false },
-  waveOffReason: { type: String, default:'' },
+  waveOffReason: { type: String, default: '' },
   transactionId: { type: String, required: false },
-  paymentMode: { 
-    type: String, 
+  remarks: { type: String },
+  paymentMode: {
+    type: String,
     enum: ['Cash', 'Net Banking', 'UPI'],
-    required: true 
+    required: true
   },
   collectedBy: { type: String },
-  property: {type:String},
-  dailyRent: { 
-    type: mongoose.Schema.Types.ObjectId, 
-    ref: 'DailyRent', 
-    required: false 
+  property: { type: String },
+  dailyRent: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'DailyRent',
+    required: false
   },
-  messPeople: { 
-    type: mongoose.Schema.Types.ObjectId, 
-    ref: 'peopleModel', 
-    required: false 
+  messPeople: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'peopleModel',
+    required: false
   },
-  student: { 
-    type: mongoose.Schema.Types.ObjectId, 
-    ref: 'Student', 
-    required: false 
+  student: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Student',
+    required: false
   },
 }, { timestamps: true });
 

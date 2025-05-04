@@ -76,7 +76,7 @@ const DailyRentTable = ({ dailyRents, onRowClick, onEdit, onDelete, admin }) => 
                   </td>
                   <td className="py-2 px-4 text-center">{dailyRent.days}</td>
                   <td className="py-2 px-4 text-center">{dailyRent.DailyRent}</td>
-                  <td className="py-2 px-4 text-center">{dailyRent.totalAmount}</td>
+                  <td className="py-2 px-4 text-center">{dailyRent.totalRent || dailyRent.totalAmount}</td>
                   <td className="py-4 px-4 text-center text-xs md:text-sm">
                     <span
                       className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${dailyRent.paymentStatus === "Paid"
@@ -86,7 +86,7 @@ const DailyRentTable = ({ dailyRents, onRowClick, onEdit, onDelete, admin }) => 
                     >
                       {dailyRent.paymentStatus === "Paid"
                         ? "Paid"
-                        : `Pending - ${dailyRent.totalAmount - dailyRent.payingAmount}`}
+                        : `Pending - ${dailyRent.pendingRent || dailyRent.totalAmount - dailyRent.payingAmount}`}
                     </span>
                   </td>
                   <td className="py-4 px-4 flex space-x-4 ">
