@@ -57,6 +57,8 @@ const addStudent = async (req, res) => {
       property: propertyId,
       room: room._id,
       password: hashedPassword,
+      pendingRent: req.body.monthlyRent,
+      dateOfPayment: req.body.joinDate,
     });
     await student.save();
     room.occupanets.push(student._id);
@@ -485,20 +487,21 @@ const getStudentByStudentId = async (req, res) => {
       advanceBalance = '';
     }
 
-    res.status(200).json({
-      name,
-      monthlyRent,
-      pgName,
-      joinDate: joinDate,
-      latestPaidDate: latestPaidDate ? latestPaidDate.toLocaleDateString() : null,
-      feeClearedMonthYear,
-      unpaidMonths,
-      pendingAddOns: student.pendingAddOns ? student.pendingAddOns : 0,
-      pendingRentAmount,
-      advanceBalance,
-      pendingBalance,
-      _id
-    });
+    res.status(200).json(student);
+    // res.status(200).json({
+    //   name,
+    //   monthlyRent,
+    //   pgName,
+    //   joinDate: joinDate,
+    //   latestPaidDate: latestPaidDate ? latestPaidDate.toLocaleDateString() : null,
+    //   feeClearedMonthYear,
+    //   unpaidMonths,
+    //   pendingAddOns: student.pendingAddOns ? student.pendingAddOns : 0,
+    //   pendingRentAmount,
+    //   advanceBalance,
+    //   pendingBalance,
+    //   _id
+    // });
   } catch (error) {
     console.error('Error retrieving student:', error);
     res.status(500).json({ message: 'Error retrieving student', error: error.message || error });

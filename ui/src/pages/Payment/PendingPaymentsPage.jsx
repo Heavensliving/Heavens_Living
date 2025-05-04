@@ -18,15 +18,15 @@ const PendingPaymentsPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   // const [propertyFilter, setPropertyFilter] = useState('');
-   const [propertyFilter, setPropertyFilter] = useState(() => {
-      if (admin?.role === 'Main-Admin') {
-        return 'totalReceived';
-      } else if (admin?.properties?.length > 0) {
-        return admin.properties[0].name; // Use the first property as the default
-      } else {
-        return ''; // Default to an empty string if no properties are available
-      }
-    });
+  const [propertyFilter, setPropertyFilter] = useState(() => {
+    if (admin?.role === 'Main-Admin') {
+      return 'totalReceived';
+    } else if (admin?.properties?.length > 0) {
+      return admin.properties[0].name; // Use the first property as the default
+    } else {
+      return ''; // Default to an empty string if no properties are available
+    }
+  });
 
   useEffect(() => {
     if (!admin) return;
@@ -58,11 +58,11 @@ const PendingPaymentsPage = () => {
   const adminProperties = admin?.properties || [];
   const defaultProperty = adminProperties.length > 0 ? adminProperties[0].name : '';
 
-   useEffect(() => {
-      if (defaultProperty && !propertyFilter) {
-        setPropertyFilter(defaultProperty); // Set default property on initial render
-      }
-    }, [defaultProperty]);
+  useEffect(() => {
+    if (defaultProperty && !propertyFilter) {
+      setPropertyFilter(defaultProperty); // Set default property on initial render
+    }
+  }, [defaultProperty]);
 
   // const filteredTransactions = pendingPayments.filter(payment => {
   //   const matchesSearch = searchTerm
@@ -91,47 +91,49 @@ const PendingPaymentsPage = () => {
   const filteredTransactions = pendingPayments.filter(payment => {
     const matchesSearch = searchTerm
       ? payment.name?.toLowerCase().includes(searchTerm.trim().toLowerCase()) ||
-        payment.studentId?.toLowerCase().includes(searchTerm.trim().toLowerCase()) ||
-        payment.lastPaidDate?.toLowerCase().includes(searchTerm.trim().toLowerCase())
+      payment.studentId?.toLowerCase().includes(searchTerm.trim().toLowerCase()) ||
+      payment.lastPaidDate?.toLowerCase().includes(searchTerm.trim().toLowerCase())
       : true;
-  
+
     // Parse paymentClearedMonthYear to extract the month and year
     const [clearedMonth, clearedYear] = payment.paymentClearedMonthYear
       ? payment.paymentClearedMonthYear.split(', ').map((value, index) => {
-          return index === 0
-            ? new Date(`${value} 1, 2000`).getMonth() + 1 // Convert month name to number
-            : parseInt(value); // Extract year
-        })
+        return index === 0
+          ? new Date(`${value} 1, 2000`).getMonth() + 1 // Convert month name to number
+          : parseInt(value); // Extract year
+      })
       : [null, null];
-  
+
     // Convert selectedMonth and selectedYear to numbers
     const selectedMonthNum = selectedMonth ? parseInt(selectedMonth) : null;
     const selectedYearNum = selectedYear ? parseInt(selectedYear) : null;
-  
+
     // Exclude payments that match OR are greater than the selected month and year
     const isClearedLater =
       clearedYear !== null && clearedMonth !== null && selectedYearNum !== null && selectedMonthNum !== null
         ? clearedYear > selectedYearNum || (clearedYear === selectedYearNum && clearedMonth >= selectedMonthNum)
         : false;
-  
+
     // Extract month and year from joinDate (ISO format "YYYY-MM-DD")
     const joinDate = new Date(payment.joinDate);
     const joinMonth = joinDate.getMonth() + 1; // Month is 0-based, so add 1
     const joinYear = joinDate.getFullYear();
-  
+
     // Join date filter: match payments where join date matches the selected month/year
     const joinDateMatches =
       selectedJMonth && selectedJYear
         ? joinMonth === parseInt(selectedJMonth) && joinYear === parseInt(selectedJYear)
         : true;
-  
+
     const propertyMatches =
       propertyFilter === '' ||
       propertyFilter === 'totalReceived' ||
       (payment.propertyName && payment.propertyName.toLowerCase() === propertyFilter.toLowerCase());
-  
+
     return matchesSearch && !isClearedLater && propertyMatches && joinDateMatches;
   });
+
+  console.log(filteredTransactions)
 
   // Calculate the total pending rent amount for the filtered transactions
   const totalPendingRentAmount = filteredTransactions.reduce((total, payment) => {
@@ -323,7 +325,7 @@ const PendingPaymentsPage = () => {
                 <th className="py-3 px-4 border text-left text-sm text-center">Rent</th>
                 <th className="py-3 px-4 border text-left text-sm text-center">Join Date</th>
                 <th className="py-3 px-4 border text-left text-sm text-center">Last Paid</th>
-                <th className="py-3 px-4 border text-left text-sm text-center">Rent Cleared Month</th>
+                <th className="py-3 px-4 border text-left text-sm text-center">Rent Cleared Till</th>
                 <th className="py-3 px-4 border text-left text-sm text-center">Amount To Pay</th>
               </tr>
             </thead>
@@ -344,7 +346,11 @@ const PendingPaymentsPage = () => {
                       ? new Date(payment.lastPaidDate).toLocaleDateString()
                       : "-"}
                   </td>
-                  <td className="py-2 px-4 border text-sm text-center">{payment.paymentClearedMonthYear || "-"}</td>
+                  <td className="py-2 px-4 border text-sm text-center">
+                    {payment.fullyClearedRentMonths?.length > 0
+                      ? payment.fullyClearedRentMonths[payment.fullyClearedRentMonths.length - 1] || '_'
+                      : (payment.paymentClearedMonthYear || '_')}
+                  </td>
                   <td className="py-2 px-4 border text-sm text-center">{payment.pendingRentAmount || payment.monthlyRent}</td>
                 </tr>
               ))}

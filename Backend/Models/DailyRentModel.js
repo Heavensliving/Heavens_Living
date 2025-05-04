@@ -19,8 +19,8 @@ const DailyRentSchema = new mongoose.Schema({
   checkIn: { type: Date },
   checkOut: { type: Date },
   days: { type: Number },
-  totalAmount: { type: Number },
-  payingAmount:{ type: Number, default: 0 },
+  totalRent: { type: Number },
+  pendingRent: { type: Number, default: 0 }, // Total pending rent
   currentStatus: { type: String, default: 'Active'},
   vacate: { type: Boolean, default: false },
   dateOfBirth: { type: Date, required: false },

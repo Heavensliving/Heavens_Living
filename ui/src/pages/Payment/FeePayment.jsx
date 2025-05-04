@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { FaSearch } from 'react-icons/fa';
+import moment from 'moment';
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 import { useSelector } from 'react-redux';
 import CheckAuth from '../auth/CheckAuth';
@@ -97,17 +98,18 @@ const FeePayment = () => {
 
   // const [formData, setFormData] = useState('');
   const [studentId, setStudentId] = useState('');
+  const [studentMongoId, setStudentMongoId] = useState('');
   const [paymentData, setPaymentData] = useState('');
   const [totalAmountToPay, setTotalAmountToPay] = useState('');
   const [monthYearOptions, setMonthYearOptions] = useState([]);
   const [paymentMode, setPaymentMode] = useState('');
   const [waveOffAmount, setWaveOffAmount] = useState('');
   const [waveOffReason, setWaveOffReason] = useState('');
+  const [remarks, setRemarks] = useState('');
   const [payingAmount, setPayingAmount] = useState('');
   const [transactionId, setTransactionId] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [paidDate, setPaidDate] = useState('');
-  const [monthYear, setMonthYear] = useState('');
   const [isStudentDataFetched, setIsStudentDataFetched] = useState(false);
   const [loading, setLoading] = useState(false);
   const [staffMembers, setStaffMembers] = useState([]);
@@ -116,10 +118,12 @@ const FeePayment = () => {
 
   const location = useLocation();
   const [formData, setFormData] = useState({
-    studentId: location.state?.studentId || ''  // Initialize with passed studentId if available
+    studentId: location.state?.studentId || '',  // Initialize with passed studentId if available
+    mongoId: location.state?.mongoId || ''
   });
 
   const handleStudentIdChange = (e) => {
+    console.log(e.target.value)
     setFormData({ studentId: e.target.value });
   };
 
@@ -141,6 +145,7 @@ const FeePayment = () => {
         { headers: { 'Authorization': `Bearer ${admin.token}` } }
       );
       setPaymentData(response.data)
+      setStudentMongoId(response.data._id)
       setErrorMessage('');
       setIsStudentDataFetched(true);
     } catch (error) {
@@ -172,32 +177,31 @@ const FeePayment = () => {
 
   // Dynamically update total amount to pay when waveOffAmount changes
   useEffect(() => {
-    if (paymentData.pendingRentAmount !== undefined) {
-      const newTotal = Math.max(paymentData.pendingRentAmount - waveOffAmount, 0);
+    if (paymentData.pendingRent !== undefined) {
+      const newTotal = Math.max(paymentData.pendingRent - waveOffAmount, 0);
       setTotalAmountToPay(newTotal);
     }
-  }, [waveOffAmount, paymentData.pendingRentAmount]);
+  }, [waveOffAmount, paymentData.pendingRent]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true)
     const finalCollectedBy = collectedBy === 'manual' ? manualStaffName : collectedBy;
     // Construct formData with all necessary fields
-    const today = new Date().toISOString().split('T')[0];
     const comprehensiveFormData = {
-      ...paymentData, // Includes fetched student details like name, pgName, etc.
+      name: paymentData.name, // Includes fetched student details like name, pgName, etc.
       studentId,
+      _id: formData.mongoId || studentMongoId,
       waveOffAmount,
       waveOffReason,
       payingAmount,
       transactionId,
       paidDate,
-      feeClearedMonthYear: monthYear, // The selected month/year
-      totalAmountToPay,
       paymentMode,
       collectedBy: finalCollectedBy,
       property: paymentData.pgName,
-      ...(waveOffAmount && { waveOffDate: today }),
+      propertyId: paymentData.property._id,
+      remarks
     };
 
     try {
@@ -268,41 +272,57 @@ const FeePayment = () => {
                 name="joinDate"
                 value={
                   paymentData.joinDate
-                    ? (paymentData.joinDate)// Format as DD/MM/YYYY
+                    ? moment(paymentData.joinDate).format('DD/MM/YYYY')
                     : 'Invalid Date'
                 }
                 disabled
               />
             )}{paymentData.monthlyRent && (
               <InputField label="Monthly Rent" name="monthlyRent" type="number" value={paymentData.monthlyRent || ''} required disabled />
-            )}{paymentData.advanceBalance && (
-              <InputField label="Advance Paid" name="advancePaid" type="number" value={paymentData.advanceBalance || ''} disabled />
+            )}{paymentData.accountBalance > 0 && (
+              <InputField label="Advance Paid" name="advancePaid" type="number" value={paymentData.accountBalance || ''} disabled />
             )}{paymentData.pendingBalance && (
               <InputField label="Pending Balance" name="pending" type="number" value={paymentData.pendingBalance || ''} disabled />
-            )}{paymentData.feeClearedMonthYear && (
-              <InputField label="Payment Cleared Month, Year" name="latestMonth" value={paymentData.feeClearedMonthYear || ''} disabled />
-            )}{paymentData.latestPaidDate && (
-              <InputField label="Last Paid Date" name="lastPaidDate" value={paymentData.latestPaidDate || ''} disabled />
-            )}{paymentData.pendingAddOns > 0 && (
-              <InputField 
-                label="Pending Add-Ons Amount"  
-                name="pendingAddOns" 
-                value={paymentData.pendingAddOns} 
-                disabled 
+            )}{paymentData?.payments?.[paymentData.payments.length - 1]?.fullyClearedRentMonths?.length > 0 && (
+              <InputField
+                label="Rent Cleared Till"
+                name="clearedMonth"
+                value={
+                  paymentData.payments[paymentData.payments.length - 1].fullyClearedRentMonths[
+                  paymentData.payments[paymentData.payments.length - 1].fullyClearedRentMonths.length - 1
+                  ] || ''
+                }
+                disabled
+              />
+            )}
+            {paymentData?.payments?.[paymentData.payments.length - 1]?.paymentDate && (
+              <InputField
+                label="Last Paid Date"
+                name="lastPaidDate"
+                value={moment(paymentData.payments[paymentData.payments.length - 1].paymentDate).format('DD/MM/YYYY')}
+                disabled
+              />
+            )}
+            {paymentData.pendingAddOns > 0 && (
+              <InputField
+                label="Pending Add-Ons Amount"
+                name="pendingAddOns"
+                value={paymentData.pendingAddOns}
+                disabled
                 style={{
                   color: 'red',
                   fontWeight: 'bold',
-                }} 
+                }}
               />
             )}
             {isStudentDataFetched && (
               <InputField label="Rent Status" name="rentStatus" type="text" disabled style={{
-                color: paymentData.pendingRentAmount ? 'red' : 'green',
+                color: paymentData.pendingRent ? 'red' : 'green',
                 fontWeight: 'bold',
               }}
                 value={
-                  paymentData.pendingRentAmount
-                    ? `Pending due: ${paymentData.pendingRentAmount}`
+                  paymentData.pendingRent
+                    ? `Pending due: ${paymentData.pendingRent}`
                     : 'Cleared'
                 }
               />
@@ -379,22 +399,7 @@ const FeePayment = () => {
                     />
                   </div>
                 )}
-                <div className="w-full md:w-1/2 px-2 mb-4">
-                  <label className="block text-gray-700 mb-2">Fee Cleared Month/Year</label>
-                  <select
-                    name="feeClearedMonthYear"
-                    className="w-full p-2 border rounded-md"
-                    required
-                    onChange={(e) => setMonthYear(e.target.value)}
-                  >
-                    <option value="">Select Month/Year</option>
-                    {monthYearOptions.map((option) => (
-                      <option key={option.value} value={option.value}>
-                        {option.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+                <InputField label="Remarks" name="remarks" type="text" value={remarks} onChange={(e) => setRemarks(e.target.value)} />
               </>
             )}
           </div>

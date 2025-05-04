@@ -6,7 +6,7 @@ import { jwtDecode } from "jwt-decode";
 export const CheckAuth = (Component) => {
     const Wrapper = (props) => {
         const admin = useSelector(store => store.auth.admin);
-        const token = admin.token;
+        const token = admin?.token;
         const isTokenExpired = (token) => {
             if (!token) return true; // If there's no token, consider it expired
             try {

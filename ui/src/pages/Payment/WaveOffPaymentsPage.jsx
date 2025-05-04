@@ -21,7 +21,7 @@ const WaveOffPaymentsPage = () => {
           { headers: { 'Authorization': `Bearer ${admin.token}` } }
         );
         setWaveOffPayments(response.data);
-        setFilteredPayments(response.data); // Initialize filtered data
+        setFilteredPayments(response.data.reverse()); // Initialize filtered data
       } catch (error) {
         <p>no data found</p>
       } finally {
@@ -74,12 +74,12 @@ const WaveOffPaymentsPage = () => {
       </div>
 
 
-      <div className="overflow-x-auto">
+      <div className="overflow-hiden">
         <table className="min-w-full bg-white border border-gray-300">
           <thead className="bg-gray-200">
             <tr>
+              <th className="px-4 py-2 border">#</th>
               <th className="px-4 py-2 border">Name</th>
-              <th className="px-4 py-2 border">Student ID</th>
               <th className="px-4 py-2 border">Transaction ID</th>
               <th className="px-4 py-2 border">Month/Year</th>
               <th className="px-4 py-2 border">Paid Date</th>
@@ -98,15 +98,32 @@ const WaveOffPaymentsPage = () => {
                 </td>
               </tr>
             ) : (
-              filteredPayments.map((payment) => (
-                <tr key={payment._id} className="odd:bg-white even:bg-gray-50 text-center">
-                  <td className="px-4 py-2 border">{payment.name}</td>
-                  <td className="px-4 py-2 border">{payment.studentId}</td>
-                  <td className="px-4 py-2 border">{payment.transactionId}</td>
-                  <td className="px-4 py-2 border">{payment.paymentClearedMonthYear}</td>
-                  <td className="px-4 py-2 border">{new Date(payment.paymentDate).toLocaleDateString('en-GB')}</td>
-                  <td className="px-4 py-2 border">{payment.monthlyRent}</td>
-                  <td className="px-4 py-2 border">{payment.waveOff}</td>
+              filteredPayments.map((payment, index) => (
+                <tr key={payment._id} className="odd:bg-white even:bg-gray-50">
+                  <td className="px-4 py-2 border">{index + 1}</td>
+                  <td className="py-2 px-4 border relative group">
+                    <span>
+                      {payment.name || 'N/A'}
+                      {!payment.monthlyRent && <span className="text-sm text-gray-500 ml-1">(Daily Rent)</span>}
+                    </span>
+
+                    {payment.waveOff && payment.waveOffReason.trim() !== '' && (
+                      <span className="ml-2 text-blue-600 text-xs underline cursor-pointer relative group">
+                        Reason
+                        <div className="absolute z-10 left-0 mt-1 w-64 p-2 text-sm text-white bg-gray-800 rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                          {payment.waveOffReason}
+                        </div>
+                      </span>
+                    )}
+                  </td>
+
+                  <td className="px-4 py-2 border text-center">{payment.transactionId}</td>
+                  <td className="px-4 py-2 border text-center">
+                    {payment.paymentClearedMonthYear || payment.rentMonth || 'N/A'}
+                  </td>
+                  <td className="px-4 py-2 border text-center">{new Date(payment.paymentDate).toLocaleDateString('en-GB')}</td>
+                  <td className="px-4 py-2 border text-center">{payment.monthlyRent}</td>
+                  <td className="px-4 py-2 border text-center">{payment.waveOff}</td>
                 </tr>
               ))
             )}

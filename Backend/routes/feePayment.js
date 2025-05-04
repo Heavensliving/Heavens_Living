@@ -7,6 +7,8 @@ const router = express.Router();
 // Route to add a fee payment
 router.post('/add', verifyToken, feePaymentController.addFeePayment);
 
+router.post('/addDailyRent', verifyToken, feePaymentController.processPaymentForDailyRent);
+
 // Route to get all fee payments
 router.get('/', verifyToken, feePaymentController.getAllFeePayments);
 

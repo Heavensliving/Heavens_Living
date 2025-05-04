@@ -6,6 +6,7 @@ const DailyRent = require('../Models/DailyRentModel');
 const nodemailer = require('nodemailer');
 const fs = require('fs');
 const generatePaymentReceipt = require('../utils/generatePaymentReceipt');
+const Property = require('../Models/Add_property');
 
 let receiptCounter = 0; // Initial counter, starts at 1
 
@@ -52,204 +53,312 @@ const sendPaymentReceiptEmail = async (email, pdfBuffer, studentName, transactio
 };
 // Function to add a fee payment
 const addFeePayment = async (req, res) => {
-  // console.log(req.body);
   try {
     const {
       name,
       studentId,
-      monthlyRent,
-      totalAmountToPay,
       payingAmount,
-      feeClearedMonthYear,
       waveOffAmount,
-      waveOffDate,
-      paidDate,
       waveOffReason,
+      paidDate,
       paymentMode,
       collectedBy,
       property,
+      propertyId,
       transactionId,
+      remarks,
       _id,
-      isMessPayment, // Field to differentiate payment type
-      isDailyRent, // Field to handle daily rent payments
     } = req.body;
-    console.log(req.body)
-    const student = _id;
 
-     // First, check if the student exists in the Student collection
-     let studentData = await Student.findById(student).populate("payments");
+    const studentMongoId = _id;
 
-     // If studentData is null, check in the DailyRent collection
-     if (!studentData) {
-       studentData = await DailyRent.findOne({ OccupantId: studentId });
-     }
- 
-     // If still no data is found, return an error
-     if (!studentData) {
-       return res.status(404).json({ message: "Student or daily rent record not found" });
-     }
+    // Parallel DB queries
+    const [existingPayment, student, propertyDoc] = await Promise.all([
+      transactionId ? FeePayment.findOne({ transactionId }).lean() : null,
+      Student.findById(studentMongoId),
+      Property.findById(propertyId)
+    ]);
 
-    // Get the latest payment document
-    const latestPayment = studentData.payments.length > 0 ? studentData.payments[studentData.payments.length - 1] : null;
-    const previousAdvance = latestPayment ? latestPayment.advanceBalance : 0;
-    console.log(latestPayment)
-    // console.log(studentData)
+    if (existingPayment) {
+      return res.status(400).json({ message: "Transaction ID already exists." });
+    }
+    if (!student) return res.status(404).json({ message: "Student not found" });
+    if (!propertyDoc) return res.status(404).json({ message: "Property not found" });
 
-    if (transactionId && transactionId.trim() !== "") {
-      const existingTransaction = await FeePayment.findOne({ transactionId });
+    const monthlyRent = student.monthlyRent;
+    const currentDate = new Date();
+    const joinDate = new Date(student.joinDate);
 
-      if (existingTransaction) {
-        return res.status(400).json({
-          message: "Transaction Id is already existed.",
+    let dueAmount = (student.pendingRent || 0) - payingAmount - waveOffAmount;
+    let newBalance = student.accountBalance || 0;
+
+    if (dueAmount < 0) {
+      newBalance += Math.abs(dueAmount);
+      dueAmount = 0;
+    }
+
+    // Calculate all months from joinDate till now
+    const rentMonths = [];
+    let tempDate = new Date(joinDate);
+    while (tempDate <= currentDate) {
+      rentMonths.push(tempDate.toLocaleString('default', { month: 'long' }) + ' ' + tempDate.getFullYear());
+      tempDate.setMonth(tempDate.getMonth() + 1);
+    }
+
+    student.rentMonths = student.rentMonths || [];
+
+    // Merge existing rentMonths into a map
+    const rentMonthMap = new Map(student.rentMonths.map((rm) => [rm.monthYear, rm]));
+
+    // Ensure every month exists
+    for (let monthYear of rentMonths) {
+      if (!rentMonthMap.has(monthYear)) {
+        rentMonthMap.set(monthYear, {
+          monthYear,
+          paidAmount: 0,
+          waveOffAmount: 0,
+          status: "Pending"
         });
       }
     }
 
-    // Calculate balances
-    let advanceBalance = 0;
-    let balance = 0;
-    if (payingAmount > totalAmountToPay) {
-      advanceBalance = payingAmount - totalAmountToPay;
-    } else {
-      balance = totalAmountToPay - payingAmount;
-    }
+    student.rentMonths = [...rentMonthMap.values()].sort(
+      (a, b) => new Date(a.monthYear) - new Date(b.monthYear)
+    );
 
-    let feePaymentData = {
-      studentId,
-      monthlyRent,
-      amountPaid: payingAmount,
-      pendingBalance: isMessPayment || isDailyRent ? null : balance,
-      advanceBalance: previousAdvance + advanceBalance,
-      waveOffAmount,
-      waveOffDate,
-      paymentDate: paidDate,
-      paymentClearedMonthYear: feeClearedMonthYear,
-      paymentMode,
-      transactionId: paymentMode === "Cash" ? `CASH_${new Date().getTime()}` : req.body.transactionId,
-      collectedBy,
-      property,
-      student,
-    };
+    let remainingAmount = payingAmount;
+    let remainingWaveOff = waveOffAmount;
+    let fullyClearedRentMonthsSet = new Set();
 
-    if (isDailyRent) {
-      // Handle daily rent payments
-      const dailyRentPerson = await DailyRent.findOne({ OccupantId: studentId });
-      console.log(dailyRentPerson)
-      if (!dailyRentPerson) {
-        return res.status(404).json({ message: 'Daily rent person not found' });
+    for (let month of student.rentMonths) {
+      let rentDue = monthlyRent - (month.paidAmount + month.waveOffAmount);
+
+      if (remainingWaveOff > 0) {
+        const waveOffApplied = Math.min(remainingWaveOff, rentDue);
+        month.waveOffAmount += waveOffApplied;
+        remainingWaveOff -= waveOffApplied;
+        rentDue -= waveOffApplied;
       }
 
-      // Add daily-rent-specific fields to feePaymentData
-      feePaymentData.name = dailyRentPerson.name;
-      feePaymentData.dailyRentAmount = dailyRentPerson.DailyRent;
-      feePaymentData.dailyRent = dailyRentPerson._id;
+      if (remainingAmount > 0 && rentDue > 0) {
+        const paymentApplied = Math.min(remainingAmount, rentDue);
+        month.paidAmount += paymentApplied;
+        remainingAmount -= paymentApplied;
+        rentDue -= paymentApplied;
+      }
 
-      // Save the fee payment record
-      const feePayment = new FeePayment(feePaymentData);
-      await feePayment.save();
+      if (month.paidAmount + month.waveOffAmount >= monthlyRent) {
+        month.status = "Paid";
+        fullyClearedRentMonthsSet.add(month.monthYear);
+      }
+    }
 
-      const updateData = {
-        $push: { payments: feePayment._id },
-        $inc: { payingAmount: payingAmount },
+    // Allocate to future months if overflow exists
+    while (remainingAmount > 0 || remainingWaveOff > 0) {
+      const lastMonth = student.rentMonths[student.rentMonths.length - 1];
+      const nextMonthDate = new Date(lastMonth.monthYear);
+      nextMonthDate.setMonth(nextMonthDate.getMonth() + 1);
+      const monthYear = nextMonthDate.toLocaleString('default', { month: 'long' }) + ' ' + nextMonthDate.getFullYear();
+
+      const newMonth = {
+        monthYear,
+        paidAmount: 0,
+        waveOffAmount: 0,
+        status: "Pending"
       };
 
-      // Add totalAmount to updateData only if waveOffAmount has a value
-      if (waveOffAmount) {
-        updateData.totalAmount = totalAmountToPay;
+      let rentDue = monthlyRent;
+
+      if (remainingWaveOff > 0) {
+        const waveOffApplied = Math.min(remainingWaveOff, rentDue);
+        newMonth.waveOffAmount = waveOffApplied;
+        remainingWaveOff -= waveOffApplied;
+        rentDue -= waveOffApplied;
       }
 
-      const updatedPayingAmount = dailyRentPerson.payingAmount + payingAmount;
-      const totalAmount = waveOffAmount ? totalAmountToPay : dailyRentPerson.totalAmount;
-
-      if (updatedPayingAmount >= totalAmount) {
-        updateData.paymentStatus = "Paid";
+      if (remainingAmount > 0) {
+        const paymentApplied = Math.min(remainingAmount, rentDue);
+        newMonth.paidAmount = paymentApplied;
+        remainingAmount -= paymentApplied;
+        rentDue -= paymentApplied;
       }
 
-      // Update daily rent person payments
-      await DailyRent.findByIdAndUpdate(
-        dailyRentPerson._id,
-        updateData,
-        { new: true }
-      );
+      if (newMonth.paidAmount + newMonth.waveOffAmount >= monthlyRent) {
+        newMonth.status = "Paid";
+        fullyClearedRentMonthsSet.add(monthYear);
+      }
 
-      return res.status(201).json({ message: 'Daily rent payment added successfully', feePayment });
+      student.rentMonths.push(newMonth);
     }
 
-    // Handle mess payments
-    if (isMessPayment) {
-      const messPeople = await peopleModel.findOne({ studentId: studentId });
-      if (!messPeople) {
-        return res.status(404).json({ message: 'Mess person not found' });
-      }
+    const lastPaidMonth = [...student.rentMonths]
+      .reverse()
+      .find(month => month.paidAmount > 0);
+    const rentMonthToStore = lastPaidMonth ? lastPaidMonth.monthYear : null;
 
-      // Add mess-specific fields to feePaymentData
-      feePaymentData.name = messPeople.name;
-      feePaymentData.monthlyRent = messPeople.monthlyRent;
-      feePaymentData.messPeople = messPeople._id;
+    const receiptTransactionId =
+      paymentMode === "Cash" ? `CASH_${Date.now()}` : transactionId;
 
-      // Save the fee payment record
-      const feePayment = new FeePayment(feePaymentData);
-      await feePayment.save();
-
-      // Update mess people payments
-      await peopleModel.findByIdAndUpdate(
-        messPeople._id,
-        { $push: { payments: feePayment._id } },
-        { new: true }
-      );
-
-      return res.status(201).json({ message: 'Mess fee payment added successfully', feePayment });
-    }
-
-    // Handle student payments
-    feePaymentData.name = name;
-    feePaymentData.monthlyRent = monthlyRent;
-    feePaymentData.totalAmountToPay = totalAmountToPay;
-    feePaymentData.paymentClearedMonthYear = feeClearedMonthYear;
-    feePaymentData.waveOff = waveOffAmount;
-    feePaymentData.waveOffDate = waveOffDate;
-    feePaymentData.waveOffReason = waveOffReason;
-    feePaymentData.student = _id;
-
-    const receiptNumber = generateReceiptNumber();
-
-    // Generate the PDF asynchronously
-    const pdfBuffer = await generatePaymentReceipt(studentData, {
-      payingAmount,
-      totalAmountToPay,
-      waveOffAmount,
-      balance,
-      paidDate,
-      feeClearedMonthYear,
-      transactionId,
+    const feePayment = new FeePayment({
+      name,
+      studentId,
+      monthlyRent,
+      property,
+      amountPaid: payingAmount,
+      pendingBalance: dueAmount,
+      waveOff: waveOffAmount,
+      waveOffReason,
+      advanceBalance: newBalance,
       paymentMode,
-      receiptNumber
+      transactionId: receiptTransactionId,
+      collectedBy: collectedBy || '',
+      fullyClearedRentMonths: [...fullyClearedRentMonthsSet],
+      paymentDate: paidDate,
+      student: studentMongoId,
+      rentMonth: rentMonthToStore,
+      remarks,
     });
 
-    // Send the email with the attached PDF
-    await sendPaymentReceiptEmail(studentData.email, pdfBuffer, studentData.name, transactionId, payingAmount);
-
-    // Save the fee payment record
-    const feePayment = new FeePayment(feePaymentData);
     await feePayment.save();
 
-    // Update Student model for student payments
-    const updateData = { $push: { payments: feePayment._id } };
+    await Student.updateOne(
+      { _id: studentMongoId },
+      {
+        $set: {
+          paymentStatus: dueAmount === 0 ? "Paid" : "Pending",
+          pendingSince: dueAmount === 0 ? null : new Date(),
+          isBlocked : dueAmount === 0 ? false : true,
+          pendingRent: dueAmount,
+          accountBalance: newBalance,
+          rentMonths: student.rentMonths
+        },
+        $push: { payments: feePayment._id }
+      }
+    );
 
-    // Update payment status if fully paid
-    if (payingAmount >= totalAmountToPay) {
-      updateData.paymentStatus = 'Paid';
-      updateData.isBlocked = false;
-    }
-
-    await Student.findByIdAndUpdate(_id, updateData, { new: true });
-
+    // Respond early to improve client experience
     res.status(201).json({ message: 'Student fee payment added successfully', feePayment });
+
+    // Background task: Generate receipt and email
+    setImmediate(async () => {
+      try {
+        const studentData = await Student.findById(studentMongoId).populate("payments");
+        const receiptNumber = generateReceiptNumber();
+
+        const lastPaidRent = student.rentMonths
+          .filter(rent => rent.status.toLowerCase() === 'paid')
+          .slice(-1)[0];
+        const lastPendingRent = student.rentMonths
+          .filter(rent => rent.status.toLowerCase() === 'pending')
+          .slice(-1)[0];
+
+        const clearedTill = lastPaidRent
+          ? `Cleared Till: ${lastPaidRent.monthYear}`
+          : lastPendingRent
+            ? `Pending: ${lastPendingRent.monthYear}`
+            : 'No rent recorded';
+
+        const pdfBuffer = await generatePaymentReceipt(studentData, {
+          payingAmount,
+          waveOffAmount,
+          dueAmount,
+          paidDate,
+          clearedTill,
+          transactionId: receiptTransactionId,
+          paymentMode,
+          receiptNumber
+        });
+
+        await sendPaymentReceiptEmail(
+          studentData.email,
+          pdfBuffer,
+          studentData.name,
+          receiptTransactionId,
+          payingAmount
+        );
+      } catch (err) {
+        console.error('❌ Background task failed:', err);
+      }
+    });
   } catch (error) {
-    console.error('Error adding fee payment:', error);
+    console.error('❌ Error adding fee payment:', error);
     res.status(500).json({ message: 'Error adding fee payment', error });
   }
 };
+
+
+const processPaymentForDailyRent = async (req, res) => {
+  try {
+    const {
+      name,
+      renterId,
+      amountPaid,
+      waveOff = 0,
+      paymentMethod,
+      transactionId,
+      collectedBy,
+      paymentMode,
+      remarks,
+      property,
+      paidDate,
+    } = req.body;
+
+    console.log("Received Request Body:", req.body); // Debugging log
+
+    // Validate if transactionId is required
+    if ((paymentMethod === 'UPI' || paymentMethod === 'Online') && !transactionId) {
+      return res.status(400).json({ message: "Transaction ID is required for UPI or Online payments." });
+    }
+
+    // Find renter
+    const renter = await DailyRent.findById(renterId);
+    console.log(renter)
+    if (!renter) return res.status(404).json({ message: "renter not found" });
+
+    // Ensure renter has pending rent
+    const previousPendingRent = renter.pendingRent || 0;
+    let dueAmount = previousPendingRent - amountPaid - waveOff;
+
+    // Create a new payment record
+    const newPayment = new FeePayment({
+      name,
+      studentId: renter.OccupantId,
+      contact: renter.contactNo,
+      room: renter.roomNo,
+      checkIn: renter.checkIn,
+      checkOut: renter.checkOut,
+      property,
+      amountPaid,
+      waveOff,
+      paymentMode,
+      transactionId: paymentMode === "Cash" ? `CASH_${new Date().getTime()}` : req.body.transactionId,
+      collectedBy: collectedBy || '',
+      paymentDate: paidDate,
+      remarks,
+      dailyRent: renterId,
+    });
+
+    // Save payment
+    await newPayment.save();
+    console.log("Payment Saved:", newPayment);
+
+    // Update renter record
+    renter.paymentStatus = newPayment.status;
+    renter.pendingRent = dueAmount;
+    renter.paymentStatus = dueAmount === 0 ? "Paid" : "Pending";
+    renter.payments.push(newPayment._id);
+    await renter.save();
+    console.log("renter Updated:", renter);
+
+    return res.status(201).json({ message: "Payment processed successfully", payment: newPayment });
+
+  } catch (error) {
+    console.error("Error Processing Payment:", error);
+    return res.status(500).json({ message: error.message });
+  }
+};
+
+
 
 
 // Function to get all fee payments
@@ -266,10 +375,13 @@ const getAllFeePayments = async (req, res) => {
 // Function to get fee payments by student ID
 const getFeePaymentsByStudentId = async (req, res) => {
   try {
-    console.log(req.params)
     const { studentId } = req.params;
-    const feePayments = await FeePayment.find({ student: studentId });
-    console.log(feePayments)
+
+    const feePayments = await FeePayment.find({ student: studentId })
+      .populate({
+        path: 'student',
+        select: 'rentMonths' // Only fetch 'rentMonths' from the student document
+      });
 
     if (feePayments.length === 0) {
       return res.status(404).json({ message: 'No fee payments found for this student ID' });
@@ -281,6 +393,7 @@ const getFeePaymentsByStudentId = async (req, res) => {
     res.status(500).json({ message: 'Error fetching fee payments by student ID', error });
   }
 };
+
 
 const getFeePaymentsByRenterId = async (req, res) => {
   try {
@@ -389,6 +502,7 @@ const getPendingPayments = async (req, res) => {
         }
 
         const monthlyRent = student.monthlyRent || 0;
+        const pendingRentAmount = student.pendingRent
 
         const dateOfPayment = student.dateOfPayment ? new Date(student.dateOfPayment) : null; // Extract dateOfPayment from student document
 
@@ -403,14 +517,14 @@ const getPendingPayments = async (req, res) => {
         if (dateOfPayment && todayDate >= dateOfPayment) {
           adjustedWaveOffAmount = 0;
         }
-        const totalRentDue = unpaidMonths * monthlyRent;
+        // const totalRentDue = unpaidMonths * monthlyRent;
 
         // let pendingRentAmount = totalRentDue + (latestPayment ? latestPayment.pendingBalance || 0 : 0) - adjustedWaveOffAmount - advanceBalance;
-        let pendingRentAmount =
-          (latestPayment && latestPayment.pendingBalance >= latestPayment.monthlyRent ? 0 : totalRentDue) +
-          (latestPayment ? latestPayment.pendingBalance || 0 : 0) -
-          adjustedWaveOffAmount -
-          advanceBalance;
+        // let pendingRentAmount =
+        //   (latestPayment && latestPayment.pendingBalance >= latestPayment.monthlyRent ? 0 : totalRentDue) +
+        //   (latestPayment ? latestPayment.pendingBalance || 0 : 0) -
+        //   adjustedWaveOffAmount -
+        //   advanceBalance;
 
         if (pendingRentAmount < 0) {
           advanceBalance = Math.abs(pendingRentAmount);
@@ -432,6 +546,7 @@ const getPendingPayments = async (req, res) => {
           waveOffAmount,
           lastPaidDate: latestPayment ? latestPayment.paymentDate : null,
           paymentClearedMonthYear: latestPayment ? latestPayment.paymentClearedMonthYear : null,
+          fullyClearedRentMonths: latestPayment ? latestPayment.fullyClearedRentMonths : null,
           propertyName: student.pgName
         };
       }),
@@ -546,6 +661,7 @@ const feePaymentController = {
   getPendingPayments,
   getWaveOffPayments,
   getTotalMonthlyRent,
+  processPaymentForDailyRent,
 };
 
 module.exports = feePaymentController;

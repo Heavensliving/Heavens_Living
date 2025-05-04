@@ -48,7 +48,10 @@ const addDailyRent = async (req, res) => {
       branch: branchName,
       property: propertyId,
       room: room._id,
-      totalAmount: totalAmount
+      totalRent: totalAmount,
+      pendingRent: totalAmount,
+      paymentStatus: "Pending"
+
     });
     const savedDailyRent = await newDailyRent.save();
     room.dailyRent.push(newDailyRent._id);
@@ -156,7 +159,8 @@ const updateDailyRent = async (req, res) => {
       updatedData.checkOut !== dailyRentEntry.checkOut ||
       updatedData.days !== dailyRentEntry.days
     ) {
-      updatedData.totalAmount = updatedData.DailyRent *  updatedData.days;
+      updatedData.totalRent = updatedData.DailyRent *  updatedData.days;
+      updatedData.pendingRent = updatedData.DailyRent * updatedData.days;
       // console.log("Updated Total Amount:", updatedData.totalAmount);
     }
 

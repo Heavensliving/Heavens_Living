@@ -198,7 +198,8 @@ const StudentTable = ({ students, onRowClick, onDelete, onStatusChange, admin })
                         onClick={(e) => {
                           e.stopPropagation();
                           const numericId = student.studentId.replace(/[A-Za-z]/g, ''); // Extract numeric part
-                          navigate('/feePayment', { state: { studentId: numericId } });
+                          const id = student._id;
+                          navigate('/feePayment', { state: { studentId: numericId, mongoId: id } });
                         }}
                         className="bg-green-500 text-white text-xs px-3 py-1 rounded hover:bg-green-600"
                       >
@@ -233,7 +234,8 @@ const StudentTable = ({ students, onRowClick, onDelete, onStatusChange, admin })
                         onClick={(e) => {
                           e.stopPropagation();
                           const numericId = student.studentId.replace(/[A-Za-z]/g, ''); // Extract numeric part
-                          navigate('/feePayment', { state: { studentId: numericId } });
+                          const id = student._id;
+                          navigate('/feePayment', { state: { studentId: numericId, mongoId: id } });
                         }}
                         className="bg-green-500 text-white text-xs px-3 py-1 rounded hover:bg-green-600"
                       >

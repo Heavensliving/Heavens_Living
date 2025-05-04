@@ -55,7 +55,7 @@ const PaymentReceived = () => {
     transaction.studentId?.toLowerCase().includes(searchTerm.trim().toLowerCase()) ||
     transaction.transactionId?.toLowerCase().includes(searchTerm.trim().toLowerCase())
   );
-console.log(filteredTransactions.length)
+  console.log(filteredTransactions.length)
   const furtherFilteredTransactions = filteredTransactions.filter(transaction => {
     const date = new Date(transaction.paymentDate);
     const monthMatches = selectedMonth ? date.getMonth() + 1 === parseInt(selectedMonth) : true;
@@ -79,12 +79,12 @@ console.log(filteredTransactions.length)
 
     return propertyMatches && additionalFilterMatches;
   })
-  .sort((a, b) => {
-    // Ensure we handle null or undefined dates gracefully
-    const dateA = new Date(a.paymentDate || 0);
-    const dateB = new Date(b.paymentDate || 0);
-    return dateB - dateA; // Sort by descending date
-  });
+    .sort((a, b) => {
+      // Ensure we handle null or undefined dates gracefully
+      const dateA = new Date(a.paymentDate || 0);
+      const dateB = new Date(b.paymentDate || 0);
+      return dateB - dateA; // Sort by descending date
+    });
 
 
   const totalAmount = transactions.reduce(
@@ -240,42 +240,52 @@ console.log(filteredTransactions.length)
         </div>
       </div>
       <div className='overflow-x-auto'>
-      <table className="min-w-full bg-white border border-gray-300 rounded-lg shadow-md">
-        <thead className="bg-gray-300 text-black">
-          <tr>
-            <th className="py-3 px-4 border">#</th>
-            <th className="py-3 px-4 border">Name</th>
-            {/* <th className="py-3 px-4 border">Occupant ID</th> */}
-            <th className="py-3 px-4 border">Monthly Rent</th>
-            <th className="py-3 px-4 border">Payment Mode</th>
-            <th className="py-3 px-4 border">Transaction ID</th>
-            <th className="py-3 px-4 border">Paid Date</th>
-            <th className="py-3 px-4 border">Paid Amount</th>
-          </tr>
-        </thead>
-        <tbody>
-          {finalFilteredTransactions.length > 0 ? (
-            finalFilteredTransactions.map((transaction, index) => (
-              <tr key={transaction.transactionId || index} className="hover:bg-gray-100 transition-colors">
-                <td className="py-2 px-4 border">{index + 1}</td>
-                <td className="py-2 px-4 border">{transaction.name || 'N/A'}</td>
-                {/* <td className="py-2 px-4 border text-center">{transaction.studentId || 'N/A'}</td> */}
-                <td className="py-2 px-4 border text-center">{transaction.monthlyRent ? transaction.monthlyRent || 'N/A' : 'Daily Rent'}</td>
-                <td className="py-2 px-4 border text-center">{transaction.paymentMode || 'N/A'}</td>
-                <td className="py-2 px-4 border text-center">
-                  {transaction.paymentMode === 'Cash' ? `Collected By ${transaction.collectedBy}` : (transaction.transactionId || 'N/A')}
-                </td>
-                <td className="py-2 px-4 border text-center">{transaction.paymentDate ? new Date(transaction.paymentDate).toLocaleDateString() : 'N/A'}</td>
-                <td className="py-2 px-4 border text-center">{transaction.amountPaid || 'N/A'}</td>
-              </tr>
-            ))
-          ) : (
+        <table className="min-w-full bg-white border border-gray-300 rounded-lg shadow-md">
+          <thead className="bg-gray-300 text-black">
             <tr>
-              <td colSpan="7" className="text-center py-4 text-gray-500">No transactions found.</td>
+              <th className="py-3 px-4 border">#</th>
+              <th className="py-3 px-4 border">Name</th>
+              {/* <th className="py-3 px-4 border">Occupant ID</th> */}
+              <th className="py-3 px-4 border">Monthly Rent</th>
+              <th className="py-3 px-4 border">Payment Mode</th>
+              <th className="py-3 px-4 border">Transaction ID</th>
+              <th className="py-3 px-4 border">Paid Date</th>
+              <th className="py-3 px-4 border">Paid Amount</th>
             </tr>
-          )}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {finalFilteredTransactions.length > 0 ? (
+              finalFilteredTransactions.map((transaction, index) => (
+                <tr key={transaction.transactionId || index} className="hover:bg-gray-100 transition-colors">
+                  <td className="py-2 px-4 border">{index + 1}</td>
+                  <td className="py-2 px-4 border relative group">
+                    <span>{transaction.name || 'N/A'}</span>
+                    {transaction.remarks && transaction.remarks.trim() !== '' && (
+                      <span className="ml-2 text-blue-600 text-xs underline cursor-pointer relative group">
+                        Remarks
+                        <div className="absolute z-10 left-0 mt-1 w-64 p-2 text-sm text-white bg-gray-800 rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                          {transaction.remarks}
+                        </div>
+                      </span>
+                    )}
+                  </td>
+                  {/* <td className="py-2 px-4 border text-center">{transaction.studentId || 'N/A'}</td> */}
+                  <td className="py-2 px-4 border text-center">{transaction.monthlyRent ? transaction.monthlyRent || 'N/A' : 'Daily Rent'}</td>
+                  <td className="py-2 px-4 border text-center">{transaction.paymentMode || 'N/A'}</td>
+                  <td className="py-2 px-4 border text-center">
+                    {transaction.paymentMode === 'Cash' ? `Collected By ${transaction.collectedBy}` : (transaction.transactionId || 'N/A')}
+                  </td>
+                  <td className="py-2 px-4 border text-center">{transaction.paymentDate ? new Date(transaction.paymentDate).toLocaleDateString() : 'N/A'}</td>
+                  <td className="py-2 px-4 border text-center">{transaction.amountPaid || 'N/A'}</td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan="7" className="text-center py-4 text-gray-500">No transactions found.</td>
+              </tr>
+            )}
+          </tbody>
+        </table>
       </div>
     </div>
   );

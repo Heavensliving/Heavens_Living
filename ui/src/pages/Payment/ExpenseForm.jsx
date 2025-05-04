@@ -42,6 +42,7 @@ const ExpenseForm = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [categories, setCategories] = useState([]);
   const [pettyCash, setPettyCash] = useState([]);
+  const [selectedImage, setSelectedImage] = useState(null);
 
   useEffect(() => {
     if (!admin) return;
@@ -119,8 +120,9 @@ const ExpenseForm = () => {
         updatedData.propertyId = selectedProperty?.id || "";
       }
 
-      if (name === "billImg" && files && files[0]) {
-        updatedData[name] = files[0]; // Handle file input
+      if ((name === "billImgCamera" || name === "billImgFile") && files && files[0]) {
+        updatedData["billImg"] = files[0];
+        setSelectedImage(URL.createObjectURL(files[0]));
       }
 
       return updatedData;
@@ -262,7 +264,7 @@ const ExpenseForm = () => {
           </div>
 
           {/* Category and Payment Method */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {formData.type === "Others" ? (
               <div>
                 <label className="block text-gray-700 mb-2">Category</label>
@@ -490,15 +492,44 @@ const ExpenseForm = () => {
             </div>
 
             <div>
-              <label className="block text-gray-700 mb-2">Bill</label>
-              <input
-                type="file"
-                name="billImg"
-                accept="image/*"
-                // capture="environment"
-                onChange={(e) => handleChange(e)}
-                className="w-full p-2 border rounded-md"
-              />
+              <label className="block text-gray-700 mb-2 font-semibold">Upload Bill</label>
+
+              <div className="flex flex-col sm:flex-row gap-3">
+                <label className="w-full sm:w-1/2 cursor-pointer bg-gray-100 border border-gray-300 rounded-lg p-4 text-center hover:bg-gray-200 transition">
+                  📸 Take a Photo
+                  <input
+                    type="file"
+                    name="billImgCamera"
+                    accept="image/*"
+                    capture="environment"
+                    onChange={handleChange}
+                    className="hidden"
+                  />
+                </label>
+
+                <label className="w-full sm:w-1/2 cursor-pointer bg-gray-100 border border-gray-300 rounded-lg p-4 text-center hover:bg-gray-200 transition">
+                  🖼️ Choose from Gallery
+                  <input
+                    type="file"
+                    name="billImgFile"
+                    accept="image/*"
+                    onChange={handleChange}
+                    className="hidden"
+                  />
+                </label>
+              </div>
+
+              {/* Image Preview */}
+              {selectedImage && (
+                <div className="mt-4">
+                  <p className="text-sm text-gray-600 mb-2">Selected Image Preview:</p>
+                  <img
+                    src={selectedImage}
+                    alt="Selected Preview"
+                    className="max-h-64 border rounded shadow-md"
+                  />
+                </div>
+              )}
             </div>
 
 
