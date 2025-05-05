@@ -12,6 +12,8 @@ router.post('/addDailyRent', verifyToken, feePaymentController.processPaymentFor
 // Route to get all fee payments
 router.get('/', verifyToken, feePaymentController.getAllFeePayments);
 
+router.get('/getAllTransactions', verifyToken, feePaymentController.getAllTransactions);
+
 router.get('/totalMonthlyRent',verifyToken, feePaymentController.getTotalMonthlyRent);
 
 router.get('/payments/pendingPayments', verifyToken, feePaymentController.getPendingPayments);

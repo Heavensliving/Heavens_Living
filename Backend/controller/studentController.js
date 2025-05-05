@@ -59,6 +59,7 @@ const addStudent = async (req, res) => {
       password: hashedPassword,
       pendingRent: req.body.monthlyRent,
       dateOfPayment: req.body.joinDate,
+      pendingSince: req.body.joinDate,
     });
     await student.save();
     room.occupanets.push(student._id);
@@ -417,7 +418,7 @@ const getStudentByStudentId = async (req, res) => {
     const waveOffAmount = latestPayment ? latestPayment.waveOff || 0 : 0;
     let advanceBalance = latestPayment ? latestPayment.advanceBalance || '' : '';
     let pendingBalance = latestPayment ? latestPayment.pendingBalance || '' : '';
-    console.log("advance", advanceBalance)
+    // console.log("advance", advanceBalance)
 
     const today = new Date();
     let unpaidMonths = 0;
@@ -466,7 +467,7 @@ const getStudentByStudentId = async (req, res) => {
     // Calculate total due rent for unpaid months
     // let totalRentDue = unpaidMonths * monthlyRent;
     let totalRentDue = Math.max(0, unpaidMonths) * monthlyRent;
-    console.log("totalRentDue", totalRentDue)
+    // console.log("totalRentDue", totalRentDue)
 
     // Account for any payments, wave-offs, and advance balance
     // let pendingRentAmount = totalRentDue + (latestPayment ? latestPayment.pendingBalance : '') - waveOffAmount - advanceBalance;
@@ -478,7 +479,7 @@ const getStudentByStudentId = async (req, res) => {
       (latestPayment ? latestPayment.pendingBalance || 0 : 0) -
       adjustedWaveOffAmount -
       advanceBalance;
-    console.log("pendingRentAmount", pendingRentAmount)
+    // console.log("pendingRentAmount", pendingRentAmount)
     // Adjust for pending amount or excess advance balance
     if (pendingRentAmount < 0) {
       // advanceBalance = Math.abs(pendingRentAmount);

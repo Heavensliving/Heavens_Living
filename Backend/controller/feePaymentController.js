@@ -221,17 +221,22 @@ const addFeePayment = async (req, res) => {
 
     await feePayment.save();
 
+    const updateFields = {
+      paymentStatus: dueAmount === 0 ? "Paid" : "Pending",
+      pendingRent: dueAmount,
+      accountBalance: newBalance,
+      rentMonths: student.rentMonths
+    };
+
+    if (dueAmount === 0) {
+      updateFields.isBlocked = false;
+      updateFields.pendingSince = null;
+    }
+
     await Student.updateOne(
       { _id: studentMongoId },
       {
-        $set: {
-          paymentStatus: dueAmount === 0 ? "Paid" : "Pending",
-          pendingSince: dueAmount === 0 ? null : new Date(),
-          isBlocked : dueAmount === 0 ? false : true,
-          pendingRent: dueAmount,
-          accountBalance: newBalance,
-          rentMonths: student.rentMonths
-        },
+        $set: updateFields,
         $push: { payments: feePayment._id }
       }
     );
@@ -358,14 +363,100 @@ const processPaymentForDailyRent = async (req, res) => {
   }
 };
 
-
-
-
 // Function to get all fee payments
 const getAllFeePayments = async (req, res) => {
   try {
     const feePayments = await FeePayment.find();
     res.status(200).json(feePayments);
+  } catch (error) {
+    console.error('Error fetching fee payments:', error);
+    res.status(500).json({ message: 'Error fetching fee payments', error });
+  }
+};
+
+const getAllTransactions = async (req, res) => {
+  try {
+    const {
+      search = '',
+      month,
+      year,
+      property,
+      type = 'totalReceived',
+      page = 1,
+      limit = 20,
+    } = req.query;
+
+    const query = {};
+
+    // 🔍 Search by name, studentId, or transactionId
+    if (search) {
+      query.$or = [
+        { name: { $regex: search, $options: 'i' } },
+        { studentId: { $regex: search, $options: 'i' } },
+        { transactionId: { $regex: search, $options: 'i' } },
+      ];
+    }
+
+    // 📅 Filter by month and year
+    if (month || year) {
+      const now = new Date();
+      const selectedYear = parseInt(year) || now.getFullYear();
+      const selectedMonth = parseInt(month || 1) - 1; // JS Date month is 0-indexed
+      const startDate = new Date(selectedYear, selectedMonth, 1);
+      const endDate = new Date(selectedYear, selectedMonth + 1, 1);
+      query.paymentDate = { $gte: startDate, $lt: endDate };
+    }
+
+    // 🏢 Property filter
+    if (property && property !== 'totalReceived') {
+      query.property = property;
+    }
+
+    // 🧮 Additional type-based filter
+    if (type !== 'totalReceived') {
+      if (type === 'dailyRent') {
+        query.studentId = { $regex: '^HVNDR' };
+      } else if (type === 'messOnly') {
+        query.studentId = { $regex: '^HVNMP' };
+      } else if (type === 'occupants') {
+        query.studentId = { $regex: '^HVNS' };
+      }
+    }
+
+    // 📝 Calculate totals for the full set of filtered transactions (no pagination)
+    const allFilteredTransactions = await FeePayment.find(query);
+
+    const totalAmount = allFilteredTransactions.reduce(
+      (acc, transaction) => acc + (transaction.amountPaid || 0),
+      0
+    );
+
+    const filteredDailyRentTotal = allFilteredTransactions
+      .filter(t => t.studentId && t.studentId.startsWith('HVNDR'))
+      .reduce((acc, t) => acc + (t.amountPaid || 0), 0);
+
+    const filteredMessPeopleTotal = allFilteredTransactions
+      .filter(t => t.studentId && t.studentId.startsWith('HVNMP'))
+      .reduce((acc, t) => acc + (t.amountPaid || 0), 0);
+
+    // Pagination setup
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+    const total = await FeePayment.countDocuments(query);
+    const transactions = await FeePayment.find(query)
+      .sort({ paymentDate: -1 }) // Most recent first
+      .skip(skip)
+      .limit(parseInt(limit));
+
+    // Return transactions with the calculated totals
+    res.status(200).json({
+      transactions,
+      total,
+      totalPages: Math.ceil(total / limit),
+      currentPage: parseInt(page),
+      totalAmount,
+      filteredDailyRentTotal,
+      filteredMessPeopleTotal,
+    });
   } catch (error) {
     console.error('Error fetching fee payments:', error);
     res.status(500).json({ message: 'Error fetching fee payments', error });
@@ -654,6 +745,7 @@ const getTotalMonthlyRent = async (req, res) => {
 const feePaymentController = {
   addFeePayment,
   getAllFeePayments,
+  getAllTransactions,
   getFeePaymentsByStudentId,
   getFeePaymentsByRenterId,
   editFeePayment,

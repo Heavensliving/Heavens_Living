@@ -29,10 +29,10 @@ const expenseSchema = new mongoose.Schema({
     type: Number,
     required: true
   },
-  salaryMonth: {
-    type: String,
-    required: false
-  },
+  pendingSalary: { type: Number, required: false },
+  advanceSalary: { type: Number, required: false },
+  fullyClearedSalaryMonths: [{ type: String, required: true }],
+  salaryStatus: { type: String, enum: ['Paid', 'Pending'], default: 'Pending' },
   leaveTaken: {
     type: Number,
     required: false

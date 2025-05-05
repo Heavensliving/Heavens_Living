@@ -32,6 +32,8 @@ const router = express.Router();
 
 router.post('/addExpense', verifyToken, expenseController.addExpense);
 
+router.post('/addSalary', verifyToken, expenseController.addStaffPayment);
+
 router.get('/categories', verifyToken, expenseCategoryController.getAllCategories);
 
 router.post('/add', verifyToken, expenseCategoryController.addCategory);

@@ -20,6 +20,10 @@ const ExpenseTable = () => {
   const [expenses, setExpenses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [page, setPage] = useState(1);
+  const [itemsPerPage] = useState(20);
+  const [goToPage, setGoToPage] = useState('');
+
   const [searchTerm, setSearchTerm] = useState(
     localStorage.getItem('expenseSearchTerm') || ''
   );
@@ -101,45 +105,45 @@ const ExpenseTable = () => {
     setModalImageSrc('');
   };
 
-// Save filters to localStorage whenever they change
-useEffect(() => {
-  localStorage.setItem('expenseSearchTerm', searchTerm);
-  localStorage.setItem('expenseCategory', selectedCategory);
-  localStorage.setItem('expenseType', selectedType);
-  localStorage.setItem('expenseMonth', selectedMonth);
-  localStorage.setItem('expenseYear', selectedYear);
-}, [searchTerm, selectedCategory, selectedType, selectedMonth, selectedYear]);
+  // Save filters to localStorage whenever they change
+  useEffect(() => {
+    localStorage.setItem('expenseSearchTerm', searchTerm);
+    localStorage.setItem('expenseCategory', selectedCategory);
+    localStorage.setItem('expenseType', selectedType);
+    localStorage.setItem('expenseMonth', selectedMonth);
+    localStorage.setItem('expenseYear', selectedYear);
+  }, [searchTerm, selectedCategory, selectedType, selectedMonth, selectedYear]);
 
-// Clear all filters (add this function)
-const clearFilters = () => {
-  setSearchTerm('');
-  setSelectedCategory('');
-  setSelectedType('');
-  setSelectedMonth('');
-  setSelectedYear('');
-  
-  // Clear localStorage
-  localStorage.removeItem('expenseSearchTerm');
-  localStorage.removeItem('expenseCategory');
-  localStorage.removeItem('expenseType');
-  localStorage.removeItem('expenseMonth');
-  localStorage.removeItem('expenseYear');
-};
+  // Clear all filters (add this function)
+  const clearFilters = () => {
+    setSearchTerm('');
+    setSelectedCategory('');
+    setSelectedType('');
+    setSelectedMonth('');
+    setSelectedYear('');
 
-// Your existing filter logic remains the same
-const filteredExpenses = expenses.filter(expense =>
-  expense.title.toLowerCase().includes(searchTerm.toLowerCase())
-);
+    // Clear localStorage
+    localStorage.removeItem('expenseSearchTerm');
+    localStorage.removeItem('expenseCategory');
+    localStorage.removeItem('expenseType');
+    localStorage.removeItem('expenseMonth');
+    localStorage.removeItem('expenseYear');
+  };
 
-const Expenses = filteredExpenses.filter(expense => {
-  const date = new Date(expense.date);
-  const monthMatches = selectedMonth ? date.getMonth() + 1 === parseInt(selectedMonth) : true;
-  const yearMatches = selectedYear ? date.getFullYear() === parseInt(selectedYear) : true;
-  const categoryMatches = selectedCategory ? expense.category === selectedCategory : true;
-  const typeMatches = selectedType ? expense.type === selectedType : true;
+  // Your existing filter logic remains the same
+  const filteredExpenses = expenses.filter(expense =>
+    expense.title.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
-  return monthMatches && yearMatches && categoryMatches && typeMatches;
-});
+  const Expenses = filteredExpenses.filter(expense => {
+    const date = new Date(expense.date);
+    const monthMatches = selectedMonth ? date.getMonth() + 1 === parseInt(selectedMonth) : true;
+    const yearMatches = selectedYear ? date.getFullYear() === parseInt(selectedYear) : true;
+    const categoryMatches = selectedCategory ? expense.category === selectedCategory : true;
+    const typeMatches = selectedType ? expense.type === selectedType : true;
+
+    return monthMatches && yearMatches && categoryMatches && typeMatches;
+  });
   const sortedExpenses = [...Expenses].sort((a, b) => new Date(b.date) - new Date(a.date));
 
   // Calculate total amount and total salary
@@ -180,6 +184,19 @@ const Expenses = filteredExpenses.filter(expense => {
     // Save the PDF
     doc.save('transactions.pdf');
   };
+
+  const totalPages = Math.ceil(sortedExpenses.length / itemsPerPage);
+  const paginatedExpenses = sortedExpenses.slice(
+    (page - 1) * itemsPerPage,
+    page * itemsPerPage
+  );
+
+  const handlePageChange = (newPage) => {
+    if (newPage >= 1 && newPage <= totalPages) {
+      setPage(newPage);
+    }
+  };
+
 
   if (loading) {
     return (
@@ -352,15 +369,15 @@ const Expenses = filteredExpenses.filter(expense => {
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200 text-center">
-            {sortedExpenses.length > 0 ? (
-              sortedExpenses.map((expense, index) => {
+            {paginatedExpenses.length > 0 ? (
+              paginatedExpenses.map((expense, index) => {
                 const defaultImage = 'https://jkfenner.com/wp-content/uploads/2019/11/default.jpg';
                 return (
                   <tr
                     key={expense._id}
                     className="hover:bg-gray-50 transition-colors group"
                   >
-                    <td className="py-2 px-2 sm:px-4 whitespace-nowrap text-xs sm:text-sm text-center">{index + 1}</td>
+                    <td className="py-2 px-2 sm:px-4 whitespace-nowrap text-xs sm:text-sm text-center">{(page - 1) * itemsPerPage + index + 1}</td>
                     <td className="py-2 px-4 text-xs sm:text-sm flex flex-col">
                       {/* Split Title into lines of 10 characters */}
                       {expense.title
@@ -457,6 +474,49 @@ const Expenses = filteredExpenses.filter(expense => {
             )}
           </tbody>
         </table>
+      </div>
+
+      {/* Pagination Controls */}
+      <div className="flex justify-center items-center mt-6 space-x-4">
+        <button
+          onClick={() => handlePageChange(page - 1)}
+          disabled={page === 1}
+          className="px-3 py-1 border rounded disabled:opacity-50"
+        >
+          Previous
+        </button>
+
+        <span className="text-sm">Page {page} of {totalPages}</span>
+
+        <button
+          onClick={() => handlePageChange(page + 1)}
+          disabled={page === totalPages}
+          className="px-3 py-1 border rounded disabled:opacity-50"
+        >
+          Next
+        </button>
+
+        <input
+          type="number"
+          value={goToPage}
+          onChange={(e) => setGoToPage(e.target.value)}
+          placeholder="Go to page"
+          className="w-20 px-2 py-1 border rounded"
+          min="1"
+          max={totalPages}
+        />
+        <button
+          onClick={() => {
+            const targetPage = parseInt(goToPage);
+            if (!isNaN(targetPage)) {
+              handlePageChange(targetPage);
+              setGoToPage('');
+            }
+          }}
+          className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
+        >
+          Go
+        </button>
       </div>
 
       {/* Image Modal */}

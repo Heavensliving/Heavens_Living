@@ -2,6 +2,7 @@ const cron = require('node-cron');
 const Student = require('../Models/Add_student');
 const MessOrder = require('../Models/MessOrderModel');
 const moment = require('moment');
+const Staff = require('../Models/Add_staff');
 
 cron.schedule('0 0 * * *', async () => {
 
@@ -117,5 +118,92 @@ cron.schedule('0 0 * * *', async () => {  // Runs daily at midnight
     console.log('Order cleanup completed.');
   } catch (error) {
     console.error('Error during order cleanup:', error);
+  }
+});
+
+
+// Run daily to check for salary updates
+cron.schedule("0 0 * * *", async () => {
+  console.log("🔄 Running scheduled job to update salaries...");
+
+  try {
+    const today = moment().startOf("day");    // Get today's date at midnight
+    console.log(`📅 Today's Date: ${today.format("YYYY-MM-DD")}`);
+
+    // Find all Staff whose joinDate exists
+    const staffMembers = await Staff.find({
+      joinDate: { $exists: true, $ne: null },
+    });
+
+    // Merge both collections into a single list
+    const employees = [...staffMembers];
+
+    if (employees.length === 0) {
+      console.log("⚠️ No employees found. Skipping update.");
+      return;
+    }
+
+    console.log(`👥 Processing ${employees.length} employees...`);
+
+    // Process each employee
+    await Promise.all(
+      employees.map(async (employee) => {
+        const joinDate = moment(employee.joinDate).startOf("day")
+
+        console.log(`👤 Checking Employee: ${employee._id}`);
+        console.log(`📌 Join Date: ${joinDate.format("YYYY-MM-DD")} | Today: ${today.format("YYYY-MM-DD")}`);
+
+        // ✅ Check if today is the same day as the joinDate but for every month
+        if (joinDate.date() !== today.date()) {
+          console.log(`⏭️ Skipping ${employee._id}, today is not the correct day for salary update.`);
+          return;
+        }
+
+        // ✅ Ensure salaries are updated **every month** (not just first time)
+        const lastSalaryUpdate = employee.lastSalaryUpdate ? dayjs(employee.lastSalaryUpdate).startOf("day") : null;
+
+        console.log(`📆 Last Salary Update: ${lastSalaryUpdate ? lastSalaryUpdate.format("YYYY-MM-DD") : "Never"}`);
+
+        if (lastSalaryUpdate && lastSalaryUpdate.isSame(today, "month")) {
+          console.log(`⚠️ Salary already processed for ${employee._id} this month.`);
+          return;
+        }
+
+        let remainingSalary = employee.Salary; // Full salary due
+
+        // Scenario 1: Full salary can be covered by advance balance
+        if (employee.advanceSalary >= remainingSalary) {
+          employee.advanceSalary -= remainingSalary;
+          remainingSalary = 0; // Salary fully covered
+          console.log(`✅ Deducted full salary ₹${employee.Salary} from advance balance for ${employee._id}`);
+        }
+        // Scenario 2: Partial amount in advance balance, rest goes to pending salary    
+        else if (employee.advanceSalary > 0) {
+          remainingSalary -= employee.advanceSalary; // Reduce remaining salary by balance amount
+          console.log(`✅ Deducted ₹${employee.advanceSalary} from advance balance for ${employee._id}, Remaining Salary: ₹${remainingSalary}`);
+          employee.advanceSalary = 0; // Balance used up
+        }
+
+        // Scenario 3: Remaining salary (if any) should be added to pending salary
+        if (remainingSalary > 0) {
+          console.log(`⚠️ Updating pending salary for ${employee._id}: +₹${remainingSalary}`);
+          employee.pendingSalary += remainingSalary;
+          employee.salaryStatus = "Pending";
+        } else {
+          employee.salaryStatus = "Paid";
+        }
+
+        // ✅ Save the last processed date (to avoid duplicate updates)
+        employee.lastSalaryUpdate = today.format("YYYY-MM-DD");
+
+        // Save the updated employee data
+        await employee.save();
+        console.log(`✅ Salary update completed for ${employee._id}`);
+      })
+    );
+
+    console.log("🎉 Salary updates completed for all eligible employees.");
+  } catch (error) {
+    console.error("❌ Error updating salaries:", error);
   }
 });
