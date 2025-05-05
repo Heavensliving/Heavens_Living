@@ -197,5 +197,39 @@ const getUsageLogs = async (req, res) => {
   }
 };
 
+const editStock = async (req, res) => {
+  try {
+    const { itemId } = req.params;
+    const { itemName, quantityType, category, lowAlertQty, adminName, properties } = req.body;
 
-module.exports = { addStock, getStocks, updateStock, updateDailyUsage, deleteStock, logUsage, getUsageLogs };
+    // Find the stock item by ID
+    const stock = await Stock.findById(itemId);
+    if (!stock) {
+      return res.status(404).json({ message: 'Stock item not found' });
+    }
+
+    // Update the stock details
+    stock.itemName = itemName;
+    stock.quantityType = quantityType;
+    stock.category = category;
+    stock.lowAlertQty = lowAlertQty;
+
+    await stock.save();
+
+    // Format properties for logging
+    const formattedProperties = properties.map(property => ({
+      id: property.id,
+      name: property.name
+    }));
+
+    // Log the edit action
+    await logUsage(itemName, 'edit stock', 0, adminName, formattedProperties);
+
+    res.status(200).json({ message: 'Stock edited successfully' });
+  } catch (error) {
+    console.error('Error editing stock:', error);
+    res.status(500).json({ message: 'Error editing stock' });
+  }
+};
+
+module.exports = { addStock, getStocks, updateStock, updateDailyUsage, deleteStock, logUsage, getUsageLogs, editStock };

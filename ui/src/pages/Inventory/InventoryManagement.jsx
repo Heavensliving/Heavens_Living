@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Table, Progress, Button, message, Input, Select, Tag } from 'antd';
+import { Table, Progress, Button, message, Input, Select, Tag, Popconfirm, Tooltip } from 'antd';
+import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import axios from 'axios';
 import { useSelector } from 'react-redux';
 import AddStockModal from './AddStockModal';
 import UpdateStockModal from './UpdateStockModal';
 import DailyUsageModal from './DailyUsageModal'; 
+import EditStockModal from './EditStockModal';
 import { useNavigate } from 'react-router-dom';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
@@ -19,6 +21,8 @@ const InventoryManagement = () => {
   const [searchTerm, setSearchTerm] = useState(""); 
   const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [selectedStock, setSelectedStock] = useState(null);
   const navigate = useNavigate();
   // const [sortOrder, setSortOrder] = useState("ascend"); 
 
@@ -207,7 +211,40 @@ const logUsage = async (itemName, action, qty) => {
     setFilteredStocks(filteredData);
   };
 
- 
+  // Handle Edit Stock
+  const handleEditStock = async (itemId, values) => {
+    try {
+      const payload = {
+        ...values,
+        adminName: admin.adminName,
+        properties: admin.properties,
+      };
+
+      await axios.patch(`${API_BASE_URL}/stocks/edit/${itemId}`, payload, {
+        headers: { Authorization: `Bearer ${admin.token}` },
+      });
+      message.success('Stock edited successfully');
+      fetchStocks();
+      setIsEditModalOpen(false);
+    } catch (error) {
+      console.error('Error editing stock:', error);
+      message.error('Failed to edit stock');
+    }
+  };
+
+  // Handle Delete Stock
+  const handleDeleteStock = async (itemId) => {
+    try {
+      await axios.delete(`${API_BASE_URL}/stocks/delete/${itemId}`, {
+        headers: { Authorization: `Bearer ${admin.token}` },
+      });
+      message.success('Stock deleted successfully');
+      fetchStocks();
+    } catch (error) {
+      console.error('Error deleting stock:', error);
+      message.error('Failed to delete stock');
+    }
+  };
 
   const columns = [
     {
@@ -287,7 +324,34 @@ const logUsage = async (itemName, action, qty) => {
           {
             title: 'Property Name',
             key: 'propertyName',
-            render: (text, record) => <span>{record.myProperty}</span>, // Display myProperty from the record
+            render: (text, record) => <span>{record.myProperty}</span>,
+          },
+          {
+            title: 'Actions',
+            key: 'actions',
+            render: (_, record) => (
+              <span className="space-x-4">
+                <Tooltip title="Edit">
+                  <EditOutlined
+                    className="text-blue-500 text-lg cursor-pointer hover:text-blue-600"
+                    onClick={() => {
+                      setSelectedStock(record);
+                      setIsEditModalOpen(true);
+                    }}
+                  />
+                </Tooltip>
+                <Tooltip title="Delete">
+                  <Popconfirm
+                    title="Are you sure you want to delete this stock?"
+                    onConfirm={() => handleDeleteStock(record._id)}
+                    okText="Yes"
+                    cancelText="No"
+                  >
+                    <DeleteOutlined className="text-red-500 text-lg cursor-pointer hover:text-red-600" />
+                  </Popconfirm>
+                </Tooltip>
+              </span>
+            ),
           },
         ]
       : []),
@@ -382,6 +446,20 @@ const logUsage = async (itemName, action, qty) => {
         handleDailyUsage={handleDailyUsage}
         stocks={stocks}
       />
+
+      {/* Edit Stock Modal - Only show for Main-Admin */}
+      {admin.role === 'Main-Admin' && (
+        <EditStockModal
+          isModalOpen={isEditModalOpen}
+          handleCancel={() => {
+            setIsEditModalOpen(false);
+            setSelectedStock(null);
+          }}
+          handleEditStock={handleEditStock}
+          stockToEdit={selectedStock}
+          categories={categories}
+        />
+      )}
 
       {/* Displaying No Items Found if no stocks */}
       {filteredStocks.length === 0 ? (
