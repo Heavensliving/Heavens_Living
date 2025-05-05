@@ -82,12 +82,17 @@ const DailyUsageModal = ({ isModalOpen, handleCancel, handleDailyUsage, stocks }
           <Select
             placeholder="Select an item"
             onChange={handleItemChange}
-            value={selectedItem ? selectedItem._id : undefined} // Make sure the selected item persists
+            value={selectedItem ? selectedItem._id : undefined}
+            showSearch
+            optionFilterProp="children"
+            filterOption={(input, option) =>
+              option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+            }
           >
-            {stocks.map((item) => (
-              <Select.Option key={item._id} value={item._id}>
-                {item.itemName}
-              </Select.Option>
+            {stocks.map((stock) => (
+              <Option key={stock._id} value={stock._id}>
+                {stock.itemName}
+              </Option>
             ))}
           </Select>
         </Form.Item>

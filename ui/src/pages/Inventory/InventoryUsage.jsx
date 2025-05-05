@@ -7,6 +7,7 @@ import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const { MonthPicker } = DatePicker;
 
 const InventoryUsage = () => {
   const admin = useSelector((store) => store.auth.admin);
@@ -14,6 +15,7 @@ const InventoryUsage = () => {
   const [filteredLogs, setFilteredLogs] = useState([]);
   const [filterCategory, setFilterCategory] = useState('All Items');
   const [selectedDate, setSelectedDate] = useState(null);
+  const [selectedMonth, setSelectedMonth] = useState(null);
 
   const fetchUsageLogs = async () => {
     try {
@@ -66,6 +68,8 @@ const InventoryUsage = () => {
         return 'green';
       case 'add stock':
         return 'magenta';
+      case 'edit stock':
+        return 'blue';  
       default:
         return '';
     }
@@ -86,27 +90,60 @@ const InventoryUsage = () => {
       });
     }
 
+    if (selectedMonth) {
+      filtered = filtered.filter((log) => {
+        const logDate = moment(log.date);
+        return logDate.format('YYYY-MM') === selectedMonth.format('YYYY-MM');
+      });
+    }
+
     setFilteredLogs(filtered);
   };
 
   const handleDateChange = (date) => {
     setSelectedDate(date);
+    setSelectedMonth(null);
+
+    let filtered = logs;
 
     if (date) {
-      const filtered = logs.filter((log) => {
+      filtered = filtered.filter((log) => {
         const logDate = moment(log.date).format('YYYY-MM-DD');
         return logDate === date.format('YYYY-MM-DD');
       });
-
-      setFilteredLogs(filtered);
-    } else {
-      handleFilter(filterCategory);
     }
+
+    if (filterCategory !== 'All Items') {
+      filtered = filtered.filter((log) => getActionText(log.action) === filterCategory);
+    }
+
+    setFilteredLogs(filtered);
+  };
+
+  const handleMonthChange = (month) => {
+    setSelectedMonth(month);
+    setSelectedDate(null);
+
+    let filtered = logs;
+
+    if (month) {
+      filtered = filtered.filter((log) => {
+        const logDate = moment(log.date);
+        return logDate.format('YYYY-MM') === month.format('YYYY-MM');
+      });
+    }
+
+    if (filterCategory !== 'All Items') {
+      filtered = filtered.filter((log) => getActionText(log.action) === filterCategory);
+    }
+
+    setFilteredLogs(filtered);
   };
 
   const handleClearFilters = () => {
     setFilterCategory('All Items');
     setSelectedDate(null);
+    setSelectedMonth(null);
     setFilteredLogs(logs);
   };
 
@@ -146,7 +183,7 @@ const InventoryUsage = () => {
 
   const filterMenu = (
     <Menu>
-      {['All Items', 'Daily Usage', 'Stock Update', 'Add Stock'].map((category) => (
+      {['All Items', 'Daily Usage', 'Stock Update', 'Add Stock','Edit Item'].map((category) => (
         <Menu.Item
           key={category}
           onClick={() => handleFilter(category)}
@@ -207,6 +244,8 @@ const InventoryUsage = () => {
           <span className="text-xs mr-3">Add Stock</span>
           <div className="bg-green-500 rounded-full w-2.5 h-2.5 mx-1" />
           <span className="text-xs mr-3">Update Stock</span>
+          <div className="bg-blue-500 rounded-full w-2.5 h-2.5 mx-1" />
+          <span className="text-xs mr-3">Edit Items</span>
           <div className="bg-yellow-500 rounded-full w-2.5 h-2.5 mx-1" />
           <span className="text-xs">Daily Usage</span>
         </div>
@@ -226,6 +265,14 @@ const InventoryUsage = () => {
               value={selectedDate}
               format="YYYY-MM-DD"
               placeholder="Select a Date"
+              disabled={selectedMonth !== null}
+            />
+            <DatePicker.MonthPicker
+              onChange={handleMonthChange}
+              value={selectedMonth}
+              format="YYYY-MM"
+              placeholder="Select a Month"
+              disabled={selectedDate !== null}
             />
           </Space>
 

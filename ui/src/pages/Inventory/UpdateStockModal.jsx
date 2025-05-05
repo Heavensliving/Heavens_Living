@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Modal, Form, InputNumber, Select, message, Button } from 'antd';
-import { DeleteOutlined } from '@ant-design/icons';
+// import { DeleteOutlined } from '@ant-design/icons';
 import axios from 'axios';
 import { useSelector } from 'react-redux';
 
@@ -39,38 +39,36 @@ const UpdateStockModal = ({ isModalOpen, handleCancel, handleUpdateStock, stocks
         form.resetFields();
         setSelectedItem(null);
     };
-    
-    
 
-    // Handle delete item action
-    const handleDeleteItem = () => {
-        Modal.confirm({
-            title: 'Are you sure you want to delete this item?',
-            okText: 'Yes, delete it',
-            cancelText: 'Cancel',
-            onOk: async () => {
-                try {
-                    // Send a delete request to the server
-                    await axios.delete(`${API_BASE_URL}/stocks/delete/${selectedItem._id}`, {
-                        headers: { Authorization: `Bearer ${admin.token}` },
-                    });
+    // // Handle delete item action
+    // const handleDeleteItem = () => {
+    //     Modal.confirm({
+    //         title: 'Are you sure you want to delete this item?',
+    //         okText: 'Yes, delete it',
+    //         cancelText: 'Cancel',
+    //         onOk: async () => {
+    //             try {
+    //                 // Send a delete request to the server
+    //                 await axios.delete(`${API_BASE_URL}/stocks/delete/${selectedItem._id}`, {
+    //                     headers: { Authorization: `Bearer ${admin.token}` },
+    //                 });
 
-                    message.success(`${selectedItem.itemName} has been deleted successfully.`);
+    //                 message.success(`${selectedItem.itemName} has been deleted successfully.`);
 
-                    // Reload the page
-                    window.location.reload();
+    //                 // Reload the page
+    //                 window.location.reload();
 
-                    // Close the modal and reset state
-                    form.resetFields();
-                    setSelectedItem(null);
-                    handleCancel(); // Close the modal
-                } catch (error) {
-                    message.error('Error deleting item. Please try again.');
-                    console.log(error);
-                }
-            },
-        });
-    };
+    //                 // Close the modal and reset state
+    //                 form.resetFields();
+    //                 setSelectedItem(null);
+    //                 handleCancel(); // Close the modal
+    //             } catch (error) {
+    //                 message.error('Error deleting item. Please try again.');
+    //                 console.log(error);
+    //             }
+    //         },
+    //     });
+    // };
 
     return (
         <Modal
@@ -85,23 +83,23 @@ const UpdateStockModal = ({ isModalOpen, handleCancel, handleUpdateStock, stocks
             okText="Update"
             cancelText="Cancel"
             footer={[
-                selectedItem && (
-                    <Button
-                        key="delete"
-                        type="default"
-                        icon={<DeleteOutlined />}
-                        style={{
-                            border: '1px solid red',
-                            color: 'red',
-                            position: 'absolute',
-                            left: '16px',
-                            bottom: '16px',
-                        }}
-                        onClick={handleDeleteItem}
-                    >
-                        Delete
-                    </Button>
-                ),
+                // selectedItem && (
+                //     <Button
+                //         key="delete"
+                //         type="default"
+                //         icon={<DeleteOutlined />}
+                //         style={{
+                //             border: '1px solid red',
+                //             color: 'red',
+                //             position: 'absolute',
+                //             left: '16px',
+                //             bottom: '16px',
+                //         }}
+                //         onClick={handleDeleteItem}
+                //     >
+                //         Delete
+                //     </Button>
+                // ),
                 <div style={{ display: 'flex', justifyContent: 'flex-end', width: '100%' }}>
                     <Button key="cancel" onClick={() => handleCancel()}>
                         Cancel
@@ -130,6 +128,11 @@ const UpdateStockModal = ({ isModalOpen, handleCancel, handleUpdateStock, stocks
                         placeholder="Select an item"
                         onChange={handleItemChange}
                         value={selectedItem ? selectedItem._id : undefined}
+                        showSearch
+                        optionFilterProp="children"
+                        filterOption={(input, option) =>
+                            option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                        }
                     >
                         {stocks.map((stock) => (
                             <Option key={stock._id} value={stock._id}>
@@ -146,7 +149,6 @@ const UpdateStockModal = ({ isModalOpen, handleCancel, handleUpdateStock, stocks
                         {selectedItem.quantityType}
                     </div>
                 )}
-
 
                 {/* Input for additional stock */}
                 <Form.Item
