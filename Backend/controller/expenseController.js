@@ -226,6 +226,7 @@ const getExpensesByProperty = async (req, res) => {
     res.status(500).json({ error: 'Error fetching expenses' });
   }
 };
+
 const getAllExpenses = async (req, res) => {
   try {
     const expenses = await Expense.find(); // Retrieve all expenses
@@ -234,6 +235,7 @@ const getAllExpenses = async (req, res) => {
     res.status(500).json({ error: 'Error fetching expenses' });
   }
 };
+
 const getExpensesByStaff = async (req, res) => {
   try {
     const { staffId } = req.params; // Extract staff ID from URL parameters
@@ -242,14 +244,19 @@ const getExpensesByStaff = async (req, res) => {
       return res.status(400).json({ error: "Staff ID is required" });
     }
 
-    // Query the database for expenses associated with the given staff ID
+    const staffData = await Staff.findById(staffId);
+
     const expenses = await Expense.find({ staff: staffId });
 
     if (expenses.length === 0) {
       return res.status(404).json({ error: "No expenses found for the provided staff ID" });
     }
 
-    res.status(200).json(expenses);
+    res.status(200).json({
+      salary: staffData.Salary,
+      salaryMonths: staffData.salaryMonths || [],
+      expenses,
+    });
   } catch (error) {
     console.error("Error fetching expenses by staff ID:", error);
     res.status(500).json({ error: "Error fetching expenses by staff ID" });
@@ -421,6 +428,203 @@ const deleteExpense = async (req, res) => {
   }
 };
 
+const addStaffPayment = async (req, res) => {
+  try {
+    const {
+      name,
+      staffId, // Employee ID to check in both collections
+      totalAmount,
+      amount,
+      paymentMode,
+      transactionId,
+      propertyId,
+      property,
+      paidDate,
+      leaveTaken,
+      remarks,
+      billImg
+    } = req.body;
+
+    console.log("Received Request Body:", req.body); // Debugging log
+
+    // Validate if transactionId is required
+    if ((paymentMode === 'UPI' || paymentMode === 'Bank Transfer') && !transactionId) {
+      return res.status(400).json({ message: "Transaction ID is required for UPI or Bank Transfer payments." });
+    }
+
+    let staff = await Staff.findById(staffId); // Check in Staff collection
+
+    let differInSalary = 0;
+
+    if (leaveTaken !== 0) {
+      let total = totalAmount - staff.pendingSalary;
+      differInSalary = Math.abs(total);
+    }
+
+    const previousPendingSalary = staff.pendingSalary || 0;
+    let dueAmount = previousPendingSalary - amount - differInSalary;
+    console.log(dueAmount)
+    console.log(previousPendingSalary, amount, differInSalary)
+    let newBalance = staff.advanceSalary || 0;
+
+    // If overpaid, store extra amount in advanceSalary
+    if (dueAmount < 0) {
+      newBalance += Math.abs(dueAmount);
+      dueAmount = 0;
+    }
+
+    // Calculate the months for which rent is due
+    const currentDate = new Date();
+    const joinDate = staff.joinDate;
+    const salary = staff.Salary;
+
+    let salaryMonths = [];
+    let tempDate = new Date(joinDate);
+    while (tempDate <= currentDate) {
+      const monthYear = tempDate.toLocaleString('default', { month: 'long' }) + ' ' + tempDate.getFullYear();
+      salaryMonths.push(monthYear);
+      tempDate.setMonth(tempDate.getMonth() + 1);
+    }
+
+    // Ensure salaryMonths are in order and add missing ones
+    staff.salaryMonths = staff.salaryMonths || [];
+    for (let monthYear of salaryMonths) {
+      if (!staff.salaryMonths.some(rm => rm.monthYear === monthYear)) {
+        staff.salaryMonths.push({
+          monthYear,
+          paidAmount: 0,
+          salaryCut: 0,
+          status: "Pending"
+        });
+      }
+    }
+
+    // Sort salaryMonths in ascending order (oldest first)
+    staff.salaryMonths.sort((a, b) => new Date(a.monthYear) - new Date(b.monthYear));
+
+    let remainingAmount = amount;
+    let remainingdifferInSalary = differInSalary;
+    // Ensure fullyClearedSalaryMonths contains only unique months
+    let fullyClearedSalaryMonthsSet = new Set();
+
+    // Allocate wave-off amount first
+    for (let month of staff.salaryMonths) {
+      if (remainingdifferInSalary <= 0) break;
+
+      let rentDue = salary - (month.paidAmount + month.salaryCut);
+      let waveOffApplied = Math.min(remainingdifferInSalary, rentDue);
+
+      month.salaryCut += waveOffApplied;
+      remainingdifferInSalary -= waveOffApplied;
+
+      if (month.paidAmount + month.salaryCut >= salary) {
+        month.status = "Paid";
+        fullyClearedSalaryMonthsSet.add(month.monthYear); // ✅ Prevent duplicate entries
+      }
+    }
+
+    // Allocate payment amount next
+    for (let month of staff.salaryMonths) {
+      if (remainingAmount <= 0) break;
+
+      let rentDue = salary - (month.paidAmount + month.salaryCut);
+      let paymentApplied = Math.min(remainingAmount, rentDue);
+
+      month.paidAmount += paymentApplied;
+      remainingAmount -= paymentApplied;
+
+      if (month.paidAmount + month.salaryCut >= salary) {
+        month.status = "Paid";
+        fullyClearedSalaryMonthsSet.add(month.monthYear); // ✅ Prevent duplicate entries
+      }
+    }
+
+    // Convert Set back to an array before saving
+    let fullyClearedSalaryMonths = [...fullyClearedSalaryMonthsSet];
+
+    // If still remaining amount, apply to future months
+    while (remainingAmount > 0 || remainingdifferInSalary > 0) {
+      let nextMonth = new Date(staff.salaryMonths[staff.salaryMonths.length - 1].monthYear);
+      nextMonth.setMonth(nextMonth.getMonth() + 1);
+      let monthYear = nextMonth.toLocaleString('default', { month: 'long' }) + ' ' + nextMonth.getFullYear();
+
+      let newMonth = {
+        monthYear,
+        paidAmount: 0,
+        salaryCut: 0,
+        status: "Pending"
+      };
+
+      let rentDue = salary;
+
+      if (remainingdifferInSalary > 0) {
+        let waveOffApplied = Math.min(remainingdifferInSalary, rentDue);
+        newMonth.salaryCut = waveOffApplied;
+        remainingdifferInSalary -= waveOffApplied;
+        rentDue -= waveOffApplied;
+      }
+
+      if (remainingAmount > 0) {
+        console.log("Before applying payment - remainingAmount:", remainingAmount, "rentDue:", rentDue);
+
+        let paymentApplied = Math.min(remainingAmount, rentDue);
+        newMonth.paidAmount = paymentApplied;
+        remainingAmount -= paymentApplied;
+        rentDue -= paymentApplied;
+      }
+
+      if (newMonth.paidAmount + newMonth.salaryCut >= salary) {
+        newMonth.status = "Paid";
+        fullyClearedSalaryMonths.push(monthYear);
+      }
+
+      staff.salaryMonths.push(newMonth);
+    }
+
+    // Create a new payment record
+    const newPayment = new Expense({
+      title: `${name} - Salary`,
+      type: 'PG',
+      category: 'Salary',
+      propertyId: propertyId,
+      propertyName: property,
+      leaveTaken,
+      amount,
+      pendingSalary: dueAmount,
+      advanceSalary: newBalance,
+      paymentMethod: paymentMode,
+      transactionId: (paymentMode === 'UPI' || paymentMode === 'Bank Transfer') ? transactionId : null,
+      salaryStatus: dueAmount === 0 ? "Paid" : "Pending",
+      fullyClearedSalaryMonths,
+      date: paidDate,
+      otherReason: remarks || "",
+      billImg: billImg || undefined,
+      staff: staff._id,
+    });
+
+    // Save payment
+    await newPayment.save();
+    console.log("Payment Saved:", newPayment);
+
+    // Update staff record   
+    staff.salaryStatus = newPayment.salaryStatus;
+    staff.pendingSalary = dueAmount;
+    staff.advanceSalary = newBalance;
+    staff.salaryPayments.push(newPayment._id);
+    await staff.save();
+    console.log("Employee Updated:", staff);
+
+    return res.status(201).json({
+      message: "Employee payment processed successfully",
+      payment: newPayment
+    });
+
+  } catch (error) {
+    console.error("Error Processing Payment:", error.message);
+    return res.status(500).json({ message: error.message });
+  }
+};
+
 // Exporting the functions using const
 const expenseController = {
   addExpense,
@@ -436,6 +640,7 @@ const expenseController = {
   getPettyCash,
   getSalaryOverview,
   deleteExpense,
+  addStaffPayment,
 };
 
 module.exports = expenseController;

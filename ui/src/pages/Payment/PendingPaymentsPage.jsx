@@ -168,14 +168,16 @@ const PendingPaymentsPage = () => {
       payment.monthlyRent || "N/A",
       payment.joinDate ? new Date(payment.joinDate).toLocaleDateString() : '-',
       payment.lastPaidDate ? new Date(payment.lastPaidDate).toLocaleDateString() : '-',
-      payment.paymentClearedMonthYear || "-",
+      payment.fullyClearedRentMonths?.length > 0
+        ? payment.fullyClearedRentMonths[payment.fullyClearedRentMonths.length - 1] || '_'
+        : (payment.paymentClearedMonthYear || '_'),
       payment.pendingRentAmount || payment.monthlyRent,
     ]);
     // Add the table
     doc.autoTable({
       startY: 40,
       head: [
-        ['#', 'Name', 'Contact', 'room', 'Rent Amount', 'Join Date', 'Last Paid Date', 'Cleared Month', 'Total Due Amount'],
+        ['#', 'Name', 'Contact', 'room', 'Rent', 'Join Date', 'Last Paid', 'Rent Cleared Till', 'Due Amount'],
       ],
       body: tableData,
     });
@@ -330,7 +332,7 @@ const PendingPaymentsPage = () => {
               </tr>
             </thead>
             <tbody>
-              {filteredTransactions.map((payment, index) => (
+              {filteredTransactions.map(( payment, index) => (
                 <tr
                   key={payment.studentId}
                   className="hover:bg-gray-100 transition-colors"

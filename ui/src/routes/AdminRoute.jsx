@@ -72,6 +72,7 @@ import InventoryUsage from '../pages/Inventory/InventoryUsage.jsx'
 import LowStock from '../pages/Inventory/LowStock.jsx'
 import EditExpense from '../pages/Payment/EditExpense.jsx'
 import PettyCash from '../pages/Payment/PettyCash.jsx'
+import EmployeeSalary from '../pages/Payment/EmployeeSalary.jsx'
 
 const AdminRoute = () => {
     return (
@@ -132,6 +133,7 @@ const AdminRoute = () => {
                     <Route path='/feePayment' element={<FeePayment />} />
                     <Route path='/messOnlyPayment' element={<MessOnlyPayment />} />
                     <Route path='/AddExpense' element={<ExpenseForm />} />
+                    <Route path='/AddSalary' element={<EmployeeSalary />} />
                     <Route path='/editExpense/:id' element={<EditExpense />} />
                     <Route path='/paymentReceived' element={<PaymentReceived />} />
                     <Route path='/AddCommission' element={<CommissionForm />} />

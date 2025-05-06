@@ -21,6 +21,7 @@ const PaymentDashboard = () => {
   const [totalNonRefundableDeposit, setTotalNonRefundableDeposit] = useState(0);
   const [totalWaveOff, setTotalWaveOff] = useState(0);
   const [showModal, setShowModal] = useState(false);
+  const [showExpenseModal, setShowExpenseModal] = useState(false);
   const [showReportModal, setShowReportModal] = useState(false);
   const [reportMonth, setReportMonth] = useState("");
   const [reportYear, setReportYear] = useState(new Date().getFullYear());
@@ -31,6 +32,8 @@ const PaymentDashboard = () => {
 
   const openModal = () => setShowModal(true);
   const closeModal = () => setShowModal(false);
+  const openExpenseModal = () => setShowExpenseModal(true);
+  const closeExpenseModal = () => setShowExpenseModal(false);
 
   useEffect(() => {
     if (!admin) return;
@@ -273,7 +276,7 @@ const PaymentDashboard = () => {
         (sum, expense) => sum + (expense.amount || 0),
         0
       );
-      const profitLoss = totalReceived - (totalExpenses+totalWaveOff+totalCommission);
+      const profitLoss = totalReceived - (totalExpenses + totalWaveOff + totalCommission);
 
       // Generate PDF
       const doc = new jsPDF();
@@ -416,7 +419,8 @@ const PaymentDashboard = () => {
               Add Payment
             </button>
             <button
-              onClick={() => navigate("/AddExpense")}
+              onClick={openExpenseModal}
+              // onClick={() => navigate("/AddExpense")}
               className="px-4 py-2 bg-orange-500 text-white rounded-md hover:bg-orange-600"
             >
               Add Expense
@@ -428,13 +432,13 @@ const PaymentDashboard = () => {
               Add Commission
             </button>
             {admin?.role === "Main-Admin" && (
-            <button
-              onClick={() => navigate('/pettycash')}
-              className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
-            >
-              Add Petty Cash
-            </button>
-              )}
+              <button
+                onClick={() => navigate('/pettycash')}
+                className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+              >
+                Add Petty Cash
+              </button>
+            )}
             {admin.role !== 'Property-Admin' && (
               <button
                 onClick={() => setShowReportModal(true)}
@@ -500,12 +504,12 @@ const PaymentDashboard = () => {
             <p>Expense</p>
           </div>
           {admin?.role === "Main-Admin" && (
-          <div className="p-4 bg-gray-100 text-gray-500 rounded-md ">
-                <p className="text-lg font-semibold">₹{total-(totalExpense+totalCommission+totalWaveOff) || 0}</p>{" "}
-                {/* Total Deposit */}
-                <p>Balance</p>
-              </div>
-                )}
+            <div className="p-4 bg-gray-100 text-gray-500 rounded-md ">
+              <p className="text-lg font-semibold">₹{total - (totalExpense + totalCommission + totalWaveOff) || 0}</p>{" "}
+              {/* Total Deposit */}
+              <p>Balance</p>
+            </div>
+          )}
           <div
             className="p-4 bg-gray-100 text-gray-500 rounded-md cursor-pointer"
             onClick={() => navigate("/commissions")}
@@ -537,6 +541,44 @@ const PaymentDashboard = () => {
           )}
         </div>
       </div>
+
+      {showExpenseModal && (
+        <div className="fixed inset-0 ml-60 z-50 bg-black bg-opacity-50 flex items-center justify-center">
+          <div className="bg-white rounded-lg shadow-lg w-96 p-6 relative">
+            {/* Close Icon */}
+            <button
+              onClick={closeExpenseModal}
+              className="absolute top-2 right-2 text-gray-600 hover:text-gray-900"
+            >
+              ✖
+            </button>
+
+            <h2 className="text-xl font-semibold text-gray-800 mb-4">
+              Select Expense Type
+            </h2>
+
+            <ul className="space-y-4">
+              <li
+                onClick={() => navigate("/AddExpense")}
+                className="cursor-pointer px-4 py-2 bg-blue-100 text-blue-600 rounded-md hover:bg-blue-200"
+              >
+                Add Expense
+              </li>
+              <li
+                onClick={() =>
+                  navigate("/AddSalary", {
+                    state: { paymentType: "Daily Rent" },
+                  })
+                }
+                className="cursor-pointer px-4 py-2 bg-yellow-100 text-yellow-600 rounded-md hover:bg-yellow-200"
+              >
+                Add Salary
+              </li>
+            </ul>
+          </div>
+        </div>
+      )}
+
       {showModal && (
         <div className="fixed inset-0 ml-60 z-50 bg-black bg-opacity-50 flex items-center justify-center">
           <div className="bg-white rounded-lg shadow-lg w-96 p-6 relative">
