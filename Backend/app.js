@@ -41,25 +41,25 @@ const server = http.createServer(app);
 
 initializeSocket(server);
 
-// const allowedOrigins = ['https://hportal.heavensliving.com', "https://heavens-living.onrender.com", "https://heavens-cafe-1.onrender.com", "https://heaven-living.web.app"];
-
-// app.use(cors({
-//   origin: function (origin, callback) {
-//     // Check if the origin is in the allowedOrigins array or if it's undefined (for non-browser requests)
-//     if (!origin || allowedOrigins.indexOf(origin) !== -1) {
-//       callback(null, true);
-//     } else {
-//       callback(new Error('Not allowed by CORS'));
-//     }
-//   },
-//   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-//   allowedHeaders: ['Authorization', 'Role', 'Content-Type'],
-//   credentials: true,
-// }));
+const allowedOrigins = ['https://hportal.heavensliving.com', "https://heavens-living.onrender.com", "https://heavens-cafe-1.onrender.com", "https://heaven-living.web.app"];
 
 app.use(cors({
-  origin: '*',
-}))
+  origin: function (origin, callback) {
+    // Check if the origin is in the allowedOrigins array or if it's undefined (for non-browser requests)
+    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Authorization', 'Role', 'Content-Type'],
+  credentials: true,
+}));
+
+// app.use(cors({
+//   origin: '*',
+// }))
 
 app.use(express.json());
 app.use(fileUpload({

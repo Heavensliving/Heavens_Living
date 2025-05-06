@@ -22,15 +22,15 @@ const addStock = async (req, res) => {
       category,
       lowAlertQty,
       adminName,
-      propertyName: formattedProperties, // Save property details in the database
+      propertyName: formattedProperties,
       myProperty,
     });
 
     // Save the new stock to the database
     await newStock.save();
 
-    // Log the action
-    await logUsage(itemName, 'add stock', stockQty, adminName, formattedProperties);
+    // Log the action with quantityType
+    await logUsage(itemName, 'add stock', stockQty, adminName, formattedProperties, null, quantityType);
 
     res.status(201).json({ message: 'Stock added successfully' });
   } catch (error) {
@@ -78,14 +78,14 @@ const updateStock = async (req, res) => {
     stock.stockQty += additionalStock;
     await stock.save();
 
-    // Ensure properties is an array of objects, like [{ id: '...', name: '...' }]
+    // Ensure properties is an array of objects
     const formattedProperties = properties.map(property => ({
       id: property.id,
       name: property.name
     }));
 
-    // Log the action with properties included
-    await logUsage(stock.itemName, 'update stock', additionalStock, adminName, formattedProperties);
+    // Log the action with quantityType
+    await logUsage(stock.itemName, 'update stock', additionalStock, adminName, formattedProperties, null, stock.quantityType);
 
     res.status(200).json({ message: 'Stock updated successfully' });
   } catch (error) {
@@ -99,7 +99,7 @@ const updateStock = async (req, res) => {
 
 
 const updateDailyUsage = async (req, res) => {
-  const { itemId, dailyUsage, adminName, properties } = req.body;
+  const { itemId, dailyUsage, adminName, properties, usageDate } = req.body;
 
   try {
     // Find the stock item by ID
@@ -120,14 +120,14 @@ const updateDailyUsage = async (req, res) => {
     stock.usedQty += dailyUsage;
     await stock.save();
 
-    // Ensure properties is an array of objects, like [{ id: '...', name: '...' }]
+    // Ensure properties is an array of objects
     const formattedProperties = properties.map(property => ({
       id: property.id,
       name: property.name
     }));
 
-    // Log the action with properties included
-    await logUsage(stock.itemName, 'update daily usage', dailyUsage, adminName, formattedProperties);
+    // Log the action with quantityType
+    await logUsage(stock.itemName, 'update daily usage', dailyUsage, adminName, formattedProperties, usageDate, stock.quantityType);
 
     res.status(200).json({ message: 'Daily usage updated successfully' });
   } catch (error) {
@@ -158,7 +158,7 @@ const deleteStock = async (req, res) => {
 
 
 
-const logUsage = async (itemName, action, qty, adminName, properties) => {
+const logUsage = async (itemName, action, qty, adminName, properties, usageDate = null, quantityType) => {
   try {
     // Ensure properties is an array of objects with id and name
     const formattedProperties = properties.map(property => ({
@@ -170,7 +170,9 @@ const logUsage = async (itemName, action, qty, adminName, properties) => {
       itemName,
       action,
       qty,
+      quantityType,
       date: new Date(),
+      usageDate: usageDate ? new Date(usageDate) : new Date(),
       adminName,
       propertyName: formattedProperties // Pass the array of objects
     });
