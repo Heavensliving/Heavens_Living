@@ -85,14 +85,14 @@ const InventoryUsage = () => {
 
     if (selectedDate) {
       filtered = filtered.filter((log) => {
-        const logDate = moment(log.date).format('YYYY-MM-DD');
+        const logDate = moment(log.action === 'update daily usage' && log.usageDate ? log.usageDate : log.date).format('YYYY-MM-DD');
         return logDate === selectedDate.format('YYYY-MM-DD');
       });
     }
 
     if (selectedMonth) {
       filtered = filtered.filter((log) => {
-        const logDate = moment(log.date);
+        const logDate = moment(log.action === 'update daily usage' && log.usageDate ? log.usageDate : log.date);
         return logDate.format('YYYY-MM') === selectedMonth.format('YYYY-MM');
       });
     }
@@ -108,7 +108,7 @@ const InventoryUsage = () => {
 
     if (date) {
       filtered = filtered.filter((log) => {
-        const logDate = moment(log.date).format('YYYY-MM-DD');
+        const logDate = moment(log.action === 'update daily usage' && log.usageDate ? log.usageDate : log.date).format('YYYY-MM-DD');
         return logDate === date.format('YYYY-MM-DD');
       });
     }
@@ -128,7 +128,7 @@ const InventoryUsage = () => {
 
     if (month) {
       filtered = filtered.filter((log) => {
-        const logDate = moment(log.date);
+        const logDate = moment(log.action === 'update daily usage' && log.usageDate ? log.usageDate : log.date);
         return logDate.format('YYYY-MM') === month.format('YYYY-MM');
       });
     }
@@ -151,18 +151,23 @@ const InventoryUsage = () => {
     const doc = new jsPDF();
     doc.text('Inventory Usage Report', 14, 10);
 
-    const tableColumns = ['Sl No', 'Item Name', 'Action', 'Quantity', 'Date'];
+    const tableColumns = ['Sl No', 'Item Name', 'Action', 'Quantity', 'Log Date', 'Usage Date'];
     if (admin.role === 'Main-Admin') {
       tableColumns.push('Admin Name');
     }
 
     const tableRows = filteredLogs.map((log, index) => {
+      const usageDateStr = log.action === 'update daily usage' && log.usageDate
+        ? new Date(log.usageDate).toLocaleString()
+        : '-';
+        
       const row = [
         index + 1,
         log.itemName,
         getActionText(log.action),
-        log.qty,
+        `${log.qty} ${log.quantityType || ''}`,
         new Date(log.date).toLocaleString(),
+        usageDateStr,
       ];
       if (admin.role === 'Main-Admin') {
         row.push(log.adminName);
@@ -219,12 +224,28 @@ const InventoryUsage = () => {
       title: 'Quantity',
       dataIndex: 'qty',
       key: 'qty',
+      render: (qty, record) => `${qty} ${record.quantityType || ''}`,
+    },
+   
+    {
+      title: 'Usage Date',
+      dataIndex: 'usageDate',
+      key: 'usageDate',
+      render: (usageDate, record) => {
+        if (record.action === 'update daily usage' && usageDate) {
+          return moment(usageDate).format('DD/MM/YYYY');
+        }
+        return '-';
+      },
     },
     {
-      title: 'Date',
+      title: 'Log Date',
       dataIndex: 'date',
       key: 'date',
-      render: (date) => new Date(date).toLocaleString(),
+      render: (date) => {
+        const formattedDate = moment(date).format('DD/MM/YYYY HH:mm:ss');
+        return formattedDate;
+      },
     },
   ];
 

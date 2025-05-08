@@ -163,7 +163,7 @@ const logUsage = async (itemName, action, qty) => {
 
   // Daily Usage API handler
 
-  const handleDailyUsage = async (itemId, dailyUsage) => {
+  const handleDailyUsage = async (itemId, dailyUsage, usageDate) => {
     try {
       const selectedStock = stocks.find((item) => item._id === itemId);
       if (!selectedStock) {
@@ -174,6 +174,7 @@ const logUsage = async (itemName, action, qty) => {
       const payload = {
         itemId,
         dailyUsage,
+        usageDate,
         adminName: admin.adminName,
         properties: admin.properties, // Include property names and IDs
       };

@@ -1,17 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { Modal, Form, Select, InputNumber, Button, message } from 'antd';
+import { Modal, Form, Select, InputNumber, Button, message, DatePicker } from 'antd';
 
 const DailyUsageModal = ({ isModalOpen, handleCancel, handleDailyUsage, stocks }) => {
   const [selectedItem, setSelectedItem] = useState(null); // Store selected item details
   const [dailyUsage, setDailyUsage] = useState(0); // Store daily usage value
   const [error, setError] = useState(''); // State to store error message
+  const [selectedDate, setSelectedDate] = useState(null); // Store selected date
 
   // Clear the fields when modal is closed or reset
   useEffect(() => {
     if (!isModalOpen) {
       setSelectedItem(null);
       setDailyUsage(0);
-      setError(''); // Clear error on modal close
+      setError('');
+      setSelectedDate(null); // Clear date on modal close
     }
   }, [isModalOpen]);
 
@@ -23,6 +25,11 @@ const DailyUsageModal = ({ isModalOpen, handleCancel, handleDailyUsage, stocks }
   const handleSubmit = () => {
     if (!selectedItem) {
       message.error('Please select an item.');
+      return;
+    }
+
+    if (!selectedDate) {
+      message.error('Please select a date.');
       return;
     }
 
@@ -39,8 +46,8 @@ const DailyUsageModal = ({ isModalOpen, handleCancel, handleDailyUsage, stocks }
       return;
     }
 
-    // Call the handleDailyUsage function to update the usage
-    handleDailyUsage(selectedItem._id, dailyUsage);
+    // Call the handleDailyUsage function to update the usage with date
+    handleDailyUsage(selectedItem._id, dailyUsage, selectedDate.format('YYYY-MM-DD'));
   };
 
   const handleDailyUsageChange = (value) => {
@@ -75,7 +82,7 @@ const DailyUsageModal = ({ isModalOpen, handleCancel, handleDailyUsage, stocks }
           Update Daily Usage
         </Button>,
       ]}
-      key={isModalOpen ? 'open' : 'closed'} // Trigger reset of state when the modal opens
+      key={isModalOpen ? 'open' : 'closed'}
     >
       <Form layout="vertical">
         <Form.Item label="Item Name" required>
@@ -106,11 +113,20 @@ const DailyUsageModal = ({ isModalOpen, handleCancel, handleDailyUsage, stocks }
           </div>
         )}
 
+        <Form.Item label="Usage Date" required>
+          <DatePicker
+            style={{ width: '100%' }}
+            value={selectedDate}
+            onChange={(date) => setSelectedDate(date)}
+            placeholder="Select date"
+          />
+        </Form.Item>
+
         <Form.Item label="Daily Usage" required>
           <InputNumber
-            min={1}
+            min={0}
             placeholder="Enter daily usage"
-            value={dailyUsage} // Controlled value for daily usage
+            value={dailyUsage}
             onChange={handleDailyUsageChange}
             onBlur={handleInputBlur}
             style={{ width: '100%' }}
