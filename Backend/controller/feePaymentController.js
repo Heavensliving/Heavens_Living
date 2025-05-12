@@ -87,7 +87,7 @@ const addFeePayment = async (req, res) => {
         amountPaid: payingAmount,
         waveOff: waveOffAmount,
         paymentMode,
-        transactionId:  paymentMode === "Cash" ? `CASH_${Date.now()}` : transactionId,
+        transactionId: paymentMode === "Cash" ? `CASH_${Date.now()}` : transactionId,
         collectedBy: collectedBy || '',
         paymentDate: paidDate,
         student: studentMongoId,
@@ -476,10 +476,14 @@ const getAllTransactions = async (req, res) => {
     // Pagination setup
     const skip = (parseInt(page) - 1) * parseInt(limit);
     const total = await FeePayment.countDocuments(query);
-    const transactions = await FeePayment.find(query)
-      .sort({ paymentDate: -1 }) // Most recent first
+    const transactionsRaw = await FeePayment.find(query)
+      .sort({ paymentDate: -1,  _id: -1  })
       .skip(skip)
       .limit(parseInt(limit));
+
+    const transactions = Array.from(
+      new Map(transactionsRaw.map(tx => [tx.transactionId, tx])).values()
+    );
 
     // Return transactions with the calculated totals
     res.status(200).json({
