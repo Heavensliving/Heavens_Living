@@ -67,10 +67,44 @@ const addFeePayment = async (req, res) => {
       propertyId,
       transactionId,
       remarks,
+      isDepositPayment,
       _id,
     } = req.body;
 
     const studentMongoId = _id;
+
+    if (isDepositPayment) {
+      if (!studentId || !payingAmount || !_id) {
+        return res.status(400).json({ message: "Missing required fields for deposit payment" });
+      }
+
+      const student = await Student.findById(_id);
+
+      const feePayment = new FeePayment({
+        name,
+        studentId,
+        property,
+        amountPaid: payingAmount,
+        waveOff: waveOffAmount,
+        paymentMode,
+        transactionId:  paymentMode === "Cash" ? `CASH_${Date.now()}` : transactionId,
+        collectedBy: collectedBy || '',
+        paymentDate: paidDate,
+        student: studentMongoId,
+        remarks,
+        isDepositPayment
+      });
+
+      await feePayment.save();
+
+      if (!student) return res.status(404).json({ message: "Student not found" });
+
+      student.depositPaid = (Number(student.depositPaid) || 0) + Number(payingAmount);
+
+      await student.save();
+
+      return res.status(201).json({ message: 'Deposit payment recorded successfully', depositPaid: student.depositPaid });
+    }
 
     // Parallel DB queries
     const [existingPayment, student, propertyDoc] = await Promise.all([
@@ -322,7 +356,7 @@ const processPaymentForDailyRent = async (req, res) => {
 
     // Ensure renter has pending rent
     const previousPendingRent = renter.pendingRent || 0;
-    let dueAmount = previousPendingRent - amountPaid - waveOff;
+    let dueAmount = Math.max(0, previousPendingRent - amountPaid - waveOff);
 
     // Create a new payment record
     const newPayment = new FeePayment({

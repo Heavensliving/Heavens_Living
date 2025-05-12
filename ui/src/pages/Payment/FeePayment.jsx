@@ -8,6 +8,7 @@ import { useSelector } from 'react-redux';
 import CheckAuth from '../auth/CheckAuth';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { Modal } from 'antd';
 
 // eslint-disable-next-line react/prop-types
 const InputField = ({ label, name, type = 'text', value, onChange, required = false, disabled = false, style }) => (
@@ -31,29 +32,6 @@ const InputField = ({ label, name, type = 'text', value, onChange, required = fa
 const FeePayment = () => {
   const admin = useSelector(store => store.auth.admin);
   const navigate = useNavigate();
-
-  // Function to generate month/year options
-  // const generateMonthYearOptions = () => {
-  //   const options = [];
-  //   const currentDate = new Date();
-
-  //   // Generate the past 12 months
-  //   for (let i = 0; i < 12; i++) {
-  //     const month = currentDate.getMonth() - i;
-  //     const year = currentDate.getFullYear() + Math.floor(month / 12); // Adjust year when going back over December
-  //     const adjustedDate = new Date(year, (month + 12) % 12); // Correct month for each iteration
-
-  //     // Format month as full name and year as YYYY
-  //     const formattedMonth = adjustedDate.toLocaleString('default', { month: 'long' });
-  //     const formattedYear = adjustedDate.getFullYear();
-
-  //     options.push({
-  //       label: `${formattedMonth}, ${formattedYear}`, // Format as "November, 2024"
-  //       value: `${formattedMonth}, ${formattedYear}`,
-  //     });
-  //   }
-  //   setMonthYearOptions(options);
-  // };
   const generateMonthYearOptions = () => {
     const options = [];
     const currentDate = new Date();
@@ -115,6 +93,14 @@ const FeePayment = () => {
   const [staffMembers, setStaffMembers] = useState([]);
   const [collectedBy, setCollectedBy] = useState('');
   const [manualStaffName, setManualStaffName] = useState('');
+  const [isDepositModalOpen, setIsDepositModalOpen] = useState(false);
+  const [depositPaymentData, setDepositPaymentData] = useState({
+    depositAmount: 0,
+    paymentMode: '',
+    transactionId: '',
+    paidDate: moment().format('YYYY-MM-DD'),
+    remarks: ''
+  });
 
   const location = useLocation();
   const [formData, setFormData] = useState({
@@ -123,7 +109,6 @@ const FeePayment = () => {
   });
 
   const handleStudentIdChange = (e) => {
-    console.log(e.target.value)
     setFormData({ studentId: e.target.value });
   };
 
@@ -145,9 +130,19 @@ const FeePayment = () => {
         { headers: { 'Authorization': `Bearer ${admin.token}` } }
       );
       setPaymentData(response.data)
+      const depositPaid = response.data.depositPaid
+      // setDepositePaid(response.data.depositPaid);
+      const totalRequiredDeposit = (response.data.refundableDeposit + response.data.nonRefundableDeposit)
       setStudentMongoId(response.data._id)
       setErrorMessage('');
       setIsStudentDataFetched(true);
+      if (depositPaid < totalRequiredDeposit) {
+        setIsDepositModalOpen(true);
+        setDepositPaymentData(prev => ({
+          ...prev,
+          depositAmount: totalRequiredDeposit - depositPaid
+        }));
+      }
     } catch (error) {
       console.error("Error fetching student data:", error);
       setErrorMessage("Student not found. Please check the Student ID.");
@@ -183,7 +178,7 @@ const FeePayment = () => {
     }
   }, [waveOffAmount, paymentData.pendingRent]);
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e, isDeposit = false) => {
     e.preventDefault();
     setLoading(true)
     const finalCollectedBy = collectedBy === 'manual' ? manualStaffName : collectedBy;
@@ -201,7 +196,8 @@ const FeePayment = () => {
       collectedBy: finalCollectedBy,
       property: paymentData.pgName,
       propertyId: paymentData.property._id,
-      remarks
+      remarks,
+      isDepositPayment: isDeposit
     };
 
     try {
@@ -224,6 +220,128 @@ const FeePayment = () => {
 
   return (
     <div className="min-h-screen items-center justify-center bg-gray-100">
+      <Modal
+        open={isDepositModalOpen}
+        onOk={() => setIsDepositModalOpen(false)}
+        onCancel={() => setIsDepositModalOpen(false)}
+        footer={null}
+        width={610}
+        maskClosable={false}
+      >
+        <div className="p-4">
+          <h2 className="text-xl font-bold mb-4 text-red-600">Deposit Payment Required</h2>
+          <p className="mb-4">
+            The occupant has not paid the full deposit amount.
+            Required deposit: ₹{paymentData?.nonRefundableDeposit + paymentData?.refundableDeposit}
+            (Paid: ₹{paymentData?.depositPaid || 0})
+          </p>
+
+          <div className="grid grid-cols-2 gap-4">
+            {/* Amount to Pay */}
+            <div className="col-span-1">
+              <label className="block text-gray-700 mb-2">Amount Paying</label>
+              <input
+                name="depositAmount"
+                type="number"
+                className="w-full p-2 border rounded-md"
+                value={payingAmount}
+                onChange={(e) => setPayingAmount(e.target.value)}
+                required
+              />
+            </div>
+
+            {/* Payment Mode */}
+            <div className="col-span-1">
+              <label className="block text-gray-700 mb-2">Payment Mode</label>
+              <select
+                name="paymentMode"
+                className="w-full p-2 border rounded-md"
+                required
+                value={paymentMode} // Bind the value to paymentMode
+                onChange={(e) => setPaymentMode(e.target.value)}
+              >
+                <option value="">Select Payment Mode</option>
+                <option value="UPI">UPI</option>
+                <option value="Cash">Cash</option>
+                <option value="Net Banking">Net Banking</option>
+              </select>
+            </div>
+
+            {/* Transaction ID / Collected By */}
+            <div className="col-span-1">
+              {paymentMode === "UPI" || paymentMode === "Net Banking" ? (
+                <>
+                  <label className="block text-gray-700 mb-2">Transaction ID</label>
+                  <input
+                    name="transactionId"
+                    className="w-full p-2 border rounded-md"
+                    value={transactionId}
+                    onChange={(e) => setTransactionId(e.target.value)}
+                    required
+                  />
+                </>
+              ) : (
+                <>
+                  <label className="block text-gray-700 mb-2">Collected By</label>
+                  <input
+                    name="collectedBy"
+                    className="w-full p-2 border rounded-md"
+                    value={collectedBy} // Bind the value to collectedBy
+                    onChange={(e) => setCollectedBy(e.target.value)} // Update collectedBy
+                    required
+                  />
+                </>
+              )}
+            </div>
+
+            {/* Payment Date */}
+            <div className="col-span-1">
+              <label className="block text-gray-700 mb-2">Payment Date</label>
+              <input
+                name="paidDate"
+                type="date"
+                className="w-full p-2 border rounded-md"
+                value={paidDate} onChange={(e) => setPaidDate(e.target.value)}
+                required
+              />
+            </div>
+
+            {/* Remarks (full width) */}
+            <div className="col-span-2">
+              <label className="block text-gray-700 mb-2">Remarks</label>
+              <input
+                name="remarks"
+                className="w-full p-2 border rounded-md"
+                value={remarks}
+                onChange={(e) => setRemarks(e.target.value)}
+              />
+            </div>
+          </div>
+
+          {/* Buttons */}
+          <div className="flex justify-end mt-6 space-x-4">
+            <button
+              onClick={() => setIsDepositModalOpen(false)}
+              className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-100"
+            >
+              Skip
+            </button>
+            <button
+              loading={loading}
+              onClick={(e) => handleSubmit(e, true)}
+              className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+              disabled={loading}
+            >
+              {loading ? (
+                <div className="spinner border-t-2 border-white border-solid rounded-full w-6 h-6 animate-spin"></div>
+              ) : (
+                'Submit Payment'
+              )}
+            </button>
+          </div>
+        </div>
+      </Modal>
+
       <div className="bg-white p-4 rounded-md shadow-md w-full">
         {errorMessage && (
           <div className="bg-red-500 text-white p-2 rounded-md mb-4 text-center">

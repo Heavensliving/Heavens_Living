@@ -229,8 +229,34 @@ const PaymentReceived = () => {
               transactions.map((transaction, index) => (
                 <tr key={transaction.transactionId || index} className="hover:bg-gray-100 transition-colors">
                   <td className="py-2 px-4 border">{(page - 1) * limit + index + 1}</td>
-                  <td className="py-2 px-4 border">{transaction.name || 'N/A'}</td>
-                  <td className="py-2 px-4 border text-center">{transaction.monthlyRent || 'Daily Rent'}</td>
+                  <td className="py-2 px-4 border">
+                    <div className="flex items-center space-x-2">
+                      <span>{transaction.name || 'N/A'}</span>
+                      {transaction.remarks && (
+                        <div className="relative group cursor-pointer">
+                          <span className="text-blue-600 underline text-sm">Remarks</span>
+                          <div className="absolute z-10 hidden group-hover:block w-48 bg-gray-800 text-white text-xs rounded-lg px-2 py-1 top-full left-1/2 transform -translate-x-1/2 mt-1">
+                            {transaction.remarks}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </td>
+                  <td className="py-2 px-4 border text-center">
+                    {transaction.isDepositPayment ? (
+                      <span className="inline-block px-2 py-1 text-xs font-semibold bg-red-100 rounded">
+                        Deposit
+                      </span>
+                    ) : transaction.monthlyRent ? (
+                      <span className="">
+                        {transaction.monthlyRent}
+                      </span>
+                    ) : (
+                      <span className="inline-block px-2 py-1 text-xs font-semibold bg-yellow-100 rounded">
+                        Daily Rent
+                      </span>
+                    )}
+                  </td>
                   <td className="py-2 px-4 border text-center">{transaction.paymentMode || 'N/A'}</td>
                   <td className="py-2 px-4 border text-center">
                     {transaction.paymentMode === 'Cash'

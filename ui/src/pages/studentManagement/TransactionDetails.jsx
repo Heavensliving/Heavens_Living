@@ -68,16 +68,26 @@ const TransactionDetails = ({ onClose, slideIn }) => {
                                     </div>
                                 </div>
 
-                                <div className="grid grid-cols-2 gap-4 text-sm">
+                                {transaction.isDepositPayment ? (
                                     <div>
-                                        <p className="text-gray-500">Rent Occupied Month</p>
-                                        <p className="font-medium text-gray-900">{transaction.paymentClearedMonthYear || transaction.rentMonth || 'N/A'}</p>
+                                        <span className="inline-block px-3 py-1 text-xs font-semibold text-white bg-red-500 rounded-full">
+                                            Deposit
+                                        </span>
                                     </div>
-                                    <div>
-                                        <p className="text-gray-500">Payment Mode</p>
-                                        {renderPaymentMode(transaction.paymentMode)}
+                                ) : (
+                                    <div className="grid grid-cols-2 gap-4 text-sm">
+                                        <div>
+                                            <p className="text-gray-500">Rent Occupied Month</p>
+                                            <p className="font-medium text-gray-900">
+                                                {transaction.paymentClearedMonthYear || transaction.rentMonth || 'N/A'}
+                                            </p>
+                                        </div>
+                                        <div>
+                                            <p className="text-gray-500">Payment Mode</p>
+                                            {renderPaymentMode(transaction.paymentMode)}
+                                        </div>
                                     </div>
-                                </div>
+                                )}
 
                                 {transaction.paymentMode === 'Cash' && transaction.collectedBy && (
                                     <div className="text-sm">

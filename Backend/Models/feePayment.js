@@ -22,6 +22,7 @@ const FeePaymentSchema = new mongoose.Schema({
   },
   collectedBy: { type: String },
   property: { type: String },
+  isDepositPayment: { type: Boolean, default: false },
   dailyRent: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'DailyRent',

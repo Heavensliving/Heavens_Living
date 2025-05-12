@@ -89,13 +89,13 @@ const StudentDetails = () => {
     paymentStatus: student.paymentStatus,
     studentId: student.studentId,
     joinDate: student.joinDate
-  ? new Date(student.joinDate).toISOString().slice(0, 10).split('-').reverse().join('-')
-  : null,
+      ? new Date(student.joinDate).toISOString().slice(0, 10).split('-').reverse().join('-')
+      : null,
     currentStatus: student.currentStatus,
     password: student.password,
     dateOfBirth: student.dateOfBirth
-  ? new Date(student.dateOfBirth).toISOString().slice(0, 10).split('-').reverse().join('-')
-  : null,
+      ? new Date(student.dateOfBirth).toISOString().slice(0, 10).split('-').reverse().join('-')
+      : null,
     gender: student.gender,
     year: student.year,
     collegeName: student.collegeName,
