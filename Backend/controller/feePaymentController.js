@@ -80,6 +80,12 @@ const addFeePayment = async (req, res) => {
 
       const student = await Student.findById(_id);
 
+      const existingPaymentRecord = await FeePayment.findOne({ transactionId })
+
+      if (existingPaymentRecord) {
+        return res.status(400).json({ message: "Transaction ID already exists." });
+      }
+
       const feePayment = new FeePayment({
         name,
         studentId,
@@ -477,7 +483,7 @@ const getAllTransactions = async (req, res) => {
     const skip = (parseInt(page) - 1) * parseInt(limit);
     const total = await FeePayment.countDocuments(query);
     const transactionsRaw = await FeePayment.find(query)
-      .sort({ paymentDate: -1,  _id: -1  })
+      .sort({ paymentDate: -1, _id: -1 })
       .skip(skip)
       .limit(parseInt(limit));
 

@@ -16,8 +16,8 @@ function RoomAllocation() {
   const [loading, setLoading] = useState(true);
   const [propertyFilter, setPropertyFilter] = useState(''); // To filter by propertyName
   const [occupancyFilter, setOccupancyFilter] = useState(''); // To filter by occupancy status
+  const [sharingFilter, setsharingFilter] = useState(''); // To filter by occupancy status
   const [searchQuery, setSearchQuery] = useState(''); // To search by room number
-
 
   useEffect(() => {
     if (!admin) return;
@@ -83,7 +83,9 @@ function RoomAllocation() {
         const isMatchingSearch =
           !searchQuery ||
           room.roomNumber.toLowerCase().includes(searchQuery.toLowerCase());
-        return isMatchingOccupancy && isMatchingSearch;
+        const isMatchingSharing =
+          !sharingFilter || room.roomType === sharingFilter;
+        return isMatchingOccupancy && isMatchingSearch && isMatchingSharing;
       })
     }))
     .filter(property => property.rooms.length > 0);
@@ -159,6 +161,21 @@ function RoomAllocation() {
           <option value="Vacant">Vacant</option>
           <option value="unavailable">Unavailable</option>
           <option value="underMaintenance">Under Maintenance</option>
+        </select>
+
+        {/* Occupancy Filter */}
+        <select
+          value={sharingFilter}
+          onChange={(e) => setsharingFilter(e.target.value)}
+          className="border border-gray-300 rounded-lg px-4 py-2"
+        >
+          <option value="">All Sharing</option>
+          <option value="1 sharing">1 sharing</option>
+          <option value="2 sharing">2 sharing</option>
+          <option value="3 sharing">3 sharing</option>
+          <option value="4 sharing">4 sharing</option>
+          <option value="5 sharing">5 sharing</option>
+
         </select>
 
         {/* Search by Room Number */}
@@ -254,8 +271,8 @@ function RoomAllocation() {
                       <p className="text-gray-600">{rent.contactNo}</p>
                       <span
                         className={`inline-block px-3 py-1 text-sm font-medium rounded-full ${rent.paymentStatus === 'paid'
-                            ? 'bg-green-100 text-green-600'
-                            : 'bg-red-100 text-red-600'
+                          ? 'bg-green-100 text-green-600'
+                          : 'bg-red-100 text-red-600'
                           }`}
                       >
                         {rent.paymentStatus === 'paid' ? 'Paid' : 'Pending'}
@@ -279,8 +296,8 @@ function RoomAllocation() {
                       <p className="text-gray-600">{occupant.contactNo}</p>
                       <span
                         className={`inline-block px-3 py-1 text-sm font-medium rounded-full ${occupant.paymentStatus === 'Paid'
-                            ? 'bg-green-100 text-green-600'
-                            : 'bg-red-100 text-red-600'
+                          ? 'bg-green-100 text-green-600'
+                          : 'bg-red-100 text-red-600'
                           }`}
                       >
                         {occupant.paymentStatus === 'Paid' ? 'Paid' : 'Pending'}

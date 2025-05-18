@@ -11,7 +11,7 @@ const studentSchema = new mongoose.Schema({
   course: { type: String, required: false },
   nonRefundableDeposit: { type: Number, required: true },
   refundableDeposit: { type: Number, required: true },
-  depositPaid: { type: Number },
+  depositPaid: { type: Number, default: 0 },
   paymentStatus: { type: String, default: 'Paid', enum: ['Pending', 'Paid'], },
   adharFrontImage: { type: String, required: false },  // Store Firebase URL
   adharBackImage: { type: String, required: false },   // Store Firebase URL
