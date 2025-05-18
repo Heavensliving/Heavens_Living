@@ -77,6 +77,7 @@ const StudentDetails = () => {
     advanceFee: student.advanceFee,
     nonRefundableDeposit: student.nonRefundableDeposit,
     refundableDeposit: student.refundableDeposit,
+    depositPaid: student.depositPaid,
     monthlyRent: student.monthlyRent,
     adharFrontImage: student.adharFrontImage,
     adharBackImage: student.adharBackImage,
@@ -242,6 +243,22 @@ const StudentDetails = () => {
                 }
               >
                 {studentData.category}
+              </p>
+              <p className="text-sm mt-1">
+                {(() => {
+                  const totalDeposit = studentData.refundableDeposit + studentData.nonRefundableDeposit;
+                  const isDepositPaid = studentData.depositPaid >= totalDeposit;
+
+                  return (
+                    <>
+                      <span className={isDepositPaid ? "text-green-600 font-medium" : "text-red-600 font-medium"}>
+                        {isDepositPaid ? "Deposit Paid" : "Deposit Pending"}
+                      </span>
+                      {" | "}
+                      <span className="text-gray-700">Referred by: {studentData.referredBy || "N/A"}</span>
+                    </>
+                  );
+                })()}
               </p>
 
             </div>
