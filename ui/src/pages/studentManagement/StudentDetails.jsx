@@ -247,15 +247,20 @@ const StudentDetails = () => {
               <p className="text-sm mt-1">
                 {(() => {
                   const totalDeposit = studentData.refundableDeposit + studentData.nonRefundableDeposit;
+                  const pendingDepo = totalDeposit - studentData.depositPaid;
                   const isDepositPaid = studentData.depositPaid >= totalDeposit;
 
                   return (
                     <>
                       <span className={isDepositPaid ? "text-green-600 font-medium" : "text-red-600 font-medium"}>
-                        {isDepositPaid ? "Deposit Paid" : "Deposit Pending"}
+                        {isDepositPaid
+                          ? "Deposit Paid"
+                          : `Deposit Pending - ${pendingDepo.toLocaleString()}`}
                       </span>
                       {" | "}
-                      <span className="text-gray-700">Referred by: {studentData.referredBy || "N/A"}</span>
+                      <span className="text-gray-700">
+                        Referred by: {studentData.referredBy || "N/A"}
+                      </span>
                     </>
                   );
                 })()}
