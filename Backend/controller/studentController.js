@@ -253,11 +253,16 @@ const deleteStudent = async (req, res) => {
       return res.status(400).json({ message: 'Invalid property ID' });
     }
 
-    if (role === 'Property-Admin') {
+    if (role === 'Property-Admin' || role === 'Main-Admin') {
+
+      const today = new Date();
+
       const student = await Student.findByIdAndUpdate(
         id,
-        { vacate: true }, // Mark as vacated
-        { new: true }
+        {
+          vacate: true,
+          vacateDate: today
+        }, { new: true }
       );
       if (!student) {
         return res.status(404).json({ message: 'Student not found' });

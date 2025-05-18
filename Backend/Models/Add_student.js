@@ -26,6 +26,7 @@ const studentSchema = new mongoose.Schema({
   currentStatus: { type: String, enum: ['checkedIn', 'checkedOut'], default: 'checkedIn' },
   warningStatus: { type: Number, enum: [0, 1, 2, 3], default: 0 },
   vacate: { type: Boolean, default: false },
+  vacateDate: { type: Date,},
   password: { type: String, required: true },
   dateOfBirth: { type: Date, required: false },
   gender: { type: String, required: false },

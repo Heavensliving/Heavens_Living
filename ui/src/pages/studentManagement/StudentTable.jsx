@@ -142,7 +142,11 @@ const StudentTable = ({ students, onRowClick, onDelete, onStatusChange, admin })
                   {student.name}{" "}
                   {student.vacate && (
                     <span className="text-sm text-red-600 font-bold">
-                      (Vacated)
+                      (Vacated
+                      {student.vacateDate
+                        ? ` on ${new Date(student.vacateDate).toLocaleDateString("en-GB")}`
+                        : ""}
+                      )
                     </span>
                   )}
                   {student.currentStatus === "checkedOut" && (
@@ -151,6 +155,7 @@ const StudentTable = ({ students, onRowClick, onDelete, onStatusChange, admin })
                     </span>
                   )}
                 </td>
+
                 {/* <td className="py-4 px-4 text-center text-gray-700 font-medium text-xs md:text-sm">
                   {student.studentId}
                 </td> */}
