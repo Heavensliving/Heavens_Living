@@ -65,14 +65,14 @@ exports.initializeSlotsForNext7Days = async (req, res) => {
 
 // ✅ Book a slot
 exports.bookSlot = async (req, res) => {
-  const { date, time, numberOfPeople, userId } = req.body;
+  const { date, time, numberOfPeople, userId, slotId } = req.body;
 
-  if (!date || !time || !numberOfPeople || !userId || numberOfPeople <= 0) {
+  if (!date || !time || !numberOfPeople || !userId || numberOfPeople <= 0 || !slotId) {
     return res.status(400).json({ error: 'Invalid or missing booking details.' });
   }
 
   try {
-    // ✅ Check if user has already booked any slot for this date
+    // ✅ Check if user has already booked a slot for this date
     const existingBooking = await GymSlot.findOne({
       date,
       'bookedUsers.userId': userId
@@ -82,8 +82,8 @@ exports.bookSlot = async (req, res) => {
       return res.status(400).json({ error: 'You have already booked 1 slot today.' });
     }
 
-    // ✅ Find the requested slot
-    const slot = await GymSlot.findOne({ date, time });
+    // ✅ Find the slot by slotId
+    const slot = await GymSlot.findById(slotId);
 
     if (!slot) {
       return res.status(404).json({ error: 'Slot not found for the selected date/time.' });
@@ -113,6 +113,7 @@ exports.bookSlot = async (req, res) => {
     res.status(500).json({ error: 'Booking failed', details: err.message });
   }
 };
+
 
 // ✅ Get all slots for a specific date
 exports.getSlotsByDate = async (req, res) => {
@@ -159,6 +160,7 @@ exports.getSlotsByDateWithAvailability = async (req, res) => {
     });
 
     const formatted = filtered.map(slot => ({
+      _id: slot._id, // ✅ Add this
       time: slot.time,
       bookings: slot.bookings,
       maxBookings: slot.maxBookings,

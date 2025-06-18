@@ -56,7 +56,7 @@ const gymSlotSchema = new mongoose.Schema({
     required: true
   },
   bookings: {
-    type: Number,
+    type: Number, 
     default: 0
   },
   maxBookings: {
