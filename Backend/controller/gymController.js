@@ -141,24 +141,21 @@ exports.getSlotsByDateWithAvailability = async (req, res) => {
     }
 
     const isToday = moment().format('YYYY-MM-DD') === date;
-    const now = moment(); // current time
+    const now = moment();
 
-    // Sort using predefined slotTimings order
     const orderedSlots = slotTimings
       .map(slotTime => allSlots.find(slot => slot.time === slotTime))
-      .filter(Boolean); // remove undefined if slot not found
+      .filter(Boolean);
 
     const filtered = orderedSlots.filter(slot => {
-      if (!isToday) return true; // future date: keep all
-
-      // Parse starting time from slot.time (e.g., "5am - 7am" -> "5am")
+      if (!isToday) return true;
       const startTimeStr = slot.time.split(' - ')[0];
       const slotStart = moment(`${date} ${startTimeStr}`, 'YYYY-MM-DD ha');
-
-      return now.isBefore(slotStart); // only future slots today
+      return now.isBefore(slotStart);
     });
 
     const formatted = filtered.map(slot => ({
+      _id: slot._id, // Add this line to include the slot ID
       time: slot.time,
       bookings: slot.bookings,
       maxBookings: slot.maxBookings,
