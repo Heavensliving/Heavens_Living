@@ -66,9 +66,11 @@ exports.initializeSlotsForNext7Days = async (req, res) => {
 // ✅ Book a slot
 exports.bookSlot = async (req, res) => {
   const { date, time, numberOfPeople, userId, slotId } = req.body;
-
-  if (!date || !time || !numberOfPeople || !userId || numberOfPeople <= 0 || !slotId) {
-    return res.status(400).json({ error: 'Invalid or missing booking details.' });
+  if (!date) return res.status(400).json({ error: 'Missing date' });
+  if (!time) return res.status(400).json({ error: 'Missing time' });
+  if (!userId) return res.status(400).json({ error: 'Missing userId' });
+  if (!numberOfPeople || numberOfPeople <= 0) {
+    return res.status(400).json({ error: 'Invalid number of people' });
   }
 
   try {
