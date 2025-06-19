@@ -83,7 +83,7 @@ exports.bookSlot = async (req, res) => {
     }
 
     // ✅ Find the slot by slotId
-    const slot = await GymSlot.findById(slotId);
+    const slot = await GymSlot.findOne({ date, time });
 
     if (!slot) {
       return res.status(404).json({ error: 'Slot not found for the selected date/time.' });
