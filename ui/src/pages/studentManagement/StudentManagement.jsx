@@ -297,13 +297,13 @@ const StudentManagement = () => {
     try {
       const studentToDelete = students.find(student => student._id === deleteStudentId);
       const propertyId = studentToDelete.property;
-      const filePaths = [studentToDelete?.adharFrontImage, studentToDelete?.adharBackImage, studentToDelete?.photo].filter(Boolean);
+      // const filePaths = [studentToDelete?.adharFrontImage, studentToDelete?.adharBackImage, studentToDelete?.photo].filter(Boolean);
 
-      // Delete images from Firebase Storage
-      await Promise.all(filePaths.map(async (filePath) => {
-        const imageRef = ref(storage, filePath);
-        await deleteObject(imageRef);
-      }));
+      // // Delete images from Firebase Storage
+      // await Promise.all(filePaths.map(async (filePath) => {
+      //   const imageRef = ref(storage, filePath);
+      //   await deleteObject(imageRef);
+      // }));
 
       await axios.delete(`${API_BASE_URL}/students/delete/${deleteStudentId}`, {
         params: { propertyId },
