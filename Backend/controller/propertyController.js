@@ -10,8 +10,6 @@ const Commission = require('../Models/commisionModel');
 const DailyRent = require('../Models/DailyRentModel');
 const Expense = require('../Models/expensePay');
 
-
-
 const generatePropertyId = () => {
     const randomNumber = crypto.randomInt(1000, 100000); // Generate a random number between 1000 and 9999
     return `HVNS${randomNumber}`;
