@@ -32,6 +32,7 @@ const stockRoutes = require("./routes/stockRoutes.js");
 const inventoryCategoryRoutes = require("./routes/InventoryCategoryRoutes");
 const InvestmentRoute = require("./routes/Investment.js");
 const appUiRoute = require("./routes/appUi.js");
+const gymRoutes = require('./routes/gymRoutes');
 
 dotenv.config();
 
@@ -112,6 +113,7 @@ app.use("/api/stocks", stockRoutes);
 app.use("/api/inventorycategories", inventoryCategoryRoutes);
 app.use("/api/investment", InvestmentRoute);
 app.use("/api/appUi", appUiRoute);
+app.use('/api/gym', gymRoutes);
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, "0.0.0.0", () => {
