@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react";
+import {useState, useEffect} from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
-import { useSelector } from "react-redux";
+import {useNavigate} from "react-router-dom";
+import {useSelector} from "react-redux";
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 import CheckAuth from "../auth/CheckAuth";
 import jsPDF from "jspdf";
@@ -40,7 +40,7 @@ const PaymentDashboard = () => {
     const fetchTotals = async () => {
       try {
         const feeResponse = await axios.get(`${API_BASE_URL}/fee`, {
-          headers: { Authorization: `Bearer ${admin.token}` },
+          headers: {Authorization: `Bearer ${admin.token}`},
         });
         const today = new Date();
         const currentMonth = today.getMonth(); // Get the current month (0-11)
@@ -50,10 +50,13 @@ const PaymentDashboard = () => {
           (transaction) => {
             const paymentDate = new Date(transaction.paymentDate);
             // console.log(paymentDate.getMonth(), paymentDate.getFullYear())
-            return paymentDate.getMonth() === currentMonth && paymentDate.getFullYear() === currentYear;
+            return (
+              paymentDate.getMonth() === currentMonth &&
+              paymentDate.getFullYear() === currentYear
+            );
           }
         );
-        console.log(currentMonthTransactions.length)
+        console.log(currentMonthTransactions.length);
 
         const totalReceivedAmount = feeResponse.data.reduce(
           (acc, transaction) => acc + (transaction.amountPaid || 0),
@@ -66,7 +69,8 @@ const PaymentDashboard = () => {
         const totalAmountWithOutAdvance = feeResponse.data.reduce(
           (acc, transaction) => {
             // Subtract the advanceBalance from amountPaid to exclude advances
-            const effectiveAmountPaid = transaction.amountPaid - (transaction.advanceBalance || 0);
+            const effectiveAmountPaid =
+              transaction.amountPaid - (transaction.advanceBalance || 0);
             return acc + (effectiveAmountPaid > 0 ? effectiveAmountPaid : 0); // Ensure no negative values are added
           },
           0
@@ -86,14 +90,16 @@ const PaymentDashboard = () => {
           (acc, transaction) => acc + (transaction.amountPaid || 0),
           0
         );
-        setTotal(totalReceivedAmount)
+        setTotal(totalReceivedAmount);
         setTotalReceived(totalAmount - (messPeopleTotal + dailyRentTotal));
-        setTotalAmountWithoutAdvance(totalAmountWithOutAdvance - (messPeopleTotal + dailyRentTotal));
+        setTotalAmountWithoutAdvance(
+          totalAmountWithOutAdvance - (messPeopleTotal + dailyRentTotal)
+        );
         setTotalReceivedMess(messPeopleTotal);
-        setLoading(false)
+        setLoading(false);
       } catch (error) {
         console.error("Error fetching fee totals:", error);
-        setLoading(false)
+        setLoading(false);
       }
     };
 
@@ -102,10 +108,10 @@ const PaymentDashboard = () => {
       try {
         const expenseResponse = await axios.get(
           `${API_BASE_URL}/expense/totalexpense`,
-          { headers: { Authorization: `Bearer ${admin.token}` } }
+          {headers: {Authorization: `Bearer ${admin.token}`}}
         );
         setTotalExpense(expenseResponse.data.totalAmount);
-        setLoading(false)
+        setLoading(false);
       } catch (error) {
         console.error("Error fetching total expense:", error);
       }
@@ -116,17 +122,17 @@ const PaymentDashboard = () => {
       try {
         const commissionResponse = await axios.get(
           `${API_BASE_URL}/commission`,
-          { headers: { Authorization: `Bearer ${admin.token}` } }
+          {headers: {Authorization: `Bearer ${admin.token}`}}
         );
         const total = commissionResponse.data.reduce(
           (sum, commission) => sum + (commission.amount || 0),
           0
         );
         setTotalCommission(total);
-        setLoading(false)
+        setLoading(false);
       } catch (error) {
         console.error("Error fetching total commission:", error);
-        setLoading(false)
+        setLoading(false);
       }
     };
 
@@ -136,22 +142,22 @@ const PaymentDashboard = () => {
         const rentResponse = await axios.get(
           `${API_BASE_URL}/fee/totalMonthlyRent`,
           {
-            headers: { Authorization: `Bearer ${admin.token}` },
+            headers: {Authorization: `Bearer ${admin.token}`},
           }
         );
         setTotalMonthlyRent(rentResponse.data.totalMonthlyRentStudents);
         setTotalMonthlyRentMess(rentResponse.data.totalMonthlyRentMess);
-        setLoading(false)
+        setLoading(false);
       } catch (error) {
         console.error("Error fetching total monthly rent:", error);
-        setLoading(false)
+        setLoading(false);
       }
     };
     const fetchTotalDeposit = async () => {
       if (!admin) return;
       try {
         const studentResponse = await axios.get(`${API_BASE_URL}/students`, {
-          headers: { Authorization: `Bearer ${admin.token}` },
+          headers: {Authorization: `Bearer ${admin.token}`},
         });
 
         // Calculate total refundable and non-refundable deposit
@@ -181,7 +187,7 @@ const PaymentDashboard = () => {
         const waveOffResponse = await axios.get(
           `${API_BASE_URL}/fee/payments/waveoffpayments`,
           {
-            headers: { Authorization: `Bearer ${admin.token}` },
+            headers: {Authorization: `Bearer ${admin.token}`},
           }
         );
         // console.log(waveOffResponse); // debug statement
@@ -190,10 +196,10 @@ const PaymentDashboard = () => {
           0
         );
         setTotalWaveOff(totalWaveOffAmount);
-        setLoading(false)
+        setLoading(false);
       } catch (error) {
         console.error("Error fetching wave-off data:", error);
-        setLoading(false)
+        setLoading(false);
       }
     };
 
@@ -201,7 +207,7 @@ const PaymentDashboard = () => {
       try {
         const response = await axios.get(
           `${API_BASE_URL}/fee/payments/pendingPayments`,
-          { headers: { 'Authorization': `Bearer ${admin.token}` } }
+          {headers: {Authorization: `Bearer ${admin.token}`}}
         );
 
         const today = new Date().setHours(0, 0, 0, 0);
@@ -210,9 +216,12 @@ const PaymentDashboard = () => {
           return joinDate <= today;
         });
         // Sum all the pendingRentAmount values
-        const totalPendingRentAmount = filteredPayments.reduce((total, payment) => {
-          return total + (payment.pendingRentAmount || 0); // Use 0 as a fallback in case pendingRentAmount is undefined
-        }, 0);
+        const totalPendingRentAmount = filteredPayments.reduce(
+          (total, payment) => {
+            return total + (payment.pendingRentAmount || 0); // Use 0 as a fallback in case pendingRentAmount is undefined
+          },
+          0
+        );
 
         // Store the sum along with the filtered payments
         setPendingPayments(totalPendingRentAmount);
@@ -241,10 +250,10 @@ const PaymentDashboard = () => {
     try {
       const [feeResponse, expenseResponse] = await Promise.all([
         axios.get(`${API_BASE_URL}/fee`, {
-          headers: { Authorization: `Bearer ${admin.token}` },
+          headers: {Authorization: `Bearer ${admin.token}`},
         }),
         axios.get(`${API_BASE_URL}/expense`, {
-          headers: { Authorization: `Bearer ${admin.token}` },
+          headers: {Authorization: `Bearer ${admin.token}`},
         }),
       ]);
 
@@ -276,13 +285,14 @@ const PaymentDashboard = () => {
         (sum, expense) => sum + (expense.amount || 0),
         0
       );
-      const profitLoss = totalReceived - (totalExpenses + totalWaveOff + totalCommission);
+      const profitLoss =
+        totalReceived - (totalExpenses + totalWaveOff + totalCommission);
 
       // Generate PDF
       const doc = new jsPDF();
       const monthName = new Date(reportYear, reportMonth - 1).toLocaleString(
         "default",
-        { month: "long" }
+        {month: "long"}
       );
 
       // Header
@@ -330,18 +340,18 @@ const PaymentDashboard = () => {
         startY: 87,
         head: [["Date", "Name", "ID", "Category", "Amount"]],
         body: monthlyFees.map((fee) => [
-          new Date(fee.paymentDate).toLocaleDateString('en-GB'),
+          new Date(fee.paymentDate).toLocaleDateString("en-GB"),
           fee.name || "N/A",
           fee.studentId || "N/A",
           fee.messPeople
             ? "Mess Only"
             : fee.dailyRent
-              ? "Daily Rent"
-              : "Regular",
+            ? "Daily Rent"
+            : "Regular",
           `Rs: ${fee.amountPaid.toLocaleString("en-IN")}`,
         ]),
-        styles: { fontSize: 8 },
-        headStyles: { fillColor: [71, 85, 105] },
+        styles: {fontSize: 8},
+        headStyles: {fillColor: [71, 85, 105]},
       });
 
       // Expense Table
@@ -352,14 +362,14 @@ const PaymentDashboard = () => {
         startY: finalY + 5,
         head: [["Date", "Title", "Category", "Payment Method", "Amount"]],
         body: monthlyExpenses.map((expense) => [
-          new Date(expense.date).toLocaleDateString('en-GB'),
+          new Date(expense.date).toLocaleDateString("en-GB"),
           expense.title || "N/A",
           expense.category || "N/A",
           expense.paymentMethod || "N/A",
           `Rs: ${expense.amount.toLocaleString("en-IN")}`,
         ]),
-        styles: { fontSize: 8 },
-        headStyles: { fillColor: [71, 85, 105] },
+        styles: {fontSize: 8},
+        headStyles: {fillColor: [71, 85, 105]},
       });
 
       // Footer with page numbers
@@ -371,7 +381,7 @@ const PaymentDashboard = () => {
           `Generated on: ${new Date().toLocaleString()} - Page ${i} of ${pageCount}`,
           doc.internal.pageSize.width / 2,
           doc.internal.pageSize.height - 10,
-          { align: "center" }
+          {align: "center"}
         );
       }
 
@@ -385,7 +395,8 @@ const PaymentDashboard = () => {
     }
   };
   // console.log(totalAmountWithoutAdvance)
-  const paymentPending = totalMonthlyRent - totalAmountWithoutAdvance - totalWaveOff;
+  const paymentPending =
+    totalMonthlyRent - totalAmountWithoutAdvance - totalWaveOff;
   const paymentPendingDisplay = paymentPending < 0 ? 0 : paymentPending;
   const paymentPendingMess = totalMonthlyRentMess - totalReceivedMess;
   const paymentPendingDisplayMess =
@@ -433,13 +444,13 @@ const PaymentDashboard = () => {
             </button>
             {admin?.role === "Main-Admin" && (
               <button
-                onClick={() => navigate('/pettycash')}
+                onClick={() => navigate("/pettycash")}
                 className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
               >
                 Add Petty Cash
               </button>
             )}
-            {admin.role !== 'Property-Admin' && (
+            {admin.role !== "Property-Admin" && (
               <button
                 onClick={() => setShowReportModal(true)}
                 className="px-4 py-2 bg-side-bar text-white rounded-md hover:bg-[#373082]"
@@ -452,24 +463,39 @@ const PaymentDashboard = () => {
 
         {/* Totals Display */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 text-center mb-6">
-          <div className="p-4 bg-yellow-100 text-yellow-500 rounded-md">
-            <p className="text-lg font-semibold">₹{totalMonthlyRent}</p>
-            <p>Monthly Rent</p>
-          </div>
+          {admin.role !== "Property-Admin" && (
+            <div className="p-4 bg-yellow-100 text-yellow-500 rounded-md">
+              <p className="text-lg font-semibold">₹{totalMonthlyRent}</p>
+              <p>Monthly Rent</p>
+            </div>
+          )}
           <div
             className="p-4 bg-green-100 text-green-500 rounded-md cursor-pointer"
             onClick={() => navigate("/paymentReceived")}
           >
-            <p className="text-lg font-semibold">₹{totalReceived}</p>
+            {admin.role !== "Property-Admin" ? (
+              <p className="text-lg font-semibold">₹{totalReceived}</p>
+            ) : (
+              <p className="text-sm italic text-green-400">
+                Click to view transactions
+              </p>
+            )}
             <p>Payment Received</p>
           </div>
           <div
             className="p-4 bg-red-100 text-red-500 rounded-md cursor-pointer"
             onClick={() => navigate("/paymentPending")}
           >
-            <p className="text-lg font-semibold">₹{pendingPayments}</p>
+            {admin.role !== "Property-Admin" ? (
+              <p className="text-lg font-semibold">₹{pendingPayments}</p>
+            ) : (
+              <p className="text-sm italic text-red-400">
+                Click to view pending payments
+              </p>
+            )}
             <p>Payment Pending</p>
           </div>
+
           {/* <div
             className="p-4 bg-yellow-100 text-yellow-500 rounded-md"
           // onClick={() => navigate("/expenses")}
@@ -500,12 +526,21 @@ const PaymentDashboard = () => {
             className="p-4 bg-gray-100 text-gray-500 rounded-md cursor-pointer"
             onClick={() => navigate("/expenses")}
           >
-            <p className="text-lg font-semibold ">₹{totalExpense}</p>
+            {admin.role !== "Property-Admin" ? (
+              <p className="text-lg font-semibold">₹{totalExpense}</p>
+            ) : (
+              <p className="text-sm italic text-gray-400">
+                Click to view expenses
+              </p>
+            )}
             <p>Expense</p>
           </div>
+
           {admin?.role === "Main-Admin" && (
             <div className="p-4 bg-gray-100 text-gray-500 rounded-md ">
-              <p className="text-lg font-semibold">₹{total - (totalExpense + totalCommission + totalWaveOff) || 0}</p>{" "}
+              <p className="text-lg font-semibold">
+                ₹{total - (totalExpense + totalCommission + totalWaveOff) || 0}
+              </p>{" "}
               {/* Total Deposit */}
               <p>Balance</p>
             </div>
@@ -514,26 +549,44 @@ const PaymentDashboard = () => {
             className="p-4 bg-gray-100 text-gray-500 rounded-md cursor-pointer"
             onClick={() => navigate("/commissions")}
           >
-            <p className="text-lg font-semibold">₹{totalCommission || 0}</p>
+            {admin.role !== "Property-Admin" ? (
+              <p className="text-lg font-semibold">₹{totalCommission || 0}</p>
+            ) : (
+              <p className="text-sm italic text-gray-400">
+                Click to view commission details
+              </p>
+            )}
             <p>Commission</p>
           </div>
+
           <div
             className="p-4 bg-gray-100 text-gray-500 rounded-md cursor-pointer"
             onClick={() => navigate("/waveoff")}
           >
-            <p className="text-lg font-semibold">₹{totalWaveOff || 0}</p>
+            {admin.role !== "Property-Admin" ? (
+              <p className="text-lg font-semibold">₹{totalWaveOff || 0}</p>
+            ) : (
+              <p className="text-sm italic text-gray-400">
+                Click to view waveoff details
+              </p>
+            )}
             <p>Waveoff</p>
           </div>
+
           {/* Conditionally render based on admin role */}
-          {admin.role !== 'Property-Admin' && (
+          {admin.role !== "Property-Admin" && (
             <>
               <div className="p-4 bg-gray-100 text-gray-500 rounded-md ">
-                <p className="text-lg font-semibold">₹{totalNonRefundableDeposit || 0}</p>{" "}
+                <p className="text-lg font-semibold">
+                  ₹{totalNonRefundableDeposit || 0}
+                </p>{" "}
                 {/* Total Deposit */}
                 <p>Non Refundable Deposit</p>
               </div>
               <div className="p-4 bg-gray-100 text-gray-500 rounded-md ">
-                <p className="text-lg font-semibold">₹{totalRefundableDeposit || 0}</p>{" "}
+                <p className="text-lg font-semibold">
+                  ₹{totalRefundableDeposit || 0}
+                </p>{" "}
                 {/* Total Deposit */}
                 <p>Refundable Deposit</p>
               </div>
@@ -567,7 +620,7 @@ const PaymentDashboard = () => {
               <li
                 onClick={() =>
                   navigate("/AddSalary", {
-                    state: { paymentType: "Daily Rent" },
+                    state: {paymentType: "Daily Rent"},
                   })
                 }
                 className="cursor-pointer px-4 py-2 bg-yellow-100 text-yellow-600 rounded-md hover:bg-yellow-200"
@@ -604,7 +657,7 @@ const PaymentDashboard = () => {
               <li
                 onClick={() =>
                   navigate("/dailyRentPayment", {
-                    state: { paymentType: "Daily Rent" },
+                    state: {paymentType: "Daily Rent"},
                   })
                 }
                 className="cursor-pointer px-4 py-2 bg-yellow-100 text-yellow-600 rounded-md hover:bg-yellow-200"
@@ -646,7 +699,7 @@ const PaymentDashboard = () => {
                 className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500"
               >
                 <option value="">Select Month</option>
-                {Array.from({ length: 12 }, (_, i) => (
+                {Array.from({length: 12}, (_, i) => (
                   <option key={i + 1} value={i + 1}>
                     {new Date(2000, i).toLocaleString("default", {
                       month: "long",
@@ -663,7 +716,7 @@ const PaymentDashboard = () => {
                 onChange={(e) => setReportYear(e.target.value)}
                 className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500"
               >
-                {Array.from({ length: 5 }, (_, i) => {
+                {Array.from({length: 5}, (_, i) => {
                   const year = new Date().getFullYear() - i;
                   return (
                     <option key={year} value={year}>
@@ -697,5 +750,3 @@ const PaymentDashboard = () => {
 };
 
 export default CheckAuth(PaymentDashboard);
-
-
